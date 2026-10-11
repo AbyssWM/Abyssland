@@ -307,6 +307,14 @@ add_executable(Abyssland src/main.cpp ${TRACY_CPP_FILES})
 target_link_libraries(Abyssland abyssland_lib)
 
 target_include_directories(abyssland_lib PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+
+# GCC 14 has no #embed: turn the example config into a byte list at configure time
+set(EXAMPLE_LUA "${CMAKE_SOURCE_DIR}/example/abyssland.lua")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${EXAMPLE_LUA}")
+file(READ "${EXAMPLE_LUA}" EXAMPLE_LUA_HEX HEX)
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "(char)0x\\1," EXAMPLE_LUA_BYTES "${EXAMPLE_LUA_HEX}")
+file(WRITE "${CMAKE_BINARY_DIR}/generated/exampleConfigLua.inc" "${EXAMPLE_LUA_BYTES}\n")
+target_include_directories(abyssland_lib PRIVATE "${CMAKE_BINARY_DIR}/generated")
 target_include_directories(Abyssland PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
 target_link_libraries(abyssland_lib PRIVATE glaze::glaze)
 

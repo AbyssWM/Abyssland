@@ -832,13 +832,9 @@ bool truthy(const std::string& str) {
     if (str == "1"sv)
         return true;
 
-    // clang-format off
-    auto str_view = str | std::views::transform([](unsigned char ch) -> char {
-        return sc<char>(std::tolower(ch));
-    });
+    // GCC 14 has no std::ranges::starts_with
+    std::string lower = str;
+    std::ranges::transform(lower, lower.begin(), [](unsigned char ch) { return sc<char>(std::tolower(ch)); });
 
-    return [&](auto&&... prefixes) -> bool {
-        return (... || std::ranges::starts_with(str_view, prefixes));
-    }("true"sv, "yes"sv, "on"sv);
-    // clang-format on
+    return lower.starts_with("true"sv) || lower.starts_with("yes"sv) || lower.starts_with("on"sv);
 }
