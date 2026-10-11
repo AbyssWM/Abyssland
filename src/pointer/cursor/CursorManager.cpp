@@ -79,7 +79,7 @@ void CCursorBuffer::endDataPtr() {
 
 CCursorManager::CCursorManager() {
     m_abysscursor               = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), hcLogger);
-    m_xcursor                  = makeUnique<CXCursorManager>();
+    m_xcursor                   = makeUnique<CXCursorManager>();
     static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
 
     if (m_abysscursor->valid() && *PUSEABYSSCURSOR) {
@@ -281,14 +281,23 @@ SCursorImageData CCursorManager::dataFor(const std::string& name) {
 }
 
 void CCursorManager::setXWaylandCursor() {
+#ifndef NO_XWAYLAND
+    if (!g_pXWayland || !g_pXWayland->m_wm)
+        return;
+#else
+    return;
+#endif
+
     static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
-    const auto  CURSOR         = dataFor("left_ptr");
+    const auto  CURSOR          = dataFor("left_ptr");
     if (CURSOR.surface && *PUSEABYSSCURSOR)
         g_pXWayland->setCursor(cairo_image_surface_get_data(CURSOR.surface), cairo_image_surface_get_stride(CURSOR.surface), {CURSOR.size, CURSOR.size},
                                {CURSOR.hotspotX, CURSOR.hotspotY});
     else {
-        auto  xcursor = m_xcursor->getShape("left_ptr", m_size, 1);
-        auto& icon    = xcursor->images.front();
+        auto xcursor = m_xcursor->getShape("left_ptr", m_size, 1);
+        if (!xcursor || xcursor->images.empty())
+            return;
+        auto& icon = xcursor->images.front();
 
         g_pXWayland->setCursor(rc<uint8_t*>(icon.pixels.data()), icon.size.x * 4, icon.size, icon.hotspot);
     }
@@ -296,7 +305,7 @@ void CCursorManager::setXWaylandCursor() {
 
 void CCursorManager::updateTheme() {
     static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
-    float       highestScale   = 1.0;
+    float       highestScale    = 1.0;
 
     for (auto const& m : State::monitorState()->monitors()) {
         if (m->m_scale > highestScale)
@@ -320,28 +329,39 @@ void CCursorManager::updateTheme() {
         m->m_forceFullFrames = 5;
         m->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_CURSOR_SHAPE);
     }
+
+    setXWaylandCursor();
 }
 
 bool CCursorManager::changeTheme(const std::string& name, const int size) {
-    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
-    m_theme                    = name.empty() ? "" : name;
-    m_size                     = size <= 0 ? 24 : size;
-    auto xcursor_theme         = getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default";
+    static auto PUSEABYSSCURSOR     = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
+    m_theme                         = name.empty() ? "" : name;
+    m_size                          = size <= 0 ? 24 : size;
+    const std::string XCURSOR_THEME = getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default";
 
     if (*PUSEABYSSCURSOR) {
         auto options                 = Abysscursor::SManagerOptions();
         options.logFn                = hcLogger;
         options.allowDefaultFallback = false;
-        m_theme                      = name.empty() ? "" : name;
-        m_size                       = size;
+
+        if (m_abysscursor->valid() && m_currentStyleInfo.size > 0)
+            m_abysscursor->cursorSurfaceStyleDone(m_currentStyleInfo);
+        m_currentStyleInfo.size = 0;
 
         m_abysscursor = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), options);
-        if (!m_abysscursor->valid()) {
+        if (!m_abysscursor->valid())
             Log::logger->log(Log::ERR, "Abysscursor failed loading theme \"{}\", falling back to XCursor.", m_theme);
-            m_xcursor->loadTheme(m_theme.empty() ? xcursor_theme : m_theme, m_size, m_cursorScale);
-        }
-    } else
-        m_xcursor->loadTheme(m_theme.empty() ? xcursor_theme : m_theme, m_size, m_cursorScale);
+    }
+
+    // Keep the fallback and client-side cursor theme current even when the native theme is valid.
+    const auto CLIENT_THEME = m_theme.empty() ? XCURSOR_THEME : m_theme;
+    m_xcursor->loadTheme(CLIENT_THEME, m_size, m_cursorScale);
+    const auto SIZE = std::to_string(m_size);
+    setenv("XCURSOR_THEME", CLIENT_THEME.c_str(), 1);
+    setenv("XCURSOR_SIZE", SIZE.c_str(), 1);
+    setenv("ABYSSCURSOR_THEME", m_theme.empty() ? CLIENT_THEME.c_str() : m_theme.c_str(), 1);
+    setenv("ABYSSCURSOR_SIZE", SIZE.c_str(), 1);
+    syncGsettings();
 
     updateTheme();
 
