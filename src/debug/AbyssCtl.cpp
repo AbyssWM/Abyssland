@@ -55,6 +55,7 @@ using namespace Abyssutils::OS;
 #include "../helpers/SystemInfo.hpp"
 #include "../desktop/view/LayerSurface.hpp"
 #include "../desktop/view/Group.hpp"
+#include "../helpers/ExitCodes.hpp"
 #include "../desktop/rule/Engine.hpp"
 #include "../desktop/history/WindowHistoryTracker.hpp"
 #include "../desktop/state/FocusState.hpp"
@@ -1666,6 +1667,19 @@ static std::string dispatchOutput(eAbyssCtlOutputFormat format, std::string requ
 }
 
 
+static std::string restartRequest(eAbyssCtlOutputFormat format, std::string request) {
+    const auto WD = getenv(ABYSSLAND_WATCHDOG_ENV);
+    if (!WD || std::string_view{WD} != "1")
+        return "error: not started via start-abyssland - restart manually";
+
+    // exit through the normal path; start-abyssland sees the special exit code and relaunches immediately
+    g_pCompositor->m_exitCode = ABYSSLAND_EXIT_RESTART;
+    if (!g_pCompositor->m_finalRequests)
+        g_pCompositor->stopCompositor();
+
+    return "ok";
+}
+
 static std::string dispatchNotify(eAbyssCtlOutputFormat format, std::string request) {
     CVarList vars(request, 0, ' ');
 
@@ -1804,6 +1818,7 @@ CAbyssCtl::CAbyssCtl() {
     registerCommand(SAbyssCtlCommand{"monitors", false, monitorsRequest});
     registerCommand(SAbyssCtlCommand{"reload", false, reloadRequest});
     registerCommand(SAbyssCtlCommand{"notify", false, dispatchNotify});
+    registerCommand(SAbyssCtlCommand{"restart", false, restartRequest});
     registerCommand(SAbyssCtlCommand{"dismissnotify", false, dispatchDismissNotify});
     registerCommand(SAbyssCtlCommand{"getprop", false, dispatchGetProp});
     registerCommand(SAbyssCtlCommand{"seterror", false, dispatchSeterror});

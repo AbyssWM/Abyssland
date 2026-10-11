@@ -36,8 +36,10 @@ commands:
                           notification system
     output ...          → Allows you to add and remove fake outputs to your
                           preferred backend
-    reload [config-only] → Issue a reload to force reload the config. Pass
-                          'config-only' to disable monitor reload
+    reload [flags]      → Rebuild the compiled config (cmake --build),
+                          install it and restart Abyssland. See
+                          'abyssctl reload --help'
+    restart             → Restart Abyssland (needs start-abyssland)
     rollinglog          → Prints tail of the log. Also supports -f/--follow
                           option
     setcursor <theme> <size> → Sets the cursor theme and reloads the cursor
@@ -87,6 +89,28 @@ requests:
 
 flags:
     See 'abyssctl --help')#";
+
+const std::string_view RELOAD_HELP = R"#(usage: abyssctl reload [--no-build | --dry-run]
+
+Abyssland's config is C++ code compiled into the binary. 'reload' does:
+    1. cmake --build <build dir> --target Abyssland  (shows progress)
+    2. on a compile error: shows the first error as a notification and
+       keeps the session running, exit code 1
+    3. otherwise saves the installed binary as Abyssland.last-good, runs
+       cmake --install and asks Abyssland to restart via start-abyssland.
+       If the new binary dies right after starting, start-abyssland falls
+       back to Abyssland.last-good.
+
+flags:
+    --no-build          → Don't rebuild: only re-apply the already compiled
+                          config in place
+    --dry-run           → Only build, don't install or restart
+
+environment:
+    ABYSS_SOURCE_DIR, ABYSS_BUILD_DIR   override the compiled-in directories
+    ABYSS_PREFIX                        override the install prefix
+
+See also: abyssctl restart)#";
 
 const std::string_view NOTIFY_HELP = R"#(usage: abyssctl [flags] notify <icon> <time_ms> <color> <message...>
 

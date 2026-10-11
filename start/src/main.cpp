@@ -1,11 +1,16 @@
 #include <csignal>
 #include <cstring>
 #include <print>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 
 #include "helpers/Logger.hpp"
 #include "helpers/Nix.hpp"
 #include "core/State.hpp"
 #include "core/Instance.hpp"
+#include "../../src/helpers/ExitCodes.hpp"
 
 using namespace Abyssutils::CLI;
 
@@ -24,6 +29,29 @@ Additional arguments for start-abyssland:
  --no-nixgl          -> Force disable nixGL
  --force-nixgl       -> Force enable nixGL
 )#";
+
+// Safety net for `abyssctl reload`: the binary that was installed before the last reload.
+static bool differentFiles(const std::filesystem::path& a, const std::filesystem::path& b) {
+    std::error_code ec;
+    if (std::filesystem::file_size(a, ec) != std::filesystem::file_size(b, ec) || ec)
+        return true;
+    std::ifstream fa(a, std::ios::binary), fb(b, std::ios::binary);
+    return !std::equal(std::istreambuf_iterator<char>(fa), {}, std::istreambuf_iterator<char>(fb));
+}
+
+static std::optional<std::string> findUsableLastGood() {
+    const std::filesystem::path CURRENT = g_state->customPath.value_or(ABYSSLAND_BINARY);
+    const std::filesystem::path LASTGOOD = CURRENT.parent_path() / "Abyssland.last-good";
+
+    std::error_code ec;
+    if (!std::filesystem::is_regular_file(LASTGOOD, ec) || ec)
+        return std::nullopt;
+    if (!differentFiles(CURRENT, LASTGOOD))
+        return std::nullopt;
+    return LASTGOOD.string();
+}
+
+constexpr auto FRESH_START_GRACE = std::chrono::seconds(5);
 
 //
 static void onSignal(int sig) {
@@ -101,14 +129,44 @@ int main(int argc, const char** argv, const char** envp) {
     if (Nix::shouldUseNixGL())
         g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland was compiled with Nix - will use nixGL");
 
-    bool safeMode    = false;
-    bool lockedCrash = false;
+    bool safeMode        = false;
+    bool lockedCrash     = false;
+    bool freshRestart    = false; // the next child was started after an `abyssctl restart`
+    bool useLastGood     = false;
+    std::optional<std::string> binaryOverride;
 
     while (true) {
-        g_instance     = makeUnique<CAbysslandInstance>();
-        const bool RET = g_instance->run(safeMode, lockedCrash);
-        lockedCrash    = g_instance->m_abysslandLocked;
+        g_instance                   = makeUnique<CAbysslandInstance>();
+        g_instance->m_binaryOverride = binaryOverride;
+
+        const auto START = std::chrono::steady_clock::now();
+        const bool RET   = g_instance->run(safeMode, lockedCrash);
+        const auto ALIVE = std::chrono::steady_clock::now() - START;
+        const int  CODE  = g_instance->m_exitCode;
+        lockedCrash      = g_instance->m_abysslandLocked;
         g_instance.reset();
+
+        if (CODE == ABYSSLAND_EXIT_RESTART) {
+            g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland requested a restart, relaunching.");
+            safeMode       = false;
+            freshRestart   = true;
+            useLastGood    = false;
+            binaryOverride = std::nullopt;
+            continue;
+        }
+
+        // a freshly restarted (new) binary died right away: fall back to the last known good one, once
+        if (freshRestart && !useLastGood && CODE != 0 && ALIVE < FRESH_START_GRACE) {
+            if (const auto LASTGOOD = findUsableLastGood()) {
+                g_logger->log(Abyssutils::CLI::LOG_WARN,
+                              "The new Abyssland binary died {}ms after starting (exit code {}). Falling back to last-good binary {}",
+                              std::chrono::duration_cast<std::chrono::milliseconds>(ALIVE).count(), CODE, *LASTGOOD);
+                useLastGood    = true;
+                binaryOverride = *LASTGOOD;
+                continue;
+            }
+        }
+        freshRestart = false;
 
         if (!RET) {
             g_logger->log(Abyssutils::CLI::LOG_ERR, "Abyssland exit not-cleanly, restarting");

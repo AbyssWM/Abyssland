@@ -70,6 +70,7 @@ class CCompositor {
     bool                     m_sessionActive          = true;
     bool                     m_dpmsStateOn            = true;
     bool                     m_isShuttingDown         = false;
+    int                      m_exitCode               = 0; // process exit code, see helpers/ExitCodes.hpp
     bool                     m_finalRequests          = false;
     bool                     m_desktopEnvSet          = false;
     bool                     m_wantsXwayland          = true;

@@ -2,6 +2,8 @@
 
 #include <abyssutils/os/FileDescriptor.hpp>
 #include <thread>
+#include <optional>
+#include <string>
 
 #include "../helpers/Memory.hpp"
 
@@ -18,6 +20,12 @@ class CAbysslandInstance {
     void forceQuit();
 
     bool m_abysslandLocked = false;
+
+    // binary to launch instead of the default / --path one (used for last-good fallback)
+    std::optional<std::string> m_binaryOverride;
+
+    // process exit code of the last run, 128+sig if killed by a signal, -1 if unknown
+    int m_exitCode = -1;
 
   private:
     void                           runAbysslandThread(bool safeMode, bool lockedCrash);

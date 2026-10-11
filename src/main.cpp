@@ -299,9 +299,11 @@ int main(int argc, char** argv) {
 
     g_pCompositor->cleanup();
 
+    const int EXITCODE = g_pCompositor->m_exitCode;
+
     g_pCompositor.reset();
 
     Log::logger->log(Log::DEBUG, "Abyssland has reached the end.");
 
-    return EXIT_SUCCESS;
+    return EXITCODE;
 }

@@ -12,6 +12,14 @@ file(GLOB_RECURSE ABYSSCTL_SRCFILES CONFIGURE_DEPENDS "src/*.cpp" "hw-protocols/
 add_executable(abyssctl ${ABYSSCTL_SRCFILES})
 set_target_properties(abyssctl PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
+include(GNUInstallDirs)
+
+# used by `abyssctl reload` to find the tree to rebuild (overridable via env ABYSS_SOURCE_DIR / ABYSS_BUILD_DIR / ABYSS_PREFIX)
+target_compile_definitions(abyssctl PRIVATE
+    ABYSS_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+    ABYSS_BUILD_DIR="${CMAKE_BINARY_DIR}"
+    ABYSS_DEFAULT_PREFIX="${CMAKE_INSTALL_PREFIX}")
+
 target_link_libraries(abyssctl PUBLIC PkgConfig::abyssctl_deps)
 target_include_directories(abyssctl PRIVATE "hw-protocols")
 

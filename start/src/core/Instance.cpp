@@ -2,6 +2,7 @@
 #include "State.hpp"
 #include "../helpers/Logger.hpp"
 #include "../helpers/Nix.hpp"
+#include "../../../src/helpers/ExitCodes.hpp"
 
 #include <cstdlib>
 #include <cstring>
@@ -42,7 +43,9 @@ void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
     // spawn a process manually. Abyssutils' Async is detached, while Sync redirects stdout
     // TODO: make Sync respect fds?
 
-    std::vector<char*> args = {strdup(g_state->customPath.value_or(ABYSSLAND_BINARY).c_str())};
+    const std::string BINARY = m_binaryOverride.value_or(g_state->customPath.value_or(ABYSSLAND_BINARY));
+
+    std::vector<char*> args = {strdup(BINARY.c_str())};
     for (const auto& a : argsStd) {
         args.emplace_back(strdup(a.c_str()));
     }
@@ -58,12 +61,15 @@ void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
         procctl(P_PID, getpid(), PROC_PDEATHSIG_CTL, &sig);
 #endif
 
+        // tell the compositor it is supervised, so `abyssctl restart` is allowed
+        setenv(ABYSSLAND_WATCHDOG_ENV, "1", 1);
+
         if (Nix::shouldUseNixGL()) {
-            argsStd.insert(argsStd.begin(), g_state->customPath.value_or(ABYSSLAND_BINARY));
+            argsStd.insert(argsStd.begin(), BINARY);
             args.insert(args.begin(), strdup(argsStd.front().c_str()));
             execvp("nixGL", args.data());
         } else
-            execvp(g_state->customPath.value_or(ABYSSLAND_BINARY).c_str(), args.data());
+            execvp(BINARY.c_str(), args.data());
 
         g_logger->log(Abyssutils::CLI::LOG_ERR, "fork(): execvp failed: {}", strerror(errno));
         std::fflush(stdout);
@@ -80,8 +86,15 @@ void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
                 break;
             }
 
-            if (WIFEXITED(status))
+            if (WIFEXITED(status)) {
+                m_exitCode = WEXITSTATUS(status);
                 break;
+            }
+
+            if (WIFSIGNALED(status)) {
+                m_exitCode = 128 + WTERMSIG(status);
+                break;
+            }
         }
 
         if (write(m_wakeupWrite.get(), "vax", 3) < 0)
@@ -175,6 +188,7 @@ bool CAbysslandInstance::run(bool safeMode, bool lockedCrash) {
     m_wakeupWrite.setFlags(m_wakeupWrite.getFlags() | FD_CLOEXEC);
 
     m_abysslandLocked = lockedCrash;
+    m_exitCode        = -1;
 
     runAbysslandThread(safeMode, lockedCrash);
 

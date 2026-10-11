@@ -26,6 +26,9 @@
 #include <vector>
 #include <filesystem>
 #include <cstdarg>
+#include <thread>
+#include <regex>
+#include <sys/wait.h>
 #include <abyssutils/string/String.hpp>
 #include <abyssutils/memory/Casts.hpp>
 using namespace Abyssutils::String;
@@ -378,6 +381,215 @@ void instancesRequest(bool json) {
     log(result + "\n");
 }
 
+
+// ---- reload: rebuild + install + restart ------------------------------------------------------
+
+#ifndef ABYSS_SOURCE_DIR
+#define ABYSS_SOURCE_DIR ""
+#endif
+#ifndef ABYSS_BUILD_DIR
+#define ABYSS_BUILD_DIR ""
+#endif
+#ifndef ABYSS_DEFAULT_PREFIX
+#define ABYSS_DEFAULT_PREFIX "/usr"
+#endif
+
+static std::string envOr(const char* name, const char* fallback) {
+    const auto E = getenv(name);
+    return (E && *E) ? E : fallback;
+}
+
+struct SRunResult {
+    int         exitCode = -1;
+    std::string output;
+};
+
+// runs a command, merging stdout+stderr; every line is passed to onLine as it arrives
+template <typename F>
+static SRunResult runCapture(const std::vector<std::string>& argv, F&& onLine) {
+    SRunResult res;
+    int        fds[2];
+    if (pipe(fds) != 0) {
+        res.output = "pipe() failed";
+        return res;
+    }
+
+    const auto PID = fork();
+    if (PID < 0) {
+        close(fds[0]);
+        close(fds[1]);
+        res.output = "fork() failed";
+        return res;
+    }
+
+    if (PID == 0) {
+        dup2(fds[1], STDOUT_FILENO);
+        dup2(fds[1], STDERR_FILENO);
+        close(fds[0]);
+        close(fds[1]);
+        std::vector<char*> cargv;
+        for (const auto& a : argv)
+            cargv.push_back(const_cast<char*>(a.c_str()));
+        cargv.push_back(nullptr);
+        execvp(cargv[0], cargv.data());
+        std::println(stderr, "failed to execute {}: {}", argv[0], strerror(errno));
+        _exit(127);
+    }
+
+    close(fds[1]);
+
+    std::string line;
+    char        buf[4096];
+    while (true) {
+        const auto N = read(fds[0], buf, sizeof(buf));
+        if (N < 0 && errno == EINTR)
+            continue;
+        if (N <= 0)
+            break;
+        for (ssize_t i = 0; i < N; ++i) {
+            if (buf[i] == '\n') {
+                res.output += line + "\n";
+                onLine(line);
+                line.clear();
+            } else
+                line += buf[i];
+        }
+    }
+    if (!line.empty()) {
+        res.output += line + "\n";
+        onLine(line);
+    }
+    close(fds[0]);
+
+    int status = 0;
+    while (waitpid(PID, &status, 0) < 0 && errno == EINTR)
+        ;
+    res.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+    return res;
+}
+
+static std::string firstBuildError(const std::string& output, const std::string& sourceDir) {
+    static const std::regex COMPILER_ERR(R"(^(.+?:\d+(:\d+)?:\s*(fatal )?error:.*)$)");
+    static const std::regex OTHER_ERR(R"(^(CMake Error.*|.*undefined reference to.*|.*ld(\.lld)?: error.*|.*\bld: .*|.*Error \d+.*|ninja: error.*)$)");
+
+    std::string firstOther, lastLine;
+    size_t      pos = 0;
+    while (pos < output.size()) {
+        auto end = output.find('\n', pos);
+        if (end == std::string::npos)
+            end = output.size();
+        std::string l = output.substr(pos, end - pos);
+        pos           = end + 1;
+        if (l.empty())
+            continue;
+        lastLine = l;
+        std::smatch m;
+        if (std::regex_match(l, m, COMPILER_ERR)) {
+            std::string r = m[1];
+            if (!sourceDir.empty() && r.starts_with(sourceDir + "/"))
+                r.erase(0, sourceDir.size() + 1);
+            return r;
+        }
+        if (firstOther.empty() && std::regex_match(l, OTHER_ERR))
+            firstOther = l;
+    }
+    return !firstOther.empty() ? firstOther : lastLine;
+}
+
+static void sendErrorNotification(const std::string& text) {
+    if (instanceSignature.empty())
+        return;
+
+    std::string msg = text.substr(0, 400);
+    for (auto& c : msg)
+        if (c == '\n' || c == '\r' || c == ';')
+            c = ' ';
+    const bool wasQuiet = quiet;
+    quiet               = true;
+    request("/notify 3 8000 rgb(ff5555) Abyssland reload failed: " + msg);
+    quiet = wasQuiet;
+}
+
+static int reloadRebuild(bool dryRun) {
+    const std::string SRC    = envOr("ABYSS_SOURCE_DIR", ABYSS_SOURCE_DIR);
+    const std::string BUILD  = envOr("ABYSS_BUILD_DIR", ABYSS_BUILD_DIR);
+    const std::string PREFIX = envOr("ABYSS_PREFIX", ABYSS_DEFAULT_PREFIX);
+
+    std::error_code ec;
+    if (BUILD.empty() || !std::filesystem::exists(std::filesystem::path{BUILD} / "CMakeCache.txt", ec)) {
+        const std::string MSG = "no build directory found (" + (BUILD.empty() ? std::string{"<unset>"} : BUILD) + "), set ABYSS_BUILD_DIR";
+        std::println(stderr, "abyssctl: {}", MSG);
+        sendErrorNotification(MSG);
+        return 1;
+    }
+
+    const unsigned    JOBS = std::max(1u, std::thread::hardware_concurrency() / 2);
+
+    std::println("abyssctl: building in {} (-j{})", BUILD, JOBS);
+    std::fflush(stdout);
+
+    static const std::regex PROGRESS(R"(^\[\s*\d+/\d+\].*)");
+    auto                    BUILDRES = runCapture({"cmake", "--build", BUILD, "--target", "Abyssland", "-j" + std::to_string(JOBS)}, [](const std::string& l) {
+        if (std::regex_match(l, PROGRESS) || l.starts_with("ninja:") || l.starts_with("make")) {
+            std::println("{}", l);
+            std::fflush(stdout);
+        }
+    });
+
+    if (BUILDRES.exitCode != 0) {
+        const auto LOGPATH = std::filesystem::path{BUILD} / "abyssctl-reload.log";
+        std::ofstream{LOGPATH} << BUILDRES.output;
+        std::string err = firstBuildError(BUILDRES.output, SRC);
+        if (err.empty())
+            err = "build failed (exit " + std::to_string(BUILDRES.exitCode) + ")";
+        std::println(stderr, "abyssctl: build failed:\n{}\n(full log: {})", err, LOGPATH.string());
+        sendErrorNotification(err);
+        return 1;
+    }
+
+    if (dryRun) {
+        std::println("abyssctl: build ok (dry run, nothing installed)");
+        return 0;
+    }
+
+    // keep the currently installed binary as fallback for start-abyssland
+    const auto BINDIR   = std::filesystem::path{PREFIX} / "bin";
+    const auto BIN      = BINDIR / "Abyssland";
+    const auto LASTGOOD = BINDIR / "Abyssland.last-good";
+    if (std::filesystem::is_regular_file(BIN, ec)) {
+        const auto TMP = BINDIR / "Abyssland.last-good.tmp";
+        std::filesystem::copy_file(BIN, TMP, std::filesystem::copy_options::overwrite_existing, ec);
+        if (!ec)
+            std::filesystem::rename(TMP, LASTGOOD, ec);
+        if (ec) {
+            const std::string MSG = "could not back up " + BIN.string() + " to last-good: " + ec.message();
+            std::println(stderr, "abyssctl: {}", MSG);
+            sendErrorNotification(MSG);
+            return 1;
+        }
+    }
+
+    auto INSTALLRES = runCapture({"cmake", "--install", BUILD, "--prefix", PREFIX}, [](const std::string&) {});
+    if (INSTALLRES.exitCode != 0) {
+        std::string err = firstBuildError(INSTALLRES.output, SRC);
+        std::println(stderr, "abyssctl: install failed:\n{}", err);
+        sendErrorNotification("install failed: " + err);
+        return 1;
+    }
+
+    std::println("abyssctl: installed to {}", PREFIX);
+
+    if (instanceSignature.empty()) {
+        std::println("abyssctl: no running Abyssland instance, not restarting");
+        return 0;
+    }
+
+    const int RET = request("/restart");
+    if (RET != 0)
+        std::println(stderr, "abyssctl: the new binary is installed, but Abyssland was not restarted");
+    return RET;
+}
+
 std::vector<std::string> splitArgs(int argc, char** argv) {
     std::vector<std::string> result;
 
@@ -400,6 +612,8 @@ int main(int argc, char** argv) {
     const auto  ARGS             = splitArgs(argc, argv);
     bool        json             = false;
     bool        needRoll         = false;
+    bool        noBuild          = false;
+    bool        dryRun           = false;
     std::string overrideInstance = "";
 
     for (std::size_t i = 0; i < ARGS.size(); ++i) {
@@ -422,6 +636,10 @@ int main(int argc, char** argv) {
             } else if ((ARGS[i] == "-f" || ARGS[i] == "--follow") && !fullArgs.contains("f")) {
                 fullArgs += "f";
                 needRoll = true;
+            } else if (ARGS[i] == "--no-build" && fullRequest.starts_with("reload")) {
+                noBuild = true;
+            } else if (ARGS[i] == "--dry-run" && fullRequest.starts_with("reload")) {
+                dryRun = true;
             } else if (ARGS[i] == "--batch") {
                 fullRequest = "--batch ";
             } else if (ARGS[i] == "--instance" || ARGS[i] == "-i") {
@@ -442,6 +660,8 @@ int main(int argc, char** argv) {
                     std::println("{}", ABYSSPAPER_HELP);
                 } else if (cmd == "abysssunset") {
                     std::println("{}", ABYSSSUNSET_HELP);
+                } else if (cmd == "reload") {
+                    std::println("{}", RELOAD_HELP);
                 } else if (cmd == "notify") {
                     std::println("{}", NOTIFY_HELP);
                 } else if (cmd == "output") {
@@ -483,6 +703,22 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    const bool PLAINRELOAD = fullRequest.ends_with("/reload") && !noBuild;
+
+    if ((noBuild || dryRun) && !fullRequest.ends_with("/reload")) {
+        log("--no-build and --dry-run only apply to a plain 'reload'");
+        return 1;
+    }
+
+    if (noBuild && dryRun) {
+        log("--no-build and --dry-run can't be combined");
+        return 1;
+    }
+
+    // a dry run needs no running instance
+    if (PLAINRELOAD && dryRun)
+        return reloadRebuild(true);
+
     if (needRoll && !fullRequest.contains("/rollinglog")) {
         log("only 'rollinglog' command supports '--follow' option");
         return 1;
@@ -510,6 +746,8 @@ int main(int argc, char** argv) {
         const auto ISIG = getenv("ABYSSLAND_INSTANCE_SIGNATURE");
 
         if (!ISIG) {
+            if (PLAINRELOAD)
+                return reloadRebuild(false);
             log("ABYSSLAND_INSTANCE_SIGNATURE not set! (is abyssland running?)\n");
             return 1;
         }
@@ -518,6 +756,9 @@ int main(int argc, char** argv) {
     }
 
     int exitStatus = 0;
+
+    if (PLAINRELOAD)
+        return reloadRebuild(false);
 
     if (fullRequest.contains("/--batch"))
         batchRequest(fullRequest, json);

@@ -14,8 +14,6 @@ abyssctl [<OPTIONS>]... <ARGUMENTS>
 
 <WINDOWS> ::= {{{ abyssctl clients | awk '/class/{print $2}' }}};
 
-<AVAILABLE_PLUGINS> ::= {{{ abysspm list | awk '/Plugin/{print $4}' }}};
-
 <MONITORS> ::= {{{ abyssctl monitors | awk '/Monitor/{ print $2 }' }}};
 
 <KEYBOARDS> ::= {{{ abyssctl devices | sed -n '/Keyboard at/{n; s/^\s\+//; p}' }}};
@@ -74,15 +72,14 @@ abyssctl [<OPTIONS>]... <ARGUMENTS>
             |   (globalshortcuts)                                     "Lists all global shortcuts"
             |   (abysspaper)                                           "Interact with abysspaper if present"
             |   (instances)                                           "List all running Abyssland instances and their info"
-            |   (keyword <KEYWORDS>)                                  "Issue a keyword to call a config keyword dynamically"
             |   (kill)                                                "Get into a kill mode, where you can kill an app by clicking on it"
             |   (layers)                                              "List the layers"
-            |   (layouts)                                             "List all layouts available (including plugin ones)"
+            |   (layouts)                                             "List all layouts available "
             |   (monitors [all])                                      "List active outputs with their properties"
             |   (notify <NOTIFICATION_TYPES> <NUM>)                   "Send a notification using the built-in Abyssland notification system"
             |   (output (create (wayland | x11 | headless | auto) | remove <MONITORS>)) "Allows adding/removing fake outputs to a specific backend"
-            |   (plugin <AVAILABLE_PLUGINS>)                          "Interact with a plugin"
-            |   (reload [config-only])                                "Force reload the config"
+            |   (reload [--no-build | --dry-run])                      "Rebuild the compiled config, install it and restart Abyssland"
+            |   (restart)                                             "Restart Abyssland (needs start-abyssland)"
             |   (rollinglog [-f])                                     "Print tail of the log"
             |   (setcursor)                                           "Set the cursor theme and reloads the cursor manager"
             |   (seterror [disable])                                  "Set the abyssctl error string"
