@@ -761,7 +761,7 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
         std::ranges::sort(sortedModes, sortFunc);
         if (sortedModes.size() > 3)
             sortedModes.erase(sortedModes.begin() + 3, sortedModes.end());
-        requestedModes.insert_range(requestedModes.end(), sortedModes | std::views::reverse);
+        { const auto& r_ = sortedModes | std::views::reverse; requestedModes.insert(requestedModes.end(), r_.begin(), r_.end()); } // GCC 14: no append_range
     };
 
     // last fallback is always preferred mode
