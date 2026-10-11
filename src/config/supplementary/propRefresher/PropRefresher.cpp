@@ -17,6 +17,7 @@
 #include "../../shared/monitor/MonitorRuleManager.hpp"
 #include "../../shared/inotify/ConfigWatcher.hpp"
 #include "../../../event/EventBus.hpp"
+#include "../../../pointer/cursor/CursorManager.hpp"
 
 using namespace Config;
 using namespace Config::Supplementary;
@@ -150,6 +151,9 @@ void CPropRefresher::refreshProp(const bool execdAsScheduled) {
 
     if (m_propsTripped & REFRESH_GRADIENTS_GROUPBAR)
         refreshGroupBarGradients();
+
+    if (m_propsTripped & REFRESH_CURSOR_THEME)
+        Pointer::Cursor::mgr()->applyConfig();
 
     m_scheduled           = false;
     m_scheduledRefreshSeq = 0;

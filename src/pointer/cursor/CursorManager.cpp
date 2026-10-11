@@ -1,4 +1,5 @@
 #include "CursorManager.hpp"
+#include "CursorActivationEnvironment.hpp"
 #include "../../Compositor.hpp"
 #include "../../config/ConfigValue.hpp"
 #include "../PointerManager.hpp"
@@ -78,52 +79,45 @@ void CCursorBuffer::endDataPtr() {
 }
 
 CCursorManager::CCursorManager() {
-    m_abysscursor               = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), hcLogger);
-    m_xcursor                   = makeUnique<CXCursorManager>();
-    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
-
-    if (m_abysscursor->valid() && *PUSEABYSSCURSOR) {
-        // find default size. First, ABYSSCURSOR_SIZE then default to 24
-        auto const* SIZE = getenv("ABYSSCURSOR_SIZE");
-        if (SIZE) {
+    m_xcursor            = makeUnique<CXCursorManager>();
+    m_initialNativeTheme = getenv("ABYSSCURSOR_THEME") ? getenv("ABYSSCURSOR_THEME") : "";
+    m_initialClientTheme = getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default";
+    auto readSize        = [](const char* name) {
+        if (const auto* value = getenv(name)) {
             try {
-                m_size = std::stoi(SIZE);
-            } catch (...) { Log::logger->log(Log::WARN, "Invalid ABYSSCURSOR_SIZE value \"{}\"", SIZE); }
+                const int size = std::stoi(value);
+                if (size > 0)
+                    return size;
+            } catch (...) { ; }
+            Log::logger->log(Log::WARN, "Invalid {} cursor size, defaulting to 24", name);
         }
-
-        if (m_size <= 0) {
-            Log::logger->log(Log::WARN, "ABYSSCURSOR_SIZE size not set, defaulting to size 24");
-            m_size = 24;
-        }
-    } else {
-        Log::logger->log(Log::ERR, "Abysscursor failed loading theme \"{}\", falling back to Xcursor.", m_theme);
-
-        auto const* SIZE = getenv("XCURSOR_SIZE");
-        if (SIZE) {
-            try {
-                m_size = std::stoi(SIZE);
-            } catch (...) { Log::logger->log(Log::WARN, "Invalid XCURSOR_SIZE value \"{}\"", SIZE); }
-        }
-
-        if (m_size <= 0) {
-            Log::logger->log(Log::WARN, "XCURSOR_SIZE size not set, defaulting to size 24");
-            m_size = 24;
-        }
-    }
-
-    // since we fallback to xcursor always load it on startup. otherwise we end up with a empty theme if abysscursor is enabled in the config
-    // and then later is disabled.
-    m_xcursor->loadTheme(getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default", m_size, m_cursorScale);
+        return 24;
+    };
+    m_initialNativeSize = readSize("ABYSSCURSOR_SIZE");
+    m_initialClientSize = readSize("XCURSOR_SIZE");
 
     m_animationTimer = makeShared<CEventLoopTimer>(std::nullopt, cursorAnimTimer, this);
     g_pEventLoopManager->addTimer(m_animationTimer);
 
-    updateTheme();
+    m_activationTimer = makeShared<CEventLoopTimer>(
+        std::nullopt,
+        [this](SP<CEventLoopTimer>, void*) {
+            collectActivationErrors();
+            return 1;
+        },
+        nullptr);
+    g_pEventLoopManager->addTimer(m_activationTimer);
+
+    applyConfig(true);
 
     static auto P = Event::bus()->m_events.monitor.layoutChanged.listen([this] { this->updateTheme(); });
 }
 
 CCursorManager::~CCursorManager() {
+    // Cancel and join the worker before destroying timers or compositor state.
+    m_activationEnvironment.reset();
+    if (m_activationTimer && g_pEventLoopManager)
+        g_pEventLoopManager->removeTimer(m_activationTimer);
     if (m_animationTimer && g_pEventLoopManager) {
         g_pEventLoopManager->removeTimer(m_animationTimer);
         m_animationTimer.reset();
@@ -284,6 +278,7 @@ void CCursorManager::setXWaylandCursor() {
 #ifndef NO_XWAYLAND
     if (!g_pXWayland || !g_pXWayland->m_wm)
         return;
+    g_pXWayland->m_wm->setCursorTheme(m_clientTheme, m_size);
 #else
     return;
 #endif
@@ -334,10 +329,10 @@ void CCursorManager::updateTheme() {
 }
 
 bool CCursorManager::changeTheme(const std::string& name, const int size) {
-    static auto PUSEABYSSCURSOR     = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
-    m_theme                         = name.empty() ? "" : name;
-    m_size                          = size <= 0 ? 24 : size;
-    const std::string XCURSOR_THEME = getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default";
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
+    m_theme                     = name.empty() ? "" : name;
+    m_size                      = size <= 0 ? 24 : size;
+    m_clientTheme               = m_theme.empty() ? m_clientTheme : m_theme;
 
     if (*PUSEABYSSCURSOR) {
         auto options                 = Abysscursor::SManagerOptions();
@@ -354,18 +349,80 @@ bool CCursorManager::changeTheme(const std::string& name, const int size) {
     }
 
     // Keep the fallback and client-side cursor theme current even when the native theme is valid.
-    const auto CLIENT_THEME = m_theme.empty() ? XCURSOR_THEME : m_theme;
-    m_xcursor->loadTheme(CLIENT_THEME, m_size, m_cursorScale);
-    const auto SIZE = std::to_string(m_size);
-    setenv("XCURSOR_THEME", CLIENT_THEME.c_str(), 1);
-    setenv("XCURSOR_SIZE", SIZE.c_str(), 1);
-    setenv("ABYSSCURSOR_THEME", m_theme.empty() ? CLIENT_THEME.c_str() : m_theme.c_str(), 1);
-    setenv("ABYSSCURSOR_SIZE", SIZE.c_str(), 1);
-    syncGsettings();
-
+    m_xcursor->loadTheme(m_clientTheme, m_size, m_cursorScale);
+    applyEnvironment();
     updateTheme();
 
     return true;
+}
+
+void CCursorManager::applyConfig(bool force) {
+    static auto PTHEME  = CConfigValue<Config::STRING>("cursor:theme");
+    static auto PSIZE   = CConfigValue<Config::INTEGER>("cursor:size");
+    static auto PNATIVE = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
+    const auto  theme   = *PTHEME;
+    const int   size    = *PSIZE;
+    const bool  native  = *PNATIVE;
+    if (!force && theme == m_configTheme && size == m_configSize && native == m_configNative)
+        return;
+
+    m_configTheme  = theme;
+    m_configSize   = size;
+    m_configNative = native;
+    m_theme        = theme.empty() ? m_initialNativeTheme : theme;
+    m_clientTheme  = theme.empty() ? m_initialClientTheme : theme;
+
+    if (m_abysscursor && m_abysscursor->valid() && m_currentStyleInfo.size > 0)
+        m_abysscursor->cursorSurfaceStyleDone(m_currentStyleInfo);
+    m_currentStyleInfo.size      = 0;
+    auto options                 = Abysscursor::SManagerOptions();
+    options.logFn                = hcLogger;
+    options.allowDefaultFallback = theme.empty();
+    // A null theme makes Abysscursor read the environment again. Restore the
+    // startup value first when an explicit config theme is changed back to auto.
+    setenv("ABYSSCURSOR_THEME", m_theme.c_str(), 1);
+    m_abysscursor = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), options);
+    m_size        = size > 0 ? size : (native && m_abysscursor->valid() ? m_initialNativeSize : m_initialClientSize);
+    if (native && !m_abysscursor->valid())
+        Log::logger->log(Log::WARN, "Abysscursor failed loading theme \"{}\", falling back to XCursor", m_theme);
+
+    m_xcursor->loadTheme(m_clientTheme, m_size, m_cursorScale);
+    applyEnvironment();
+    updateTheme();
+}
+
+void CCursorManager::applyEnvironment() {
+    const auto SIZE = std::to_string(m_size);
+    setenv("XCURSOR_THEME", m_clientTheme.c_str(), 1);
+    setenv("XCURSOR_SIZE", SIZE.c_str(), 1);
+    setenv("ABYSSCURSOR_THEME", m_theme.c_str(), 1);
+    setenv("ABYSSCURSOR_SIZE", SIZE.c_str(), 1);
+    syncGsettings();
+    exportActivationEnvironment();
+}
+
+void CCursorManager::exportActivationEnvironment() {
+    // A nested compositor shares its parent's session bus. Never change that activation environment.
+    if (!g_pCompositor->m_aqBackend->hasSession() || Env::envEnabled("ABYSSLAND_NO_SD_VARS"))
+        return;
+
+    const auto* address = getenv("DBUS_SESSION_BUS_ADDRESS");
+    if (!address || !*address)
+        return;
+
+    if (!m_activationEnvironment)
+        m_activationEnvironment = makeUnique<CActivationEnvironment>(address);
+    m_activationEnvironment->update({m_theme, m_clientTheme, m_size});
+    m_activationTimer->updateTimeout(std::chrono::milliseconds(100));
+}
+
+void CCursorManager::collectActivationErrors() {
+    if (!m_activationEnvironment)
+        return;
+
+    for (const auto& error : m_activationEnvironment->takeErrors())
+        Log::logger->log(Log::WARN, "{}", error);
+    m_activationTimer->updateTimeout(m_activationEnvironment->busy() ? std::make_optional(std::chrono::milliseconds(100)) : std::nullopt);
 }
 
 void CCursorManager::syncGsettings() {

@@ -585,6 +585,9 @@ std::vector<SP<IValue>> Values::getConfigValues() {
          * cursor:
          */
 
+        MS<String>("cursor:theme", "cursor theme for native and XCursor clients; empty keeps the startup environment themes", "", {.refresh = Supplementary::REFRESH_CURSOR_THEME}),
+        MS<Int>("cursor:size", "cursor size in logical pixels; 0 keeps the startup environment size", 0,
+                {.min = 0, .max = std::numeric_limits<int>::max(), .refresh = Supplementary::REFRESH_CURSOR_THEME}),
         MS<Bool>("cursor:invisible", "don't render cursors", false),
         MS<Int>("cursor:no_hardware_cursors", "disables hardware cursors.", 2, {.min = 0, .max = 2, .map = OptionMap{{"Disabled", 0}, {"Enabled", 1}, {"Auto", 2}}}),
         MS<Int>("cursor:no_break_fs_vrr", "disables scheduling new frames on cursor movement for fullscreen apps with VRR enabled.", 2,
@@ -603,7 +606,7 @@ std::vector<SP<IValue>> Values::getConfigValues() {
         MS<Bool>("cursor:zoom_rigid", "whether the zoom should follow the cursor rigidly or loosely", false),
         MS<Bool>("cursor:zoom_disable_aa", "If enabled, when zooming, no antialiasing will be used", false),
         MS<Bool>("cursor:zoom_detached_camera", "Detaches the camera from the mouse when zoomed in", true),
-        MS<Bool>("cursor:enable_abysscursor", "whether to enable abysscursor support", true),
+        MS<Bool>("cursor:enable_abysscursor", "whether to enable abysscursor support", true, {.refresh = Supplementary::REFRESH_CURSOR_THEME}),
         MS<Bool>("cursor:hide_on_key_press", "Hides the cursor when you press any key until the mouse is moved.", false),
         MS<Bool>("cursor:hide_on_touch", "Hides the cursor when the last input was a touch input until a mouse input is done.", true),
         MS<Bool>("cursor:hide_on_tablet", "Hides the cursor when the last input was a tablet input until a mouse input is done.", false),
