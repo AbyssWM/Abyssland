@@ -16,8 +16,8 @@ CMainLoopExecutor::CMainLoopExecutor(std::function<void()>&& callback) : m_fn(st
 
     m_event = wl_event_loop_add_fd(g_pEventLoopManager->m_wayland.loop, fds[0], WL_EVENT_READABLE, ::onDataRead, this);
 
-    m_readFd  = Hyprutils::OS::CFileDescriptor(fds[0]);
-    m_writeFd = Hyprutils::OS::CFileDescriptor(fds[1]);
+    m_readFd  = Abyssutils::OS::CFileDescriptor(fds[0]);
+    m_writeFd = Abyssutils::OS::CFileDescriptor(fds[1]);
 }
 
 CMainLoopExecutor::~CMainLoopExecutor() {

@@ -10,7 +10,7 @@
 #include "debug/log/Logger.hpp"
 
 #ifndef NDEBUG
-#ifdef HYPRLAND_DEBUG
+#ifdef ABYSSLAND_DEBUG
 #define ISDEBUG true
 #else
 #define ISDEBUG false
@@ -41,13 +41,13 @@
 
 #define STICKS(a, b) abs((a) - (b)) < 2
 
-#define HYPRATOM(name) {name, 0}
+#define ABYSSATOM(name) {name, 0}
 
 template <typename... Args>
 [[gnu::noinline]] [[gnu::cold]] void assertImpl(int line, std::string_view filename, std::format_string<Args...> reason, Args&&... args) {
     Log::logger->log(Log::CRIT, "\n==========================================================================================\nASSERTION FAILED! \n\n{}\n\nat: line {} in {}",
                      std::format(reason, std::forward<Args>(args)...), line, filename);
-    std::print("Assertion failed! See the log in /tmp/hypr/hyprland.log for more info.");
+    std::print("Assertion failed! See the log in /tmp/abyss/abyssland.log for more info.");
     raise(SIGABRT);
 }
 
@@ -118,16 +118,16 @@ template <typename... Args>
 
 #endif
 
-#define HYPRUTILS_FORWARD(ns, name)                                                                                                                                                \
-    namespace Hyprutils {                                                                                                                                                          \
+#define ABYSSUTILS_FORWARD(ns, name)                                                                                                                                                \
+    namespace Abyssutils {                                                                                                                                                          \
         namespace ns {                                                                                                                                                             \
             class name;                                                                                                                                                            \
         }                                                                                                                                                                          \
     }
 
-#define AQUAMARINE_VERSION_NUMBER (AQUAMARINE_VERSION_MAJOR * 10000 + AQUAMARINE_VERSION_MINOR * 100 + AQUAMARINE_VERSION_PATCH)
-#define AQUAMARINE_FORWARD(name)                                                                                                                                                   \
-    namespace Aquamarine {                                                                                                                                                         \
+#define ABYSSAL_VERSION_NUMBER (ABYSSAL_VERSION_MAJOR * 10000 + ABYSSAL_VERSION_MINOR * 100 + ABYSSAL_VERSION_PATCH)
+#define ABYSSAL_FORWARD(name)                                                                                                                                                   \
+    namespace Abyssal {                                                                                                                                                         \
         class name;                                                                                                                                                                \
     }
 

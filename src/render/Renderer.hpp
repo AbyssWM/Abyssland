@@ -2,9 +2,9 @@
 
 #include "../defines.hpp"
 #include <cstdint>
-#include <hyprgraphics/color/Color.hpp>
-#include <hyprutils/math/Box.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssgraphics/color/Color.hpp>
+#include <abyssutils/math/Box.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 #include <list>
 #include <optional>
 #include "OpenGL.hpp"
@@ -33,7 +33,7 @@
 #include "Framebuffer.hpp"
 #include "Texture.hpp"
 
-#include <hyprgraphics/resource/resources/TextResource.hpp>
+#include <abyssgraphics/resource/resources/TextResource.hpp>
 
 struct SMonitorRule;
 class CWorkspace;
@@ -51,15 +51,15 @@ namespace Pointer {
 }
 
 namespace Render {
-    using CScopeGuard = Hyprutils::Utils::CScopeGuard;
+    using CScopeGuard = Abyssutils::Utils::CScopeGuard;
 
     class IElementRenderer;
     class CRenderPass;
 
-    class IHyprRenderer {
+    class IAbyssRenderer {
       public:
-        IHyprRenderer();
-        virtual ~IHyprRenderer();
+        IAbyssRenderer();
+        virtual ~IAbyssRenderer();
 
         enum eType : uint8_t {
             RT_GL = 1,
@@ -67,7 +67,7 @@ namespace Render {
         };
 
         virtual eType                       type() = 0;
-        WP<Render::GL::CHyprOpenGLImpl>     glBackend();
+        WP<Render::GL::CAbyssOpenGLImpl>     glBackend();
 
         void                                renderMonitor(PHLMONITOR pMonitor, bool commit = true);
         void                                arrangeLayersForMonitor(const MONITORID&);
@@ -141,9 +141,9 @@ namespace Render {
 
         SP<ITexture>    renderSplash(const std::function<SP<ITexture>(const int, const int, unsigned char* const)>& handleData, const int fontSize, const int maxWidth = 1024,
                                      const int maxHeight = 1024);
-        CHyprColor      getConvertedColor(const CHyprColor& color);
+        CAbyssColor      getConvertedColor(const CAbyssColor& color);
 
-        virtual SP<IRenderbuffer>    getOrCreateRenderbuffer(SP<Aquamarine::IBuffer> buffer,
+        virtual SP<IRenderbuffer>    getOrCreateRenderbuffer(SP<Abyssal::IBuffer> buffer,
                                                              uint32_t                fmt); // TODO? move to protected and fix CPointerManager::renderHWCursorBuffer
         bool                         commitPendingAndDoExplicitSync(PHLMONITOR pMonitor);  // TODO? move to protected and fix CMonitorFrameScheduler::onPresented
         SRenderData                  m_renderData;                                         // TODO? move to protected and fix CRenderPass
@@ -169,14 +169,14 @@ namespace Render {
         virtual SP<ITexture>         createStencilTexture(const int width, const int height)                                                                                   = 0;
         virtual SP<ITexture>         createTexture(bool opaque = false)                                                                                                        = 0;
         virtual SP<ITexture>         createTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, const Vector2D& size, bool keepDataCopy = false, bool opaque = false) = 0;
-        virtual SP<ITexture>         createTexture(const Aquamarine::SDMABUFAttrs&, bool opaque = false)                                                                       = 0;
+        virtual SP<ITexture>         createTexture(const Abyssal::SDMABUFAttrs&, bool opaque = false)                                                                       = 0;
         virtual SP<ITexture>         createTexture(const int width, const int height, unsigned char* const)                                                                    = 0;
         virtual SP<ITexture>         createTexture(cairo_surface_t* cairo)                                                                                                     = 0;
         virtual SP<ITexture>         createTexture(std::span<const float> lut3D, size_t N)                                                                                     = 0;
-        virtual SP<ITexture>         createTexture(const SP<Aquamarine::IBuffer> buffer, bool keepDataCopy = false);
-        virtual SP<ITexture>         renderText(const std::string& text, CHyprColor col, int pt, bool italic = false, const std::string& fontFamily = "", int maxWidth = 0,
+        virtual SP<ITexture>         createTexture(const SP<Abyssal::IBuffer> buffer, bool keepDataCopy = false);
+        virtual SP<ITexture>         renderText(const std::string& text, CAbyssColor col, int pt, bool italic = false, const std::string& fontFamily = "", int maxWidth = 0,
                                                 int weight = 400);
-        virtual SP<ITexture>         renderText(Hyprgraphics::CTextResource::STextResourceData&& data);
+        virtual SP<ITexture>         renderText(Abyssgraphics::CTextResource::STextResourceData&& data);
         SP<ITexture>                 loadAsset(const std::string& filename);
         virtual bool                 shouldUseNewBlurOptimizations(PHLLS pLayer, PHLWINDOW pWindow);
         virtual bool                 explicitSyncSupported()                                                                                                     = 0;
@@ -216,7 +216,7 @@ namespace Render {
 
       protected:
         virtual void              renderOffToMain(SP<IFramebuffer> off)                                         = 0;
-        virtual SP<IRenderbuffer> getOrCreateRenderbufferInternal(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) = 0;
+        virtual SP<IRenderbuffer> getOrCreateRenderbufferInternal(SP<Abyssal::IBuffer> buffer, uint32_t fmt) = 0;
         void                      renderMirrored();
         void                      setDamage(const CRegion& damage_, std::optional<CRegion> finalDamage);
         // if RENDER_MODE_NORMAL, provided damage will be written to.
@@ -231,7 +231,7 @@ namespace Render {
             return false;
         };
         virtual void initRender() {};
-        virtual bool initRenderBuffer(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) {
+        virtual bool initRenderBuffer(SP<Abyssal::IBuffer> buffer, uint32_t fmt) {
             return false;
         };
 
@@ -278,7 +278,7 @@ namespace Render {
         void                              initMissingAssetTexture();
         void                              initAssets();
         SP<ITexture>                      m_missingAssetTexture;
-        ASP<Hyprgraphics::CImageResource> m_backgroundResource;
+        ASP<Abyssgraphics::CImageResource> m_backgroundResource;
         bool                              m_backgroundResourceFailed = false;
 
         bool                              shouldBlur(PHLLS ls);
@@ -288,7 +288,7 @@ namespace Render {
         bool                              m_cursorHidden            = false;
         bool                              m_cursorHiddenByCondition = false;
         bool                              m_cursorHasSurface        = false;
-        SP<Aquamarine::IBuffer>           m_currentBuffer           = nullptr;
+        SP<Abyssal::IBuffer>           m_currentBuffer           = nullptr;
         eRenderMode                       m_renderMode              = RENDER_MODE_NORMAL;
         bool                              m_nvidia                  = false;
         bool                              m_intel                   = false;
@@ -307,7 +307,7 @@ namespace Render {
         SP<CEventLoopTimer>            m_renderUnfocusedTimer;
 
         friend class CRenderPass;
-        friend class Render::GL::CHyprOpenGLImpl;
+        friend class Render::GL::CAbyssOpenGLImpl;
         friend class CToplevelExportFrame;
         friend class Screenshare::CScreenshareFrame;
         friend class CInputManager;
@@ -322,4 +322,4 @@ namespace Render {
 
 }
 
-inline UP<Render::IHyprRenderer> g_pHyprRenderer;
+inline UP<Render::IAbyssRenderer> g_pAbyssRenderer;

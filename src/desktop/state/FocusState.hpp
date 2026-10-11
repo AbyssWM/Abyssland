@@ -56,7 +56,7 @@ namespace Desktop {
         PHLWINDOWREF           m_focusWindow;
         PHLMONITORREF          m_focusMonitor;
 
-        CHyprSignalListener    m_windowOpen, m_windowClose;
+        CAbyssSignalListener    m_windowOpen, m_windowClose;
     };
 
     SP<CFocusState> focusState();

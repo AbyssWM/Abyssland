@@ -4,12 +4,12 @@
 #include "../../render/Renderer.hpp"
 #include "../../helpers/Format.hpp"
 #include "helpers/Drm.hpp"
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprutils::OS;
-using namespace Hyprgraphics::Egl;
+using namespace Abyssutils::OS;
+using namespace Abyssgraphics::Egl;
 
-CDMABuffer::CDMABuffer(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs const& attrs_) : m_attrs(attrs_) {
+CDMABuffer::CDMABuffer(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs const& attrs_) : m_attrs(attrs_) {
     m_listeners.resourceDestroy = events.destroy.listen([this] {
         closeFDs();
         m_listeners.resourceDestroy.reset();
@@ -18,12 +18,12 @@ CDMABuffer::CDMABuffer(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs 
     size       = m_attrs.size;
     m_resource = CWLBufferResource::create(makeShared<CWlBuffer>(client, 1, id));
     m_opaque   = isDrmFormatOpaque(m_attrs.format);
-    m_texture  = g_pHyprRenderer->createTexture(m_attrs, m_opaque); // texture takes ownership of the eglImage
+    m_texture  = g_pAbyssRenderer->createTexture(m_attrs, m_opaque); // texture takes ownership of the eglImage
 
     if UNLIKELY (!m_texture) {
         Log::logger->log(Log::ERR, "CDMABuffer: failed to import EGLImage, retrying as implicit");
         m_attrs.modifier = DRM_FORMAT_MOD_INVALID;
-        m_texture        = g_pHyprRenderer->createTexture(m_attrs, m_opaque);
+        m_texture        = g_pAbyssRenderer->createTexture(m_attrs, m_opaque);
 
         if UNLIKELY (!m_texture) {
             Log::logger->log(Log::ERR, "CDMABuffer: failed to import EGLImage");
@@ -44,12 +44,12 @@ CDMABuffer::~CDMABuffer() {
     closeFDs();
 }
 
-Aquamarine::eBufferCapability CDMABuffer::caps() {
-    return Aquamarine::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
+Abyssal::eBufferCapability CDMABuffer::caps() {
+    return Abyssal::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
 }
 
-Aquamarine::eBufferType CDMABuffer::type() {
-    return Aquamarine::eBufferType::BUFFER_TYPE_DMABUF;
+Abyssal::eBufferType CDMABuffer::type() {
+    return Abyssal::eBufferType::BUFFER_TYPE_DMABUF;
 }
 
 void CDMABuffer::update(const CRegion& damage) {
@@ -60,7 +60,7 @@ bool CDMABuffer::isSynchronous() {
     return false;
 }
 
-Aquamarine::SDMABUFAttrs CDMABuffer::dmabuf() {
+Abyssal::SDMABUFAttrs CDMABuffer::dmabuf() {
     return m_attrs;
 }
 
@@ -103,7 +103,7 @@ std::vector<CFileDescriptor> CDMABuffer::exportSyncFiles() {
 
         // buffer readability checks are rather slow on some Intel laptops
         // see https://gitlab.freedesktop.org/drm/intel/-/issues/9415
-        if (g_pHyprRenderer && !g_pHyprRenderer->isIntel()) {
+        if (g_pAbyssRenderer && !g_pAbyssRenderer->isIntel()) {
             if (CFileDescriptor::isReadable(fd))
                 continue;
         }

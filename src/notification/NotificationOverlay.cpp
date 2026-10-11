@@ -38,8 +38,8 @@ static constexpr auto    NOTIF_DAMAGE_PAD_X = 20.F;
 static constexpr auto    ICON_PAD           = 3.F;
 static constexpr auto    ICON_SCALE         = 0.9F;
 
-static inline CHyprColor resolvedColor(const eIcons icon, const CHyprColor& color) {
-    return color == CHyprColor(0) ? ICONS_COLORS[icon] : color;
+static inline CAbyssColor resolvedColor(const eIcons icon, const CAbyssColor& color) {
+    return color == CAbyssColor(0) ? ICONS_COLORS[icon] : color;
 }
 
 UP<CNotificationOverlay>& Notification::overlay() {
@@ -52,7 +52,7 @@ CNotificationOverlay::CNotificationOverlay() {
         if (m_notifications.empty())
             return;
 
-        g_pHyprRenderer->damageBox(m_lastDamage);
+        g_pAbyssRenderer->damageBox(m_lastDamage);
     });
 }
 
@@ -100,7 +100,7 @@ void CNotificationOverlay::ensureNotificationCache(CNotification& notif, PHLMONI
     notif.m_cache.fontSizePx  = fontSizePx;
     notif.m_cache.iconBackend = iconBackend;
 
-    notif.m_cache.textTex = g_pHyprRenderer->renderText(notif.text(), CHyprColor{1.F, 1.F, 1.F, 1.F}, fontSizePx, false, fontFamily);
+    notif.m_cache.textTex = g_pAbyssRenderer->renderText(notif.text(), CAbyssColor{1.F, 1.F, 1.F, 1.F}, fontSizePx, false, fontFamily);
     if (notif.m_cache.textTex)
         notif.m_cache.textSize = notif.m_cache.textTex->m_size;
 
@@ -108,7 +108,7 @@ void CNotificationOverlay::ensureNotificationCache(CNotification& notif, PHLMONI
         const auto iconGlyph  = ICONS_ARRAY[iconBackend][notif.icon()];
         const auto iconSizePx = std::max(8, sc<int>(std::round(fontSizePx * ICON_SCALE)));
 
-        notif.m_cache.iconTex = g_pHyprRenderer->renderText(iconGlyph, CHyprColor{1.F, 1.F, 1.F, 1.F}, iconSizePx, false, fontFamily);
+        notif.m_cache.iconTex = g_pAbyssRenderer->renderText(iconGlyph, CAbyssColor{1.F, 1.F, 1.F, 1.F}, iconSizePx, false, fontFamily);
         if (notif.m_cache.iconTex)
             notif.m_cache.iconSize = notif.m_cache.iconTex->m_size;
     }
@@ -152,7 +152,7 @@ CBox CNotificationOverlay::notificationDamageForMonitor(PHLMONITOR pMonitor) {
                 sc<int>(maxWidth + NOTIF_DAMAGE_PAD_X), sc<int>(offsetY + NOTIF_OFFSET_Y - reservedTop)};
 }
 
-SP<CNotification> CNotificationOverlay::addNotification(const std::string& text, const CHyprColor& color, const float timeMs, const eIcons icon, const float fontSize) {
+SP<CNotification> CNotificationOverlay::addNotification(const std::string& text, const CAbyssColor& color, const float timeMs, const eIcons icon, const float fontSize) {
     auto PNOTIF = makeShared<CNotification>(std::string{text}, timeMs, color, icon, fontSize);
 
     m_notifications.emplace_back(PNOTIF);
@@ -162,10 +162,10 @@ SP<CNotification> CNotificationOverlay::addNotification(const std::string& text,
         const auto damage = notificationDamageForMonitor(focusedMonitor);
 
         if (damage.width > 0 && damage.height > 0)
-            g_pHyprRenderer->damageBox(damage);
+            g_pAbyssRenderer->damageBox(damage);
 
         if (m_lastDamage.width > 0 && m_lastDamage.height > 0)
-            g_pHyprRenderer->damageBox(m_lastDamage);
+            g_pAbyssRenderer->damageBox(m_lastDamage);
     }
 
     scheduleFrames();
@@ -252,24 +252,24 @@ CBox CNotificationOverlay::drawNotifications(PHLMONITOR pMonitor) {
         CRectPassElement::SRectData bgData;
         bgData.box   = {firstRectX, offsetY, firstRectW, NOTIFSIZE.y};
         bgData.color = notif->color();
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(bgData));
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(bgData));
 
         CRectPassElement::SRectData fgData;
         fgData.box   = {secondRectX, offsetY, secondRectW, NOTIFSIZE.y};
-        fgData.color = CHyprColor{0.F, 0.F, 0.F, 1.F};
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(fgData));
+        fgData.color = CAbyssColor{0.F, 0.F, 0.F, 1.F};
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(fgData));
 
         CRectPassElement::SRectData progressData;
         progressData.box   = {secondRectX + 3, offsetY + NOTIFSIZE.y - 4, THIRDRECTPERC * std::max(0.0, NOTIFSIZE.x - 6.0), 2};
         progressData.color = notif->color();
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(progressData));
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(progressData));
 
         if (notif->icon() != ICON_NONE && notif->m_cache.iconTex) {
             CTexPassElement::SRenderData iconData;
             iconData.tex = notif->m_cache.iconTex;
             iconData.box = {secondRectX + NOTIF_LEFTBAR_SIZE + ICONPADFORNOTIF - 1, offsetY - 2 + std::round((NOTIFSIZE.y - ICONH) / 2.0), ICONW, ICONH};
             iconData.a   = 1.F;
-            g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(iconData)));
+            g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(iconData)));
         }
 
         if (notif->m_cache.textTex) {
@@ -277,7 +277,7 @@ CBox CNotificationOverlay::drawNotifications(PHLMONITOR pMonitor) {
             textData.tex = notif->m_cache.textTex;
             textData.box = {secondRectX + NOTIF_LEFTBAR_SIZE + ICONW + 2 * ICONPADFORNOTIF, offsetY - 2 + std::round((NOTIFSIZE.y - TEXTH) / 2.0), TEXTW, TEXTH};
             textData.a   = 1.F;
-            g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(textData)));
+            g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(textData)));
         }
 
         // adjust offset and move on
@@ -298,15 +298,15 @@ void CNotificationOverlay::draw(PHLMONITOR pMonitor) {
     // Draw the notifications
     if (m_notifications.empty()) {
         if (m_lastDamage.width > 0 && m_lastDamage.height > 0)
-            g_pHyprRenderer->damageBox(m_lastDamage);
+            g_pAbyssRenderer->damageBox(m_lastDamage);
         m_lastDamage = {};
         return;
     }
 
     CBox damage = drawNotifications(pMonitor);
 
-    g_pHyprRenderer->damageBox(damage);
-    g_pHyprRenderer->damageBox(m_lastDamage);
+    g_pAbyssRenderer->damageBox(damage);
+    g_pAbyssRenderer->damageBox(m_lastDamage);
 
     pMonitor->scheduleFrame();
 

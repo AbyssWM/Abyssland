@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 
 #include "MonitorStateTracker.hpp"
 
@@ -20,7 +20,7 @@ namespace State {
         virtual const std::vector<PHLMONITOR>& monitors() const override;
 
         void                                   add(PHLMONITOR mon);
-        void                                   add(SP<Aquamarine::IOutput> output);
+        void                                   add(SP<Abyssal::IOutput> output);
         void                                   remove(PHLMONITOR mon);
 
         void                                   finish();
@@ -34,9 +34,9 @@ namespace State {
         std::unordered_map<std::string, MONITORID> m_monitorIDMap;
 
         struct {
-            CHyprSignalListener monitorAdded;
-            CHyprSignalListener monitorRemoved;
-            CHyprSignalListener layoutChanged;
+            CAbyssSignalListener monitorAdded;
+            CAbyssSignalListener monitorRemoved;
+            CAbyssSignalListener layoutChanged;
         } m_listeners;
     };
 

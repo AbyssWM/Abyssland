@@ -115,9 +115,9 @@ class CSeatManager {
 
     struct {
         WP<IDataSource>     currentSelection;
-        CHyprSignalListener destroySelection;
+        CAbyssSignalListener destroySelection;
         WP<IDataSource>     currentPrimarySelection;
-        CHyprSignalListener destroyPrimarySelection;
+        CAbyssSignalListener destroyPrimarySelection;
     } m_selection;
 
     void setCurrentSelection(SP<IDataSource> source);
@@ -146,7 +146,7 @@ class CSeatManager {
         std::vector<SPointerButtonSerial> pointerButtonSerials;
 
         struct {
-            CHyprSignalListener destroy;
+            CAbyssSignalListener destroy;
         } listeners;
     };
 
@@ -157,10 +157,10 @@ class CSeatManager {
     void                                    refocusGrab();
 
     struct {
-        CHyprSignalListener newSeatResource;
-        CHyprSignalListener keyboardSurfaceDestroy;
-        CHyprSignalListener pointerSurfaceDestroy;
-        CHyprSignalListener touchSurfaceDestroy;
+        CAbyssSignalListener newSeatResource;
+        CAbyssSignalListener keyboardSurfaceDestroy;
+        CAbyssSignalListener pointerSurfaceDestroy;
+        CAbyssSignalListener touchSurfaceDestroy;
     } m_listeners;
 
     Vector2D m_lastLocalCoords;

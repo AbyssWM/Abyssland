@@ -21,9 +21,9 @@
 #include <string>
 #include <cstring>
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
-using namespace Hyprutils::String;
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
+using namespace Abyssutils::String;
 
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -787,7 +787,7 @@ SDispatchResult CKeybindManager::handleKeybinds(const uint32_t modmask, const SP
         k->releasePending = false; // reset this flag if it's set
         m_currentKeybind  = k;
 
-        Hyprutils::Utils::CScopeGuard x([this] { m_currentKeybind.reset(); });
+        Abyssutils::Utils::CScopeGuard x([this] { m_currentKeybind.reset(); });
 
         if (SPECIALTRIGGERED && !pressed)
             std::erase_if(m_pressedSpecialBinds, [&](const auto& other) { return other == k; });

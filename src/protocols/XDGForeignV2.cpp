@@ -2,8 +2,8 @@
 #include "managers/TokenManager.hpp"
 #include "protocols/XDGShell.hpp"
 #include "xdg-foreign-unstable-v2.hpp"
-#include <hyprutils/memory/SharedPtr.hpp>
-#include <hyprutils/memory/UniquePtr.hpp>
+#include <abyssutils/memory/SharedPtr.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>

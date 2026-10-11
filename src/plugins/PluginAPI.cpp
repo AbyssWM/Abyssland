@@ -1,6 +1,6 @@
 #include "PluginAPI.hpp"
 #include "../Compositor.hpp"
-#include "../debug/HyprCtl.hpp"
+#include "../debug/AbyssCtl.hpp"
 #include "../plugins/PluginSystem.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
 #include "../config/legacy/ConfigManager.hpp"
@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-APICALL const char* __hyprland_api_get_hash() {
+APICALL const char* __abyssland_api_get_hash() {
     static auto stripPatch = [](const char* ver) -> std::string {
         std::string_view v = ver;
         if (!v.contains('.'))
@@ -27,13 +27,13 @@ APICALL const char* __hyprland_api_get_hash() {
         return std::string{v.substr(0, v.find_last_of('.'))};
     };
 
-    static const std::string ver = (std::string{GIT_COMMIT_HASH} + "_aq_" + stripPatch(AQUAMARINE_VERSION) + "_hu_" + stripPatch(HYPRUTILS_VERSION) + "_hg_" +
-                                    stripPatch(HYPRGRAPHICS_VERSION) + "_hc_" + stripPatch(HYPRCURSOR_VERSION) + "_hlg_" + stripPatch(HYPRLANG_VERSION));
+    static const std::string ver = (std::string{GIT_COMMIT_HASH} + "_aq_" + stripPatch(ABYSSAL_VERSION) + "_hu_" + stripPatch(ABYSSUTILS_VERSION) + "_hg_" +
+                                    stripPatch(ABYSSGRAPHICS_VERSION) + "_hc_" + stripPatch(ABYSSCURSOR_VERSION) + "_hlg_" + stripPatch(ABYSSPARSE_VERSION));
 
     return ver.c_str();
 }
 
-APICALL SP<HOOK_CALLBACK_FN> HyprlandAPI::registerCallbackDynamic(HANDLE handle, const std::string& event, HOOK_CALLBACK_FN fn) {
+APICALL SP<HOOK_CALLBACK_FN> AbysslandAPI::registerCallbackDynamic(HANDLE handle, const std::string& event, HOOK_CALLBACK_FN fn) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -44,7 +44,7 @@ APICALL SP<HOOK_CALLBACK_FN> HyprlandAPI::registerCallbackDynamic(HANDLE handle,
     return nullptr;
 }
 
-APICALL bool HyprlandAPI::unregisterCallback(HANDLE handle, SP<HOOK_CALLBACK_FN> fn) {
+APICALL bool AbysslandAPI::unregisterCallback(HANDLE handle, SP<HOOK_CALLBACK_FN> fn) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -56,22 +56,22 @@ APICALL bool HyprlandAPI::unregisterCallback(HANDLE handle, SP<HOOK_CALLBACK_FN>
     return true;
 }
 
-APICALL std::string HyprlandAPI::invokeHyprctlCommand(const std::string& call, const std::string& args, const std::string& format) {
+APICALL std::string AbysslandAPI::invokeAbyssctlCommand(const std::string& call, const std::string& args, const std::string& format) {
     if (args.empty())
-        return g_pHyprCtl->makeDynamicCall(format + "/" + call);
+        return g_pAbyssCtl->makeDynamicCall(format + "/" + call);
     else
-        return g_pHyprCtl->makeDynamicCall(format + "/" + call + " " + args);
+        return g_pAbyssCtl->makeDynamicCall(format + "/" + call + " " + args);
 }
 
-APICALL bool HyprlandAPI::addLayout(HANDLE handle, const std::string& name, IHyprLayout* layout) {
+APICALL bool AbysslandAPI::addLayout(HANDLE handle, const std::string& name, IAbyssLayout* layout) {
     return false;
 }
 
-APICALL bool HyprlandAPI::removeLayout(HANDLE handle, IHyprLayout* layout) {
+APICALL bool AbysslandAPI::removeLayout(HANDLE handle, IAbyssLayout* layout) {
     return false;
 }
 
-APICALL bool HyprlandAPI::addTiledAlgo(HANDLE handle, const std::string& name, const std::type_info* typeInfo, std::function<UP<Layout::ITiledAlgorithm>()>&& factory) {
+APICALL bool AbysslandAPI::addTiledAlgo(HANDLE handle, const std::string& name, const std::type_info* typeInfo, std::function<UP<Layout::ITiledAlgorithm>()>&& factory) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -82,7 +82,7 @@ APICALL bool HyprlandAPI::addTiledAlgo(HANDLE handle, const std::string& name, c
     return Layout::Supplementary::algoMatcher()->registerTiledAlgo(name, typeInfo, std::move(factory));
 }
 
-APICALL bool HyprlandAPI::addFloatingAlgo(HANDLE handle, const std::string& name, const std::type_info* typeInfo, std::function<UP<Layout::IFloatingAlgorithm>()>&& factory) {
+APICALL bool AbysslandAPI::addFloatingAlgo(HANDLE handle, const std::string& name, const std::type_info* typeInfo, std::function<UP<Layout::IFloatingAlgorithm>()>&& factory) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -93,7 +93,7 @@ APICALL bool HyprlandAPI::addFloatingAlgo(HANDLE handle, const std::string& name
     return Layout::Supplementary::algoMatcher()->registerFloatingAlgo(name, typeInfo, std::move(factory));
 }
 
-APICALL bool HyprlandAPI::removeAlgo(HANDLE handle, const std::string& name) {
+APICALL bool AbysslandAPI::removeAlgo(HANDLE handle, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -104,12 +104,12 @@ APICALL bool HyprlandAPI::removeAlgo(HANDLE handle, const std::string& name) {
     return Layout::Supplementary::algoMatcher()->unregisterAlgo(name);
 }
 
-APICALL bool HyprlandAPI::reloadConfig() {
+APICALL bool AbysslandAPI::reloadConfig() {
     g_pEventLoopManager->doLater([] { Config::mgr()->reload(); });
     return true;
 }
 
-APICALL bool HyprlandAPI::addNotification(HANDLE handle, const std::string& text, const CHyprColor& color, const float timeMs) {
+APICALL bool AbysslandAPI::addNotification(HANDLE handle, const std::string& text, const CAbyssColor& color, const float timeMs) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -120,7 +120,7 @@ APICALL bool HyprlandAPI::addNotification(HANDLE handle, const std::string& text
     return true;
 }
 
-APICALL CFunctionHook* HyprlandAPI::createFunctionHook(HANDLE handle, const void* source, const void* destination) {
+APICALL CFunctionHook* AbysslandAPI::createFunctionHook(HANDLE handle, const void* source, const void* destination) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -129,7 +129,7 @@ APICALL CFunctionHook* HyprlandAPI::createFunctionHook(HANDLE handle, const void
     return g_pFunctionHookSystem->initHook(handle, const_cast<void*>(source), const_cast<void*>(destination));
 }
 
-APICALL bool HyprlandAPI::removeFunctionHook(HANDLE handle, CFunctionHook* hook) {
+APICALL bool AbysslandAPI::removeFunctionHook(HANDLE handle, CFunctionHook* hook) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -138,7 +138,7 @@ APICALL bool HyprlandAPI::removeFunctionHook(HANDLE handle, CFunctionHook* hook)
     return g_pFunctionHookSystem->removeHook(hook);
 }
 
-APICALL bool HyprlandAPI::addWindowDecoration(HANDLE handle, PHLWINDOW pWindow, UP<IHyprWindowDecoration> pDecoration) {
+APICALL bool AbysslandAPI::addWindowDecoration(HANDLE handle, PHLWINDOW pWindow, UP<IAbyssWindowDecoration> pDecoration) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -156,7 +156,7 @@ APICALL bool HyprlandAPI::addWindowDecoration(HANDLE handle, PHLWINDOW pWindow, 
     return true;
 }
 
-APICALL bool HyprlandAPI::removeWindowDecoration(HANDLE handle, IHyprWindowDecoration* pDecoration) {
+APICALL bool AbysslandAPI::removeWindowDecoration(HANDLE handle, IAbyssWindowDecoration* pDecoration) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -174,7 +174,7 @@ APICALL bool HyprlandAPI::removeWindowDecoration(HANDLE handle, IHyprWindowDecor
     return false;
 }
 
-APICALL bool HyprlandAPI::addConfigValue(HANDLE handle, const std::string& name, const Hyprlang::CConfigValue& value) {
+APICALL bool AbysslandAPI::addConfigValue(HANDLE handle, const std::string& name, const Abyssparse::CConfigValue& value) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (Config::mgr()->type() != Config::CONFIG_LEGACY)
@@ -193,7 +193,7 @@ APICALL bool HyprlandAPI::addConfigValue(HANDLE handle, const std::string& name,
     return true;
 }
 
-APICALL bool HyprlandAPI::addConfigKeyword(HANDLE handle, const std::string& name, Hyprlang::PCONFIGHANDLERFUNC fn, Hyprlang::SHandlerOptions opts) {
+APICALL bool AbysslandAPI::addConfigKeyword(HANDLE handle, const std::string& name, Abyssparse::PCONFIGHANDLERFUNC fn, Abyssparse::SHandlerOptions opts) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (Config::mgr()->type() != Config::CONFIG_LEGACY)
@@ -209,7 +209,7 @@ APICALL bool HyprlandAPI::addConfigKeyword(HANDLE handle, const std::string& nam
     return true;
 }
 
-APICALL Hyprlang::CConfigValue* HyprlandAPI::getConfigValue(HANDLE handle, const std::string& name) {
+APICALL Abyssparse::CConfigValue* AbysslandAPI::getConfigValue(HANDLE handle, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (Config::mgr()->type() != Config::CONFIG_LEGACY)
@@ -219,12 +219,12 @@ APICALL Hyprlang::CConfigValue* HyprlandAPI::getConfigValue(HANDLE handle, const
         return nullptr;
 
     if (name.starts_with("plugin:"))
-        return Config::Legacy::mgr()->getHyprlangConfigValuePtr(name.substr(7), "plugin");
+        return Config::Legacy::mgr()->getAbyssparseConfigValuePtr(name.substr(7), "plugin");
 
-    return Config::Legacy::mgr()->getHyprlangConfigValuePtr(name);
+    return Config::Legacy::mgr()->getAbyssparseConfigValuePtr(name);
 }
 
-APICALL void* HyprlandAPI::getFunctionAddressFromSignature(HANDLE handle, const std::string& sig) {
+APICALL void* AbysslandAPI::getFunctionAddressFromSignature(HANDLE handle, const std::string& sig) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -233,7 +233,7 @@ APICALL void* HyprlandAPI::getFunctionAddressFromSignature(HANDLE handle, const 
     return dlsym(nullptr, sig.c_str());
 }
 
-APICALL bool HyprlandAPI::addDispatcher(HANDLE handle, const std::string& name, std::function<void(std::string)> handler) {
+APICALL bool AbysslandAPI::addDispatcher(HANDLE handle, const std::string& name, std::function<void(std::string)> handler) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -249,7 +249,7 @@ APICALL bool HyprlandAPI::addDispatcher(HANDLE handle, const std::string& name, 
     return true;
 }
 
-APICALL bool HyprlandAPI::addDispatcherV2(HANDLE handle, const std::string& name, std::function<SDispatchResult(std::string)> handler) {
+APICALL bool AbysslandAPI::addDispatcherV2(HANDLE handle, const std::string& name, std::function<SDispatchResult(std::string)> handler) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -262,7 +262,7 @@ APICALL bool HyprlandAPI::addDispatcherV2(HANDLE handle, const std::string& name
     return true;
 }
 
-APICALL bool HyprlandAPI::removeDispatcher(HANDLE handle, const std::string& name) {
+APICALL bool AbysslandAPI::removeDispatcher(HANDLE handle, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -304,7 +304,7 @@ APICALL bool addNotificationV2(HANDLE handle, const std::unordered_map<std::stri
         if (iterator == data.end())
             return false;
 
-        const auto COLOR = std::any_cast<CHyprColor>(iterator->second);
+        const auto COLOR = std::any_cast<CAbyssColor>(iterator->second);
 
         // optional
         eIcons icon = ICON_NONE;
@@ -322,7 +322,7 @@ APICALL bool addNotificationV2(HANDLE handle, const std::unordered_map<std::stri
     return true;
 }
 
-APICALL std::vector<SFunctionMatch> HyprlandAPI::findFunctionsByName(HANDLE handle, const std::string& name) {
+APICALL std::vector<SFunctionMatch> AbysslandAPI::findFunctionsByName(HANDLE handle, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -348,7 +348,7 @@ APICALL std::vector<SFunctionMatch> HyprlandAPI::findFunctionsByName(HANDLE hand
     const auto FPATH = std::filesystem::canonical(exe);
 #elif defined(__OpenBSD__)
     // Neither KERN_PROC_PATHNAME nor /proc are supported
-    const auto FPATH = std::filesystem::canonical("/usr/local/bin/Hyprland");
+    const auto FPATH = std::filesystem::canonical("/usr/local/bin/Abyssland");
 #else
     const auto FPATH = std::filesystem::canonical("/proc/self/exe");
 #endif
@@ -410,7 +410,7 @@ APICALL std::vector<SFunctionMatch> HyprlandAPI::findFunctionsByName(HANDLE hand
     return matches;
 }
 
-APICALL SVersionInfo HyprlandAPI::getHyprlandVersion(HANDLE handle) {
+APICALL SVersionInfo AbysslandAPI::getAbysslandVersion(HANDLE handle) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -419,31 +419,31 @@ APICALL SVersionInfo HyprlandAPI::getHyprlandVersion(HANDLE handle) {
     return {GIT_COMMIT_HASH, GIT_TAG, GIT_DIRTY != std::string(""), GIT_BRANCH, GIT_COMMIT_MESSAGE, GIT_COMMITS};
 }
 
-APICALL SP<SHyprCtlCommand> HyprlandAPI::registerHyprCtlCommand(HANDLE handle, SHyprCtlCommand cmd) {
+APICALL SP<SAbyssCtlCommand> AbysslandAPI::registerAbyssCtlCommand(HANDLE handle, SAbyssCtlCommand cmd) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
         return nullptr;
 
-    auto PTR = g_pHyprCtl->registerCommand(cmd);
-    PLUGIN->m_registeredHyprctlCommands.push_back(PTR);
+    auto PTR = g_pAbyssCtl->registerCommand(cmd);
+    PLUGIN->m_registeredAbyssctlCommands.push_back(PTR);
     return PTR;
 }
 
-APICALL bool HyprlandAPI::unregisterHyprCtlCommand(HANDLE handle, SP<SHyprCtlCommand> cmd) {
+APICALL bool AbysslandAPI::unregisterAbyssCtlCommand(HANDLE handle, SP<SAbyssCtlCommand> cmd) {
 
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
         return false;
 
-    std::erase_if(PLUGIN->m_registeredHyprctlCommands, [&](const auto& other) { return !other || other == cmd; });
-    g_pHyprCtl->unregisterCommand(cmd);
+    std::erase_if(PLUGIN->m_registeredAbyssctlCommands, [&](const auto& other) { return !other || other == cmd; });
+    g_pAbyssCtl->unregisterCommand(cmd);
 
     return true;
 }
 
-APICALL bool HyprlandAPI::addConfigValueV2(HANDLE handle, SP<Config::Values::IValue> value) {
+APICALL bool AbysslandAPI::addConfigValueV2(HANDLE handle, SP<Config::Values::IValue> value) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -462,7 +462,7 @@ APICALL bool HyprlandAPI::addConfigValueV2(HANDLE handle, SP<Config::Values::IVa
     return true;
 }
 
-APICALL bool HyprlandAPI::addLuaFunction(HANDLE handle, const std::string& namespace_, const std::string& name, PLUGIN_LUA_FN fn) {
+APICALL bool AbysslandAPI::addLuaFunction(HANDLE handle, const std::string& namespace_, const std::string& name, PLUGIN_LUA_FN fn) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -480,7 +480,7 @@ APICALL bool HyprlandAPI::addLuaFunction(HANDLE handle, const std::string& names
     return true;
 }
 
-APICALL bool HyprlandAPI::removeLuaFunction(HANDLE handle, const std::string& namespace_, const std::string& name) {
+APICALL bool AbysslandAPI::removeLuaFunction(HANDLE handle, const std::string& namespace_, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -498,7 +498,7 @@ APICALL bool HyprlandAPI::removeLuaFunction(HANDLE handle, const std::string& na
     return true;
 }
 
-APICALL bool HyprlandAPI::addEvent(HANDLE handle, SP<Event::CEventBus::CCustomEvent> event) {
+APICALL bool AbysslandAPI::addEvent(HANDLE handle, SP<Event::CEventBus::CCustomEvent> event) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)
@@ -513,7 +513,7 @@ APICALL bool HyprlandAPI::addEvent(HANDLE handle, SP<Event::CEventBus::CCustomEv
     return true;
 }
 
-APICALL bool HyprlandAPI::removeEvent(HANDLE handle, const std::string& name) {
+APICALL bool AbysslandAPI::removeEvent(HANDLE handle, const std::string& name) {
     auto* const PLUGIN = g_pPluginSystem->getPluginByHandle(handle);
 
     if (!PLUGIN)

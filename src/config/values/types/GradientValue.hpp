@@ -12,7 +12,7 @@ namespace Config::Values {
 
     class CGradientValue : public IValue {
       public:
-        CGradientValue(const char* name, const char* description, CHyprColor def, SGradientValueOptions&& options = {});
+        CGradientValue(const char* name, const char* description, CAbyssColor def, SGradientValueOptions&& options = {});
 
         virtual ~CGradientValue() = default;
 

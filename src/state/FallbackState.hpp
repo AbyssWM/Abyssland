@@ -32,11 +32,11 @@ namespace State {
         bool                m_fallbackStateUpdateDeferred = false;
 
         struct {
-            CHyprSignalListener newMon;
-            CHyprSignalListener monitorRemoved;
-            CHyprSignalListener monitorAdded;
-            CHyprSignalListener start;
-            CHyprSignalListener ready;
+            CAbyssSignalListener newMon;
+            CAbyssSignalListener monitorRemoved;
+            CAbyssSignalListener monitorAdded;
+            CAbyssSignalListener start;
+            CAbyssSignalListener ready;
         } m_listeners;
     };
 

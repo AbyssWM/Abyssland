@@ -14,9 +14,9 @@
 #include "../../desktop/Workspace.hpp"
 #include "../../managers/fullscreen/FullscreenController.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::Utils;
 using namespace Layout;
 
 SP<ITarget> CWindowTarget::create(PHLWINDOW w) {
@@ -44,8 +44,8 @@ void CWindowTarget::updatePos(uint8_t flags) {
     if (!m_window)
         return;
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
-    CScopeGuard x([this] { g_pHyprRenderer->damageWindow(m_window.lock()); });
+    g_pAbyssRenderer->damageWindow(m_window.lock());
+    CScopeGuard x([this] { g_pAbyssRenderer->damageWindow(m_window.lock()); });
 
     const bool  CONFIGURECLIENT = !(flags & TARGET_UPDATE_NO_CLIENT_CONFIGURE);
 
@@ -136,7 +136,7 @@ void CWindowTarget::updatePos(uint8_t flags) {
 
     /* Non-Fs Tiled Windows */
 
-    g_pHyprRenderer->damageWindow(window());
+    g_pAbyssRenderer->damageWindow(window());
 
     CBox nodeBox = m_box.logicalBox;
     nodeBox.round();
@@ -408,7 +408,7 @@ std::optional<Vector2D> CWindowTarget::maxSize() {
 }
 
 void CWindowTarget::damageEntire() {
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 }
 
 void CWindowTarget::warpPositionSize() {

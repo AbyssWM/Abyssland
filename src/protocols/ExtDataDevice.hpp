@@ -5,7 +5,7 @@
 #include "WaylandProtocol.hpp"
 #include "ext-data-control-v1.hpp"
 #include "types/DataDevice.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CExtDataControlManagerResource;
 class CExtDataSource;
@@ -39,7 +39,7 @@ class CExtDataSource : public IDataSource {
     bool                             good();
 
     virtual std::vector<std::string> mimes();
-    virtual void                     send(const std::string& mime, Hyprutils::OS::CFileDescriptor fd);
+    virtual void                     send(const std::string& mime, Abyssutils::OS::CFileDescriptor fd);
     virtual void                     accepted(const std::string& mime);
     virtual void                     cancelled();
     virtual void                     error(uint32_t code, const std::string& msg);

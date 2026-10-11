@@ -7,8 +7,8 @@
 
 #include <cmath>
 
-#include <hyprutils/memory/Casts.hpp>
-using namespace Hyprutils::Memory;
+#include <abyssutils/memory/Casts.hpp>
+using namespace Abyssutils::Memory;
 
 constexpr const float MAX_DISTANCE = 150.F;
 
@@ -75,7 +75,7 @@ void CSpecialWorkspaceGesture::update(const ITrackpadGesture::STrackpadGestureUp
     if (!m_specialWorkspace || !m_monitor)
         return;
 
-    g_pHyprRenderer->damageMonitor(m_specialWorkspace->m_monitor.lock());
+    g_pAbyssRenderer->damageMonitor(m_specialWorkspace->m_monitor.lock());
 
     m_lastDelta += distance(e);
 

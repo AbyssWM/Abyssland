@@ -7,8 +7,8 @@
 #include "../../helpers/MiscFunctions.hpp"
 #include "../../i18n/Engine.hpp"
 
-#include <hyprutils/string/String.hpp>
-using namespace Hyprutils::String;
+#include <abyssutils/string/String.hpp>
+using namespace Abyssutils::String;
 
 #if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/sysctl.h>

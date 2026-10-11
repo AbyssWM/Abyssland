@@ -1,15 +1,15 @@
 #pragma once
 
-#include <hyprutils/memory/WeakPtr.hpp>
-#include <hyprutils/memory/Atomic.hpp>
+#include <abyssutils/memory/WeakPtr.hpp>
+#include <abyssutils/memory/Atomic.hpp>
 
-using namespace Hyprutils::Memory;
+using namespace Abyssutils::Memory;
 
 template <typename T>
-using SP = Hyprutils::Memory::CSharedPointer<T>;
+using SP = Abyssutils::Memory::CSharedPointer<T>;
 template <typename T>
-using WP = Hyprutils::Memory::CWeakPointer<T>;
+using WP = Abyssutils::Memory::CWeakPointer<T>;
 template <typename T>
-using UP = Hyprutils::Memory::CUniquePointer<T>;
+using UP = Abyssutils::Memory::CUniquePointer<T>;
 template <typename T>
-using ASP = Hyprutils::Memory::CAtomicSharedPointer<T>;
+using ASP = Abyssutils::Memory::CAtomicSharedPointer<T>;

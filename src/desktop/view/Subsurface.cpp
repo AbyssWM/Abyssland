@@ -79,7 +79,7 @@ bool CSubsurface::visible() const {
         return false;
 
     if (!m_windowParent.expired())
-        return g_pHyprRenderer->shouldRenderWindow(m_windowParent.lock());
+        return g_pAbyssRenderer->shouldRenderWindow(m_windowParent.lock());
     if (m_popupParent)
         return m_popupParent->visible();
     if (m_parent)
@@ -146,7 +146,7 @@ void CSubsurface::checkSiblingDamage() {
             continue;
 
         const auto COORDS = n->coordsGlobal();
-        g_pHyprRenderer->damageSurface(n->wlSurface()->resource(), COORDS.x, COORDS.y, SCALE);
+        g_pAbyssRenderer->damageSurface(n->wlSurface()->resource(), COORDS.x, COORDS.y, SCALE);
     }
 }
 
@@ -164,14 +164,14 @@ void CSubsurface::recheckDamageForSubsurfaces(int depth) {
         if (!GEOMETRYUNCHANGED) {
             // damage the old area to clear stale pixels
             if (n->m_hasLastRecheckGeometry)
-                g_pHyprRenderer->damageBox(CBox{n->m_lastRecheckGlobalPos, n->m_lastRecheckGlobalSize}.expand(4));
+                g_pAbyssRenderer->damageBox(CBox{n->m_lastRecheckGlobalPos, n->m_lastRecheckGlobalSize}.expand(4));
 
             n->m_lastRecheckGlobalPos   = COORDS;
             n->m_lastRecheckGlobalSize  = SIZE;
             n->m_hasLastRecheckGeometry = true;
 
             // damage the new area
-            g_pHyprRenderer->damageBox(CBox{COORDS, SIZE}.expand(4));
+            g_pAbyssRenderer->damageBox(CBox{COORDS, SIZE}.expand(4));
         }
 
         // recurse into children to handle nested subsurface trees
@@ -192,7 +192,7 @@ void CSubsurface::onCommit() {
 
     const auto COORDS = coordsGlobal();
 
-    g_pHyprRenderer->damageSurface(m_wlSurface->resource(), COORDS.x, COORDS.y);
+    g_pAbyssRenderer->damageSurface(m_wlSurface->resource(), COORDS.x, COORDS.y);
 
     if (m_popupParent && !m_popupParent->inert() && m_popupParent->wlSurface())
         m_popupParent->recheckTree();
@@ -245,7 +245,7 @@ void CSubsurface::onMap() {
     const auto COORDS = coordsGlobal();
     CBox       box{COORDS, m_lastSize};
     box.expand(4);
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 
     if (!m_windowParent.expired())
         m_windowParent->updateSurfaceScaleTransformDetails();
@@ -276,7 +276,7 @@ void CSubsurface::damageLastArea() {
 
     CBox           box{COORDS, m_lastSize};
     box.expand(4);
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 }
 
 Vector2D CSubsurface::coordsRelativeToParent() const {

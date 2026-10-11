@@ -1,21 +1,21 @@
 #include "GlobalShortcuts.hpp"
 #include "../helpers/time/Time.hpp"
 
-CShortcutClient::CShortcutClient(SP<CHyprlandGlobalShortcutsManagerV1> resource_) : m_resource(resource_) {
+CShortcutClient::CShortcutClient(SP<CAbysslandGlobalShortcutsManagerV1> resource_) : m_resource(resource_) {
     if UNLIKELY (!good())
         return;
 
-    m_resource->setOnDestroy([this](CHyprlandGlobalShortcutsManagerV1* pMgr) { PROTO::globalShortcuts->destroyResource(this); });
-    m_resource->setDestroy([this](CHyprlandGlobalShortcutsManagerV1* pMgr) { PROTO::globalShortcuts->destroyResource(this); });
+    m_resource->setOnDestroy([this](CAbysslandGlobalShortcutsManagerV1* pMgr) { PROTO::globalShortcuts->destroyResource(this); });
+    m_resource->setDestroy([this](CAbysslandGlobalShortcutsManagerV1* pMgr) { PROTO::globalShortcuts->destroyResource(this); });
 
-    m_resource->setRegisterShortcut([this](CHyprlandGlobalShortcutsManagerV1* pMgr, uint32_t shortcut, const char* id, const char* app_id, const char* description,
+    m_resource->setRegisterShortcut([this](CAbysslandGlobalShortcutsManagerV1* pMgr, uint32_t shortcut, const char* id, const char* app_id, const char* description,
                                            const char* trigger_description) {
         if UNLIKELY (PROTO::globalShortcuts->isTaken(id, app_id)) {
-            m_resource->error(HYPRLAND_GLOBAL_SHORTCUTS_MANAGER_V1_ERROR_ALREADY_TAKEN, "Combination is taken");
+            m_resource->error(ABYSSLAND_GLOBAL_SHORTCUTS_MANAGER_V1_ERROR_ALREADY_TAKEN, "Combination is taken");
             return;
         }
 
-        const auto PSHORTCUT   = m_shortcuts.emplace_back(makeShared<SShortcut>(makeShared<CHyprlandGlobalShortcutV1>(m_resource->client(), m_resource->version(), shortcut)));
+        const auto PSHORTCUT   = m_shortcuts.emplace_back(makeShared<SShortcut>(makeShared<CAbysslandGlobalShortcutV1>(m_resource->client(), m_resource->version(), shortcut)));
         PSHORTCUT->id          = id;
         PSHORTCUT->description = description;
         PSHORTCUT->appid       = app_id;
@@ -27,7 +27,7 @@ CShortcutClient::CShortcutClient(SP<CHyprlandGlobalShortcutsManagerV1> resource_
             return;
         }
 
-        PSHORTCUT->resource->setDestroy([this](CHyprlandGlobalShortcutV1* pMgr) { std::erase_if(m_shortcuts, [&](const auto& other) { return other->resource.get() == pMgr; }); });
+        PSHORTCUT->resource->setDestroy([this](CAbysslandGlobalShortcutV1* pMgr) { std::erase_if(m_shortcuts, [&](const auto& other) { return other->resource.get() == pMgr; }); });
     });
 }
 
@@ -40,7 +40,7 @@ CGlobalShortcutsProtocol::CGlobalShortcutsProtocol(const wl_interface* iface, co
 }
 
 void CGlobalShortcutsProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
-    const auto RESOURCE = m_clients.emplace_back(makeShared<CShortcutClient>(makeShared<CHyprlandGlobalShortcutsManagerV1>(client, ver, id)));
+    const auto RESOURCE = m_clients.emplace_back(makeShared<CShortcutClient>(makeShared<CAbysslandGlobalShortcutsManagerV1>(client, ver, id)));
 
     if UNLIKELY (!RESOURCE->good()) {
         wl_client_post_no_memory(client);

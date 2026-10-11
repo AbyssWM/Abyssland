@@ -4,19 +4,19 @@
 
 class CKeyboard : public IKeyboard {
   public:
-    static SP<CKeyboard>              create(SP<Aquamarine::IKeyboard> keeb);
+    static SP<CKeyboard>              create(SP<Abyssal::IKeyboard> keeb);
 
     virtual bool                      isVirtual();
-    virtual SP<Aquamarine::IKeyboard> aq();
+    virtual SP<Abyssal::IKeyboard> aq();
 
   private:
-    CKeyboard(SP<Aquamarine::IKeyboard> keeb);
+    CKeyboard(SP<Abyssal::IKeyboard> keeb);
 
-    WP<Aquamarine::IKeyboard> m_keyboard;
+    WP<Abyssal::IKeyboard> m_keyboard;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener key;
-        CHyprSignalListener modifiers;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener key;
+        CAbyssSignalListener modifiers;
     } m_listeners;
 };

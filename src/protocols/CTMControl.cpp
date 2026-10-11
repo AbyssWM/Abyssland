@@ -10,14 +10,14 @@
 #include "../state/MonitorState.hpp"
 #include <cmath>
 
-CHyprlandCTMControlResource::CHyprlandCTMControlResource(UP<CHyprlandCtmControlManagerV1>&& resource_) : m_resource(std::move(resource_)) {
+CAbysslandCTMControlResource::CAbysslandCTMControlResource(UP<CAbysslandCtmControlManagerV1>&& resource_) : m_resource(std::move(resource_)) {
     if UNLIKELY (!good())
         return;
 
-    m_resource->setDestroy([this](CHyprlandCtmControlManagerV1* pMgr) { PROTO::ctm->destroyResource(this); });
-    m_resource->setOnDestroy([this](CHyprlandCtmControlManagerV1* pMgr) { PROTO::ctm->destroyResource(this); });
+    m_resource->setDestroy([this](CAbysslandCtmControlManagerV1* pMgr) { PROTO::ctm->destroyResource(this); });
+    m_resource->setOnDestroy([this](CAbysslandCtmControlManagerV1* pMgr) { PROTO::ctm->destroyResource(this); });
 
-    m_resource->setSetCtmForOutput([this](CHyprlandCtmControlManagerV1* r, wl_resource* output, wl_fixed_t mat0, wl_fixed_t mat1, wl_fixed_t mat2, wl_fixed_t mat3, wl_fixed_t mat4,
+    m_resource->setSetCtmForOutput([this](CAbysslandCtmControlManagerV1* r, wl_resource* output, wl_fixed_t mat0, wl_fixed_t mat1, wl_fixed_t mat2, wl_fixed_t mat3, wl_fixed_t mat4,
                                           wl_fixed_t mat5, wl_fixed_t mat6, wl_fixed_t mat7, wl_fixed_t mat8) {
         if (m_blocked)
             return;
@@ -37,7 +37,7 @@ CHyprlandCTMControlResource::CHyprlandCTMControlResource(UP<CHyprlandCtmControlM
 
         for (auto& el : MAT) {
             if (!std::isfinite(el) || el < 0.F) {
-                m_resource->error(HYPRLAND_CTM_CONTROL_MANAGER_V1_ERROR_INVALID_MATRIX, "a matrix component was invalid");
+                m_resource->error(ABYSSLAND_CTM_CONTROL_MANAGER_V1_ERROR_INVALID_MATRIX, "a matrix component was invalid");
                 return;
             }
         }
@@ -47,7 +47,7 @@ CHyprlandCTMControlResource::CHyprlandCTMControlResource(UP<CHyprlandCtmControlM
         LOGM(Log::DEBUG, "CTM set for output {}: {}", PMONITOR->m_name, m_ctms.at(PMONITOR->m_name).toString());
     });
 
-    m_resource->setCommit([this](CHyprlandCtmControlManagerV1* r) {
+    m_resource->setCommit([this](CAbysslandCtmControlManagerV1* r) {
         if (m_blocked)
             return;
 
@@ -64,14 +64,14 @@ CHyprlandCTMControlResource::CHyprlandCTMControlResource(UP<CHyprlandCtmControlM
     });
 }
 
-void CHyprlandCTMControlResource::block() {
+void CAbysslandCTMControlResource::block() {
     m_blocked = true;
 
     if (m_resource->version() >= 2)
         m_resource->sendBlocked();
 }
 
-CHyprlandCTMControlResource::~CHyprlandCTMControlResource() {
+CAbysslandCTMControlResource::~CAbysslandCTMControlResource() {
     if (m_blocked)
         return;
 
@@ -80,16 +80,16 @@ CHyprlandCTMControlResource::~CHyprlandCTMControlResource() {
     }
 }
 
-bool CHyprlandCTMControlResource::good() {
+bool CAbysslandCTMControlResource::good() {
     return m_resource->resource();
 }
 
-CHyprlandCTMControlProtocol::CHyprlandCTMControlProtocol(const wl_interface* iface, const int& ver, const std::string& name) : IWaylandProtocol(iface, ver, name) {
+CAbysslandCTMControlProtocol::CAbysslandCTMControlProtocol(const wl_interface* iface, const int& ver, const std::string& name) : IWaylandProtocol(iface, ver, name) {
     ;
 }
 
-void CHyprlandCTMControlProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
-    const auto& RESOURCE = m_managers.emplace_back(makeUnique<CHyprlandCTMControlResource>(makeUnique<CHyprlandCtmControlManagerV1>(client, ver, id)));
+void CAbysslandCTMControlProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
+    const auto& RESOURCE = m_managers.emplace_back(makeUnique<CAbysslandCTMControlResource>(makeUnique<CAbysslandCtmControlManagerV1>(client, ver, id)));
 
     if UNLIKELY (!RESOURCE->good()) {
         wl_client_post_no_memory(client);
@@ -105,15 +105,15 @@ void CHyprlandCTMControlProtocol::bindManager(wl_client* client, void* data, uin
     LOGM(Log::DEBUG, "New CTM Manager at 0x{:x}", (uintptr_t)RESOURCE.get());
 }
 
-void CHyprlandCTMControlProtocol::destroyResource(CHyprlandCTMControlResource* res) {
+void CAbysslandCTMControlProtocol::destroyResource(CAbysslandCTMControlResource* res) {
     std::erase_if(m_managers, [&](const auto& other) { return other.get() == res; });
 }
 
-bool CHyprlandCTMControlProtocol::isCTMAnimationEnabled() {
+bool CAbysslandCTMControlProtocol::isCTMAnimationEnabled() {
     static auto PENABLEANIM = CConfigValue<Config::INTEGER>("render:ctm_animation");
 
     if (*PENABLEANIM == 2 /* auto */) {
-        if (!g_pHyprRenderer->isNvidia())
+        if (!g_pAbyssRenderer->isNvidia())
             return true;
         // CTM animations are bugged on versions below.
         return isNvidiaDriverVersionAtLeast(575);
@@ -121,11 +121,11 @@ bool CHyprlandCTMControlProtocol::isCTMAnimationEnabled() {
     return *PENABLEANIM;
 }
 
-CHyprlandCTMControlProtocol::SCTMData::SCTMData() {
+CAbysslandCTMControlProtocol::SCTMData::SCTMData() {
     Animation::mgr()->createAnimation(0.f, progress, Config::animationTree()->getAnimationPropertyConfig("__internal_fadeCTM"), AVARDAMAGE_NONE);
 }
 
-void CHyprlandCTMControlProtocol::setCTM(PHLMONITOR monitor, const Mat3x3& ctm) {
+void CAbysslandCTMControlProtocol::setCTM(PHLMONITOR monitor, const Mat3x3& ctm) {
     if (!isCTMAnimationEnabled()) {
         monitor->setCTM(ctm);
         return;

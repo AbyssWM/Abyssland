@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace Render {
-    class IHyprRenderer;
+    class IAbyssRenderer;
     class ITexture;
 }
 
@@ -29,7 +29,7 @@ namespace Debug {
       private:
         struct STextLine {
             std::string          text;
-            CHyprColor           color;
+            CAbyssColor           color;
             int                  fontSize = 10;
             SP<Render::ITexture> texture;
         };
@@ -41,7 +41,7 @@ namespace Debug {
             float var = 0.F;
         };
 
-        void                                           updateLine(size_t idx, const std::string& text, const CHyprColor& color, int fontSize, const std::string& fontFamily);
+        void                                           updateLine(size_t idx, const std::string& text, const CAbyssColor& color, int fontSize, const std::string& fontFamily);
         void                                           rebuildCache();
 
         std::deque<float>                              m_lastFrametimes;
@@ -60,7 +60,7 @@ namespace Debug {
 
         CBox                                           m_lastDrawnBox;
 
-        friend class Render::IHyprRenderer;
+        friend class Render::IAbyssRenderer;
     };
 
     class COverlay {
@@ -80,8 +80,8 @@ namespace Debug {
         SP<Render::ITexture>                     m_warningTexture;
         float                                    m_warningTextureMaxW = 0;
 
-        friend class CHyprMonitorDebugOverlay;
-        friend class Render::IHyprRenderer;
+        friend class CAbyssMonitorDebugOverlay;
+        friend class Render::IAbyssRenderer;
     };
 
     UP<COverlay>& overlay();

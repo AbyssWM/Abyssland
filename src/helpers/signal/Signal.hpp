@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/signal/Signal.hpp>
+#include <abyssutils/signal/Signal.hpp>
 
 //NOLINTNEXTLINE
-using namespace Hyprutils::Signal;
+using namespace Abyssutils::Signal;

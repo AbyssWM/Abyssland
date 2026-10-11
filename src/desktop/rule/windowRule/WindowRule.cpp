@@ -10,17 +10,17 @@
 #include "../../../config/shared/parserUtils/ParserUtils.hpp"
 #include "desktop/rule/windowRule/WindowRuleEffectContainer.hpp"
 
-#include <hyprutils/string/Numeric.hpp>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList.hpp>
+#include <abyssutils/string/VarList2.hpp>
 #include <algorithm>
 #include <format>
 #include <numbers>
 
 using namespace Desktop;
 using namespace Desktop::Rule;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 static const char* numericParseError(eNumericParseResult r) {
     switch (r) {
@@ -48,12 +48,12 @@ static std::expected<float, std::string> parseFloat(std::string_view effectName,
     return *parsed;
 }
 
-static std::expected<CHyprColor, std::string> parseBorderColorToken(const std::string& raw, const std::string& token) {
+static std::expected<CAbyssColor, std::string> parseBorderColorToken(const std::string& raw, const std::string& token) {
     auto parsed = Config::ParserUtils::parseColor(token);
     if (!parsed)
         return std::unexpected(std::format(R"(border_color rule "{}" has invalid color "{}": {})", raw, token, parsed.error()));
 
-    return CHyprColor(*parsed);
+    return CAbyssColor(*parsed);
 }
 
 static std::expected<SFullscreenStateRule, std::string> parseFullscreenState(const std::string& raw) {

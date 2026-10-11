@@ -12,8 +12,8 @@ static const int MAX_WORK_BUFFERS   = 8;
 static const int MAX_UNUSED_SECONDS = 5;
 
 CMonitorResources::CMonitorResources(WP<CMonitor> monitor, DRMFormat format, Vector2D size, NColorManagement::PImageDescription imageDescription) :
-    m_stencilTex(g_pHyprRenderer->createStencilTexture(monitor->m_pixelSize.x, monitor->m_pixelSize.y)),
-    m_blurFB(g_pHyprRenderer->createFB(std::format("Monitor {} blur FB", monitor->m_name))), m_monitor(monitor), m_drmFormat(format), m_size(size),
+    m_stencilTex(g_pAbyssRenderer->createStencilTexture(monitor->m_pixelSize.x, monitor->m_pixelSize.y)),
+    m_blurFB(g_pAbyssRenderer->createFB(std::format("Monitor {} blur FB", monitor->m_name))), m_monitor(monitor), m_drmFormat(format), m_size(size),
     m_imageDescription(imageDescription) {
     initFB(m_blurFB);
     monitor->m_blurFBDirty = true;
@@ -50,7 +50,7 @@ SP<Render::IFramebuffer> CMonitorResources::getUnusedWorkBuffer() {
     if (m_workBuffers.size() >= MAX_WORK_BUFFERS)
         return nullptr;
 
-    auto& res = m_workBuffers.emplace_back(g_pHyprRenderer->createFB(std::format("Monitor {} workbuffer", m_monitor->m_name)));
+    auto& res = m_workBuffers.emplace_back(g_pAbyssRenderer->createFB(std::format("Monitor {} workbuffer", m_monitor->m_name)));
     initFB(res.buffer);
     res.lastUsed.reset();
     return res.buffer;
@@ -123,7 +123,7 @@ CRegion CMonitorResources::pendingMirrorFBDamage() const {
 
 SP<Render::IFramebuffer> CMonitorResources::mirrorFB() {
     if (!m_monitorMirrorFB)
-        m_monitorMirrorFB = g_pHyprRenderer->createFB(std::format("Monitor {} mirror FB", m_monitor->m_name));
+        m_monitorMirrorFB = g_pAbyssRenderer->createFB(std::format("Monitor {} mirror FB", m_monitor->m_name));
 
     if (!m_monitorMirrorFB->isAllocated()) {
         m_monitorMirrorFB->alloc(m_size.x, m_size.y, m_monitor->m_activeMonitorRule.m_enable10bit ? DRM_FORMAT_XRGB2101010 : DRM_FORMAT_XRGB8888);
@@ -152,7 +152,7 @@ Vector2D CMonitorResources::mirrorFBDamageSize() const {
 void CMonitorResources::enableMirror() {
     if (m_mirrorTex)
         return;
-    m_mirrorTex = g_pHyprRenderer->createTexture();
+    m_mirrorTex = g_pAbyssRenderer->createTexture();
     m_mirrorTex->allocate({m_size.x, m_size.y}, m_monitor->m_activeMonitorRule.m_enable10bit ? DRM_FORMAT_XRGB2101010 : DRM_FORMAT_XRGB8888);
     m_mirrorTex->m_imageDescription = getMirrorTexImageDescription();
     m_monitor->m_blurFBDirty        = true;

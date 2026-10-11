@@ -3,41 +3,41 @@
 #include <vector>
 #include <cstdint>
 #include "WaylandProtocol.hpp"
-#include "hyprland-ctm-control-v1.hpp"
+#include "abyssland-ctm-control-v1.hpp"
 #include <unordered_map>
 #include <map>
 #include "../helpers/AnimatedVariable.hpp"
 
-class CHyprlandCTMControlResource {
+class CAbysslandCTMControlResource {
   public:
-    CHyprlandCTMControlResource(UP<CHyprlandCtmControlManagerV1>&& resource_);
-    ~CHyprlandCTMControlResource();
+    CAbysslandCTMControlResource(UP<CAbysslandCtmControlManagerV1>&& resource_);
+    ~CAbysslandCTMControlResource();
 
     bool good();
     void block();
 
   private:
-    UP<CHyprlandCtmControlManagerV1>        m_resource;
+    UP<CAbysslandCtmControlManagerV1>        m_resource;
 
     std::unordered_map<std::string, Mat3x3> m_ctms;
     bool                                    m_blocked = false;
 };
 
-class CHyprlandCTMControlProtocol : public IWaylandProtocol {
+class CAbysslandCTMControlProtocol : public IWaylandProtocol {
   public:
-    CHyprlandCTMControlProtocol(const wl_interface* iface, const int& ver, const std::string& name);
+    CAbysslandCTMControlProtocol(const wl_interface* iface, const int& ver, const std::string& name);
 
     virtual void bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id);
 
   private:
-    void destroyResource(CHyprlandCTMControlResource* resource);
+    void destroyResource(CAbysslandCTMControlResource* resource);
 
     void setCTM(PHLMONITOR monitor, const Mat3x3& ctm);
     bool isCTMAnimationEnabled();
 
     //
-    std::vector<UP<CHyprlandCTMControlResource>> m_managers;
-    WP<CHyprlandCTMControlResource>              m_manager;
+    std::vector<UP<CAbysslandCTMControlResource>> m_managers;
+    WP<CAbysslandCTMControlResource>              m_manager;
 
     //
     struct SCTMData {
@@ -47,9 +47,9 @@ class CHyprlandCTMControlProtocol : public IWaylandProtocol {
     };
     std::map<PHLMONITORREF, UP<SCTMData>> m_ctmDatas;
 
-    friend class CHyprlandCTMControlResource;
+    friend class CAbysslandCTMControlResource;
 };
 
 namespace PROTO {
-    inline UP<CHyprlandCTMControlProtocol> ctm;
+    inline UP<CAbysslandCTMControlProtocol> ctm;
 };

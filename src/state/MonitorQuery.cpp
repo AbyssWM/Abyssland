@@ -41,7 +41,7 @@ CMonitorQuery&& CMonitorQuery::vec(Vector2D vec) && {
     return std::move(*this);
 }
 
-CMonitorQuery&& CMonitorQuery::output(SP<Aquamarine::IOutput> output) && {
+CMonitorQuery&& CMonitorQuery::output(SP<Abyssal::IOutput> output) && {
     m_output = output;
     return std::move(*this);
 }

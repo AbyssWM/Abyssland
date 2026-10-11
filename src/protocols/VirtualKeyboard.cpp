@@ -6,7 +6,7 @@
 #include "../devices/IKeyboard.hpp"
 #include "../helpers/time/Time.hpp"
 #include "../helpers/MiscFunctions.hpp"
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static std::string virtualKeyboardNameForWlClient(wl_client* client) {
     std::string name = "hl-virtual-keyboard";

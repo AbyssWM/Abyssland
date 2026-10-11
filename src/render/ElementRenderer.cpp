@@ -3,9 +3,9 @@
 #include "../layout/LayoutManager.hpp"
 #include "../desktop/view/Window.hpp"
 #include "render/pass/ClearPassElement.hpp"
-#include <hyprutils/memory/SharedPtr.hpp>
-#include <hyprutils/memory/UniquePtr.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/memory/SharedPtr.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
 using namespace Render;
 
@@ -52,10 +52,10 @@ static std::optional<Vector2D> getSurfaceExpectedSize(PHLWINDOW pWindow, SP<CWLS
 
 void IElementRenderer::calculateUVForSurface(PHLWINDOW pWindow, SP<CWLSurfaceResource> pSurface, PHLMONITOR pMonitor, bool main, const Vector2D& projSize,
                                              const Vector2D& projSizeUnscaled, bool fixMisalignedFSV1) {
-    auto& m_renderData = g_pHyprRenderer->m_renderData;
+    auto& m_renderData = g_pAbyssRenderer->m_renderData;
 
     if (!pWindow || !pWindow->m_isX11) {
-        static auto PEXPANDEDGES = CConfigValue<Hyprlang::INT>("render:expand_undersized_textures");
+        static auto PEXPANDEDGES = CConfigValue<Abyssparse::INT>("render:expand_undersized_textures");
 
         Vector2D    uvTL;
         Vector2D    uvBR = Vector2D(1, 1);
@@ -155,7 +155,7 @@ void IElementRenderer::calculateUVForSurface(PHLWINDOW pWindow, SP<CWLSurfaceRes
 
 void IElementRenderer::drawRect(WP<CRectPassElement> element, const CRegion& damage) {
     auto& data         = element->m_data;
-    auto& m_renderData = g_pHyprRenderer->m_renderData;
+    auto& m_renderData = g_pAbyssRenderer->m_renderData;
 
     if (data.box.w <= 0 || data.box.h <= 0)
         return;
@@ -167,7 +167,7 @@ void IElementRenderer::drawRect(WP<CRectPassElement> element, const CRegion& dam
     m_renderData.renderModif.applyToBox(data.modifiedBox);
 
     CBox transformedBox = data.box;
-    transformedBox.transform(Math::wlTransformToHyprutils(Math::invertTransform(m_renderData.pMonitor->m_transform)), m_renderData.pMonitor->m_transformedSize.x,
+    transformedBox.transform(Math::wlTransformToAbyssutils(Math::invertTransform(m_renderData.pMonitor->m_transform)), m_renderData.pMonitor->m_transformedSize.x,
                              m_renderData.pMonitor->m_transformedSize.y);
 
     data.TOPLEFT[0]  = sc<float>(transformedBox.x);
@@ -190,12 +190,12 @@ void IElementRenderer::drawRect(WP<CRectPassElement> element, const CRegion& dam
 void IElementRenderer::drawHints(WP<CRendererHintsPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
     if (m_data.renderModif.has_value())
-        g_pHyprRenderer->m_renderData.renderModif = *m_data.renderModif;
+        g_pAbyssRenderer->m_renderData.renderModif = *m_data.renderModif;
 }
 
 void IElementRenderer::drawPreBlur(WP<CPreBlurElement> element, const CRegion& damage) {
     TRACY_GPU_ZONE("RenderPreBlurForCurrentMonitor");
-    auto&      m_renderData = g_pHyprRenderer->m_renderData;
+    auto&      m_renderData = g_pAbyssRenderer->m_renderData;
 
     const auto SAVEDRENDERMODIF = m_renderData.renderModif;
     m_renderData.renderModif    = {}; // fix shit
@@ -212,17 +212,17 @@ void IElementRenderer::drawPreBlur(WP<CPreBlurElement> element, const CRegion& d
 }
 
 void IElementRenderer::drawClear(WP<CClearPassElement> element, const CRegion& damage) {
-    element->m_data.color = g_pHyprRenderer->getConvertedColor(element->m_data.color); // FIXME create element copy?
+    element->m_data.color = g_pAbyssRenderer->getConvertedColor(element->m_data.color); // FIXME create element copy?
     draw(element, damage);
 }
 
 void IElementRenderer::drawSurface(WP<CSurfacePassElement> element, const CRegion& damage) {
     const auto&                   m_data       = element->m_data;
-    auto&                         m_renderData = g_pHyprRenderer->m_renderData;
+    auto&                         m_renderData = g_pAbyssRenderer->m_renderData;
 
-    Hyprutils::Utils::CScopeGuard x = {[]() {
-        g_pHyprRenderer->m_renderData.primarySurfaceUVTopLeft     = Vector2D(-1, -1);
-        g_pHyprRenderer->m_renderData.primarySurfaceUVBottomRight = Vector2D(-1, -1);
+    Abyssutils::Utils::CScopeGuard x = {[]() {
+        g_pAbyssRenderer->m_renderData.primarySurfaceUVTopLeft     = Vector2D(-1, -1);
+        g_pAbyssRenderer->m_renderData.primarySurfaceUVBottomRight = Vector2D(-1, -1);
     }};
 
     if (!m_data.texture) {
@@ -296,9 +296,9 @@ void IElementRenderer::drawSurface(WP<CSurfacePassElement> element, const CRegio
     const bool CANDISABLEBLEND = ALPHA >= 1.f && OVERALL_ALPHA >= 1.f && rounding <= 0 && WINDOWOPAQUE;
 
     if (CANDISABLEBLEND)
-        g_pHyprRenderer->blend(false);
+        g_pAbyssRenderer->blend(false);
     else
-        g_pHyprRenderer->blend(true);
+        g_pAbyssRenderer->blend(true);
 
     // FIXME: This is wrong and will bug the blur out as shit if the first surface
     // is a subsurface that does NOT cover the entire frame. In such cases, we probably should fall back
@@ -385,17 +385,17 @@ void IElementRenderer::drawSurface(WP<CSurfacePassElement> element, const CRegio
                         m_renderData.damage.copy().intersect(windowBox));
     }
 
-    g_pHyprRenderer->blend(true);
+    g_pAbyssRenderer->blend(true);
 
-    if (!g_pHyprRenderer->m_bBlockSurfaceFeedback)
+    if (!g_pAbyssRenderer->m_bBlockSurfaceFeedback)
         element->m_data.surface->presentFeedback(element->m_data.when, element->m_data.pMonitor->m_self.lock());
 };
 
 void IElementRenderer::preDrawSurface(WP<CSurfacePassElement> element, const CRegion& damage) {
-    auto& m_renderData              = g_pHyprRenderer->m_renderData;
+    auto& m_renderData              = g_pAbyssRenderer->m_renderData;
     m_renderData.clipBox            = element->m_data.clipBox;
     m_renderData.useNearestNeighbor = element->m_data.useNearestNeighbor;
-    g_pHyprRenderer->pushMonitorTransformEnabled(element->m_data.flipEndFrame);
+    g_pAbyssRenderer->pushMonitorTransformEnabled(element->m_data.flipEndFrame);
     m_renderData.currentWindow = element->m_data.pWindow;
 
     drawSurface(element, damage);
@@ -403,31 +403,31 @@ void IElementRenderer::preDrawSurface(WP<CSurfacePassElement> element, const CRe
     // add async (dmabuf) buffers to usedBuffers so we can handle release later
     // sync (shm) buffers will be released in commitState, so no need to track them here
     if (element->m_data.surface->m_current.buffer && !element->m_data.surface->m_current.buffer->isSynchronous())
-        g_pHyprRenderer->m_usedAsyncBuffers.emplace_back(element->m_data.surface->m_current.buffer);
+        g_pAbyssRenderer->m_usedAsyncBuffers.emplace_back(element->m_data.surface->m_current.buffer);
 
     m_renderData.clipBox            = {};
     m_renderData.useNearestNeighbor = false;
-    g_pHyprRenderer->popMonitorTransformEnabled();
+    g_pAbyssRenderer->popMonitorTransformEnabled();
     m_renderData.currentWindow.reset();
 }
 
 void IElementRenderer::drawTex(WP<CTexPassElement> element, const CRegion& damage) {
-    auto& m_renderData = g_pHyprRenderer->m_renderData;
+    auto& m_renderData = g_pAbyssRenderer->m_renderData;
     if (!element->m_data.clipBox.empty())
         m_renderData.clipBox = element->m_data.clipBox;
 
-    g_pHyprRenderer->pushMonitorTransformEnabled(element->m_data.flipEndFrame);
+    g_pAbyssRenderer->pushMonitorTransformEnabled(element->m_data.flipEndFrame);
     if (element->m_data.useMirrorProjection)
-        g_pHyprRenderer->setProjectionType(RPT_MIRROR);
+        g_pAbyssRenderer->setProjectionType(RPT_MIRROR);
 
     m_renderData.surface = element->m_data.surface;
 
-    Hyprutils::Utils::CScopeGuard x = {[useMirrorProjection = element->m_data.useMirrorProjection]() {
-        g_pHyprRenderer->popMonitorTransformEnabled();
+    Abyssutils::Utils::CScopeGuard x = {[useMirrorProjection = element->m_data.useMirrorProjection]() {
+        g_pAbyssRenderer->popMonitorTransformEnabled();
         if (useMirrorProjection)
-            g_pHyprRenderer->setProjectionType(RPT_MONITOR);
-        g_pHyprRenderer->m_renderData.surface.reset();
-        g_pHyprRenderer->m_renderData.clipBox = {};
+            g_pAbyssRenderer->setProjectionType(RPT_MONITOR);
+        g_pAbyssRenderer->m_renderData.surface.reset();
+        g_pAbyssRenderer->m_renderData.clipBox = {};
     }};
 
     if (element->m_data.blur) {
@@ -467,14 +467,14 @@ void IElementRenderer::drawTex(WP<CTexPassElement> element, const CRegion& damag
 
         inverseOpaque.scale(m_renderData.pMonitor->m_scale);
         element->m_data.blockBlurOptimization = element->m_data.blockBlurOptimization.value_or(false) ||
-            !g_pHyprRenderer->shouldUseNewBlurOptimizations(element->m_data.currentLS.lock(), m_renderData.currentWindow.lock());
+            !g_pAbyssRenderer->shouldUseNewBlurOptimizations(element->m_data.currentLS.lock(), m_renderData.currentWindow.lock());
 
         //   vvv TODO: layered blur fbs?
         if (element->m_data.blockBlurOptimization.value_or(false)) {
             inverseOpaque.translate(box.pos());
             m_renderData.renderModif.applyToRegion(inverseOpaque);
             inverseOpaque.intersect(element->m_data.damage);
-            element->m_data.blurredBG = g_pHyprRenderer->blurMainFramebuffer(element->m_data.a, &inverseOpaque);
+            element->m_data.blurredBG = g_pAbyssRenderer->blurMainFramebuffer(element->m_data.a, &inverseOpaque);
         } else
             element->m_data.blurredBG = m_renderData.pMonitor->resources()->m_blurFB->getTexture();
 
@@ -484,16 +484,16 @@ void IElementRenderer::drawTex(WP<CTexPassElement> element, const CRegion& damag
 }
 
 void IElementRenderer::drawTexMatte(WP<CTextureMatteElement> element, const CRegion& damage) {
-    if (g_pHyprRenderer->m_renderData.damage.empty())
+    if (g_pAbyssRenderer->m_renderData.damage.empty())
         return;
 
     const auto& m_data = element->m_data;
     if (m_data.disableTransformAndModify) {
-        g_pHyprRenderer->pushMonitorTransformEnabled(true);
-        g_pHyprRenderer->m_renderData.renderModif.enabled = false;
+        g_pAbyssRenderer->pushMonitorTransformEnabled(true);
+        g_pAbyssRenderer->m_renderData.renderModif.enabled = false;
         draw(element, damage);
-        g_pHyprRenderer->m_renderData.renderModif.enabled = true;
-        g_pHyprRenderer->popMonitorTransformEnabled();
+        g_pAbyssRenderer->m_renderData.renderModif.enabled = true;
+        g_pAbyssRenderer->popMonitorTransformEnabled();
     } else
         draw(element, damage);
 }
@@ -502,7 +502,7 @@ void IElementRenderer::drawTransformedWindow(WP<CTransformedWindowPassElement> e
     if (!element || !element->m_data.pass)
         return;
 
-    auto&      renderData = g_pHyprRenderer->m_renderData;
+    auto&      renderData = g_pAbyssRenderer->m_renderData;
     const auto pMonitor   = renderData.pMonitor;
     const auto fb         = pMonitor->resources()->getUnusedWorkBuffer();
     if (!fb)
@@ -529,14 +529,14 @@ void IElementRenderer::drawTransformedWindow(WP<CTransformedWindowPassElement> e
     };
 
     {
-        auto guard = g_pHyprRenderer->bindTempFB(fb);
+        auto guard = g_pAbyssRenderer->bindTempFB(fb);
 
         renderData.currentWindow = element->m_data.window;
         renderData.surface.reset();
         renderData.clipBox = {};
         renderData.damage  = CRegion{0, 0, sc<int>(pMonitor->m_transformedSize.x), sc<int>(pMonitor->m_transformedSize.y)};
 
-        g_pHyprRenderer->draw(CClearPassElement::SClearData{CHyprColor(0, 0, 0, 0)});
+        g_pAbyssRenderer->draw(CClearPassElement::SClearData{CAbyssColor(0, 0, 0, 0)});
 
         CBox nestedDamage = element->m_data.currentBox.copy().scale(pMonitor->m_scale).round();
         nestedDamage.expand(2);
@@ -553,18 +553,18 @@ void IElementRenderer::drawTransformedWindow(WP<CTransformedWindowPassElement> e
             SP<IFramebuffer> matteLast;
 
             {
-                auto guard = g_pHyprRenderer->bindTempFB(matteFB);
+                auto guard = g_pAbyssRenderer->bindTempFB(matteFB);
 
                 renderData.currentWindow = element->m_data.window;
                 renderData.surface.reset();
                 renderData.clipBox = {};
                 renderData.damage  = CRegion{0, 0, sc<int>(pMonitor->m_transformedSize.x), sc<int>(pMonitor->m_transformedSize.y)};
 
-                g_pHyprRenderer->draw(CClearPassElement::SClearData{CHyprColor(0, 0, 0, 1)});
-                g_pHyprRenderer->draw(
+                g_pAbyssRenderer->draw(CClearPassElement::SClearData{CAbyssColor(0, 0, 0, 1)});
+                g_pAbyssRenderer->draw(
                     CRectPassElement::SRectData{
                         .box           = element->m_data.blurBox,
-                        .color         = CHyprColor(1, 1, 1, 1),
+                        .color         = CAbyssColor(1, 1, 1, 1),
                         .round         = element->m_data.blurRound,
                         .roundingPower = element->m_data.blurRoundingPower,
                     },
@@ -620,7 +620,7 @@ void IElementRenderer::drawTransformedWindow(WP<CTransformedWindowPassElement> e
     }
 
     (void)blurAlphaMatteFB;
-    g_pHyprRenderer->draw(data, drawDamage);
+    g_pAbyssRenderer->draw(data, drawDamage);
 }
 
 void IElementRenderer::drawCustom(WP<IPassElement> element, const CRegion& damage) {

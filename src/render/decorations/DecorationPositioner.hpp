@@ -6,7 +6,7 @@
 #include "../../helpers/math/Math.hpp"
 #include "../../desktop/DesktopTypes.hpp"
 
-class IHyprWindowDecoration;
+class IAbyssWindowDecoration;
 
 enum eDecorationPositioningPolicy : uint8_t {
     DECORATION_POSITION_ABSOLUTE = 0, /* Decoration wants absolute positioning */
@@ -62,18 +62,18 @@ class CDecorationPositioner {
 
     // called on resize, or insert/removal of a new deco
     void        onWindowUpdate(PHLWINDOW pWindow);
-    void        uncacheDecoration(IHyprWindowDecoration* deco);
+    void        uncacheDecoration(IAbyssWindowDecoration* deco);
     SBoxExtents getWindowDecorationReserved(PHLWINDOWREF pWindow);
     SBoxExtents getWindowDecorationExtents(PHLWINDOWREF pWindow, bool inputOnly = false);
     CBox        getBoxWithIncludedDecos(PHLWINDOW pWindow);
-    void        repositionDeco(IHyprWindowDecoration* deco);
-    CBox        getWindowDecorationBox(IHyprWindowDecoration* deco);
+    void        repositionDeco(IAbyssWindowDecoration* deco);
+    CBox        getWindowDecorationBox(IAbyssWindowDecoration* deco);
     void        forceRecalcFor(PHLWINDOW pWindow);
 
   private:
     struct SWindowPositioningData {
         PHLWINDOWREF                pWindow;
-        IHyprWindowDecoration*      pDecoration = nullptr;
+        IAbyssWindowDecoration*      pDecoration = nullptr;
         SDecorationPositioningInfo  positioningInfo;
         SDecorationPositioningReply lastReply;
         bool                        needsReposition = true;
@@ -93,7 +93,7 @@ class CDecorationPositioner {
     std::map<PHLWINDOWREF, SWindowData> m_windowDatas;
     bool                                m_needsSanitize = false;
 
-    SWindowPositioningData*             getDataFor(IHyprWindowDecoration* pDecoration, PHLWINDOW pWindow);
+    SWindowPositioningData*             getDataFor(IAbyssWindowDecoration* pDecoration, PHLWINDOW pWindow);
     SBoxExtents                         computeWindowDecorationExtents(PHLWINDOWREF pWindow, bool inputOnly);
     void                                onWindowUnmap(PHLWINDOW pWindow);
     void                                onWindowMap(PHLWINDOW pWindow);

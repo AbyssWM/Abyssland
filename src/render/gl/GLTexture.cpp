@@ -4,9 +4,9 @@
 #include "../../helpers/Format.hpp"
 #include "../Texture.hpp"
 #include <cstring>
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace Render::GL;
 
 CGLTexture::CGLTexture(bool opaque) {
@@ -14,17 +14,17 @@ CGLTexture::CGLTexture(bool opaque) {
 }
 
 CGLTexture::~CGLTexture() {
-    if (!g_pCompositor || g_pCompositor->m_isShuttingDown || !g_pHyprRenderer)
+    if (!g_pCompositor || g_pCompositor->m_isShuttingDown || !g_pAbyssRenderer)
         return;
 
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
     if (m_texID) {
         GLCALL(glDeleteTextures(1, &m_texID));
         m_texID = 0;
     }
 
     if (m_eglImage)
-        g_pHyprOpenGL->m_proc.eglDestroyImageKHR(g_pHyprOpenGL->m_eglDisplay, m_eglImage);
+        g_pAbyssOpenGL->m_proc.eglDestroyImageKHR(g_pAbyssOpenGL->m_eglDisplay, m_eglImage);
     m_eglImage = nullptr;
     m_cachedStates.fill(std::nullopt);
 }
@@ -32,7 +32,7 @@ CGLTexture::~CGLTexture() {
 CGLTexture::CGLTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, const Vector2D& size_, bool keepDataCopy, bool opaque) :
     ITexture(drmFormat, pixels, stride, size_, keepDataCopy, opaque) {
 
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
 
     const auto format = getPixelFormatFromDRM(drmFormat);
     ASSERT(format);
@@ -65,9 +65,9 @@ CGLTexture::CGLTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, con
     unbind();
 }
 
-CGLTexture::CGLTexture(const Aquamarine::SDMABUFAttrs& attrs, void* image, bool opaque) {
+CGLTexture::CGLTexture(const Abyssal::SDMABUFAttrs& attrs, void* image, bool opaque) {
     m_opaque = opaque;
-    if (!g_pHyprOpenGL->m_proc.glEGLImageTargetTexture2DOES) {
+    if (!g_pAbyssOpenGL->m_proc.glEGLImageTargetTexture2DOES) {
         Log::logger->log(Log::ERR, "Cannot create a dmabuf texture: no glEGLImageTargetTexture2DOES");
         return;
     }
@@ -90,7 +90,7 @@ CGLTexture::CGLTexture(const Aquamarine::SDMABUFAttrs& attrs, void* image, bool 
     bind();
     setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     setTexParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    GLCALL(g_pHyprOpenGL->m_proc.glEGLImageTargetTexture2DOES(m_target, image));
+    GLCALL(g_pAbyssOpenGL->m_proc.glEGLImageTargetTexture2DOES(m_target, image));
     unbind();
 }
 
@@ -124,7 +124,7 @@ void CGLTexture::update(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, co
     if (damage.empty())
         return;
 
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
 
     const auto format = getPixelFormatFromDRM(drmFormat);
     ASSERT(format);

@@ -21,16 +21,16 @@ namespace {
         bool                            paused = false;
     };
 
-    std::optional<CHyprColor> parseColor(lua_State* L, int idx) {
+    std::optional<CAbyssColor> parseColor(lua_State* L, int idx) {
         if (lua_isnumber(L, idx))
-            return CHyprColor(sc<uint64_t>(lua_tonumber(L, idx)));
+            return CAbyssColor(sc<uint64_t>(lua_tonumber(L, idx)));
 
         if (lua_isstring(L, idx)) {
             auto parsed = ParserUtils::parseColor(lua_tostring(L, idx));
             if (!parsed)
                 return std::nullopt;
 
-            return CHyprColor(sc<uint64_t>(*parsed));
+            return CAbyssColor(sc<uint64_t>(*parsed));
         }
 
         return std::nullopt;

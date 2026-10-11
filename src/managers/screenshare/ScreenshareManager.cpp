@@ -21,7 +21,7 @@ void CScreenshareManager::onOutputCommit(PHLMONITOR monitor) {
                 return;
         }
 
-        g_pHyprRenderer->m_directScanoutBlocked = false;
+        g_pAbyssRenderer->m_directScanoutBlocked = false;
         return; // nothing to share
     }
 

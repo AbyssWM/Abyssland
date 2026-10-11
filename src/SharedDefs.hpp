@@ -5,7 +5,7 @@
 #include <any>
 #include <string>
 #include <algorithm>
-#include <hyprutils/math/Box.hpp>
+#include <abyssutils/math/Box.hpp>
 
 enum eIcons : uint8_t {
     ICON_WARNING = 0,
@@ -38,15 +38,15 @@ enum eInputType : uint8_t {
     INPUT_TYPE_MOTION
 };
 
-enum eHyprCtlOutputFormat : uint8_t {
+enum eAbyssCtlOutputFormat : uint8_t {
     FORMAT_NORMAL = 0,
     FORMAT_JSON
 };
 
-struct SHyprCtlCommand {
+struct SAbyssCtlCommand {
     std::string                                                   name  = "";
     bool                                                          exact = true;
-    std::function<std::string(eHyprCtlOutputFormat, std::string)> fn;
+    std::function<std::string(eAbyssCtlOutputFormat, std::string)> fn;
 };
 
 struct SDispatchResult {

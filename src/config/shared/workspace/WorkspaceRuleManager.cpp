@@ -4,10 +4,10 @@
 #include "../../../output/Monitor.hpp"
 #include "../../../state/MonitorState.hpp"
 
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 
 using namespace Config;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 UP<CWorkspaceRuleManager>& Config::workspaceRuleMgr() {
     static UP<CWorkspaceRuleManager> p = makeUnique<CWorkspaceRuleManager>();

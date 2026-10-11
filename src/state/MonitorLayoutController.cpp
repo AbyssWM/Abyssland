@@ -42,7 +42,7 @@ void CMonitorLayoutController::checkOverlapsAndNotify() const {
     for (const auto& m : State::monitorState()->monitors()) {
         if (!monitorRegion.copy().intersect(m->logicalBox()).empty()) {
             Log::logger->log(Log::ERR, "Monitor {}: detected overlap with layout", m->m_name);
-            Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT, {{"name", m->m_name}}), CHyprColor{}, 15000,
+            Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT, {{"name", m->m_name}}), CAbyssColor{}, 15000,
                                                      ICON_WARNING);
 
             break;

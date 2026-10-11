@@ -8,14 +8,14 @@
 
 class CSinglePixelBuffer : public IHLBuffer {
   public:
-    CSinglePixelBuffer(uint32_t id, wl_client* client, CHyprColor col);
+    CSinglePixelBuffer(uint32_t id, wl_client* client, CAbyssColor col);
     virtual ~CSinglePixelBuffer();
 
-    virtual Aquamarine::eBufferCapability          caps();
-    virtual Aquamarine::eBufferType                type();
+    virtual Abyssal::eBufferCapability          caps();
+    virtual Abyssal::eBufferType                type();
     virtual bool                                   isSynchronous();
     virtual void                                   update(const CRegion& damage);
-    virtual Aquamarine::SDMABUFAttrs               dmabuf();
+    virtual Abyssal::SDMABUFAttrs               dmabuf();
     virtual std::tuple<uint8_t*, uint32_t, size_t> beginDataPtr(uint32_t flags);
     virtual void                                   endDataPtr();
     //
@@ -28,7 +28,7 @@ class CSinglePixelBuffer : public IHLBuffer {
 
 class CSinglePixelBufferResource {
   public:
-    CSinglePixelBufferResource(uint32_t id, wl_client* client, CHyprColor color);
+    CSinglePixelBufferResource(uint32_t id, wl_client* client, CAbyssColor color);
     ~CSinglePixelBufferResource() = default;
 
     bool good();
@@ -37,7 +37,7 @@ class CSinglePixelBufferResource {
     SP<CSinglePixelBuffer> m_buffer;
 
     struct {
-        CHyprSignalListener bufferResourceDestroy;
+        CAbyssSignalListener bufferResourceDestroy;
     } m_listeners;
 };
 

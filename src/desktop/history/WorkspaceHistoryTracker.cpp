@@ -7,7 +7,7 @@
 #include "../../event/EventBus.hpp"
 #include "../../config/ConfigValue.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
 #include <ranges>
 
@@ -48,7 +48,7 @@ void CWorkspaceHistoryTracker::track(PHLWORKSPACE ws) {
     // Push the newly focused workspace to the top of our MRU list
     m_history.push_front(SHistoryEntry{.workspace = ws, .monitor = ws->m_monitor, .name = ws->m_name, .id = ws->m_id});
 
-    Hyprutils::Utils::CScopeGuard x([&] { setLastWorkspaceData(ws); });
+    Abyssutils::Utils::CScopeGuard x([&] { setLastWorkspaceData(ws); });
 }
 
 void CWorkspaceHistoryTracker::gc() {

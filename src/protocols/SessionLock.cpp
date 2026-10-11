@@ -133,7 +133,7 @@ CSessionLock::CSessionLock(SP<CExtSessionLockV1> resource_) : m_resource(resourc
 
         // if lock tools have hidden it and doesn't restore it, we won't receive a new cursor until the cursorshape protocol gives us one.
         // so set it to left_ptr so the "desktop/wallpaper" doesn't end up missing a cursor until hover over a window sending us a shape.
-        g_pHyprRenderer->setCursorFromName("left_ptr");
+        g_pAbyssRenderer->setCursorFromName("left_ptr");
 
         m_inert = true;
         PROTO::sessionLock->destroyResource(this);

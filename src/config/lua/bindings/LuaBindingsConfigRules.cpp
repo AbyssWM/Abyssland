@@ -43,14 +43,14 @@
 #include "../../../managers/input/trackpad/gestures/ScrollMoveGesture.hpp"
 #include "../../../managers/permissions/DynamicPermissionManager.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
 #include <vector>
 
 using namespace Config;
 using namespace Config::Lua;
 using namespace Config::Lua::Bindings;
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::Utils;
 
 namespace {
     struct SFieldDesc {
@@ -336,7 +336,7 @@ static int hlCurve(lua_State* L) {
         Animation::mgr()->addBezierWithName(name, Vector2D(coords[0], coords[1]), Vector2D(coords[2], coords[3]));
     } else if (curveType == "spring") {
 
-        Hyprutils::Animation::SSpringCurve curve;
+        Abyssutils::Animation::SSpringCurve curve;
 
         {
             CScopeGuard x([L] { lua_pop(L, 1); });

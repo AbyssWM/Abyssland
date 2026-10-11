@@ -12,15 +12,15 @@
 #include "../event/EventBus.hpp"
 #include "../state/MonitorState.hpp"
 
-#include <hyprgraphics/color/Color.hpp>
-#include <hyprutils/animation/AnimatedVariable.hpp>
-#include <hyprutils/animation/AnimationManager.hpp>
+#include <abyssgraphics/color/Color.hpp>
+#include <abyssutils/animation/AnimatedVariable.hpp>
+#include <abyssutils/animation/AnimationManager.hpp>
 #include <cmath>
 
 using namespace Animation;
 
-UP<CHyprAnimationManager>& Animation::mgr() {
-    static UP<CHyprAnimationManager> p = makeUnique<CHyprAnimationManager>();
+UP<CAbyssAnimationManager>& Animation::mgr() {
+    static UP<CAbyssAnimationManager> p = makeUnique<CAbyssAnimationManager>();
     return p;
 }
 
@@ -31,7 +31,7 @@ static int wlTick(SP<CEventLoopTimer> self, void* data) {
     return 0;
 }
 
-CHyprAnimationManager::CHyprAnimationManager() {
+CAbyssAnimationManager::CAbyssAnimationManager() {
     m_animationTimer = makeShared<CEventLoopTimer>(std::chrono::microseconds(500), wlTick, nullptr);
     if (g_pEventLoopManager) // null in --verify-config mode
         g_pEventLoopManager->addTimer(m_animationTimer);
@@ -50,7 +50,7 @@ static void updateVariable(CAnimatedVariable<VarType>& av, const float POINTY, b
     av.value()       = av.begun() + DELTA * POINTY;
 }
 
-static void updateColorVariable(CAnimatedVariable<CHyprColor>& av, const float POINTY, bool warp = false) {
+static void updateColorVariable(CAnimatedVariable<CAbyssColor>& av, const float POINTY, bool warp = false) {
     if (warp || av.value() == av.goal()) {
         av.warp(true, false);
         return;
@@ -58,12 +58,12 @@ static void updateColorVariable(CAnimatedVariable<CHyprColor>& av, const float P
 
     // convert both to OkLab, then lerp that, and convert back.
     // This is not as fast as just lerping rgb, but it's WAY more precise...
-    // Use the CHyprColor cache for OkLab
+    // Use the CAbyssColor cache for OkLab
 
     const auto&                L1 = av.begun().asOkLab();
     const auto&                L2 = av.goal().asOkLab();
 
-    const Hyprgraphics::CColor lerped = Hyprgraphics::CColor::SOkLab{
+    const Abyssgraphics::CColor lerped = Abyssgraphics::CColor::SOkLab{
         .l = std::lerp(L1.l, L2.l, POINTY),
         .a = std::lerp(L1.a, L2.a, POINTY),
         .b = std::lerp(L1.b, L2.b, POINTY),
@@ -72,18 +72,18 @@ static void updateColorVariable(CAnimatedVariable<CHyprColor>& av, const float P
     av.value() = {lerped, std::lerp(av.begun().a, av.goal().a, POINTY)};
 }
 
-static SAnimationContext& getContext(Hyprutils::Animation::CBaseAnimatedVariable* pAV) {
+static SAnimationContext& getContext(Abyssutils::Animation::CBaseAnimatedVariable* pAV) {
     switch (pAV->m_Type) {
         case AVARTYPE_FLOAT: return dc<CAnimatedVariable<float>*>(pAV)->m_Context;
         case AVARTYPE_VECTOR: return dc<CAnimatedVariable<Vector2D>*>(pAV)->m_Context;
-        case AVARTYPE_COLOR: return dc<CAnimatedVariable<CHyprColor>*>(pAV)->m_Context;
+        case AVARTYPE_COLOR: return dc<CAnimatedVariable<CAbyssColor>*>(pAV)->m_Context;
         default: UNREACHABLE();
     }
 }
 
 static void damageWindowForPolicies(PHLWINDOW pWindow, bool entire, bool border, bool shadow, bool glow) {
     if (entire)
-        g_pHyprRenderer->damageWindow(pWindow); // damageWindow already damages all decorations
+        g_pAbyssRenderer->damageWindow(pWindow); // damageWindow already damages all decorations
     else {
         if (border) {
             const auto PDECO = pWindow->getDecorationByType(DECORATION_BORDER);
@@ -103,7 +103,7 @@ static void damageWindowForPolicies(PHLWINDOW pWindow, bool entire, bool border,
 static void preDamageWorkspace(PHLWORKSPACE pWorkspace, PHLMONITOR pMonitor) {
     // don't damage the whole monitor on workspace change, unless it's a special workspace, because dim/blur etc
     if (pWorkspace->m_isSpecialWorkspace)
-        g_pHyprRenderer->damageMonitor(pMonitor);
+        g_pAbyssRenderer->damageMonitor(pMonitor);
 
     // TODO: just make this into a damn callback already vax...
     for (auto const& w : Desktop::windowState()->windows()) {
@@ -116,11 +116,11 @@ static void preDamageWorkspace(PHLWORKSPACE pWorkspace, PHLMONITOR pMonitor) {
             const CBox windowBoxNoOffset = w->getFullWindowBoundingBox();
             const CBox monitorBox        = {pMonitor->m_position, pMonitor->m_size};
             if (windowBoxNoOffset.intersection(monitorBox) != windowBoxNoOffset) // on edges between multiple monitors
-                g_pHyprRenderer->damageWindow(w, true);
+                g_pAbyssRenderer->damageWindow(w, true);
         }
 
         if (pWorkspace->m_isSpecialWorkspace)
-            g_pHyprRenderer->damageWindow(w, true); // hack for special too because it can cross multiple monitors
+            g_pAbyssRenderer->damageWindow(w, true); // hack for special too because it can cross multiple monitors
     }
 
     // damage any workspace window that is on any monitor
@@ -128,7 +128,7 @@ static void preDamageWorkspace(PHLWORKSPACE pWorkspace, PHLMONITOR pMonitor) {
         if (!validMapped(w) || w->m_workspace != pWorkspace || w->m_pinned)
             continue;
 
-        g_pHyprRenderer->damageWindow(w);
+        g_pAbyssRenderer->damageWindow(w);
     }
 }
 
@@ -151,7 +151,7 @@ static void handleUpdate(CAnimatedVariable<VarType>& av, bool warp) {
 
     const auto STEP = av.getCurveStep();
 
-    if constexpr (std::same_as<VarType, CHyprColor>)
+    if constexpr (std::same_as<VarType, CAbyssColor>)
         updateColorVariable(av, STEP.value, STEP.finished || animationsDisabled);
     else
         updateVariable<VarType>(av, STEP.value, STEP.finished || animationsDisabled);
@@ -159,7 +159,7 @@ static void handleUpdate(CAnimatedVariable<VarType>& av, bool warp) {
     av.onUpdate();
 }
 
-void CHyprAnimationManager::tick() {
+void CAbyssAnimationManager::tick() {
     static std::chrono::time_point lastTick = std::chrono::high_resolution_clock::now();
     m_lastTickTimeMs                        = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTick).count() / 1000.0;
     lastTick                                = std::chrono::high_resolution_clock::now();
@@ -272,7 +272,7 @@ void CHyprAnimationManager::tick() {
         else if (owner.layer) {
             CBox expandBox = owner.layer->geometricBox(Desktop::View::IGeometric::GEOMETRIC_CURRENT);
             expandBox.expand(5);
-            g_pHyprRenderer->damageBox(expandBox);
+            g_pAbyssRenderer->damageBox(expandBox);
         }
     }
 
@@ -295,8 +295,8 @@ void CHyprAnimationManager::tick() {
                 handleUpdate(*pTypedAV, warp);
             } break;
             case AVARTYPE_COLOR: {
-                auto pTypedAV = dc<CAnimatedVariable<CHyprColor>*>(PAV.get());
-                RASSERT(pTypedAV, "Failed to upcast animated CHyprColor");
+                auto pTypedAV = dc<CAnimatedVariable<CAbyssColor>*>(PAV.get());
+                RASSERT(pTypedAV, "Failed to upcast animated CAbyssColor");
                 handleUpdate(*pTypedAV, warp);
             } break;
             default: UNREACHABLE();
@@ -320,7 +320,7 @@ void CHyprAnimationManager::tick() {
                     if (!validMapped(w) || w->m_workspace != owner.workspace || w->m_pinned)
                         continue;
 
-                    g_pHyprRenderer->damageWindow(w);
+                    g_pAbyssRenderer->damageWindow(w);
                 }
             }
         } else if (owner.layer) {
@@ -330,18 +330,18 @@ void CHyprAnimationManager::tick() {
 
                 CBox expandBox = owner.layer->geometricBox(Desktop::View::IGeometric::GEOMETRIC_CURRENT);
                 expandBox.expand(5);
-                g_pHyprRenderer->damageBox(expandBox);
+                g_pAbyssRenderer->damageBox(expandBox);
             }
         }
 
         if (!Fullscreen::controller()->hasFullscreen(owner.monitor))
-            owner.monitor->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_ANIMATION);
+            owner.monitor->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_ANIMATION);
     }
 
     tickDone();
 }
 
-void CHyprAnimationManager::frameTick() {
+void CAbyssAnimationManager::frameTick() {
     onTicked();
 
     if (!shouldTickForNext())
@@ -362,7 +362,7 @@ void CHyprAnimationManager::frameTick() {
         scheduleTick();
 }
 
-void CHyprAnimationManager::scheduleTick() {
+void CAbyssAnimationManager::scheduleTick() {
     if (m_tickScheduled)
         return;
 
@@ -376,16 +376,16 @@ void CHyprAnimationManager::scheduleTick() {
     m_animationTimer->updateTimeout(std::chrono::milliseconds(1));
 }
 
-void CHyprAnimationManager::onTicked() {
+void CAbyssAnimationManager::onTicked() {
     m_tickScheduled = false;
 }
 
-void CHyprAnimationManager::resetTickState() {
+void CAbyssAnimationManager::resetTickState() {
     m_lastTickValid = false;
     m_tickScheduled = false;
 }
 
-std::string CHyprAnimationManager::styleValidInConfigVar(const std::string& config, const std::string& style) {
+std::string CAbyssAnimationManager::styleValidInConfigVar(const std::string& config, const std::string& style) {
     if (config.starts_with("window")) {
         if (style.starts_with("slide") || style == "gnome" || style == "gnomed")
             return "";

@@ -13,14 +13,14 @@
 #include "../../../plugins/PluginSystem.hpp"
 #include "managers/KeybindManager.hpp"
 
-#include <hyprutils/string/Numeric.hpp>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList.hpp>
 
 using namespace Config;
 using namespace Config::Lua;
 using namespace Config::Lua::Bindings;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 extern "C" {
 #include <lua.h>
@@ -69,7 +69,7 @@ static std::expected<void, std::string> parseKeyString(SKeybind& kb, std::string
     }
 
     for (const auto& a : vl) {
-        auto arg = Hyprutils::String::trim(a);
+        auto arg = Abyssutils::String::trim(a);
 
         auto mask = modFromSv(arg);
 
@@ -287,7 +287,7 @@ static int hlDefineSubmap(lua_State* L) {
 }
 
 static int hlVersion(lua_State* L) {
-    lua_pushstring(L, HYPRLAND_VERSION);
+    lua_pushstring(L, ABYSSLAND_VERSION);
     return 1;
 }
 

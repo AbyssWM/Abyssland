@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Abyssland (uwsm-managed)
+Comment=An intelligent dynamic tiling Wayland compositor
+Exec=uwsm start -e -D Abyssland abyssland.desktop
+TryExec=uwsm
+DesktopNames=Abyssland
+Type=Application

@@ -1,6 +1,6 @@
 #include "../../TiledAlgorithm.hpp"
 
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
 namespace Layout {
     class CAlgorithm;
@@ -73,9 +73,9 @@ namespace Layout::Tiled {
 
         bool                             m_forceWarps = false;
 
-        void                             buildOrientationCycleVectorFromVars(std::vector<eOrientation>& cycle, Hyprutils::String::CVarList2* vars);
+        void                             buildOrientationCycleVectorFromVars(std::vector<eOrientation>& cycle, Abyssutils::String::CVarList2* vars);
         void                             buildOrientationCycleVectorFromEOperation(std::vector<eOrientation>& cycle);
-        void                             runOrientationCycle(Hyprutils::String::CVarList2* vars, int next);
+        void                             runOrientationCycle(Abyssutils::String::CVarList2* vars, int next);
         eOrientation                     getDynamicOrientation();
         int                              getNodesNo();
         SP<SMasterNodeData>              getNodeFromWindow(PHLWINDOW);

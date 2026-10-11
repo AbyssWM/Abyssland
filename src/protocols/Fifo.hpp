@@ -22,7 +22,7 @@ class CFifoResource {
     WP<CWLSurfaceResource> m_surface;
 
     struct {
-        CHyprSignalListener surfaceStateCommit;
+        CAbyssSignalListener surfaceStateCommit;
     } m_listeners;
 
     void presented();

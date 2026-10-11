@@ -27,9 +27,9 @@ struct SSessionLockSurface {
     bool                            mapped = false;
 
     struct {
-        CHyprSignalListener map;
-        CHyprSignalListener destroy;
-        CHyprSignalListener commit;
+        CAbyssSignalListener map;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener commit;
     } listeners;
 };
 
@@ -41,9 +41,9 @@ struct SSessionLock {
     std::vector<SP<SSessionLockSurface>> vSessionLockSurfaces;
 
     struct {
-        CHyprSignalListener newSurface;
-        CHyprSignalListener unlock;
-        CHyprSignalListener destroy;
+        CAbyssSignalListener newSurface;
+        CAbyssSignalListener unlock;
+        CAbyssSignalListener destroy;
     } listeners;
 
     bool                         hasSentLocked = false;
@@ -82,7 +82,7 @@ class CSessionLockManager {
     UP<SSessionLock> m_sessionLock;
 
     struct {
-        CHyprSignalListener newLock;
+        CAbyssSignalListener newLock;
     } m_listeners;
 
     void onNewSessionLock(SP<CSessionLock> pWlrLock);

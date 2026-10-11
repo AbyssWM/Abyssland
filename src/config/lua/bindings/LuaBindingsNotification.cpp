@@ -48,16 +48,16 @@ static std::optional<eIcons> parseIconArg(lua_State* L, int idx) {
     return std::nullopt;
 }
 
-static std::optional<CHyprColor> parseColorArg(lua_State* L, int idx) {
+static std::optional<CAbyssColor> parseColorArg(lua_State* L, int idx) {
     if (lua_isnumber(L, idx))
-        return CHyprColor(sc<uint64_t>(lua_tonumber(L, idx)));
+        return CAbyssColor(sc<uint64_t>(lua_tonumber(L, idx)));
 
     if (lua_isstring(L, idx)) {
         auto parsed = ParserUtils::parseColor(lua_tostring(L, idx));
         if (!parsed)
             return std::nullopt;
 
-        return CHyprColor(sc<uint64_t>(*parsed));
+        return CAbyssColor(sc<uint64_t>(*parsed));
     }
 
     return std::nullopt;
@@ -91,7 +91,7 @@ static int hlNotificationCreate(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    CHyprColor color = CHyprColor(0);
+    CAbyssColor color = CAbyssColor(0);
     lua_getfield(L, 1, "color");
     if (!lua_isnil(L, -1)) {
         const auto parsedColor = parseColorArg(L, -1);

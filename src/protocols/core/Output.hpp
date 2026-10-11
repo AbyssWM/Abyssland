@@ -59,7 +59,7 @@ class CWLOutputProtocol : public IWaylandProtocol {
     std::string                        m_name    = "";
 
     struct {
-        CHyprSignalListener modeChanged;
+        CAbyssSignalListener modeChanged;
     } m_listeners;
 
     friend class CWLOutputResource;

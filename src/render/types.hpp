@@ -4,11 +4,11 @@
 #include "../desktop/DesktopTypes.hpp"
 #include "../helpers/cm/ColorManagement.hpp"
 #include "../protocols/core/Compositor.hpp"
-#include <hyprgraphics/color/Color.hpp>
-#include <hyprutils/math/Box.hpp>
-#include <hyprutils/math/Mat3x3.hpp>
-#include <hyprutils/math/Region.hpp>
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssgraphics/color/Color.hpp>
+#include <abyssutils/math/Box.hpp>
+#include <abyssutils/math/Mat3x3.hpp>
+#include <abyssutils/math/Region.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 
 namespace Render {
     const std::vector<const char*> ASSET_PATHS = {
@@ -62,8 +62,8 @@ namespace Render {
 
         std::vector<std::pair<eRenderModifType, std::any>> modifs;
 
-        void                                               applyToBox(Hyprutils::Math::CBox& box);
-        void                                               applyToRegion(Hyprutils::Math::CRegion& rg);
+        void                                               applyToBox(Abyssutils::Math::CBox& box);
+        void                                               applyToRegion(Abyssutils::Math::CRegion& rg);
         float                                              combinedScale();
 
         bool                                               enabled = true;
@@ -71,12 +71,12 @@ namespace Render {
 
     struct SRenderData {
         // can be private
-        Hyprutils::Math::Mat3x3 targetProjection;
+        Abyssutils::Math::Mat3x3 targetProjection;
 
         // ----------------------
 
         // used by public
-        Hyprutils::Math::Vector2D fbSize = {-1, -1};
+        Abyssutils::Math::Vector2D fbSize = {-1, -1};
         PHLMONITORREF             pMonitor;
 
         eRenderProjectionType     projectionType = RPT_MONITOR;

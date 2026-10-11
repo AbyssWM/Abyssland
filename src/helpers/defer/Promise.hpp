@@ -4,7 +4,7 @@
 #include <string>
 #include "../memory/Memory.hpp"
 
-// TODO: move into hyprutils
+// TODO: move into abyssutils
 
 template <typename T>
 class CPromise;

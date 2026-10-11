@@ -23,7 +23,7 @@ namespace Desktop {
         std::vector<WP<View::IView>> m_views;
 
         struct {
-            CHyprSignalListener viewCreate, viewDestroy;
+            CAbyssSignalListener viewCreate, viewDestroy;
         } m_listeners;
     };
 

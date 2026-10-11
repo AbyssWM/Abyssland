@@ -11,11 +11,11 @@
 using namespace Config;
 using namespace Config::Lua;
 
-static std::expected<CHyprColor, std::string> parseColorString(const std::string& str) {
+static std::expected<CAbyssColor, std::string> parseColorString(const std::string& str) {
     auto result = ParserUtils::parseColor(str);
     if (!result)
         return std::unexpected(std::format("invalid color \"{}\"", str));
-    return CHyprColor(sc<uint64_t>(*result));
+    return CAbyssColor(sc<uint64_t>(*result));
 }
 
 CLuaConfigColor::CLuaConfigColor(Config::INTEGER def) : m_default(def), m_data(def) {

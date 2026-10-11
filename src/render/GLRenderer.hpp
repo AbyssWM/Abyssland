@@ -4,10 +4,10 @@
 #include "render/ElementRenderer.hpp"
 
 namespace Render::GL {
-    class CHyprGLRenderer : public Render::IHyprRenderer {
+    class CAbyssGLRenderer : public Render::IAbyssRenderer {
       public:
-        CHyprGLRenderer();
-        ~CHyprGLRenderer() = default;
+        CAbyssGLRenderer();
+        ~CAbyssGLRenderer() = default;
 
         eType                   type() override;
         void                    endRender(const std::function<void()>& renderingDoneCallback = {}) override;
@@ -15,7 +15,7 @@ namespace Render::GL {
         SP<ITexture>            createStencilTexture(const int width, const int height) override;
         SP<ITexture>            createTexture(bool opaque = false) override;
         SP<ITexture>            createTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, const Vector2D& size, bool keepDataCopy = false, bool opaque = false) override;
-        SP<ITexture>            createTexture(const Aquamarine::SDMABUFAttrs&, bool opaque = false) override;
+        SP<ITexture>            createTexture(const Abyssal::SDMABUFAttrs&, bool opaque = false) override;
         SP<ITexture>            createTexture(const int width, const int height, unsigned char* const data) override;
         SP<ITexture>            createTexture(cairo_surface_t* cairo) override;
         SP<ITexture>            createTexture(std::span<const float> lut3D, size_t N) override;
@@ -41,17 +41,17 @@ namespace Render::GL {
 
       private:
         void                 renderOffToMain(SP<IFramebuffer> off) override;
-        SP<IRenderbuffer>    getOrCreateRenderbufferInternal(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) override;
+        SP<IRenderbuffer>    getOrCreateRenderbufferInternal(SP<Abyssal::IBuffer> buffer, uint32_t fmt) override;
         bool                 beginRenderInternal(PHLMONITOR pMonitor, CRegion& damage, bool simple = false) override;
         bool                 beginFullFakeRenderInternal(PHLMONITOR pMonitor, CRegion& damage, SP<IFramebuffer> fb, bool simple = false) override;
         void                 initRender() override;
-        bool                 initRenderBuffer(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) override;
+        bool                 initRenderBuffer(SP<Abyssal::IBuffer> buffer, uint32_t fmt) override;
 
         SP<ITexture>         getBlurTexture(PHLMONITORREF pMonitor) override;
 
         SP<IRenderbuffer>    m_currentRenderbuffer;
         UP<IElementRenderer> m_elementRenderer;
 
-        friend class CHyprOpenGLImpl;
+        friend class CAbyssOpenGLImpl;
     };
 }

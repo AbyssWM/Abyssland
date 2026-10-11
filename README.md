@@ -1,143 +1,52 @@
-<div align = center>
+<div align="center">
 
-<img src="https://raw.githubusercontent.com/hyprwm/Hyprland/main/assets/header.svg" width="750" height="300" alt="banner">
+<img src="https://github.com/AbyssWM.png?size=200" width="160" alt="Abyss logo">
 
-<br>
+# Abyssland
 
-[![Badge Workflow]][Workflow]
-[![Badge License]][License] 
-![Badge Language] 
-[![Badge Pull Requests]][Pull Requests] 
-[![Badge Issues]][Issues] 
-![Badge Hi Mom]<br>
+**Dynamic tiling Wayland compositor – configured in code.**
 
-<br>
-
-Hyprland is a 100% independent, dynamic tiling Wayland compositor that doesn't sacrifice on its looks.
-
-It provides the latest Wayland features, is highly customizable, has all the eyecandy, the most powerful plugins,
-easy IPC, much more QoL stuff than other compositors and more...
-<br>
-<br>
-
----
-
-**[<kbd> <br> Install <br> </kbd>][Install]** 
-**[<kbd> <br> Quick Start <br> </kbd>][Quick Start]** 
-**[<kbd> <br> Configure <br> </kbd>][Configure]** 
-**[<kbd> <br> Contribute <br> </kbd>][Contribute]**
-
----
-
-<br>
+Part of [**Abyss**](https://github.com/AbyssWM) · Based on [Hyprland](https://github.com/hyprwm/Hyprland) by [hyprwm](https://github.com/hyprwm)
 
 </div>
 
-# Features
+---
 
-- All of the eyecandy: gradient borders, blur, animations, shadows and much more
-- A lot of customization
-- 100% independent, no wlroots, no libweston, no kwin, no mutter.
-- Custom bezier curves for the best animations
-- Powerful plugin support
-- Built-in plugin manager
-- Tearing support for better gaming performance
-- Easily expandable and readable codebase
-- Fast and active development
-- Not afraid to provide bleeding-edge features
-- Config reloaded instantly upon saving
-- Fully dynamic workspaces
-- Two built-in layouts and more available as plugins
-- Global keybinds passed to your apps of choice
-- Tiling/pseudotiling/floating/fullscreen windows
-- Special workspaces (scratchpads)
-- Window groups (tabbed mode)
-- Powerful window/monitor/layer rules
-- Socket-based IPC
-- Native IME and Input Panels Support
-- and much more...
+> [!WARNING]
+> **Early development.** Abyss is being rebranded and reworked right now. Nothing is ready for daily use yet.
 
-<br>
-<br>
+## About
 
-<div align = center>
+Abyssland is the compositor at the heart of Abyss: dynamic tiling, smooth animations and a dark, minimal look. Instead of a config file, your configuration will be C++ code compiled in (**Abysslang**), in the spirit of dwm's `config.h`.
 
-# Gallery
+Abyssland is a fork of [Hyprland](https://github.com/hyprwm/Hyprland). Every Abyss library and tool is forked and renamed, so the whole ecosystem builds and updates as one – independent of system packages.
 
-<br>
+## The Abyss ecosystem
 
-![Preview A]
+| Repository | Based on |
+|---|---|
+| **Abyssland** | [Hyprland](https://github.com/hyprwm/Hyprland) |
+| [Abyssal](https://github.com/AbyssWM/Abyssal) | [aquamarine](https://github.com/hyprwm/aquamarine) |
+| [Abyssutils](https://github.com/AbyssWM/Abyssutils) | [hyprutils](https://github.com/hyprwm/hyprutils) |
+| [Abyssparse](https://github.com/AbyssWM/Abyssparse) | [hyprlang](https://github.com/hyprwm/hyprlang) |
+| [Abysscursor](https://github.com/AbyssWM/Abysscursor) | [hyprcursor](https://github.com/hyprwm/hyprcursor) |
+| [Abyssgraphics](https://github.com/AbyssWM/Abyssgraphics) | [hyprgraphics](https://github.com/hyprwm/hyprgraphics) |
+| [Abysswire](https://github.com/AbyssWM/Abysswire) | [hyprwire](https://github.com/hyprwm/hyprwire) |
+| [Abyss-scanner](https://github.com/AbyssWM/Abyss-scanner) | [hyprwayland-scanner](https://github.com/hyprwm/hyprwayland-scanner) |
+| [Abyssland-protocols](https://github.com/AbyssWM/Abyssland-protocols) | [hyprland-protocols](https://github.com/hyprwm/hyprland-protocols) |
+| [Xdg-desktop-portal-abyss](https://github.com/AbyssWM/Xdg-desktop-portal-abyss) | [xdg-desktop-portal-hyprland](https://github.com/hyprwm/xdg-desktop-portal-hyprland) |
 
-<br>
+## Credits
 
-![Preview B]
+Abyssland exists thanks to **[Hyprland](https://github.com/hyprwm/Hyprland)**, created by **vaxerski & the Hyprland contributors** at **[hyprwm](https://github.com/hyprwm)**. All credit for the original work goes to them – please support the original project.
 
-<br>
+Abyss is an independent project and is **not affiliated with or endorsed by hyprwm**.
 
-![Preview C]
+## License
 
-<br>
-<br>
+This project is licensed under the **BSD 3-Clause License**. The original copyright notice is kept in [`LICENSE`](LICENSE) as required.
 
-</div>
+## Contributors
 
-# Special Thanks
-
-<br>
-
-**[wlroots]** - *For powering Hyprland in the past*
-
-**[tinywl]** - *For showing how 2 do stuff*
-
-**[Sway]** - *For showing how 2 do stuff the overkill way*
-
-**[Vivarium]** - *For showing how 2 do stuff the simple way*
-
-**[dwl]** - *For showing how 2 do stuff the hacky way*
-
-**[Wayfire]** - *For showing how 2 do some graphics stuff*
-
-
-<!----------------------------------------------------------------------------->
-
-[Configure]: https://wiki.hypr.land/Configuring/
-[Stars]: https://starchart.cc/hyprwm/Hyprland
-[Hypr]: https://github.com/hyprwm/Hypr
-
-[Pull Requests]: https://github.com/hyprwm/Hyprland/pulls
-[Issues]: https://github.com/hyprwm/Hyprland/issues
-[Todo]: https://github.com/hyprwm/Hyprland/projects?type=beta
-
-[Contribute]: https://wiki.hypr.land/Contributing-and-Debugging/
-[Install]: https://wiki.hypr.land/Getting-Started/Installation/
-[Quick Start]: https://wiki.hypr.land/Getting-Started/Master-Tutorial/
-[Workflow]: https://github.com/hyprwm/Hyprland/actions/workflows/ci.yaml
-[License]: LICENSE
-
-
-<!----------------------------------{ Thanks }--------------------------------->
-
-[Vivarium]: https://github.com/inclement/vivarium
-[WlRoots]: https://gitlab.freedesktop.org/wlroots/wlroots
-[Wayfire]: https://github.com/WayfireWM/wayfire
-[TinyWl]: https://gitlab.freedesktop.org/wlroots/wlroots/-/blob/master/tinywl/tinywl.c
-[Sway]: https://github.com/swaywm/sway
-[DWL]: https://codeberg.org/dwl/dwl
-
-<!----------------------------------{ Images }--------------------------------->
-
-[Preview A]: ./assets/prev1.png
-[Preview B]: ./assets/prev2.png
-[Preview C]: ./assets/prev3.png
-
-
-<!----------------------------------{ Badges }--------------------------------->
-
-[Badge Workflow]: https://github.com/hyprwm/Hyprland/actions/workflows/ci.yaml/badge.svg
-
-[Badge Issues]: https://img.shields.io/github/issues/hyprwm/Hyprland
-[Badge Pull Requests]: https://img.shields.io/github/issues-pr/hyprwm/Hyprland
-[Badge Language]: https://img.shields.io/github/languages/top/hyprwm/Hyprland
-[Badge License]: https://img.shields.io/github/license/hyprwm/Hyprland
-[Badge Lines]: https://img.shields.io/tokei/lines/github/hyprwm/Hyprland
-[Badge Hi Mom]: https://img.shields.io/badge/Hi-mom!-ff69b4
+- [bb8TheRobot](https://github.com/bb8TheRobot)
+- Claude (Anthropic) – AI pair programmer

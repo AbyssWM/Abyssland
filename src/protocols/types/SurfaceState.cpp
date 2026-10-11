@@ -30,7 +30,7 @@ CRegion SSurfaceState::accumulateBufferDamage() {
 
     Vector2D trc = transform % 2 == 1 ? Vector2D{bufferSize.y, bufferSize.x} : bufferSize;
 
-    bufferDamage = surfaceDamage.scale(scale).transform(Math::wlTransformToHyprutils(Math::invertTransform(transform)), trc.x, trc.y).add(bufferDamage);
+    bufferDamage = surfaceDamage.scale(scale).transform(Math::wlTransformToAbyssutils(Math::invertTransform(transform)), trc.x, trc.y).add(bufferDamage);
     damage.clear();
     return bufferDamage;
 }
@@ -54,7 +54,7 @@ void SSurfaceState::updateSynchronousTexture(SP<Render::ITexture> lastTexture) {
             texture = lastTexture;
             texture->update(drmFmt, dataPtr, stride, accumulateBufferDamage());
         } else
-            texture = g_pHyprRenderer->createTexture(drmFmt, dataPtr, stride, bufferSize);
+            texture = g_pAbyssRenderer->createTexture(drmFmt, dataPtr, stride, bufferSize);
     }
     buffer->endDataPtr();
 }

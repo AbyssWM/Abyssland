@@ -29,7 +29,7 @@ Examples of breaking each rule respectively include:
 
 ## Enforcement
 
-Enforcement of this CoC is done by the members of the hyprwm organization.
+Enforcement of this CoC is done by the members of the abysswm organization.
 
 We, as the organization, will strive our best to keep this community civil and
 following the standards outlined above.
@@ -89,7 +89,7 @@ ignoring previous punishments, a member might ban you permanently.
 
 ## Scope
 
-This CoC shall apply to all projects ran under the `hyprwm` organization and all _official_ communities
+This CoC shall apply to all projects ran under the `abysswm` organization and all _official_ communities
 outside of GitHub.
 
 However, it is worth noting that official communities outside of GitHub might have their own,

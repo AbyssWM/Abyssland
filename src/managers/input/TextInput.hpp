@@ -47,12 +47,12 @@ class CTextInput {
     WP<CTextInputV1>       m_v1Input;
 
     struct {
-        CHyprSignalListener enable;
-        CHyprSignalListener disable;
-        CHyprSignalListener reset;
-        CHyprSignalListener commit;
-        CHyprSignalListener destroy;
-        CHyprSignalListener surfaceUnmap;
-        CHyprSignalListener surfaceDestroy;
+        CAbyssSignalListener enable;
+        CAbyssSignalListener disable;
+        CAbyssSignalListener reset;
+        CAbyssSignalListener commit;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener surfaceUnmap;
+        CAbyssSignalListener surfaceDestroy;
     } m_listeners;
 };

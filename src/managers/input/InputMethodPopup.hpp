@@ -39,9 +39,9 @@ class CInputPopup {
     MONITORID                     m_lastMonitor = MONITOR_INVALID;
 
     struct {
-        CHyprSignalListener map;
-        CHyprSignalListener unmap;
-        CHyprSignalListener destroy;
-        CHyprSignalListener commit;
+        CAbyssSignalListener map;
+        CAbyssSignalListener unmap;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener commit;
     } m_listeners;
 };

@@ -1,7 +1,7 @@
 #include "ParserUtils.hpp"
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/Numeric.hpp>
 
 #include <format>
 #include <algorithm>
@@ -11,7 +11,7 @@
 
 using namespace Config;
 using namespace Config::ParserUtils;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 static std::expected<uint64_t, std::string> parseHex(std::string_view value) {
     auto res = value.starts_with("0x") ? strToNumber<uint64_t>(value) : strToNumber<uint64_t>(std::string{"0x"} + value);

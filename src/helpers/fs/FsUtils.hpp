@@ -3,7 +3,7 @@
 #include <string>
 
 namespace NFsUtils {
-    // Returns the path to the hyprland directory in data home.
+    // Returns the path to the abyssland directory in data home.
     std::optional<std::string> getDataHome();
 
     std::optional<std::string> readFileAsString(const std::string& path);

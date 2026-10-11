@@ -25,8 +25,8 @@ class CGammaControl {
     void                    onMonitorDestroy();
 
     struct {
-        CHyprSignalListener monitorDisconnect;
-        CHyprSignalListener monitorDestroy;
+        CAbyssSignalListener monitorDisconnect;
+        CAbyssSignalListener monitorDestroy;
     } m_listeners;
 };
 

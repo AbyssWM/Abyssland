@@ -9,10 +9,10 @@
 #include <limits>
 #include <string>
 
-#include <hyprutils/string/VarList.hpp>
+#include <abyssutils/string/VarList.hpp>
 
 using namespace Desktop::View;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 static float percentageFromLayerStyle(const std::string& style) {
     float minPerc = 0.F;

@@ -2,12 +2,12 @@
 
 #include "../../helpers/memory/Memory.hpp"
 #include "../Renderbuffer.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 
 namespace Render::GL {
     class CGLRenderbuffer : public IRenderbuffer {
       public:
-        CGLRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format);
+        CGLRenderbuffer(SP<Abyssal::IBuffer> buffer, uint32_t format);
         ~CGLRenderbuffer();
 
         void bind() override;

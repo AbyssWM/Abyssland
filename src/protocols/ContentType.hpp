@@ -30,7 +30,7 @@ class CContentType {
     SP<CWpContentTypeV1> m_resource;
     wl_client*           m_client = nullptr;
 
-    CHyprSignalListener  m_destroy;
+    CAbyssSignalListener  m_destroy;
 
     friend class CContentTypeProtocol;
 };

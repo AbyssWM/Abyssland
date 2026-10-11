@@ -26,11 +26,11 @@
 #include <cstring>
 #include <gbm.h>
 #include <cairo/cairo.h>
-#include <hyprutils/math/Region.hpp>
-#include <hyprutils/math/Vector2D.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/math/Region.hpp>
+#include <abyssutils/math/Vector2D.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::Utils;
 using namespace Pointer;
 
 UP<CPointerManager>& Pointer::mgr() {
@@ -97,12 +97,12 @@ void CPointerManager::unlockSoftwareForMonitor(PHLMONITOR mon) {
 
 bool CPointerManager::softwareLockedFor(PHLMONITOR mon) {
     auto const state = stateFor(mon);
-    return state->softwareLocks > 0 || (state->hardwareFailed && hasCursor() && g_pHyprRenderer->shouldRenderCursor());
+    return state->softwareLocks > 0 || (state->hardwareFailed && hasCursor() && g_pAbyssRenderer->shouldRenderCursor());
 }
 
 bool CPointerManager::hasVisibleHWCursor(PHLMONITOR pMonitor) {
     auto const state = stateFor(pMonitor);
-    return state->softwareLocks == 0 && !state->hardwareFailed && hasCursor() && g_pHyprRenderer->shouldRenderCursor();
+    return state->softwareLocks == 0 && !state->hardwareFailed && hasCursor() && g_pAbyssRenderer->shouldRenderCursor();
 }
 
 Vector2D CPointerManager::position() {
@@ -124,7 +124,7 @@ SP<CPointerManager::SMonitorPointerState> CPointerManager::stateFor(PHLMONITOR m
     return *it;
 }
 
-void CPointerManager::setCursorBuffer(SP<Aquamarine::IBuffer> buf, const Vector2D& hotspot, const float& scale) {
+void CPointerManager::setCursorBuffer(SP<Abyssal::IBuffer> buf, const Vector2D& hotspot, const float& scale) {
     damageIfSoftware();
     if (buf == m_currentCursorImage.pBuffer) {
         if (hotspot != m_currentCursorImage.hotspot || scale != m_currentCursorImage.scale) {
@@ -227,7 +227,7 @@ void CPointerManager::recheckEnteredOutputs() {
             // if we are using hw cursors, prevent
             // the cursor from being stuck at the last point.
             if (!s->hardwareFailed &&
-                (s->monitor->m_output->getBackend()->capabilities() & Aquamarine::IBackendImplementation::eBackendCapabilities::AQ_BACKEND_CAPABILITY_POINTER))
+                (s->monitor->m_output->getBackend()->capabilities() & Abyssal::IBackendImplementation::eBackendCapabilities::ABYSSAL_BACKEND_CAPABILITY_POINTER))
                 setHWCursorBuffer(s, nullptr);
 
             if (!m_currentCursorImage.surface)
@@ -277,7 +277,7 @@ void CPointerManager::resetCursorImage(bool apply) {
         }
 
         if (ms->cursorFrontBuffer) {
-            if (ms->monitor->m_output->getBackend()->capabilities() & Aquamarine::IBackendImplementation::eBackendCapabilities::AQ_BACKEND_CAPABILITY_POINTER)
+            if (ms->monitor->m_output->getBackend()->capabilities() & Abyssal::IBackendImplementation::eBackendCapabilities::ABYSSAL_BACKEND_CAPABILITY_POINTER)
                 ms->monitor->m_output->setCursor(nullptr, {});
             ms->cursorFrontBuffer = nullptr;
         }
@@ -310,7 +310,7 @@ void CPointerManager::updateCursorBackend() {
         // so clear the plane once, even if we never have set it ourselves.
         if (!state->initialPlaneCleared)
             state->initialPlaneCleared = state->cursorFrontBuffer ||
-                !(m->m_output->getBackend()->capabilities() & Aquamarine::IBackendImplementation::eBackendCapabilities::AQ_BACKEND_CAPABILITY_POINTER) ||
+                !(m->m_output->getBackend()->capabilities() & Abyssal::IBackendImplementation::eBackendCapabilities::ABYSSAL_BACKEND_CAPABILITY_POINTER) ||
                 setHWCursorBuffer(state, nullptr);
 
         if (!CROSSES) {
@@ -381,7 +381,7 @@ void CPointerManager::onCursorMoved() {
 bool CPointerManager::attemptHardwareCursor(SP<CPointerManager::SMonitorPointerState> state) {
     auto output = state->monitor->m_output;
 
-    if (!(output->getBackend()->capabilities() & Aquamarine::IBackendImplementation::eBackendCapabilities::AQ_BACKEND_CAPABILITY_POINTER))
+    if (!(output->getBackend()->capabilities() & Abyssal::IBackendImplementation::eBackendCapabilities::ABYSSAL_BACKEND_CAPABILITY_POINTER))
         return false;
 
     const auto CURSORPOS = getCursorPosForMonitor(state->monitor.lock());
@@ -415,8 +415,8 @@ bool CPointerManager::attemptHardwareCursor(SP<CPointerManager::SMonitorPointerS
     return success;
 }
 
-bool CPointerManager::setHWCursorBuffer(SP<SMonitorPointerState> state, SP<Aquamarine::IBuffer> buf) {
-    if (!(state->monitor->m_output->getBackend()->capabilities() & Aquamarine::IBackendImplementation::eBackendCapabilities::AQ_BACKEND_CAPABILITY_POINTER))
+bool CPointerManager::setHWCursorBuffer(SP<SMonitorPointerState> state, SP<Abyssal::IBuffer> buf) {
+    if (!(state->monitor->m_output->getBackend()->capabilities() & Abyssal::IBackendImplementation::eBackendCapabilities::ABYSSAL_BACKEND_CAPABILITY_POINTER))
         return false;
 
     const auto HOTSPOT = transformedHotspot(state->monitor.lock());
@@ -429,20 +429,20 @@ bool CPointerManager::setHWCursorBuffer(SP<SMonitorPointerState> state, SP<Aquam
     state->cursorFrontBuffer = buf;
 
     if (!state->monitor->shouldSkipScheduleFrameOnMouseEvent())
-        state->monitor->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_CURSOR_SHAPE);
+        state->monitor->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_CURSOR_SHAPE);
 
     state->monitor->m_scanoutNeedsCursorUpdate = true;
 
     return true;
 }
 
-SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager::SMonitorPointerState> state, SP<Render::ITexture> texture) {
+SP<Abyssal::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager::SMonitorPointerState> state, SP<Render::ITexture> texture) {
     auto        maxSize    = state->monitor->m_output->cursorPlaneSize();
     auto const& cursorSize = m_currentCursorImage.size;
 
     static auto PCPUBUFFER = CConfigValue<Config::INTEGER>("cursor:use_cpu_buffer");
 
-    const bool  shouldUseCpuBuffer = *PCPUBUFFER == 1 || (*PCPUBUFFER != 0 && g_pHyprRenderer->isNvidia());
+    const bool  shouldUseCpuBuffer = *PCPUBUFFER == 1 || (*PCPUBUFFER != 0 && g_pAbyssRenderer->isNvidia());
 
     if (maxSize == Vector2D{}) {
         Log::logger->log(Log::TRACE, "hardware cursor has zero max size {}, current {}", maxSize, m_currentCursorImage.size);
@@ -458,14 +458,14 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
         maxSize = cursorSize;
 
     if (!state->monitor->m_cursorSwapchain || maxSize != state->monitor->m_cursorSwapchain->currentOptions().size ||
-        shouldUseCpuBuffer != (state->monitor->m_cursorSwapchain->getAllocator()->type() != Aquamarine::AQ_ALLOCATOR_TYPE_GBM)) {
+        shouldUseCpuBuffer != (state->monitor->m_cursorSwapchain->getAllocator()->type() != Abyssal::ABYSSAL_ALLOCATOR_TYPE_GBM)) {
 
-        if (!state->monitor->m_cursorSwapchain || shouldUseCpuBuffer != (state->monitor->m_cursorSwapchain->getAllocator()->type() != Aquamarine::AQ_ALLOCATOR_TYPE_GBM)) {
+        if (!state->monitor->m_cursorSwapchain || shouldUseCpuBuffer != (state->monitor->m_cursorSwapchain->getAllocator()->type() != Abyssal::ABYSSAL_ALLOCATOR_TYPE_GBM)) {
 
             auto allocator = state->monitor->m_output->getBackend()->preferredAllocator();
             if (shouldUseCpuBuffer) {
                 for (const auto& a : state->monitor->m_output->getBackend()->getAllocators()) {
-                    if (a->type() == Aquamarine::AQ_ALLOCATOR_TYPE_DRM_DUMB) {
+                    if (a->type() == Abyssal::ABYSSAL_ALLOCATOR_TYPE_DRM_DUMB) {
                         allocator = a;
                         break;
                     }
@@ -474,7 +474,7 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
 
             auto backend                      = state->monitor->m_output->getBackend();
             auto primary                      = backend->getPrimary();
-            state->monitor->m_cursorSwapchain = Aquamarine::CSwapchain::create(allocator, primary ? primary.lock() : backend);
+            state->monitor->m_cursorSwapchain = Abyssal::CSwapchain::create(allocator, primary ? primary.lock() : backend);
         }
 
         auto options     = state->monitor->m_cursorSwapchain->currentOptions();
@@ -611,9 +611,9 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
         return buf;
     }
 
-    g_pHyprRenderer->m_renderData.pMonitor = state->monitor;
+    g_pAbyssRenderer->m_renderData.pMonitor = state->monitor;
 
-    auto RBO = g_pHyprRenderer->getOrCreateRenderbuffer(buf, state->monitor->m_cursorSwapchain->currentOptions().format);
+    auto RBO = g_pAbyssRenderer->getOrCreateRenderbuffer(buf, state->monitor->m_cursorSwapchain->currentOptions().format);
     if (!RBO) {
         Log::logger->log(Log::TRACE, "Failed to create cursor RB with format {}, mod {}", buf->dmabuf().format, buf->dmabuf().modifier);
         return nullptr;
@@ -622,18 +622,18 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
     RBO->bind();
 
     CRegion damageRegion = {0, 0, INT_MAX, INT_MAX};
-    g_pHyprRenderer->beginFullFakeRender(state->monitor.lock(), damageRegion, RBO->getFB());
-    g_pHyprRenderer->startRenderPass();
-    g_pHyprRenderer->draw(CClearPassElement::SClearData{{0.F, 0.F, 0.F, 0.F}});
+    g_pAbyssRenderer->beginFullFakeRender(state->monitor.lock(), damageRegion, RBO->getFB());
+    g_pAbyssRenderer->startRenderPass();
+    g_pAbyssRenderer->draw(CClearPassElement::SClearData{{0.F, 0.F, 0.F, 0.F}});
 
     CBox xbox = {{}, Vector2D{m_currentCursorImage.size / m_currentCursorImage.scale * state->monitor->m_scale}.round()};
     Log::logger->log(Log::TRACE, "[pointer] monitor: {}, size: {}, hw buf: {}, scale: {:.2f}, monscale: {:.2f}, xbox: {}", state->monitor->m_name, m_currentCursorImage.size,
                      cursorSize, m_currentCursorImage.scale, state->monitor->m_scale, xbox.size());
 
-    g_pHyprRenderer->draw(CTexPassElement::SRenderData{.tex = texture, .box = xbox}, damageRegion);
+    g_pAbyssRenderer->draw(CTexPassElement::SRenderData{.tex = texture, .box = xbox}, damageRegion);
 
-    g_pHyprRenderer->endRender();
-    g_pHyprRenderer->m_renderData.pMonitor.reset();
+    g_pAbyssRenderer->endRender();
+    g_pAbyssRenderer->m_renderData.pMonitor.reset();
 
     return buf;
 }
@@ -682,7 +682,7 @@ void CPointerManager::renderSoftwareCursorsFor(PHLMONITOR pMonitor, const Time::
     data.tex = texture;
     data.box = box.round();
 
-    g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
+    g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
 
     // to erase the leftover in updateCursorBackend()
     if (!screencopy) {
@@ -696,7 +696,7 @@ void CPointerManager::renderSoftwareCursorsFor(PHLMONITOR pMonitor, const Time::
 
 Vector2D CPointerManager::getCursorPosForMonitor(PHLMONITOR pMonitor) {
     return CBox{m_pointerPos - pMonitor->m_position, {0, 0}}
-               .transform(Math::wlTransformToHyprutils(Math::invertTransform(pMonitor->m_transform)), pMonitor->m_transformedSize.x / pMonitor->m_scale,
+               .transform(Math::wlTransformToAbyssutils(Math::invertTransform(pMonitor->m_transform)), pMonitor->m_transformedSize.x / pMonitor->m_scale,
                           pMonitor->m_transformedSize.y / pMonitor->m_scale)
                .pos() *
         pMonitor->m_scale;
@@ -707,7 +707,7 @@ Vector2D CPointerManager::transformedHotspot(PHLMONITOR pMonitor) {
         return {}; // doesn't matter, we have no hw cursor, and this is only for hw cursors
 
     return CBox{m_currentCursorImage.hotspot * pMonitor->m_scale, {0, 0}}
-        .transform(Math::wlTransformToHyprutils(Math::invertTransform(pMonitor->m_transform)), pMonitor->m_cursorSwapchain->currentOptions().size.x,
+        .transform(Math::wlTransformToAbyssutils(Math::invertTransform(pMonitor->m_transform)), pMonitor->m_cursorSwapchain->currentOptions().size.x,
                    pMonitor->m_cursorSwapchain->currentOptions().size.y)
         .pos();
 }
@@ -953,7 +953,7 @@ SP<Render::ITexture> CPointerManager::getCurrentCursorTexture() {
 
     if (m_currentCursorImage.pBuffer) {
         if (!m_currentCursorImage.bufferTex)
-            m_currentCursorImage.bufferTex = g_pHyprRenderer->createTexture(m_currentCursorImage.pBuffer, true);
+            m_currentCursorImage.bufferTex = g_pAbyssRenderer->createTexture(m_currentCursorImage.pBuffer, true);
         return m_currentCursorImage.bufferTex;
     }
 
@@ -1162,7 +1162,7 @@ void CPointerManager::damageCursor(PHLMONITOR pMonitor, bool skipFrameSchedule) 
         if (b.empty())
             return;
 
-        g_pHyprRenderer->damageBox(b, skipFrameSchedule);
+        g_pAbyssRenderer->damageBox(b, skipFrameSchedule);
 
         return;
     }

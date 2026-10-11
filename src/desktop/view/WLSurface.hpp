@@ -78,7 +78,7 @@ namespace Desktop::View {
         // used by the alpha-modifier protocol
         float m_alphaModifier = 1.F;
 
-        // used by the hyprland-surface protocol
+        // used by the abyssland-surface protocol
         float   m_overallOpacity = 1.F;
         CRegion m_visibleRegion;
 
@@ -109,7 +109,7 @@ namespace Desktop::View {
         bool                   desktopComponent() const;
 
         struct {
-            CHyprSignalListener destroy;
+            CAbyssSignalListener destroy;
         } m_listeners;
 
         friend class ::CPointerConstraint;

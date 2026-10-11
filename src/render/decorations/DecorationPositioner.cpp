@@ -54,7 +54,7 @@ Vector2D CDecorationPositioner::getEdgeDefinedPoint(uint32_t edges, PHLWINDOWREF
     return {};
 }
 
-void CDecorationPositioner::uncacheDecoration(IHyprWindowDecoration* deco) {
+void CDecorationPositioner::uncacheDecoration(IAbyssWindowDecoration* deco) {
     const auto WIT = m_windowDatas.find(deco->m_window);
     if (WIT == m_windowDatas.end())
         return;
@@ -65,12 +65,12 @@ void CDecorationPositioner::uncacheDecoration(IHyprWindowDecoration* deco) {
     m_needsSanitize                = true;
 }
 
-void CDecorationPositioner::repositionDeco(IHyprWindowDecoration* deco) {
+void CDecorationPositioner::repositionDeco(IAbyssWindowDecoration* deco) {
     uncacheDecoration(deco);
     onWindowUpdate(deco->m_window.lock());
 }
 
-CDecorationPositioner::SWindowPositioningData* CDecorationPositioner::getDataFor(IHyprWindowDecoration* pDecoration, PHLWINDOW pWindow) {
+CDecorationPositioner::SWindowPositioningData* CDecorationPositioner::getDataFor(IAbyssWindowDecoration* pDecoration, PHLWINDOW pWindow) {
     const auto WIT = m_windowDatas.find(pWindow);
     if (WIT == m_windowDatas.end())
         return nullptr;
@@ -402,7 +402,7 @@ CBox CDecorationPositioner::getBoxWithIncludedDecos(PHLWINDOW pWindow) {
     return accum;
 }
 
-CBox CDecorationPositioner::getWindowDecorationBox(IHyprWindowDecoration* deco) {
+CBox CDecorationPositioner::getWindowDecorationBox(IAbyssWindowDecoration* deco) {
     auto const window = deco->m_window.lock();
     const auto DATA   = getDataFor(deco, window);
     if (!DATA)

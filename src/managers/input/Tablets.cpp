@@ -65,7 +65,7 @@ static void refocusTablet(SP<CTablet> tab, SP<CTabletTool> tool, bool motion = f
 
     const auto WINDOW = Desktop::View::CWindow::fromView(LASTHLSURFACE->view());
 
-    if (LASTHLSURFACE->constraint() && tool->aq()->type != Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_MOUSE) {
+    if (LASTHLSURFACE->constraint() && tool->aq()->type != Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_MOUSE) {
         // cursor logic will completely break here as the cursor will be locked.
         // let's just "map" the desired position to the constraint area.
 
@@ -124,7 +124,7 @@ void CInputManager::onTabletAxis(CTablet::SAxisEvent e) {
         Vector2D delta = {std::isnan(dx) ? 0.0 : dx, std::isnan(dy) ? 0.0 : dy};
 
         switch (e.tool->type) {
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_MOUSE: {
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_MOUSE: {
                 Pointer::mgr()->move(delta);
                 break;
             }
@@ -244,7 +244,7 @@ void CInputManager::onTabletProximity(CTablet::SProximityEvent e) {
     }
 }
 
-void CInputManager::newTablet(SP<Aquamarine::ITablet> pDevice) {
+void CInputManager::newTablet(SP<Abyssal::ITablet> pDevice) {
     const auto PNEWTABLET = m_tablets.emplace_back(CTablet::create(pDevice));
     m_hids.emplace_back(PNEWTABLET);
 
@@ -264,7 +264,7 @@ void CInputManager::newTablet(SP<Aquamarine::ITablet> pDevice) {
     setTabletConfigs();
 }
 
-SP<CTabletTool> CInputManager::ensureTabletToolPresent(SP<Aquamarine::ITabletTool> pTool) {
+SP<CTabletTool> CInputManager::ensureTabletToolPresent(SP<Abyssal::ITabletTool> pTool) {
 
     for (auto const& t : m_tabletTools) {
         if (t->aq() == pTool)
@@ -290,7 +290,7 @@ SP<CTabletTool> CInputManager::ensureTabletToolPresent(SP<Aquamarine::ITabletToo
     return PTOOL;
 }
 
-void CInputManager::newTabletPad(SP<Aquamarine::ITabletPad> pDevice) {
+void CInputManager::newTabletPad(SP<Abyssal::ITabletPad> pDevice) {
     const auto PNEWPAD = m_tabletPads.emplace_back(CTabletPad::create(pDevice));
     m_hids.emplace_back(PNEWPAD);
 

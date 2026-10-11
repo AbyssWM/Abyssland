@@ -14,7 +14,7 @@ CMonitorFrameScheduler::CMonitorFrameScheduler(PHLMONITOR m) : m_monitor(m) {
 bool CMonitorFrameScheduler::newSchedulingEnabled() {
     static auto PENABLENEW = CConfigValue<Config::INTEGER>("render:new_render_scheduling");
 
-    return *PENABLENEW && g_pHyprRenderer->explicitSyncSupported() && m_monitor && !m_monitor->m_directScanoutIsActive;
+    return *PENABLENEW && g_pAbyssRenderer->explicitSyncSupported() && m_monitor && !m_monitor->m_directScanoutIsActive;
 }
 
 void CMonitorFrameScheduler::onSyncFired() {
@@ -44,7 +44,7 @@ void CMonitorFrameScheduler::onSyncFired() {
     // FIXME: this is horrible. "renderMonitor" should not be able to do that.
     auto self = m_self;
 
-    g_pHyprRenderer->renderMonitor(PMONITOR, false);
+    g_pAbyssRenderer->renderMonitor(PMONITOR, false);
 
     if (!self)
         return;
@@ -72,7 +72,7 @@ void CMonitorFrameScheduler::onPresented() {
 
         auto ml = m.lock();
 
-        g_pHyprRenderer->commitPendingAndDoExplicitSync(ml); // commit the pending frame. If it didn't fire yet (is not rendered) it doesn't matter. Syncs will wait.
+        g_pAbyssRenderer->commitPendingAndDoExplicitSync(ml); // commit the pending frame. If it didn't fire yet (is not rendered) it doesn't matter. Syncs will wait.
 
         // schedule a frame: we might have some missed damage, which got cleared due to the above commit.
         // TODO: this is not always necessary, but doesn't hurt in general. We likely won't hit this if nothing's happening anyways.
@@ -102,7 +102,7 @@ void CMonitorFrameScheduler::onFrame() {
     if (!newSchedulingEnabled()) {
         PMONITOR->m_lastPresentationTimer.reset();
 
-        g_pHyprRenderer->renderMonitor(PMONITOR);
+        g_pAbyssRenderer->renderMonitor(PMONITOR);
         return;
     }
 
@@ -119,7 +119,7 @@ void CMonitorFrameScheduler::onFrame() {
     // FIXME: this is horrible. "renderMonitor" should not be able to do that.
     auto self = m_self;
 
-    g_pHyprRenderer->renderMonitor(PMONITOR);
+    g_pAbyssRenderer->renderMonitor(PMONITOR);
 
     if (!self)
         return;
@@ -128,7 +128,7 @@ void CMonitorFrameScheduler::onFrame() {
 }
 
 void CMonitorFrameScheduler::onFinishRender() {
-    m_sync = g_pHyprRenderer->createSyncFDManager(); // this destroys the old sync
+    m_sync = g_pAbyssRenderer->createSyncFDManager(); // this destroys the old sync
     if (!m_sync || !m_sync->isValid()) {
         Log::logger->log(Log::ERR, "CMonitorFrameScheduler: explicit sync failed, falling back to frame events");
         m_sync.reset();

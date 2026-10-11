@@ -10,7 +10,7 @@
 #include <xcb/xfixes.h>
 #include <xcb/composite.h>
 #include <xcb/xcb_errors.h>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <cinttypes> // for PRIxPTR
 #include <cstdint>
 
@@ -28,7 +28,7 @@ struct SXTransfer {
     bool                           flushOnDelete = false;
     bool                           propertySet   = false;
 
-    Hyprutils::OS::CFileDescriptor wlFD;
+    Abyssutils::OS::CFileDescriptor wlFD;
     wl_event_source*               eventSource = nullptr;
 
     std::vector<uint8_t>           data;
@@ -57,8 +57,8 @@ struct SXSelection {
     void             removeTransfer(xcb_window_t window);
 
     struct {
-        CHyprSignalListener setSelection;
-        CHyprSignalListener keyboardFocusChange;
+        CAbyssSignalListener setSelection;
+        CAbyssSignalListener keyboardFocusChange;
     } listeners;
 
     std::vector<UP<SXTransfer>> transfers;
@@ -219,8 +219,8 @@ class CXWM {
         return m_connection ? *m_connection : nullptr;
     }
     struct {
-        CHyprSignalListener newWLSurface;
-        CHyprSignalListener newXShellSurface;
+        CAbyssSignalListener newWLSurface;
+        CAbyssSignalListener newXShellSurface;
     } m_listeners;
 
     friend class CXWaylandSurface;

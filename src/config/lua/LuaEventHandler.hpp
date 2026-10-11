@@ -23,7 +23,7 @@ namespace Config::Lua {
     // Manages hl.on() event subscriptions for a single Lua state lifetime.
     // Destroyed (and recreated) on every config reload so callbacks never double-up.
     //
-    // Hyprland objects (window, workspace, monitor, layer surface) are exposed to Lua
+    // Abyssland objects (window, workspace, monitor, layer surface) are exposed to Lua
     // as typed userdata holding a weak pointer.  Field accesses read live C++ state via
     // __index; accessing a field on a destroyed object raises a Lua error.
     class CLuaEventHandler {
@@ -56,8 +56,8 @@ namespace Config::Lua {
         std::unordered_set<uint64_t>                           m_reentrancyWarnedHandles;
         uint64_t                                               m_nextHandle    = 1;
         size_t                                                 m_dispatchDepth = 0;
-        std::vector<CHyprSignalListener>                       m_listeners;
-        std::unordered_map<std::string, CHyprSignalListener>   m_pluginListeners;
+        std::vector<CAbyssSignalListener>                       m_listeners;
+        std::unordered_map<std::string, CAbyssSignalListener>   m_pluginListeners;
 
         static constexpr size_t                                MAX_DISPATCH_DEPTH = 32;
 

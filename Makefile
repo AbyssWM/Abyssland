@@ -1,7 +1,7 @@
 PREFIX = /usr/local
 
 stub:
-	@echo "Do not run $(MAKE) directly without any arguments. Please refer to the wiki on how to compile Hyprland."
+	@echo "Do not run $(MAKE) directly without any arguments. Please refer to the wiki on how to compile Abyssland."
 
 release:
 	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:STRING=${PREFIX} -S . -B ./build
@@ -18,7 +18,7 @@ nopch:
 clear:
 	rm -rf build
 	rm -f ./protocols/*.h ./protocols/*.c ./protocols/*.cpp ./protocols/*.hpp
-	rm -f ./hyprctl/hw-protocols/*.cpp ./hyprctl/hw-protocols/*.hpp
+	rm -f ./abyssctl/hw-protocols/*.cpp ./abyssctl/hw-protocols/*.hpp
 
 all:
 	$(MAKE) clear
@@ -37,43 +37,43 @@ pluginenv:
 installheaders:
 	@if [ ! -f ./src/version.h ]; then echo -en "You need to run $(MAKE) all first.\n" && exit 1; fi
 
-	# remove previous headers from hyprpm's dir
-	rm -fr ${PREFIX}/include/hyprland
-	mkdir -p ${PREFIX}/include/hyprland
-	mkdir -p ${PREFIX}/include/hyprland/protocols
+	# remove previous headers from abysspm's dir
+	rm -fr ${PREFIX}/include/abyssland
+	mkdir -p ${PREFIX}/include/abyssland
+	mkdir -p ${PREFIX}/include/abyssland/protocols
 	mkdir -p ${PREFIX}/share/pkgconfig
 
 	cmake --build ./build --config Release --target generate-protocol-headers
 
-	find src -type f \( -name '*.hpp' -o -name '*.h' -o -name '*.inc' \) -print0 | cpio --quiet -0dump ${PREFIX}/include/hyprland
-	cp ./protocols/*.h* ${PREFIX}/include/hyprland/protocols
-	cp ./build/hyprland.pc ${PREFIX}/share/pkgconfig
-	if [ -d /usr/share/pkgconfig ]; then cp ./build/hyprland.pc /usr/share/pkgconfig 2>/dev/null || true; fi
+	find src -type f \( -name '*.hpp' -o -name '*.h' -o -name '*.inc' \) -print0 | cpio --quiet -0dump ${PREFIX}/include/abyssland
+	cp ./protocols/*.h* ${PREFIX}/include/abyssland/protocols
+	cp ./build/abyssland.pc ${PREFIX}/share/pkgconfig
+	if [ -d /usr/share/pkgconfig ]; then cp ./build/abyssland.pc /usr/share/pkgconfig 2>/dev/null || true; fi
 
-	chmod -R 755 ${PREFIX}/include/hyprland
+	chmod -R 755 ${PREFIX}/include/abyssland
 	chmod 755 ${PREFIX}/share/pkgconfig
 
 man:
-	pandoc ./docs/Hyprland.1.rst \
+	pandoc ./docs/Abyssland.1.rst \
 		--standalone \
-		--variable=header:"Hyprland User Manual" \
+		--variable=header:"Abyssland User Manual" \
 		--variable=date:"${DATE}" \
 		--variable=section:1 \
 		--from rst \
-		--to man > ./docs/Hyprland.1
+		--to man > ./docs/Abyssland.1
 
-	pandoc ./docs/hyprctl.1.rst \
+	pandoc ./docs/abyssctl.1.rst \
 		--standalone \
-		--variable=header:"hyprctl User Manual" \
+		--variable=header:"abyssctl User Manual" \
 		--variable=date:"${DATE}" \
 		--variable=section:1 \
 		--from rst \
-		--to man > ./docs/hyprctl.1
+		--to man > ./docs/abyssctl.1
 
 asan:
 	@echo -en "!!WARNING!!\nOnly run this in the TTY.\n"
-	@pidof Hyprland > /dev/null && echo -ne "Refusing to run with Hyprland running.\n" || echo ""
-	@pidof Hyprland > /dev/null && exit 1 || echo ""
+	@pidof Abyssland > /dev/null && echo -ne "Refusing to run with Abyssland running.\n" || echo ""
+	@pidof Abyssland > /dev/null && exit 1 || echo ""
 
 	rm -rf ./wayland
 	#git reset --hard
@@ -87,25 +87,25 @@ asan:
 	cp ./wayland/build/src/libwayland-server.a .
 	@echo "Wayland done"
 
-	patch -p1 < ./scripts/hyprlandStaticAsan.diff
+	patch -p1 < ./scripts/abysslandStaticAsan.diff
 	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Debug -DWITH_ASAN:STRING=True -DUSE_TRACY:STRING=False -DUSE_TRACY_GPU:STRING=False -S . -B ./build
 	cmake --build ./build --config Debug --target all
-	@echo "Hyprland done"
+	@echo "Abyssland done"
 
-	ASAN_OPTIONS="detect_odr_violation=0,log_path=asan.log" HYPRLAND_NO_CRASHREPORTER=1 ./build/Hyprland -c ~/.config/hypr/hyprland.lua
+	ASAN_OPTIONS="detect_odr_violation=0,log_path=asan.log" ABYSSLAND_NO_CRASHREPORTER=1 ./build/Abyssland -c ~/.config/abyss/abyssland.lua
 
 format-check:
-	@find src hyprctl hyprpm start tests hyprtester -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
+	@find src abyssctl abysspm start tests abysstester -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
 		! -path "src/render/shaders/Shaders.hpp" \
-		! -path "hyprctl/hw-protocols/*" | \
+		! -path "abyssctl/hw-protocols/*" | \
 		xargs clang-format --dry-run --Werror
 
 format-fix:
-	@find src hyprctl hyprpm start tests hyprtester -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
+	@find src abyssctl abysspm start tests abysstester -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
 		! -path "src/render/shaders/Shaders.hpp" \
-		! -path "hyprctl/hw-protocols/*" | \
+		! -path "abyssctl/hw-protocols/*" | \
 		xargs clang-format -i
 
 test:
 	$(MAKE) debug
-	./build/hyprtester/hyprtester -c hyprtester/test.lua -b ./build/Hyprland -p hyprtester/plugin/hyprtestplugin.so
+	./build/abysstester/abysstester -c abysstester/test.lua -b ./build/Abyssland -p abysstester/plugin/abysstestplugin.so

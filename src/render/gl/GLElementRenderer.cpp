@@ -1,8 +1,8 @@
 #include "GLElementRenderer.hpp"
 #include "../Renderer.hpp"
-#include "../decorations/CHyprDropShadowDecoration.hpp"
+#include "../decorations/CAbyssDropShadowDecoration.hpp"
 #include "../OpenGL.hpp"
-#include "../decorations/CHyprInnerGlowDecoration.hpp"
+#include "../decorations/CAbyssInnerGlowDecoration.hpp"
 #include <cstdint>
 
 using namespace Render::GL;
@@ -10,43 +10,43 @@ using namespace Render::GL;
 void CGLElementRenderer::draw(WP<CBorderPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
     if (m_data.hasGrad2)
-        g_pHyprOpenGL->renderBorder(
+        g_pAbyssOpenGL->renderBorder(
             m_data.box, m_data.grad1, m_data.grad2, m_data.lerp,
             {.round = m_data.round, .roundingPower = m_data.roundingPower, .borderSize = m_data.borderSize, .a = m_data.a, .outerRound = m_data.outerRound});
     else
-        g_pHyprOpenGL->renderBorder(
+        g_pAbyssOpenGL->renderBorder(
             m_data.box, m_data.grad1,
             {.round = m_data.round, .roundingPower = m_data.roundingPower, .borderSize = m_data.borderSize, .a = m_data.a, .outerRound = m_data.outerRound});
 };
 
 void CGLElementRenderer::draw(WP<CClearPassElement> element, const CRegion& damage) {
     const auto& color = element->m_data.color;
-    RASSERT(g_pHyprRenderer->m_renderData.pMonitor, "Tried to render without begin()!");
+    RASSERT(g_pAbyssRenderer->m_renderData.pMonitor, "Tried to render without begin()!");
 
     TRACY_GPU_ZONE("RenderClear");
     const std::array<GLfloat, 4> c = {sc<GLfloat>(color.r), sc<GLfloat>(color.g), sc<GLfloat>(color.b), sc<GLfloat>(color.a)};
 
-    if (!g_pHyprRenderer->m_renderData.damage.empty()) {
-        g_pHyprRenderer->m_renderData.damage.forEachRect([&c](const auto& RECT) {
-            g_pHyprOpenGL->scissor(&RECT, g_pHyprRenderer->m_renderData.transformDamage);
+    if (!g_pAbyssRenderer->m_renderData.damage.empty()) {
+        g_pAbyssRenderer->m_renderData.damage.forEachRect([&c](const auto& RECT) {
+            g_pAbyssOpenGL->scissor(&RECT, g_pAbyssRenderer->m_renderData.transformDamage);
             glClearBufferfv(GL_COLOR, 0, c.data());
         });
 
-        g_pHyprOpenGL->scissor(nullptr);
+        g_pAbyssOpenGL->scissor(nullptr);
     } else
         glClearBufferfv(GL_COLOR, 0, c.data());
 };
 
 void CGLElementRenderer::draw(WP<CFramebufferElement> element, const CRegion& damage) {
-    Log::logger->log(Log::ERR, "Deprecated CFramebufferElement. Use g_pHyprRenderer->m_renderData and CTexPassElement instead");
+    Log::logger->log(Log::ERR, "Deprecated CFramebufferElement. Use g_pAbyssRenderer->m_renderData and CTexPassElement instead");
     // const auto       m_data = element->m_data;
     // SP<IFramebuffer> fb     = nullptr;
 
     // if (m_data.main) {
     //     switch (m_data.framebufferID) {
-    //         case FB_MONITOR_RENDER_MAIN: fb = g_pHyprRenderer->m_renderData.mainFB; break;
-    //         case FB_MONITOR_RENDER_CURRENT: fb = g_pHyprRenderer->m_renderData.currentFB; break;
-    //         case FB_MONITOR_RENDER_OUT: fb = g_pHyprRenderer->m_renderData.outFB; break;
+    //         case FB_MONITOR_RENDER_MAIN: fb = g_pAbyssRenderer->m_renderData.mainFB; break;
+    //         case FB_MONITOR_RENDER_CURRENT: fb = g_pAbyssRenderer->m_renderData.currentFB; break;
+    //         case FB_MONITOR_RENDER_OUT: fb = g_pAbyssRenderer->m_renderData.outFB; break;
     //         default: fb = nullptr;
     //     }
 
@@ -57,12 +57,12 @@ void CGLElementRenderer::draw(WP<CFramebufferElement> element, const CRegion& da
 
     // } else {
     //     switch (m_data.framebufferID) {
-    //         case FB_MONITOR_RENDER_EXTRA_OFFLOAD: fb = g_pHyprRenderer->m_renderData.pMonitor->m_offloadFB; break;
-    //         case FB_MONITOR_RENDER_EXTRA_MIRROR: fb = g_pHyprRenderer->m_renderData.pMonitor->m_mirrorFB; break;
-    //         case FB_MONITOR_RENDER_EXTRA_MIRROR_SWAP: fb = g_pHyprRenderer->m_renderData.pMonitor->m_mirrorSwapFB; break;
-    //         case FB_MONITOR_RENDER_EXTRA_OFF_MAIN: fb = g_pHyprRenderer->m_renderData.pMonitor->m_offMainFB; break;
-    //         case FB_MONITOR_RENDER_EXTRA_MONITOR_MIRROR: fb = g_pHyprRenderer->m_renderData.pMonitor->m_monitorMirrorFB; break;
-    //         case FB_MONITOR_RENDER_EXTRA_BLUR: fb = g_pHyprRenderer->m_renderData.pMonitor->m_blurFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_OFFLOAD: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_offloadFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_MIRROR: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_mirrorFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_MIRROR_SWAP: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_mirrorSwapFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_OFF_MAIN: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_offMainFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_MONITOR_MIRROR: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_monitorMirrorFB; break;
+    //         case FB_MONITOR_RENDER_EXTRA_BLUR: fb = g_pAbyssRenderer->m_renderData.pMonitor->m_blurFB; break;
     //         default: fb = nullptr;
     //     }
 
@@ -72,38 +72,38 @@ void CGLElementRenderer::draw(WP<CFramebufferElement> element, const CRegion& da
     //     }
     // }
 
-    // g_pHyprRenderer->bindFB(fb);
+    // g_pAbyssRenderer->bindFB(fb);
 };
 
 void CGLElementRenderer::draw(WP<CPreBlurElement> element, const CRegion& damage) {
     auto dmg = damage;
-    g_pHyprRenderer->preBlurForCurrentMonitor(&dmg);
+    g_pAbyssRenderer->preBlurForCurrentMonitor(&dmg);
 };
 
 void CGLElementRenderer::draw(WP<CRectPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
 
     if (m_data.color.a == 1.F || !m_data.blur)
-        g_pHyprOpenGL->renderRect(m_data.box, m_data.color, {.damage = &damage, .round = m_data.round, .roundingPower = m_data.roundingPower});
+        g_pAbyssOpenGL->renderRect(m_data.box, m_data.color, {.damage = &damage, .round = m_data.round, .roundingPower = m_data.roundingPower});
     else
-        g_pHyprOpenGL->renderRect(m_data.box, m_data.color,
+        g_pAbyssOpenGL->renderRect(m_data.box, m_data.color,
                                   {.round = m_data.round, .roundingPower = m_data.roundingPower, .blur = true, .blurA = m_data.blurA, .xray = m_data.xray});
 };
 
 void CGLElementRenderer::draw(WP<CShadowPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
-    m_data.deco->render(g_pHyprRenderer->m_renderData.pMonitor.lock(), m_data.a);
+    m_data.deco->render(g_pAbyssRenderer->m_renderData.pMonitor.lock(), m_data.a);
 };
 
 void CGLElementRenderer::draw(WP<CInnerGlowPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
-    m_data.deco->render(g_pHyprRenderer->m_renderData.pMonitor.lock(), m_data.a);
+    m_data.deco->render(g_pAbyssRenderer->m_renderData.pMonitor.lock(), m_data.a);
 };
 
 void CGLElementRenderer::draw(WP<CTexPassElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
 
-    g_pHyprOpenGL->renderTexture( //
+    g_pAbyssOpenGL->renderTexture( //
         m_data.tex, m_data.box,
         {
             // blur settings for m_data.blur == true
@@ -131,8 +131,8 @@ void CGLElementRenderer::draw(WP<CTexPassElement> element, const CRegion& damage
             .clipRegion     = m_data.clipRegion,
             .currentLS      = m_data.currentLS,
 
-            .primarySurfaceUVTopLeft     = g_pHyprRenderer->m_renderData.primarySurfaceUVTopLeft,
-            .primarySurfaceUVBottomRight = g_pHyprRenderer->m_renderData.primarySurfaceUVBottomRight,
+            .primarySurfaceUVTopLeft     = g_pAbyssRenderer->m_renderData.primarySurfaceUVTopLeft,
+            .primarySurfaceUVBottomRight = g_pAbyssRenderer->m_renderData.primarySurfaceUVBottomRight,
             .motionBlur                  = m_data.motionBlur,
         });
 };
@@ -140,5 +140,5 @@ void CGLElementRenderer::draw(WP<CTexPassElement> element, const CRegion& damage
 void CGLElementRenderer::draw(WP<CTextureMatteElement> element, const CRegion& damage) {
     const auto& m_data = element->m_data;
 
-    g_pHyprOpenGL->renderTextureMatte(m_data.tex, m_data.box, m_data.fb);
+    g_pAbyssOpenGL->renderTextureMatte(m_data.tex, m_data.box, m_data.fb);
 };

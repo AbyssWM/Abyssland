@@ -5,7 +5,7 @@
 #include "../helpers/sync/SyncReleaser.hpp"
 #include "linux-drm-syncobj-v1.hpp"
 #include "../helpers/signal/Signal.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CWLSurfaceResource;
 class CDRMSyncobjTimelineResource;
@@ -19,10 +19,10 @@ class CDRMSyncPointState {
 
     const uint64_t&                                  point();
     WP<CSyncTimeline>                                timeline();
-    Hyprutils::Memory::CUniquePointer<CSyncReleaser> createSyncRelease();
+    Abyssutils::Memory::CUniquePointer<CSyncReleaser> createSyncRelease();
     bool                                             addWaiter(std::function<void()>&& waiter);
     bool                                             committed();
-    Hyprutils::OS::CFileDescriptor                   exportAsFD();
+    Abyssutils::OS::CFileDescriptor                   exportAsFD();
     void                                             signal();
 
     //
@@ -51,19 +51,19 @@ class CDRMSyncobjSurfaceResource {
     CDRMSyncPointState              m_pendingRelease;
 
     struct {
-        CHyprSignalListener surfaceStateCommit;
+        CAbyssSignalListener surfaceStateCommit;
     } m_listeners;
 };
 
 class CDRMSyncobjTimelineResource {
   public:
-    CDRMSyncobjTimelineResource(UP<CWpLinuxDrmSyncobjTimelineV1>&& resource_, Hyprutils::OS::CFileDescriptor&& fd_);
+    CDRMSyncobjTimelineResource(UP<CWpLinuxDrmSyncobjTimelineV1>&& resource_, Abyssutils::OS::CFileDescriptor&& fd_);
     ~CDRMSyncobjTimelineResource() = default;
     static WP<CDRMSyncobjTimelineResource> fromResource(wl_resource*);
 
     bool                                   good();
 
-    Hyprutils::OS::CFileDescriptor         m_fd;
+    Abyssutils::OS::CFileDescriptor         m_fd;
     SP<CSyncTimeline>                      m_timeline;
 
   private:

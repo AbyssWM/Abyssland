@@ -3,7 +3,7 @@
 #include "../../../managers/eventLoop/EventLoopManager.hpp"
 #include "../../../managers/input/InputManager.hpp"
 #include "../../../render/Renderer.hpp"
-#include "../../../render/decorations/CHyprGroupBarDecoration.hpp"
+#include "../../../render/decorations/CAbyssGroupBarDecoration.hpp"
 #include "../../../Compositor.hpp"
 #include "../../../layout/supplementary/WorkspaceAlgoMatcher.hpp"
 #include "../../../layout/LayoutManager.hpp"
@@ -65,7 +65,7 @@ void CPropRefresher::refreshProp(const bool execdAsScheduled) {
     }
 
     if (m_propsTripped & REFRESH_SCREEN_SHADER) {
-        g_pHyprRenderer->m_reloadScreenShader = true;
+        g_pAbyssRenderer->m_reloadScreenShader = true;
         for (auto const& m : State::monitorState()->monitors()) {
             if (!m)
                 continue;
@@ -108,7 +108,7 @@ void CPropRefresher::refreshProp(const bool execdAsScheduled) {
                 continue;
 
             m->m_forceFullFrames = 2;
-            g_pHyprRenderer->damageMonitor(m);
+            g_pAbyssRenderer->damageMonitor(m);
             m->scheduleFrame();
         }
     }
@@ -133,7 +133,7 @@ void CPropRefresher::refreshProp(const bool execdAsScheduled) {
 
         for (auto const& m : State::monitorState()->monitors()) {
             g_layoutManager->recalculateMonitor(m);
-            g_pHyprRenderer->damageMonitor(m);
+            g_pAbyssRenderer->damageMonitor(m);
         }
     }
 

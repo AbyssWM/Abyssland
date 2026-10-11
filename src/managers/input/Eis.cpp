@@ -7,7 +7,7 @@
 #include "output/Monitor.hpp"
 #include <alloca.h>
 #include <cstdint>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <libeis.h>
 #include <sys/mman.h>
 #include <unistd.h>

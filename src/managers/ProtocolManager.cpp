@@ -50,7 +50,7 @@
 #include "../protocols/SecurityContext.hpp"
 #include "../protocols/CTMControl.hpp"
 #include "../protocols/InputCapture.hpp"
-#include "../protocols/HyprlandSurface.hpp"
+#include "../protocols/AbysslandSurface.hpp"
 #include "../protocols/ImageCaptureSource.hpp"
 #include "../protocols/ImageCopyCapture.hpp"
 #include "../protocols/BackgroundEffect.hpp"
@@ -78,14 +78,14 @@
 #include "../Compositor.hpp"
 #include "content-type-v1.hpp"
 
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 #include <xf86drm.h>
-#include <aquamarine/backend/Backend.hpp>
-#include <hyprutils/memory/UniquePtr.hpp>
+#include <abyssal/backend/Backend.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
 
 // ********************************************************************************************
 // * IMPORTANT: make sure to .reset() any protocol UP's you create! (put reset in destructor) *
-// * otherwise Hyprland might crash when exiting.                                             *
+// * otherwise Abyssland might crash when exiting.                                             *
 // ********************************************************************************************
 
 // Retire the old wl_output global for `name` before a new one takes its map slot.
@@ -187,14 +187,14 @@ CProtocolManager::CProtocolManager() {
     PROTO::outputPower         = makeUnique<COutputPowerProtocol>(&zwlr_output_power_manager_v1_interface, 1, "OutputPower");
     PROTO::activation          = makeUnique<CXDGActivationProtocol>(&xdg_activation_v1_interface, 1, "XDGActivation");
     PROTO::idle                = makeUnique<CIdleNotifyProtocol>(&ext_idle_notifier_v1_interface, 2, "IdleNotify");
-    PROTO::lockNotify          = makeUnique<CLockNotifyProtocol>(&hyprland_lock_notifier_v1_interface, 1, "IdleNotify");
+    PROTO::lockNotify          = makeUnique<CLockNotifyProtocol>(&abyssland_lock_notifier_v1_interface, 1, "IdleNotify");
     PROTO::sessionLock         = makeUnique<CSessionLockProtocol>(&ext_session_lock_manager_v1_interface, 1, "SessionLock");
     PROTO::ime                 = makeUnique<CInputMethodV2Protocol>(&zwp_input_method_manager_v2_interface, 1, "IMEv2");
     PROTO::virtualKeyboard     = makeUnique<CVirtualKeyboardProtocol>(&zwp_virtual_keyboard_manager_v1_interface, 1, "VirtualKeyboard");
     PROTO::virtualPointer      = makeUnique<CVirtualPointerProtocol>(&zwlr_virtual_pointer_manager_v1_interface, 2, "VirtualPointer");
     PROTO::outputManagement    = makeUnique<COutputManagementProtocol>(&zwlr_output_manager_v1_interface, 4, "OutputManagement");
     PROTO::serverDecorationKDE = makeUnique<CServerDecorationKDEProtocol>(&org_kde_kwin_server_decoration_manager_interface, 1, "ServerDecorationKDE");
-    PROTO::focusGrab           = makeUnique<CFocusGrabProtocol>(&hyprland_focus_grab_manager_v1_interface, 1, "FocusGrab");
+    PROTO::focusGrab           = makeUnique<CFocusGrabProtocol>(&abyssland_focus_grab_manager_v1_interface, 1, "FocusGrab");
     PROTO::tablet              = makeUnique<CTabletV2Protocol>(&zwp_tablet_manager_v2_interface, 1, "TabletV2");
     PROTO::layerShell          = makeUnique<CLayerShellProtocol>(&zwlr_layer_shell_v1_interface, 5, "LayerShell");
     PROTO::presentation        = makeUnique<CPresentationProtocol>(&wp_presentation_interface, 2, "Presentation");
@@ -202,14 +202,14 @@ CProtocolManager::CProtocolManager() {
     PROTO::dataWlr             = makeUnique<CDataDeviceWLRProtocol>(&zwlr_data_control_manager_v1_interface, 2, "DataDeviceWlr");
     PROTO::primarySelection    = makeUnique<CPrimarySelectionProtocol>(&zwp_primary_selection_device_manager_v1_interface, 1, "PrimarySelection");
     PROTO::xwaylandShell       = makeUnique<CXWaylandShellProtocol>(&xwayland_shell_v1_interface, 1, "XWaylandShell");
-    PROTO::toplevelMapping     = makeUnique<CToplevelMappingProtocol>(&hyprland_toplevel_mapping_manager_v1_interface, 1, "ToplevelMapping");
-    PROTO::globalShortcuts     = makeUnique<CGlobalShortcutsProtocol>(&hyprland_global_shortcuts_manager_v1_interface, 1, "GlobalShortcuts");
+    PROTO::toplevelMapping     = makeUnique<CToplevelMappingProtocol>(&abyssland_toplevel_mapping_manager_v1_interface, 1, "ToplevelMapping");
+    PROTO::globalShortcuts     = makeUnique<CGlobalShortcutsProtocol>(&abyssland_global_shortcuts_manager_v1_interface, 1, "GlobalShortcuts");
     PROTO::xdgDialog           = makeUnique<CXDGDialogProtocol>(&xdg_wm_dialog_v1_interface, 1, "XDGDialog");
     PROTO::singlePixel         = makeUnique<CSinglePixelProtocol>(&wp_single_pixel_buffer_manager_v1_interface, 1, "SinglePixel");
     PROTO::securityContext     = makeUnique<CSecurityContextProtocol>(&wp_security_context_manager_v1_interface, 1, "SecurityContext");
-    PROTO::ctm                 = makeUnique<CHyprlandCTMControlProtocol>(&hyprland_ctm_control_manager_v1_interface, 2, "CTMControl");
-    PROTO::inputCapture        = makeUnique<CInputCaptureProtocol>(&hyprland_input_capture_manager_v1_interface, 1, "InputCapture");
-    PROTO::hyprlandSurface     = makeUnique<CHyprlandSurfaceProtocol>(&hyprland_surface_manager_v1_interface, 2, "HyprlandSurface");
+    PROTO::ctm                 = makeUnique<CAbysslandCTMControlProtocol>(&abyssland_ctm_control_manager_v1_interface, 2, "CTMControl");
+    PROTO::inputCapture        = makeUnique<CInputCaptureProtocol>(&abyssland_input_capture_manager_v1_interface, 1, "InputCapture");
+    PROTO::abysslandSurface     = makeUnique<CAbysslandSurfaceProtocol>(&abyssland_surface_manager_v1_interface, 2, "AbysslandSurface");
     PROTO::contentType         = makeUnique<CContentTypeProtocol>(&wp_content_type_manager_v1_interface, 1, "ContentType");
     PROTO::xdgTag              = makeUnique<CXDGToplevelTagProtocol>(&xdg_toplevel_tag_manager_v1_interface, 1, "XDGTag");
     PROTO::xdgBell             = makeUnique<CXDGSystemBellProtocol>(&xdg_system_bell_v1_interface, 1, "XDGBell");
@@ -227,7 +227,7 @@ CProtocolManager::CProtocolManager() {
 
     // Screensharing Protocols
     PROTO::screencopy         = makeUnique<CScreencopyProtocol>(&zwlr_screencopy_manager_v1_interface, 3, "Screencopy");
-    PROTO::toplevelExport     = makeUnique<CToplevelExportProtocol>(&hyprland_toplevel_export_manager_v1_interface, 2, "ToplevelExport");
+    PROTO::toplevelExport     = makeUnique<CToplevelExportProtocol>(&abyssland_toplevel_export_manager_v1_interface, 2, "ToplevelExport");
     PROTO::imageCaptureSource = makeUnique<CImageCaptureSourceProtocol>(); // ctor inits actual protos, output and toplevel
     PROTO::imageCopyCapture   = makeUnique<CImageCopyCaptureProtocol>(&ext_image_copy_capture_manager_v1_interface, 1, "ImageCopyCapture");
 
@@ -237,7 +237,7 @@ CProtocolManager::CProtocolManager() {
     // ! please read the top of this file before adding another protocol
 
     for (auto const& b : g_pCompositor->m_aqBackend->getImplementations()) {
-        if (b->type() != Aquamarine::AQ_BACKEND_DRM)
+        if (b->type() != Abyssal::ABYSSAL_BACKEND_DRM)
             continue;
 
         auto lease = makeShared<CDRMLeaseProtocol>(&wp_drm_lease_device_v1_interface, 1, "DRMLease", b);
@@ -246,7 +246,7 @@ CProtocolManager::CProtocolManager() {
         else
             lease.reset();
 
-        if (g_pHyprRenderer->explicitSyncSupported() && !PROTO::sync) {
+        if (g_pAbyssRenderer->explicitSyncSupported() && !PROTO::sync) {
             if (g_pCompositor->supportsDrmSyncobjTimeline()) {
                 PROTO::sync = makeUnique<CDRMSyncobjProtocol>(&wp_linux_drm_syncobj_manager_v1_interface, 1, "DRMSyncobj");
                 Log::logger->log(Log::DEBUG, "DRM Syncobj Timeline support detected, enabling explicit sync protocol");
@@ -255,7 +255,7 @@ CProtocolManager::CProtocolManager() {
         }
     }
 
-    if (!g_pHyprRenderer->getDRMFormats().empty()) {
+    if (!g_pAbyssRenderer->getDRMFormats().empty()) {
         PROTO::mesaDRM  = makeUnique<CMesaDRMProtocol>(&wl_drm_interface, 2, "MesaDRM");
         PROTO::linuxDma = makeUnique<CLinuxDMABufV1Protocol>(&zwp_linux_dmabuf_v1_interface, 5, "LinuxDMABUF");
     } else
@@ -321,7 +321,7 @@ CProtocolManager::~CProtocolManager() {
     PROTO::securityContext.reset();
     PROTO::ctm.reset();
     PROTO::inputCapture.reset();
-    PROTO::hyprlandSurface.reset();
+    PROTO::abysslandSurface.reset();
     PROTO::contentType.reset();
     PROTO::colorManagement.reset();
     PROTO::xdgTag.reset();
@@ -385,7 +385,7 @@ bool CProtocolManager::isGlobalPrivileged(const wl_global* global) {
         PROTO::xdgDialog->getGlobal(),
         PROTO::singlePixel->getGlobal(),
         PROTO::primarySelection->getGlobal(),
-		PROTO::hyprlandSurface->getGlobal(),
+		PROTO::abysslandSurface->getGlobal(),
 		PROTO::xdgTag->getGlobal(),
 		PROTO::xdgBell->getGlobal(),
         PROTO::fifo->getGlobal(),

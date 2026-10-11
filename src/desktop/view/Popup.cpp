@@ -81,7 +81,7 @@ bool CPopup::visible() const {
         return false;
 
     if (!m_windowOwner.expired())
-        return g_pHyprRenderer->shouldRenderWindow(m_windowOwner.lock());
+        return g_pAbyssRenderer->shouldRenderWindow(m_windowOwner.lock());
 
     if (!m_layerOwner.expired())
         return true;
@@ -124,7 +124,7 @@ void CPopup::initAllSignals() {
     Animation::mgr()->createAnimation(0.f, m_alpha.get(POPUP_ALPHA_FADE), Config::animationTree()->getAnimationPropertyConfig("fadePopupsIn"), AVARDAMAGE_NONE);
     m_alpha.get(POPUP_ALPHA_FADE)->setUpdateCallback([this](auto) {
         //
-        g_pHyprRenderer->damageBox(CBox{coordsGlobal(), size()});
+        g_pAbyssRenderer->damageBox(CBox{coordsGlobal(), size()});
     });
     m_alpha.get(POPUP_ALPHA_FADE)
         ->setCallbackOnEnd(
@@ -133,7 +133,7 @@ void CPopup::initAllSignals() {
                     g_pEventLoopManager->doLater([p = m_self] {
                         if (!p)
                             return;
-                        g_pHyprRenderer->damageBox(CBox{p->coordsGlobal(), p->size()});
+                        g_pAbyssRenderer->damageBox(CBox{p->coordsGlobal(), p->size()});
                         p->fullyDestroy();
                     });
                 }
@@ -209,7 +209,7 @@ void CPopup::onMap() {
 
     CBox       box = m_wlSurface->resource()->extends();
     box.translate(COORDS).expand(4);
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 
     m_lastPos = coordsRelativeToParent();
 
@@ -260,15 +260,15 @@ void CPopup::onUnmap() {
 
     CBox       box = m_wlSurface->resource()->extends();
     box.translate(COORDS).expand(4);
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 
     // damage the last popup's explicit max size as well
     box = CBox{COORDS, MAX_DAMAGE_SIZE}.expand(4);
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 
     m_lastSize = MAX_DAMAGE_SIZE;
 
-    const auto SNAPSHOT    = g_pHyprRenderer->makeSnapshotFB(m_self);
+    const auto SNAPSHOT    = g_pAbyssRenderer->makeSnapshotFB(m_self);
     const auto SOURCEALPHA = m_alpha.get(POPUP_ALPHA_FADE)->value();
 
     m_alpha.get(POPUP_ALPHA_FADE)->setConfig(Config::animationTree()->getAnimationPropertyConfig("fadePopupsOut"));
@@ -293,7 +293,7 @@ void CPopup::onUnmap() {
                 return;
 
             auto box = CBox{p->coordsGlobal(), p->size()};
-            g_pHyprRenderer->damageBox(box);
+            g_pAbyssRenderer->damageBox(box);
         },
         nullptr);
 
@@ -338,10 +338,10 @@ void CPopup::onCommit(bool ignoreSiblings) {
     if (m_lastSize != m_resource->m_surface->m_surface->m_current.size || m_requestedReposition || m_lastPos != COORDSLOCAL) {
         CBox box = {localToGlobal(m_lastPos), m_lastSize};
         box.expand(4);
-        g_pHyprRenderer->damageBox(box);
+        g_pAbyssRenderer->damageBox(box);
         m_lastSize = m_resource->m_surface->m_surface->m_current.size;
         box        = {COORDS, m_lastSize};
-        g_pHyprRenderer->damageBox(box);
+        g_pAbyssRenderer->damageBox(box);
 
         m_lastPos = COORDSLOCAL;
 
@@ -351,7 +351,7 @@ void CPopup::onCommit(bool ignoreSiblings) {
     if (!ignoreSiblings && m_subsurfaceHead)
         m_subsurfaceHead->recheckDamageForSubsurfaces();
 
-    g_pHyprRenderer->damageSurface(m_wlSurface->resource(), COORDS.x, COORDS.y);
+    g_pAbyssRenderer->damageSurface(m_wlSurface->resource(), COORDS.x, COORDS.y);
 
     m_requestedReposition = false;
 

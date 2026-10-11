@@ -8,15 +8,15 @@
 #include "../helpers/signal/Signal.hpp"
 #include "../helpers/Format.hpp"
 #include "../output/Monitor.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssal/buffer/Buffer.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CDMABuffer;
 class CWLSurfaceResource;
 
 class CLinuxDMABuffer {
   public:
-    CLinuxDMABuffer(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs attrs);
+    CLinuxDMABuffer(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs attrs);
     ~CLinuxDMABuffer();
 
     bool good();
@@ -25,7 +25,7 @@ class CLinuxDMABuffer {
     SP<CDMABuffer> m_buffer;
 
     struct {
-        CHyprSignalListener bufferResourceDestroy;
+        CAbyssSignalListener bufferResourceDestroy;
     } m_listeners;
 
     friend class CLinuxDMABUFParamsResource;
@@ -51,7 +51,7 @@ class CDMABUFFormatTable {
     CDMABUFFormatTable(SDMABUFTranche rendererTranche, std::vector<std::pair<PHLMONITORREF, SDMABUFTranche>> tranches);
     ~CDMABUFFormatTable() = default;
 
-    Hyprutils::OS::CFileDescriptor                        m_tableFD;
+    Abyssutils::OS::CFileDescriptor                        m_tableFD;
     size_t                                                m_tableSize = 0;
     SDMABUFTranche                                        m_rendererTranche;
     std::vector<std::pair<PHLMONITORREF, SDMABUFTranche>> m_monitorTranches;
@@ -65,7 +65,7 @@ class CLinuxDMABUFParamsResource {
     bool                         good();
     void                         create(uint32_t id); // 0 means not immed
 
-    SP<Aquamarine::SDMABUFAttrs> m_attrs;
+    SP<Abyssal::SDMABUFAttrs> m_attrs;
     WP<CLinuxDMABuffer>          m_createdBuffer;
     bool                         m_used = false;
 
@@ -131,7 +131,7 @@ class CLinuxDMABufV1Protocol : public IWaylandProtocol {
 
     UP<CDMABUFFormatTable>                        m_formatTable;
     dev_t                                         m_mainDevice;
-    Hyprutils::OS::CFileDescriptor                m_mainDeviceFD;
+    Abyssutils::OS::CFileDescriptor                m_mainDeviceFD;
 
     friend class CLinuxDMABUFResource;
     friend class CLinuxDMABUFFeedbackResource;

@@ -82,11 +82,11 @@ namespace Screenshare {
         bool                     m_sharing = false;
 
         struct {
-            CHyprSignalListener monitorDestroyed;
-            CHyprSignalListener monitorModeChanged;
-            CHyprSignalListener windowDestroyed;
-            CHyprSignalListener windowSizeChanged;
-            CHyprSignalListener windowMonitorChanged;
+            CAbyssSignalListener monitorDestroyed;
+            CAbyssSignalListener monitorModeChanged;
+            CAbyssSignalListener windowDestroyed;
+            CAbyssSignalListener windowSizeChanged;
+            CAbyssSignalListener windowMonitorChanged;
         } m_listeners;
 
         void screenshareEvents(bool started);
@@ -140,8 +140,8 @@ namespace Screenshare {
         } m_pendingFrame;
 
         struct {
-            CHyprSignalListener pointerDestroyed;
-            CHyprSignalListener cursorChanged;
+            CAbyssSignalListener pointerDestroyed;
+            CAbyssSignalListener cursorChanged;
         } m_listeners;
 
         bool copy();
@@ -236,7 +236,7 @@ namespace Screenshare {
             SManagedSession(UP<CScreenshareSession>&& session);
 
             UP<CScreenshareSession> m_session;
-            CHyprSignalListener     stoppedListener;
+            CAbyssSignalListener     stoppedListener;
         };
 
         std::vector<UP<SManagedSession>> m_managedSessions;
@@ -247,7 +247,7 @@ namespace Screenshare {
 
     inline UP<CScreenshareManager>& mgr() {
         static UP<CScreenshareManager> manager = nullptr;
-        if (!manager && g_pHyprRenderer) {
+        if (!manager && g_pAbyssRenderer) {
             Log::logger->log(Log::DEBUG, "Starting ScreenshareManager");
             manager = makeUnique<CScreenshareManager>();
         }

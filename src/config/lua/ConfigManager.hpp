@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/animation/AnimationConfig.hpp>
+#include <abyssutils/animation/AnimationConfig.hpp>
 
 #include <vector>
 #include <string>

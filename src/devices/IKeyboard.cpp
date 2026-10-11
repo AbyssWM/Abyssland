@@ -6,12 +6,12 @@
 #include "../helpers/MiscFunctions.hpp"
 #include "../errorOverlay/Overlay.hpp"
 #include <sys/mman.h>
-#include <aquamarine/input/Input.hpp>
-#include <hyprutils/string/VarList.hpp>
+#include <abyssal/input/Input.hpp>
+#include <abyssutils/string/VarList.hpp>
 #include <cstring>
 
-using namespace Hyprutils::OS;
-using namespace Hyprutils::String;
+using namespace Abyssutils::OS;
+using namespace Abyssutils::String;
 
 #define LED_COUNT 3
 

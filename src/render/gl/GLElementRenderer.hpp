@@ -9,7 +9,7 @@ namespace Render::GL {
         ~CGLElementRenderer() = default;
 
       private:
-        void draw(WP<CBorderPassElement> element, const Hyprutils::Math::CRegion& damage) override;
+        void draw(WP<CBorderPassElement> element, const Abyssutils::Math::CRegion& damage) override;
         void draw(WP<CClearPassElement> element, const CRegion& damage) override;
         void draw(WP<CFramebufferElement> element, const CRegion& damage) override;
         void draw(WP<CPreBlurElement> element, const CRegion& damage) override;

@@ -124,18 +124,18 @@ void CMonitorStateTracker::add(PHLMONITOR mon) {
 
     // ready to process if we have a real monitor
 
-    if ((!g_pHyprRenderer->m_mostHzMonitor || mon->m_refreshRate > g_pHyprRenderer->m_mostHzMonitor->m_refreshRate) && mon->m_enabled)
-        g_pHyprRenderer->m_mostHzMonitor = mon;
+    if ((!g_pAbyssRenderer->m_mostHzMonitor || mon->m_refreshRate > g_pAbyssRenderer->m_mostHzMonitor->m_refreshRate) && mon->m_enabled)
+        g_pAbyssRenderer->m_mostHzMonitor = mon;
 
     Config::monitorRuleMgr()->scheduleReload();
 
-    mon->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_NEW_MONITOR);
+    mon->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_NEW_MONITOR);
 
     checkDefaultCursorWarp(mon);
 
     mon->updateSurfaceScaleTransformDetails();
 
-    g_pHyprRenderer->damageMonitor(mon);
+    g_pAbyssRenderer->damageMonitor(mon);
     mon->m_frameScheduler->onFrame();
 
     if (PROTO::colorManagement && g_pCompositor->shouldChangePreferredImageDescription()) {
@@ -144,7 +144,7 @@ void CMonitorStateTracker::add(PHLMONITOR mon) {
     }
 }
 
-void CMonitorStateTracker::add(SP<Aquamarine::IOutput> output) {
+void CMonitorStateTracker::add(SP<Abyssal::IOutput> output) {
     add(makeShared<Monitor::CMonitor>(output));
 }
 

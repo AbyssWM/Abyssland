@@ -371,7 +371,7 @@ void CWLKeyboardResource::sendKeymap(SP<IKeyboard> keyboard) {
         return;
 
     std::string_view                keymap = keyboard->m_xkbKeymapV1String;
-    Hyprutils::OS::CFileDescriptor& fd     = keyboard->m_xkbKeymapV1FD;
+    Abyssutils::OS::CFileDescriptor& fd     = keyboard->m_xkbKeymapV1FD;
     uint32_t                        size   = keyboard->m_xkbKeymapV1String.length() + 1;
 
     if (keymap == m_lastKeymap)

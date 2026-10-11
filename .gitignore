@@ -9,7 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
-hyprland.pc
+abyssland.pc
 _deps
 
 build/
@@ -31,9 +31,9 @@ protocols/*.h*
 src/render/shaders/*.inc
 src/render/shaders/Shaders.hpp
 
-hyprctl/hyprctl
-hyprctl/hw-protocols/*.c*
-hyprctl/hw-protocols/*.h*
+abyssctl/abyssctl
+abyssctl/hw-protocols/*.c*
+abyssctl/hw-protocols/*.h*
 
 gmon.out
 *.out
@@ -44,9 +44,9 @@ flame.svg
 PKGBUILD
 
 src/version.h
-hyprpm/Makefile
-hyprctl/Makefile
-example/hyprland.desktop
+abysspm/Makefile
+abyssctl/Makefile
+example/abyssland.desktop
 
 **/.#*.*
 **/#*.*#
@@ -55,4 +55,4 @@ debug-tools/flamegraph
 
 meta/hl.meta.lua
 
-hyprtester/pointer-scroll.txt
+abysstester/pointer-scroll.txt

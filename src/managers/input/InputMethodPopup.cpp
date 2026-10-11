@@ -62,7 +62,7 @@ void CInputPopup::damageEntire() {
         return;
     }
     CBox box = globalBox();
-    g_pHyprRenderer->damageBox(box);
+    g_pAbyssRenderer->damageBox(box);
 }
 
 void CInputPopup::damageSurface() {
@@ -74,7 +74,7 @@ void CInputPopup::damageSurface() {
     }
 
     Vector2D pos = globalBox().pos();
-    g_pHyprRenderer->damageSurface(m_surface->resource(), pos.x, pos.y);
+    g_pAbyssRenderer->damageSurface(m_surface->resource(), pos.x, pos.y);
 }
 
 void CInputPopup::updateBox() {

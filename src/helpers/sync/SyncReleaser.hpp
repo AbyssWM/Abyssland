@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 #include <functional>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include "../memory/Memory.hpp"
 
 /*
@@ -22,10 +22,10 @@ class CSyncReleaser {
     void drop();
 
     // wait for this sync_fd to signal before releasing
-    void addSyncFileFd(const Hyprutils::OS::CFileDescriptor& syncFd);
+    void addSyncFileFd(const Abyssutils::OS::CFileDescriptor& syncFd);
 
   private:
     SP<CSyncTimeline>              m_timeline;
     uint64_t                       m_point = 0;
-    Hyprutils::OS::CFileDescriptor m_fd;
+    Abyssutils::OS::CFileDescriptor m_fd;
 };

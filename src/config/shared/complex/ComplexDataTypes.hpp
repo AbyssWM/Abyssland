@@ -2,7 +2,7 @@
 #include "ComplexDataType.hpp"
 #include "../../../helpers/Color.hpp"
 
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
 #include <vector>
 #include <format>
@@ -14,11 +14,11 @@ namespace Config {
     class CGradientValueData : public IComplexConfigValue {
       public:
         CGradientValueData() = default;
-        CGradientValueData(CHyprColor col) {
+        CGradientValueData(CAbyssColor col) {
             m_colors.push_back(col);
             updateColorsOk();
         };
-        CGradientValueData(std::vector<CHyprColor>&& cols, float ang) : m_colors(std::move(cols)), m_angle(ang) {
+        CGradientValueData(std::vector<CAbyssColor>&& cols, float ang) : m_colors(std::move(cols)), m_angle(ang) {
             updateColorsOk();
         };
         virtual ~CGradientValueData() = default;
@@ -27,7 +27,7 @@ namespace Config {
             return CVD_TYPE_GRADIENT;
         }
 
-        void reset(CHyprColor col) {
+        void reset(CAbyssColor col) {
             m_colors.clear();
             m_colors.emplace_back(col);
             m_angle = 0;
@@ -46,7 +46,7 @@ namespace Config {
         }
 
         /* Vector containing the colors */
-        std::vector<CHyprColor> m_colors;
+        std::vector<CAbyssColor> m_colors;
 
         /* Vector containing pure colors for shoving into opengl */
         std::vector<float> m_colorsOkLabA;
@@ -91,7 +91,7 @@ namespace Config {
         int64_t m_bottom;
         int64_t m_left;
 
-        void    parseGapData(Hyprutils::String::CVarList2 varlist) {
+        void    parseGapData(Abyssutils::String::CVarList2 varlist) {
             const auto toInt = [](std::string_view string) -> int { return std::stoi(std::string(string)); };
 
             switch (varlist.size()) {

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "WaylandProtocol.hpp"
-#include "hyprland-toplevel-export-v1.hpp"
+#include "abyssland-toplevel-export-v1.hpp"
 
 #include "../helpers/time/Time.hpp"
 #include "./types/Buffer.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 
 #include <vector>
 
@@ -16,12 +16,12 @@ namespace Screenshare {
 
 class CToplevelExportClient {
   public:
-    CToplevelExportClient(SP<CHyprlandToplevelExportManagerV1> resource_);
+    CToplevelExportClient(SP<CAbysslandToplevelExportManagerV1> resource_);
 
     bool good();
 
   private:
-    SP<CHyprlandToplevelExportManagerV1> m_resource;
+    SP<CAbysslandToplevelExportManagerV1> m_resource;
     WP<CToplevelExportClient>            m_self;
 
     wl_client*                           m_savedClient = nullptr;
@@ -33,12 +33,12 @@ class CToplevelExportClient {
 
 class CToplevelExportFrame {
   public:
-    CToplevelExportFrame(SP<CHyprlandToplevelExportFrameV1> resource, WP<Screenshare::CScreenshareSession> session, bool overlayCursor);
+    CToplevelExportFrame(SP<CAbysslandToplevelExportFrameV1> resource, WP<Screenshare::CScreenshareSession> session, bool overlayCursor);
 
     bool good();
 
   private:
-    SP<CHyprlandToplevelExportFrameV1>   m_resource;
+    SP<CAbysslandToplevelExportFrameV1>   m_resource;
     WP<CToplevelExportFrame>             m_self;
     WP<CToplevelExportClient>            m_client;
 

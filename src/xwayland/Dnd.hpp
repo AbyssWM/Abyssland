@@ -4,7 +4,7 @@
 #include "../managers/SeatManager.hpp"
 #include "../managers/input/InputManager.hpp"
 #include <wayland-server-protocol.h>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #ifndef NO_XWAYLAND
 #include <xcb/xcb.h>
 #endif
@@ -35,7 +35,7 @@ class CX11DataSource : public IDataSource {
     ~CX11DataSource() = default;
 
     virtual std::vector<std::string> mimes();
-    virtual void                     send(const std::string& mime, Hyprutils::OS::CFileDescriptor fd);
+    virtual void                     send(const std::string& mime, Abyssutils::OS::CFileDescriptor fd);
     virtual void                     accepted(const std::string& mime);
     virtual void                     cancelled();
     virtual bool                     hasDnd();

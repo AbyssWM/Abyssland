@@ -1,7 +1,7 @@
 #include "SecurityContext.hpp"
 #include "../Compositor.hpp"
 #include <sys/socket.h>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static int onListenFdEvent(int fd, uint32_t mask, void* data) {
     auto secCtx = sc<CSecurityContext*>(data);

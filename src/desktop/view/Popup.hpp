@@ -111,13 +111,13 @@ namespace Desktop::View {
         SP<Desktop::View::CSubsurface>         m_subsurfaceHead;
 
         struct {
-            CHyprSignalListener newPopup;
-            CHyprSignalListener destroy;
-            CHyprSignalListener map;
-            CHyprSignalListener unmap;
-            CHyprSignalListener commit;
-            CHyprSignalListener dismissed;
-            CHyprSignalListener reposition;
+            CAbyssSignalListener newPopup;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener map;
+            CAbyssSignalListener unmap;
+            CAbyssSignalListener commit;
+            CAbyssSignalListener dismissed;
+            CAbyssSignalListener reposition;
         } m_listeners;
 
         void        initAllSignals();

@@ -6,7 +6,7 @@
 #include "WaylandProtocol.hpp"
 #include "wlr-output-management-unstable-v1.hpp"
 #include "../helpers/signal/Signal.hpp"
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 
 class COutputHead;
 class COutputMode;
@@ -73,15 +73,15 @@ class COutputManager {
 
 class COutputMode {
   public:
-    COutputMode(SP<CZwlrOutputModeV1> resource_, SP<Aquamarine::SOutputMode> mode_);
+    COutputMode(SP<CZwlrOutputModeV1> resource_, SP<Abyssal::SOutputMode> mode_);
 
     bool                        good();
-    SP<Aquamarine::SOutputMode> getMode();
+    SP<Abyssal::SOutputMode> getMode();
     void                        sendAllData();
 
   private:
     SP<CZwlrOutputModeV1>       m_resource;
-    WP<Aquamarine::SOutputMode> m_mode;
+    WP<Abyssal::SOutputMode> m_mode;
 
     friend class COutputHead;
     friend class COutputManagementProtocol;
@@ -100,14 +100,14 @@ class COutputHead {
     SP<CZwlrOutputHeadV1>        m_resource;
     PHLMONITORREF                m_monitor;
 
-    void                         makeAndSendNewMode(SP<Aquamarine::SOutputMode> mode);
+    void                         makeAndSendNewMode(SP<Abyssal::SOutputMode> mode);
     void                         sendCurrentMode();
 
     std::vector<WP<COutputMode>> m_modes;
 
     struct {
-        CHyprSignalListener monitorDestroy;
-        CHyprSignalListener monitorModeChange;
+        CAbyssSignalListener monitorDestroy;
+        CAbyssSignalListener monitorModeChange;
     } m_listeners;
 
     friend class COutputManager;

@@ -90,8 +90,8 @@ class CColorManagementFeedbackSurface {
     uint64_t                                m_currentPreferredId = 0;
 
     struct {
-        CHyprSignalListener enter;
-        CHyprSignalListener leave;
+        CAbyssSignalListener enter;
+        CAbyssSignalListener leave;
     } m_listeners;
 
     void onPreferredChanged();

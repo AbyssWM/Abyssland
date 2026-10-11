@@ -52,7 +52,7 @@ class CHotkeyProtocol : public IWaylandProtocol {
     std::vector<SP<CVicinaeHotkeyManager>> m_managers;
     std::vector<SP<SBoundHotkey>>          m_hotkeys;
 
-    CHyprSignalListener                    m_reloadListener;
+    CAbyssSignalListener                    m_reloadListener;
 
     friend class CVicinaeHotkeyManager;
 };

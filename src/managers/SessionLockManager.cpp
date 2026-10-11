@@ -24,7 +24,7 @@ SSessionLockSurface::SSessionLockSurface(SP<CSessionLockSurface> surface_) : sur
         const auto PMONITOR = State::monitorState()->query().id(iMonitorID).run();
 
         if (PMONITOR)
-            g_pHyprRenderer->damageMonitor(PMONITOR);
+            g_pAbyssRenderer->damageMonitor(PMONITOR);
     });
 
     listeners.destroy = surface_->m_events.destroy.listen([this] {
@@ -41,7 +41,7 @@ SSessionLockSurface::SSessionLockSurface(SP<CSessionLockSurface> surface_) : sur
             g_pInputManager->simulateMouseMovement();
 
         if (PMONITOR)
-            g_pHyprRenderer->damageMonitor(PMONITOR);
+            g_pAbyssRenderer->damageMonitor(PMONITOR);
     });
 }
 
@@ -84,7 +84,7 @@ void CSessionLockManager::onNewSessionLock(SP<CSessionLock> pLock) {
         g_pInputManager->refocus();
 
         for (auto const& m : State::monitorState()->monitors())
-            g_pHyprRenderer->damageMonitor(m);
+            g_pAbyssRenderer->damageMonitor(m);
     });
 
     m_sessionLock->listeners.destroy = pLock->m_events.destroyed.listen([this] {
@@ -92,7 +92,7 @@ void CSessionLockManager::onNewSessionLock(SP<CSessionLock> pLock) {
         Desktop::focusState()->rawSurfaceFocus(nullptr);
 
         for (auto const& m : State::monitorState()->monitors())
-            g_pHyprRenderer->damageMonitor(m);
+            g_pAbyssRenderer->damageMonitor(m);
     });
 
     m_events.lock.emit();
@@ -231,7 +231,7 @@ void CSessionLockManager::forceUnlock() {
 
     Desktop::focusState()->rawSurfaceFocus(nullptr);
     for (auto const& m : State::monitorState()->monitors())
-        g_pHyprRenderer->damageMonitor(m);
+        g_pAbyssRenderer->damageMonitor(m);
 
     g_pInputManager->refocus();
 }

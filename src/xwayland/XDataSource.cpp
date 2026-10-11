@@ -5,12 +5,12 @@
 #include "XDataSource.hpp"
 
 #include <fcntl.h>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CXDataSource::CXDataSource(SXSelection& sel_) : m_selection(sel_) {
     xcb_get_property_cookie_t cookie = xcb_get_property(g_pXWayland->m_wm->getConnection(),
                                                         1, // delete
-                                                        m_selection.window, HYPRATOMS["_WL_SELECTION"], XCB_GET_PROPERTY_TYPE_ANY, 0, 4096);
+                                                        m_selection.window, ABYSSATOMS["_WL_SELECTION"], XCB_GET_PROPERTY_TYPE_ANY, 0, 4096);
 
     xcb_get_property_reply_t* reply = xcb_get_property_reply(g_pXWayland->m_wm->getConnection(), cookie, nullptr);
     if (!reply)
@@ -23,11 +23,11 @@ CXDataSource::CXDataSource(SXSelection& sel_) : m_selection(sel_) {
 
     auto value = sc<xcb_atom_t*>(xcb_get_property_value(reply));
     for (uint32_t i = 0; i < reply->value_len; i++) {
-        if (value[i] == HYPRATOMS["UTF8_STRING"])
+        if (value[i] == ABYSSATOMS["UTF8_STRING"])
             m_mimeTypes.emplace_back("text/plain;charset=utf-8");
-        else if (value[i] == HYPRATOMS["TEXT"])
+        else if (value[i] == ABYSSATOMS["TEXT"])
             m_mimeTypes.emplace_back("text/plain");
-        else if (value[i] != HYPRATOMS["TARGETS"] && value[i] != HYPRATOMS["TIMESTAMP"]) {
+        else if (value[i] != ABYSSATOMS["TARGETS"] && value[i] != ABYSSATOMS["TIMESTAMP"]) {
 
             auto type = g_pXWayland->m_wm->mimeFromAtom(value[i]);
 
@@ -52,9 +52,9 @@ void CXDataSource::send(const std::string& mime, CFileDescriptor fd) {
     xcb_atom_t mimeAtom = 0;
 
     if (mime == "text/plain")
-        mimeAtom = HYPRATOMS["TEXT"];
+        mimeAtom = ABYSSATOMS["TEXT"];
     else if (mime == "text/plain;charset=utf-8")
-        mimeAtom = HYPRATOMS["UTF8_STRING"];
+        mimeAtom = ABYSSATOMS["UTF8_STRING"];
     else {
         for (size_t i = 0; i < m_mimeTypes.size(); ++i) {
             if (m_mimeTypes[i] == mime) {
@@ -77,13 +77,13 @@ void CXDataSource::send(const std::string& mime, CFileDescriptor fd) {
     xcb_create_window(g_pXWayland->m_wm->getConnection(), XCB_COPY_FROM_PARENT, transfer->incomingWindow, g_pXWayland->m_wm->m_screen->root, 0, 0, 10, 10, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, g_pXWayland->m_wm->m_screen->root_visual, XCB_CW_EVENT_MASK, &MASK);
 
-    xcb_atom_t selection_atom = HYPRATOMS["CLIPBOARD"];
+    xcb_atom_t selection_atom = ABYSSATOMS["CLIPBOARD"];
     if (&m_selection == &g_pXWayland->m_wm->m_primarySelection)
-        selection_atom = HYPRATOMS["PRIMARY"];
+        selection_atom = ABYSSATOMS["PRIMARY"];
     else if (&m_selection == &g_pXWayland->m_wm->m_dndSelection)
-        selection_atom = HYPRATOMS["XdndSelection"];
+        selection_atom = ABYSSATOMS["XdndSelection"];
 
-    xcb_convert_selection(g_pXWayland->m_wm->getConnection(), transfer->incomingWindow, selection_atom, mimeAtom, HYPRATOMS["_WL_SELECTION"], XCB_TIME_CURRENT_TIME);
+    xcb_convert_selection(g_pXWayland->m_wm->getConnection(), transfer->incomingWindow, selection_atom, mimeAtom, ABYSSATOMS["_WL_SELECTION"], XCB_TIME_CURRENT_TIME);
 
     xcb_flush(g_pXWayland->m_wm->getConnection());
 

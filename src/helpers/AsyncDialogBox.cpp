@@ -7,7 +7,7 @@
 #include "../desktop/rule/windowRule/WindowRule.hpp"
 #include "../desktop/rule/Engine.hpp"
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static std::vector<std::pair<pid_t, WP<CAsyncDialogBox>>> asyncDialogBoxes;
 

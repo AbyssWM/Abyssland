@@ -1,12 +1,12 @@
 #pragma once
 #include "PassElement.hpp"
-#include <hyprutils/math/Region.hpp>
+#include <abyssutils/math/Region.hpp>
 
 class CRectPassElement : public IPassElement {
   public:
     struct SRectData {
         CBox       box;
-        CHyprColor color;
+        CAbyssColor color;
         int        round         = 0;
         float      roundingPower = 2.0f;
         bool       blur = false, xray = false;

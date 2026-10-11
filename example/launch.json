@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Hyprland",
+            "program": "${workspaceFolder}/build/Abyssland",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

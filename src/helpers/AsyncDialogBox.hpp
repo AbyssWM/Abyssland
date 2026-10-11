@@ -7,8 +7,8 @@
 #include <vector>
 #include <functional>
 
-#include <hyprutils/os/Process.hpp>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/Process.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 struct wl_event_source;
 
@@ -41,7 +41,7 @@ class CAsyncDialogBox {
 
     pid_t                             m_dialogPid       = 0;
     wl_event_source*                  m_readEventSource = nullptr;
-    Hyprutils::OS::CFileDescriptor    m_pipeReadFd;
+    Abyssutils::OS::CFileDescriptor    m_pipeReadFd;
     std::string                       m_stdout        = "";
     std::string                       m_execRuleToken = "";
 

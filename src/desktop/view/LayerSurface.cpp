@@ -69,7 +69,7 @@ PHLLS CLayerSurface::fromView(SP<IView> v) {
 void CLayerSurface::registerCallbacks() {
     m_alpha.get(LS_ALPHA_FADE)->setUpdateCallback([this](auto) {
         if (m_ruleApplicator->dimAround().valueOrDefault() && m_monitor)
-            g_pHyprRenderer->damageMonitor(m_monitor.lock());
+            g_pAbyssRenderer->damageMonitor(m_monitor.lock());
     });
 }
 
@@ -139,12 +139,12 @@ void CLayerSurface::onDestroy() {
 
     // rearrange to fix the reserved areas
     if (PMONITOR) {
-        g_pHyprRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
+        g_pAbyssRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
         PMONITOR->m_scheduledRecalc = true;
 
         // and damage
         CBox geomFixed = {m_geometry.x + PMONITOR->m_position.x, m_geometry.y + PMONITOR->m_position.y, m_geometry.width, m_geometry.height};
-        g_pHyprRenderer->damageBox(geomFixed);
+        g_pAbyssRenderer->damageBox(geomFixed);
     }
 
     m_layerSurface.reset();
@@ -178,7 +178,7 @@ void CLayerSurface::onMap() {
 
     PMONITOR->m_scheduledRecalc = true;
 
-    g_pHyprRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
+    g_pAbyssRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
 
     m_wlSurface->resource()->enter(PMONITOR->m_self.lock());
 
@@ -208,14 +208,14 @@ void CLayerSurface::onMap() {
     m_position = Vector2D(m_geometry.x, m_geometry.y);
 
     CBox geomFixed = {m_geometry.x + PMONITOR->m_position.x, m_geometry.y + PMONITOR->m_position.y, m_geometry.width, m_geometry.height};
-    g_pHyprRenderer->damageBox(geomFixed);
+    g_pAbyssRenderer->damageBox(geomFixed);
 
     m_realPosition->setConfig(Config::animationTree()->getAnimationPropertyConfig("layersIn"));
     m_realSize->setConfig(Config::animationTree()->getAnimationPropertyConfig("layersIn"));
     m_alpha.get(LS_ALPHA_FADE)->setConfig(Config::animationTree()->getAnimationPropertyConfig("fadeLayersIn"));
     m_animationController.apply(m_animationController.animateIn());
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "openlayer", .data = m_namespace});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "openlayer", .data = m_namespace});
     Event::bus()->m_events.layer.opened.emit(m_self.lock());
 
     updateSurfaceScaleTransformDetails();
@@ -224,7 +224,7 @@ void CLayerSurface::onMap() {
 void CLayerSurface::onUnmap() {
     Log::logger->log(Log::DEBUG, "LayerSurface {:x} unmapped", rc<uintptr_t>(m_layerSurface.get()));
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "closelayer", .data = m_layerSurface->m_layerNamespace});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "closelayer", .data = m_layerSurface->m_layerNamespace});
     Event::bus()->m_events.layer.closed.emit(m_self.lock());
 
     std::erase_if(g_pInputManager->m_exclusiveLSes, [this](const auto& other) { return !other || other == m_self; });
@@ -244,7 +244,7 @@ void CLayerSurface::onUnmap() {
     m_realSize->warp();
 
     // make a snapshot and start fade
-    const auto SNAPSHOT    = !m_ruleApplicator->noanim().valueOrDefault() ? g_pHyprRenderer->makeSnapshotFB(m_self.lock()) : nullptr;
+    const auto SNAPSHOT    = !m_ruleApplicator->noanim().valueOrDefault() ? g_pAbyssRenderer->makeSnapshotFB(m_self.lock()) : nullptr;
     const auto SOURCEALPHA = m_alpha.getTotal();
 
     // FIXME: this shouldn't be needed but it is because style is decided by the fuckin anim from this
@@ -275,15 +275,15 @@ void CLayerSurface::onUnmap() {
         g_pSeatManager->setKeyboardFocus(Desktop::focusState()->surface());
 
     CBox geomFixed = {m_geometry.x + PMONITOR->m_position.x, m_geometry.y + PMONITOR->m_position.y, m_geometry.width, m_geometry.height};
-    g_pHyprRenderer->damageBox(geomFixed);
+    g_pAbyssRenderer->damageBox(geomFixed);
 
     geomFixed = {m_geometry.x + sc<int>(PMONITOR->m_position.x), m_geometry.y + sc<int>(PMONITOR->m_position.y), sc<int>(m_layerSurface->m_surface->m_current.size.x),
                  sc<int>(m_layerSurface->m_surface->m_current.size.y)};
-    g_pHyprRenderer->damageBox(geomFixed);
+    g_pAbyssRenderer->damageBox(geomFixed);
 
     g_pInputManager->simulateMouseMovement();
 
-    g_pHyprRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
+    g_pAbyssRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
 }
 
 void CLayerSurface::onCommit() {
@@ -294,7 +294,7 @@ void CLayerSurface::onCommit() {
         // we're re-mapping if this is the case
         if (m_layerSurface->m_surface && !m_layerSurface->m_surface->m_current.texture) {
             m_geometry = {};
-            g_pHyprRenderer->arrangeLayersForMonitor(monitorID());
+            g_pAbyssRenderer->arrangeLayersForMonitor(monitorID());
         }
 
         return;
@@ -309,7 +309,7 @@ void CLayerSurface::onCommit() {
         PMONITOR->m_blurFBDirty = true;
 
     CBox geomFixed = {m_geometry.x, m_geometry.y, m_geometry.width, m_geometry.height};
-    g_pHyprRenderer->damageBox(geomFixed);
+    g_pAbyssRenderer->damageBox(geomFixed);
 
     if (m_layerSurface->m_current.committed != 0) {
         if (m_layerSurface->m_current.committed & CLayerShellResource::eCommittedState::STATE_LAYER && m_layerSurface->m_current.layer != m_layer) {
@@ -337,7 +337,7 @@ void CLayerSurface::onCommit() {
                 g_pInputManager->simulateMouseMovement();
         }
 
-        g_pHyprRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
+        g_pAbyssRenderer->arrangeLayersForMonitor(PMONITOR->m_id);
 
         PMONITOR->m_scheduledRecalc = true;
     } else {
@@ -408,7 +408,7 @@ void CLayerSurface::onCommit() {
 
     m_interactivity = m_layerSurface->m_current.interactivity;
 
-    g_pHyprRenderer->damageSurface(m_wlSurface->resource(), m_position.x, m_position.y);
+    g_pAbyssRenderer->damageSurface(m_wlSurface->resource(), m_position.x, m_position.y);
 
     updateSurfaceScaleTransformDetails();
 }

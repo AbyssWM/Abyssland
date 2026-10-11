@@ -16,7 +16,7 @@
 #include "../event/EventBus.hpp"
 #include "../state/MonitorState.hpp"
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static std::optional<dev_t> devIDFromFD(int fd) {
     struct stat stat;
@@ -110,7 +110,7 @@ CDMABUFFormatTable::CDMABUFFormatTable(SDMABUFTranche _rendererTranche, std::vec
     m_tableFD = std::move(fds[1]);
 }
 
-CLinuxDMABuffer::CLinuxDMABuffer(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs attrs) {
+CLinuxDMABuffer::CLinuxDMABuffer(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs attrs) {
     m_buffer = makeShared<CDMABuffer>(id, client, attrs);
 
     m_buffer->m_resource->m_buffer = m_buffer;
@@ -143,7 +143,7 @@ CLinuxDMABUFParamsResource::CLinuxDMABUFParamsResource(UP<CZwpLinuxBufferParamsV
     m_resource->setOnDestroy([this](CZwpLinuxBufferParamsV1* r) { PROTO::linuxDma->destroyResource(this); });
     m_resource->setDestroy([this](CZwpLinuxBufferParamsV1* r) { PROTO::linuxDma->destroyResource(this); });
 
-    m_attrs = makeShared<Aquamarine::SDMABUFAttrs>();
+    m_attrs = makeShared<Abyssal::SDMABUFAttrs>();
 
     m_attrs->success = true;
 
@@ -456,7 +456,7 @@ CLinuxDMABufV1Protocol::CLinuxDMABufV1Protocol(const wl_interface* iface, const 
         SDMABUFTranche eglTranche = {
             .device  = m_mainDevice,
             .flags   = 0, // renderer isn't for ds so don't set flag.
-            .formats = g_pHyprRenderer->getDRMFormats(),
+            .formats = g_pAbyssRenderer->getDRMFormats(),
         };
 
         std::vector<std::pair<PHLMONITORREF, SDMABUFTranche>> tches;

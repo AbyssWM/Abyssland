@@ -34,7 +34,7 @@ static char const* const MESSAGES[] = {
     "We've got an imposter in the code!",
     "Well, at least the crash reporter didn't crash!",
     "Everything's just fi-",
-    "Have you tried asking Hyprland politely not to crash?",
+    "Have you tried asking Abyssland politely not to crash?",
 };
 
 // <random> is not async-signal-safe, fake it with time(NULL) instead
@@ -64,10 +64,10 @@ void CrashReporter::createAndSaveCrash(int sig) {
 
         if (CACHE_HOME && CACHE_HOME[0] != '\0') {
             reportPath += CACHE_HOME;
-            reportPath += "/hyprland";
+            reportPath += "/abyssland";
         } else if (HOME && HOME[0] != '\0') {
             reportPath += HOME;
-            reportPath += "/.cache/hyprland";
+            reportPath += "/.cache/abyssland";
         } else {
             exitWithError("$CACHE_HOME and $HOME not set, nowhere to report crash\n");
             return;
@@ -77,13 +77,13 @@ void CrashReporter::createAndSaveCrash(int sig) {
         if (ret < 0 && errno != EEXIST)
             exitWithError("failed to mkdir() crash report directory\n");
 
-        reportPath += "/hyprlandCrashReport";
+        reportPath += "/abysslandCrashReport";
         reportPath.writeNum(getpid());
         reportPath += ".txt";
 
         {
             SignalSafe::CBufFileWriter<64> stderrOut(STDERR_FILENO);
-            stderrOut += "Hyprland has crashed :( Consult the crash report at ";
+            stderrOut += "Abyssland has crashed :( Consult the crash report at ";
             if (!reportPath.boundsExceeded())
                 stderrOut += reportPath.getStr();
             else
@@ -99,11 +99,11 @@ void CrashReporter::createAndSaveCrash(int sig) {
     }
     SignalSafe::CBufFileWriter<512> finalCrashReport(reportFd);
 
-    finalCrashReport += "--------------------------------------------\n   Hyprland Crash Report\n--------------------------------------------\n";
+    finalCrashReport += "--------------------------------------------\n   Abyssland Crash Report\n--------------------------------------------\n";
     finalCrashReport += getRandomMessage();
     finalCrashReport += "\n\n";
 
-    finalCrashReport += "Hyprland received signal ";
+    finalCrashReport += "Abyssland received signal ";
     finalCrashReport.writeNum(sig);
     finalCrashReport += '(';
     finalCrashReport += SignalSafe::strsignal(sig);
@@ -123,7 +123,7 @@ void CrashReporter::createAndSaveCrash(int sig) {
     finalCrashReport += "\n";
 
     if (g_pPluginSystem && g_pPluginSystem->pluginCount() > 0) {
-        finalCrashReport += "Hyprland seems to be running with plugins. This crash might not be Hyprland's fault.\nPlugins:\n";
+        finalCrashReport += "Abyssland seems to be running with plugins. This crash might not be Abyssland's fault.\nPlugins:\n";
 
         const size_t          count = g_pPluginSystem->pluginCount();
         std::vector<CPlugin*> plugins(count);
@@ -204,7 +204,7 @@ void CrashReporter::createAndSaveCrash(int sig) {
     const auto FPATH = std::filesystem::canonical(exe);
 #elif defined(__OpenBSD__)
     // Neither KERN_PROC_PATHNAME nor /proc are supported
-    const auto FPATH = std::filesystem::canonical("/usr/local/bin/Hyprland");
+    const auto FPATH = std::filesystem::canonical("/usr/local/bin/Abyssland");
 #else
     const auto FPATH = std::filesystem::canonical("/proc/self/exe");
 #endif

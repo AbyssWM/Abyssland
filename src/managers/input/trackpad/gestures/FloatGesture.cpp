@@ -56,7 +56,7 @@ void CFloatTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpdat
     if (!m_window)
         return;
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 
     m_lastDelta += distance(e);
 
@@ -67,7 +67,7 @@ void CFloatTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpdat
 
     g_pDecorationPositioner->onWindowUpdate(m_window.lock());
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 }
 
 void CFloatTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) {
@@ -78,7 +78,7 @@ void CFloatTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) 
 
     if (COMPLETION < 0.2F) {
         // revert the animation
-        g_pHyprRenderer->damageWindow(m_window.lock());
+        g_pAbyssRenderer->damageWindow(m_window.lock());
         g_layoutManager->changeFloatingMode(m_window->layoutTarget());
         return;
     }

@@ -6,8 +6,8 @@
 #include "../pointer/PointerManager.hpp"
 #include "../desktop/view/Window.hpp"
 #include "desktop/view/LayerSurface.hpp"
-#include <hyprutils/math/Box.hpp>
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssutils/math/Box.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 
 CPointerWarpProtocol::CPointerWarpProtocol(const wl_interface* iface, const int& ver, const std::string& name) : IWaylandProtocol(iface, ver, name) {
     ;

@@ -13,7 +13,7 @@ CXDGSystemBellManagerResource::CXDGSystemBellManagerResource(UP<CXdgSystemBellV1
 
     m_resource->setRing([](CXdgSystemBellV1* r, wl_resource* surface) {
         if (!surface) {
-            g_pEventManager->postEvent(SHyprIPCEvent{
+            g_pEventManager->postEvent(SAbyssIPCEvent{
                 .event = "bell",
                 .data  = "",
             });
@@ -23,7 +23,7 @@ CXDGSystemBellManagerResource::CXDGSystemBellManagerResource(UP<CXdgSystemBellV1
         const auto SURFACE = CWLSurfaceResource::fromResource(surface);
 
         if (!SURFACE) {
-            g_pEventManager->postEvent(SHyprIPCEvent{
+            g_pEventManager->postEvent(SAbyssIPCEvent{
                 .event = "bell",
                 .data  = "",
             });
@@ -35,7 +35,7 @@ CXDGSystemBellManagerResource::CXDGSystemBellManagerResource(UP<CXdgSystemBellV1
                 continue;
 
             if (w->wlSurface()->resource() == SURFACE) {
-                g_pEventManager->postEvent(SHyprIPCEvent{
+                g_pEventManager->postEvent(SAbyssIPCEvent{
                     .event = "bell",
                     .data  = std::format("{:x}", rc<uintptr_t>(w.get())),
                 });
@@ -43,7 +43,7 @@ CXDGSystemBellManagerResource::CXDGSystemBellManagerResource(UP<CXdgSystemBellV1
             }
         }
 
-        g_pEventManager->postEvent(SHyprIPCEvent{
+        g_pEventManager->postEvent(SAbyssIPCEvent{
             .event = "bell",
             .data  = "",
         });

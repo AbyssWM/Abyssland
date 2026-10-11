@@ -20,7 +20,7 @@ class CViewportResource {
     SP<CWpViewport> m_resource;
 
     struct {
-        CHyprSignalListener surfacePrecommit;
+        CAbyssSignalListener surfacePrecommit;
     } m_listeners;
 };
 

@@ -15,7 +15,7 @@
 #include "../../render/Renderer.hpp"
 #include "../../xwayland/Dnd.hpp"
 #include "../../event/EventBus.hpp"
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CWLDataOfferResource::CWLDataOfferResource(SP<CWlDataOffer> resource_, SP<IDataSource> source_) : m_source(source_), m_resource(resource_) {
     if UNLIKELY (!good())
@@ -841,10 +841,10 @@ void CWLDataDeviceProtocol::renderDND(PHLMONITOR pMonitor, const Time::steady_tp
     CTexPassElement::SRenderData data;
     data.tex = m_dnd.dndSurface->m_current.texture;
     data.box = box;
-    g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
+    g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
 
     CBox damageBox = CBox{surfacePos, m_dnd.dndSurface->m_current.size}.expand(5);
-    g_pHyprRenderer->damageBox(damageBox);
+    g_pAbyssRenderer->damageBox(damageBox);
 
     m_dnd.dndSurface->frame(when);
 }

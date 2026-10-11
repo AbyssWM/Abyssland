@@ -8,14 +8,14 @@
 using namespace Log;
 
 CLogger::CLogger() : m_isTrace(Env::isTrace()) {
-    m_logger.setLogLevel(m_isTrace ? Hyprutils::CLI::LOG_TRACE : Hyprutils::CLI::LOG_DEBUG);
+    m_logger.setLogLevel(m_isTrace ? Abyssutils::CLI::LOG_TRACE : Abyssutils::CLI::LOG_DEBUG);
 }
 
-void CLogger::log(Hyprutils::CLI::eLogLevel level, const std::string_view& str) {
+void CLogger::log(Abyssutils::CLI::eLogLevel level, const std::string_view& str) {
     if (!m_logsEnabled)
         return;
 
-    if (level == Hyprutils::CLI::LOG_TRACE && !m_isTrace)
+    if (level == Abyssutils::CLI::LOG_TRACE && !m_isTrace)
         return;
 
     if (SRollingLogFollow::get().isRunning())
@@ -26,7 +26,7 @@ void CLogger::log(Hyprutils::CLI::eLogLevel level, const std::string_view& str) 
 
 void CLogger::initIS(const std::string_view& IS) {
     // NOLINTNEXTLINE
-    m_logger.setOutputFile(std::string{IS} + (ISDEBUG ? "/hyprlandd.log" : "/hyprland.log"));
+    m_logger.setOutputFile(std::string{IS} + (ISDEBUG ? "/abysslandd.log" : "/abyssland.log"));
     m_logger.setEnableRolling(true);
     m_logger.setEnableColor(false);
     m_logger.setEnableStdout(true);
@@ -54,6 +54,6 @@ const std::string& CLogger::rolling() {
     return m_logger.rollingLog();
 }
 
-Hyprutils::CLI::CLogger& CLogger::hu() {
+Abyssutils::CLI::CLogger& CLogger::hu() {
     return m_logger;
 }

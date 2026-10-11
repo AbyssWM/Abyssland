@@ -7,37 +7,37 @@
 #include "../protocols/core/Compositor.hpp"
 #include "../xwayland/XWayland.hpp"
 #include "../state/MonitorState.hpp"
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 
 #define OUTPUT_MANAGER_VERSION                   3
 #define OUTPUT_DONE_DEPRECATED_SINCE_VERSION     3
 #define OUTPUT_DESCRIPTION_MUTABLE_SINCE_VERSION 3
 
-CHyprXWaylandManager::CHyprXWaylandManager() = default;
+CAbyssXWaylandManager::CAbyssXWaylandManager() = default;
 
-CHyprXWaylandManager::~CHyprXWaylandManager() {
+CAbyssXWaylandManager::~CAbyssXWaylandManager() {
 #ifndef NO_XWAYLAND
     unsetenv("DISPLAY");
 #endif
 }
 
-SP<CWLSurfaceResource> CHyprXWaylandManager::getWindowSurface(PHLWINDOW pWindow) {
+SP<CWLSurfaceResource> CAbyssXWaylandManager::getWindowSurface(PHLWINDOW pWindow) {
     return pWindow ? pWindow->wlSurface()->resource() : nullptr;
 }
 
-void CHyprXWaylandManager::activateSurface(SP<CWLSurfaceResource> pSurface, bool activate) {
+void CAbyssXWaylandManager::activateSurface(SP<CWLSurfaceResource> pSurface, bool activate) {
     if (!pSurface)
         return;
 
     auto HLSurface = Desktop::View::CWLSurface::fromResource(pSurface);
     if (!HLSurface) {
-        Log::logger->log(Log::TRACE, "CHyprXWaylandManager::activateSurface on non-desktop surface, ignoring");
+        Log::logger->log(Log::TRACE, "CAbyssXWaylandManager::activateSurface on non-desktop surface, ignoring");
         return;
     }
 
     const auto PWINDOW = Desktop::View::CWindow::fromView(HLSurface->view());
     if (!PWINDOW) {
-        Log::logger->log(Log::TRACE, "CHyprXWaylandManager::activateSurface on non-window surface, ignoring");
+        Log::logger->log(Log::TRACE, "CAbyssXWaylandManager::activateSurface on non-window surface, ignoring");
         return;
     }
 
@@ -53,7 +53,7 @@ void CHyprXWaylandManager::activateSurface(SP<CWLSurfaceResource> pSurface, bool
         PWINDOW->m_xdgSurface->m_toplevel->setActive(activate);
 }
 
-void CHyprXWaylandManager::activateWindow(PHLWINDOW pWindow, bool activate) {
+void CAbyssXWaylandManager::activateWindow(PHLWINDOW pWindow, bool activate) {
     if (pWindow->m_isX11) {
 
         if (activate) {
@@ -78,7 +78,7 @@ void CHyprXWaylandManager::activateWindow(PHLWINDOW pWindow, bool activate) {
         pWindow->m_workspace->m_lastFocusedWindow = pWindow;
 }
 
-CBox CHyprXWaylandManager::getGeometryForWindow(PHLWINDOW pWindow) {
+CBox CAbyssXWaylandManager::getGeometryForWindow(PHLWINDOW pWindow) {
     if (!pWindow)
         return {};
 
@@ -100,25 +100,25 @@ CBox CHyprXWaylandManager::getGeometryForWindow(PHLWINDOW pWindow) {
     return box;
 }
 
-void CHyprXWaylandManager::sendCloseWindow(PHLWINDOW pWindow) {
+void CAbyssXWaylandManager::sendCloseWindow(PHLWINDOW pWindow) {
     if (pWindow->m_isX11)
         pWindow->m_xwaylandSurface->close();
     else if (pWindow->m_xdgSurface && pWindow->m_xdgSurface->m_toplevel)
         pWindow->m_xdgSurface->m_toplevel->close();
 }
 
-bool CHyprXWaylandManager::shouldBeFloated(PHLWINDOW pWindow, bool pending) {
+bool CAbyssXWaylandManager::shouldBeFloated(PHLWINDOW pWindow, bool pending) {
     if (pWindow->m_isX11) {
         for (const auto& a : pWindow->m_xwaylandSurface->m_atoms)
-            if (a == HYPRATOMS["_NET_WM_WINDOW_TYPE_DIALOG"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_SPLASH"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_TOOLBAR"] ||
-                a == HYPRATOMS["_NET_WM_WINDOW_TYPE_UTILITY"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"] ||
-                a == HYPRATOMS["_NET_WM_WINDOW_TYPE_DOCK"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_MENU"] ||
-                a == HYPRATOMS["_KDE_NET_WM_WINDOW_TYPE_OVERRIDE"]) {
+            if (a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_DIALOG"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_SPLASH"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_TOOLBAR"] ||
+                a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_UTILITY"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"] ||
+                a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_DOCK"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_MENU"] ||
+                a == ABYSSATOMS["_KDE_NET_WM_WINDOW_TYPE_OVERRIDE"]) {
 
-                if (a == HYPRATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_MENU"])
+                if (a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_MENU"])
                     pWindow->m_X11ShouldntFocus = true;
 
-                if (a != HYPRATOMS["_NET_WM_WINDOW_TYPE_DIALOG"])
+                if (a != ABYSSATOMS["_NET_WM_WINDOW_TYPE_DIALOG"])
                     pWindow->m_noInitialFocus = true;
 
                 return true;
@@ -146,14 +146,14 @@ bool CHyprXWaylandManager::shouldBeFloated(PHLWINDOW pWindow, bool pending) {
     return false;
 }
 
-void CHyprXWaylandManager::checkBorders(PHLWINDOW pWindow) {
+void CAbyssXWaylandManager::checkBorders(PHLWINDOW pWindow) {
     if (!pWindow->m_isX11)
         return;
 
     for (auto const& a : pWindow->m_xwaylandSurface->m_atoms) {
-        if (a == HYPRATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_NOTIFICATION"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] ||
-            a == HYPRATOMS["_NET_WM_WINDOW_TYPE_COMBO"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_MENU"] || a == HYPRATOMS["_NET_WM_WINDOW_TYPE_SPLASH"] ||
-            a == HYPRATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"]) {
+        if (a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_NOTIFICATION"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"] ||
+            a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_COMBO"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_MENU"] || a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_SPLASH"] ||
+            a == ABYSSATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"]) {
 
             pWindow->m_X11DoesntWantBorders = true;
             return;
@@ -164,7 +164,7 @@ void CHyprXWaylandManager::checkBorders(PHLWINDOW pWindow) {
         pWindow->m_X11DoesntWantBorders = true;
 }
 
-void CHyprXWaylandManager::setWindowFullscreen(PHLWINDOW pWindow, bool fullscreen) {
+void CAbyssXWaylandManager::setWindowFullscreen(PHLWINDOW pWindow, bool fullscreen) {
     if (!pWindow)
         return;
 
@@ -174,11 +174,11 @@ void CHyprXWaylandManager::setWindowFullscreen(PHLWINDOW pWindow, bool fullscree
         pWindow->m_xdgSurface->m_toplevel->setFullscreen(fullscreen);
 }
 
-Vector2D CHyprXWaylandManager::waylandToXWaylandCoords(const Vector2D& coord) {
+Vector2D CAbyssXWaylandManager::waylandToXWaylandCoords(const Vector2D& coord) {
     return waylandToXWaylandCoords(coord, nullptr);
 }
 
-Vector2D CHyprXWaylandManager::waylandToXWaylandCoords(const Vector2D& coord, PHLMONITOR preferredMonitor) {
+Vector2D CAbyssXWaylandManager::waylandToXWaylandCoords(const Vector2D& coord, PHLMONITOR preferredMonitor) {
     static auto PXWLFORCESCALEZERO = CConfigValue<Config::INTEGER>("xwayland:force_zero_scaling");
 
     PHLMONITOR  pMonitor = preferredMonitor;
@@ -210,11 +210,11 @@ Vector2D CHyprXWaylandManager::waylandToXWaylandCoords(const Vector2D& coord, PH
     return result;
 }
 
-Vector2D CHyprXWaylandManager::xwaylandToWaylandCoords(const Vector2D& coord) {
+Vector2D CAbyssXWaylandManager::xwaylandToWaylandCoords(const Vector2D& coord) {
     return xwaylandToWaylandCoords(coord, nullptr);
 }
 
-Vector2D CHyprXWaylandManager::xwaylandToWaylandCoords(const Vector2D& coord, PHLMONITOR preferredMonitor) {
+Vector2D CAbyssXWaylandManager::xwaylandToWaylandCoords(const Vector2D& coord, PHLMONITOR preferredMonitor) {
 
     static auto PXWLFORCESCALEZERO = CConfigValue<Config::INTEGER>("xwayland:force_zero_scaling");
 

@@ -38,7 +38,7 @@ namespace Layout::Tiled {
 
       private:
         std::vector<SP<SMonocleTargetData>> m_targetDatas;
-        CHyprSignalListener                 m_focusCallback;
+        CAbyssSignalListener                 m_focusCallback;
 
         int                                 m_currentVisibleIndex = 0;
 

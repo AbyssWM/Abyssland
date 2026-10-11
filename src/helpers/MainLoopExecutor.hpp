@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <wayland-server-core.h>
 
 class CMainLoopExecutor {
@@ -25,7 +25,7 @@ class CMainLoopExecutor {
     void onFired();
 
   private:
-    Hyprutils::OS::CFileDescriptor m_readFd, m_writeFd;
+    Abyssutils::OS::CFileDescriptor m_readFd, m_writeFd;
     wl_event_source*               m_event = nullptr;
     std::function<void()>          m_fn;
 };

@@ -9,7 +9,7 @@ class CVirtualKeyboard : public IKeyboard {
     static SP<CVirtualKeyboard>       create(SP<CVirtualKeyboardV1Resource> keeb);
 
     virtual bool                      isVirtual();
-    virtual SP<Aquamarine::IKeyboard> aq();
+    virtual SP<Abyssal::IKeyboard> aq();
 
     virtual wl_client*                getClient();
 
@@ -19,9 +19,9 @@ class CVirtualKeyboard : public IKeyboard {
     WP<CVirtualKeyboardV1Resource> m_keyboard;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener key;
-        CHyprSignalListener modifiers;
-        CHyprSignalListener keymap;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener key;
+        CAbyssSignalListener modifiers;
+        CAbyssSignalListener keymap;
     } m_listeners;
 };

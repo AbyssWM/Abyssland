@@ -4,7 +4,7 @@
 #include <mutex>
 #include <optional>
 #include <sys/stat.h>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <string>
 #include <algorithm>
 #include "Drm.hpp"
@@ -25,7 +25,7 @@ struct sync_merge_data {
 #define SYNC_IOC_MERGE _IOWR(SYNC_IOC_MAGIC, 3, struct sync_merge_data)
 #endif
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 namespace {
     using SDRMNodePair = std::array<dev_t, 2>;

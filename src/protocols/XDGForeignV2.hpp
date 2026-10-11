@@ -1,4 +1,4 @@
-#include <hyprutils/signal/Listener.hpp>
+#include <abyssutils/signal/Listener.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -27,7 +27,7 @@ class CXDGExportedResourceV2 {
   private:
     bool m_topLevelDestroyed = false;
     struct {
-        CHyprSignalListener topLevelDestroyed;
+        CAbyssSignalListener topLevelDestroyed;
     } m_listeners;
     SP<CZxdgExportedV2>      m_resource;
     WP<CXDGToplevelResource> m_toplevel;
@@ -53,7 +53,7 @@ class CXDGImportedResourceV2 {
     bool                       m_destroyedSent = false;
 
     struct {
-        CHyprSignalListener exportedDestroyed;
+        CAbyssSignalListener exportedDestroyed;
     } m_listeners;
 
     friend class CXDGForeignImporterProtocolV2;

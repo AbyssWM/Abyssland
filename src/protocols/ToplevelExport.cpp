@@ -5,22 +5,22 @@
 #include "../helpers/Format.hpp"
 #include "../render/Renderer.hpp"
 
-#include <hyprutils/math/Vector2D.hpp>
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssutils/math/Vector2D.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace Screenshare;
 
-CToplevelExportClient::CToplevelExportClient(SP<CHyprlandToplevelExportManagerV1> resource_) : m_resource(resource_) {
+CToplevelExportClient::CToplevelExportClient(SP<CAbysslandToplevelExportManagerV1> resource_) : m_resource(resource_) {
     if UNLIKELY (!good())
         return;
 
-    m_resource->setOnDestroy([this](CHyprlandToplevelExportManagerV1* pMgr) { PROTO::toplevelExport->destroyResource(this); });
-    m_resource->setDestroy([this](CHyprlandToplevelExportManagerV1* pMgr) { PROTO::toplevelExport->destroyResource(this); });
-    m_resource->setCaptureToplevel([this](CHyprlandToplevelExportManagerV1* pMgr, uint32_t frame, int32_t overlayCursor, uint32_t handle) {
+    m_resource->setOnDestroy([this](CAbysslandToplevelExportManagerV1* pMgr) { PROTO::toplevelExport->destroyResource(this); });
+    m_resource->setDestroy([this](CAbysslandToplevelExportManagerV1* pMgr) { PROTO::toplevelExport->destroyResource(this); });
+    m_resource->setCaptureToplevel([this](CAbysslandToplevelExportManagerV1* pMgr, uint32_t frame, int32_t overlayCursor, uint32_t handle) {
         captureToplevel(frame, overlayCursor, Desktop::viewState()->query().handle(handle).runWindow());
     });
-    m_resource->setCaptureToplevelWithWlrToplevelHandle([this](CHyprlandToplevelExportManagerV1* pMgr, uint32_t frame, int32_t overlayCursor, wl_resource* handle) {
+    m_resource->setCaptureToplevelWithWlrToplevelHandle([this](CAbysslandToplevelExportManagerV1* pMgr, uint32_t frame, int32_t overlayCursor, wl_resource* handle) {
         captureToplevel(frame, overlayCursor, PROTO::foreignToplevelWlr->windowFromHandleResource(handle));
     });
 
@@ -37,7 +37,7 @@ void CToplevelExportClient::captureToplevel(uint32_t frame, int32_t overlayCurso
 
     // create a frame
     const auto FRAME = PROTO::toplevelExport->m_frames.emplace_back(
-        makeShared<CToplevelExportFrame>(makeShared<CHyprlandToplevelExportFrameV1>(m_resource->client(), m_resource->version(), frame), session, !!overlayCursor_));
+        makeShared<CToplevelExportFrame>(makeShared<CAbysslandToplevelExportFrameV1>(m_resource->client(), m_resource->version(), frame), session, !!overlayCursor_));
 
     if UNLIKELY (!FRAME->good()) {
         LOGM(Log::ERR, "Couldn't alloc frame for sharing! (no memory)");
@@ -54,14 +54,14 @@ bool CToplevelExportClient::good() {
     return m_resource && m_resource->resource();
 }
 
-CToplevelExportFrame::CToplevelExportFrame(SP<CHyprlandToplevelExportFrameV1> resource_, WP<CScreenshareSession> session, bool overlayCursor) :
+CToplevelExportFrame::CToplevelExportFrame(SP<CAbysslandToplevelExportFrameV1> resource_, WP<CScreenshareSession> session, bool overlayCursor) :
     m_resource(resource_), m_session(session) {
     if UNLIKELY (!good())
         return;
 
-    m_resource->setOnDestroy([this](CHyprlandToplevelExportFrameV1* pFrame) { PROTO::toplevelExport->destroyResource(this); });
-    m_resource->setDestroy([this](CHyprlandToplevelExportFrameV1* pFrame) { PROTO::toplevelExport->destroyResource(this); });
-    m_resource->setCopy([this](CHyprlandToplevelExportFrameV1* pFrame, wl_resource* res, int32_t ignoreDamage) { shareFrame(res, !!ignoreDamage); });
+    m_resource->setOnDestroy([this](CAbysslandToplevelExportFrameV1* pFrame) { PROTO::toplevelExport->destroyResource(this); });
+    m_resource->setDestroy([this](CAbysslandToplevelExportFrameV1* pFrame) { PROTO::toplevelExport->destroyResource(this); });
+    m_resource->setCopy([this](CAbysslandToplevelExportFrameV1* pFrame, wl_resource* res, int32_t ignoreDamage) { shareFrame(res, !!ignoreDamage); });
 
     m_frame = m_session->nextFrame(overlayCursor);
 
@@ -110,7 +110,7 @@ void CToplevelExportFrame::shareFrame(wl_resource* buffer, bool ignoreDamage) {
 
     if UNLIKELY (m_buffer) {
         LOGM(Log::ERR, "Buffer used in {:x}", (uintptr_t)this);
-        m_resource->error(HYPRLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_ALREADY_USED, "frame already used");
+        m_resource->error(ABYSSLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_ALREADY_USED, "frame already used");
         m_resource->sendFailed();
         return;
     }
@@ -118,7 +118,7 @@ void CToplevelExportFrame::shareFrame(wl_resource* buffer, bool ignoreDamage) {
     const auto PBUFFERRES = CWLBufferResource::fromResource(buffer);
     if UNLIKELY (!PBUFFERRES || !PBUFFERRES->m_buffer) {
         LOGM(Log::ERR, "Invalid buffer in {:x}", (uintptr_t)this);
-        m_resource->error(HYPRLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_INVALID_BUFFER, "invalid buffer");
+        m_resource->error(ABYSSLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_INVALID_BUFFER, "invalid buffer");
         m_resource->sendFailed();
         return;
     }
@@ -126,14 +126,14 @@ void CToplevelExportFrame::shareFrame(wl_resource* buffer, bool ignoreDamage) {
     const auto& PBUFFER = PBUFFERRES->m_buffer.lock();
 
     if (ignoreDamage)
-        g_pHyprRenderer->damageMonitor(m_session->monitor());
+        g_pAbyssRenderer->damageMonitor(m_session->monitor());
 
     auto error = m_frame->share(PBUFFER, {}, [this, ignoreDamage, self = m_self](eScreenshareResult result) {
         if (self.expired() || !good())
             return;
         switch (result) {
             case RESULT_COPIED: {
-                m_resource->sendFlags(sc<hyprlandToplevelExportFrameV1Flags>(0));
+                m_resource->sendFlags(sc<abysslandToplevelExportFrameV1Flags>(0));
                 if (!ignoreDamage)
                     m_frame->damage().forEachRect([&](const auto& rect) { m_resource->sendDamage(rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1); });
 
@@ -153,7 +153,7 @@ void CToplevelExportFrame::shareFrame(wl_resource* buffer, bool ignoreDamage) {
 
     switch (error) {
         case ERROR_NONE: m_buffer = CHLBufferReference(PBUFFER); break;
-        case ERROR_NO_BUFFER: m_resource->error(HYPRLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_INVALID_BUFFER, "invalid buffer"); break;
+        case ERROR_NO_BUFFER: m_resource->error(ABYSSLAND_TOPLEVEL_EXPORT_FRAME_V1_ERROR_INVALID_BUFFER, "invalid buffer"); break;
         case ERROR_BUFFER_SIZE:
         case ERROR_BUFFER_FORMAT: m_resource->sendFailed(); break;
         case ERROR_UNKNOWN:
@@ -166,7 +166,7 @@ CToplevelExportProtocol::CToplevelExportProtocol(const wl_interface* iface, cons
 }
 
 void CToplevelExportProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
-    const auto CLIENT = m_clients.emplace_back(makeShared<CToplevelExportClient>(makeShared<CHyprlandToplevelExportManagerV1>(client, ver, id)));
+    const auto CLIENT = m_clients.emplace_back(makeShared<CToplevelExportClient>(makeShared<CAbysslandToplevelExportManagerV1>(client, ver, id)));
 
     if (!CLIENT->good()) {
         LOGM(Log::DEBUG, "Failed to bind client! (out of memory)");

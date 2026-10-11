@@ -6,7 +6,7 @@
 #include "../output/Monitor.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
 
-#include <aquamarine/backend/Headless.hpp>
+#include <abyssal/backend/Headless.hpp>
 
 using namespace State;
 
@@ -98,9 +98,9 @@ void CFallbackStateKeeper::initSignals() {
 }
 
 void CFallbackStateKeeper::initOutput() {
-    SP<Aquamarine::IBackendImplementation> headless;
+    SP<Abyssal::IBackendImplementation> headless;
     for (auto const& impl : g_pCompositor->m_aqBackend->getImplementations()) {
-        if (impl->type() == Aquamarine::AQ_BACKEND_HEADLESS) {
+        if (impl->type() == Abyssal::ABYSSAL_BACKEND_HEADLESS) {
             headless = impl;
             break;
         }

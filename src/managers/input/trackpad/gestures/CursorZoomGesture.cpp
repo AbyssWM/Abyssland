@@ -4,10 +4,10 @@
 #include "../../../../output/Monitor.hpp"
 #include "../../../../managers/input/InputManager.hpp"
 #include "../../../../state/MonitorState.hpp"
-#include <hyprutils/string/Numeric.hpp>
+#include <abyssutils/string/Numeric.hpp>
 
 CCursorZoomTrackpadGesture::CCursorZoomTrackpadGesture(const std::string& first, const std::string& second) {
-    if (const auto n = Hyprutils::String::strToNumber<float>(first); n)
+    if (const auto n = Abyssutils::String::strToNumber<float>(first); n)
         m_zoomValue = n.value();
 
     if (second == "mult")

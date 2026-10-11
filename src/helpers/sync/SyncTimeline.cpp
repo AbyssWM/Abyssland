@@ -5,7 +5,7 @@
 
 #include <xf86drm.h>
 #include <sys/eventfd.h>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 SP<CSyncTimeline> CSyncTimeline::create(int drmFD_) {
     if (!g_pCompositor->supportsDrmSyncobjTimeline())

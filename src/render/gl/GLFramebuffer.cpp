@@ -3,21 +3,21 @@
 #include "../Renderer.hpp"
 #include "macros.hpp"
 #include "../Framebuffer.hpp"
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 #include <limits>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace Render::GL;
 
 CGLFramebuffer::CGLFramebuffer() : IFramebuffer(), m_tempBuf(true) {}
 CGLFramebuffer::CGLFramebuffer(const std::string& name) : IFramebuffer(name), m_tempBuf(true) {}
 
 bool CGLFramebuffer::internalAlloc(int w, int h, uint32_t drmFormat) {
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
     m_tempBuf = false;
 
     if (!m_tex) {
-        m_tex = g_pHyprRenderer->createTexture();
+        m_tex = g_pAbyssRenderer->createTexture();
         m_tex->allocate({w, h}, drmFormat);
         m_tex->bind();
         m_tex->setTexParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -72,8 +72,8 @@ bool CGLFramebuffer::internalAlloc(int w, int h, uint32_t drmFormat) {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
     // this can run mid frame in enableMirror() in begin() restore the draw fb the renderer had bound
-    if (g_pHyprRenderer && g_pHyprRenderer->m_renderData.currentFB)
-        g_pHyprRenderer->m_renderData.currentFB->bind();
+    if (g_pAbyssRenderer && g_pAbyssRenderer->m_renderData.currentFB)
+        g_pAbyssRenderer->m_renderData.currentFB->bind();
     else
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
@@ -98,9 +98,9 @@ void CGLFramebuffer::bind() {
     }
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fb);
-    if (g_pHyprOpenGL) {
-        const auto& size = g_pHyprRenderer->m_renderData.pMonitor ? g_pHyprRenderer->m_renderData.pMonitor->m_pixelSize : m_size;
-        g_pHyprOpenGL->setViewport(0, 0, size.x, size.y);
+    if (g_pAbyssOpenGL) {
+        const auto& size = g_pAbyssRenderer->m_renderData.pMonitor ? g_pAbyssRenderer->m_renderData.pMonitor->m_pixelSize : m_size;
+        g_pAbyssOpenGL->setViewport(0, 0, size.x, size.y);
     } else
         glViewport(0, 0, m_size.x, m_size.y);
 }
@@ -120,8 +120,8 @@ void CGLFramebuffer::release() {
 
         // releasing can happen mid frame from a temp fb, rebind the fb the renderer
         // had previously bound, otherwise draws continue into fb 0 and raise GL_INVALID_FRAMEBUFFER_OPERATION
-        if (g_pHyprRenderer && g_pHyprRenderer->m_renderData.currentFB && g_pHyprRenderer->m_renderData.currentFB.get() != this)
-            g_pHyprRenderer->m_renderData.currentFB->bind();
+        if (g_pAbyssRenderer && g_pAbyssRenderer->m_renderData.currentFB && g_pAbyssRenderer->m_renderData.currentFB.get() != this)
+            g_pAbyssRenderer->m_renderData.currentFB->bind();
 
         m_fbAllocated = false;
         m_fb          = 0;
@@ -201,7 +201,7 @@ bool CGLFramebuffer::readPixels(CHLBufferReference buffer, uint32_t offsetX, uin
         return false;
     }
 
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, getFBID());
     bind();
 
@@ -266,6 +266,6 @@ void CGLFramebuffer::clearAfterInvalidation() {
 
     m_cleared = true;
     glClearColor(0, 0, 0, 0);
-    g_pHyprOpenGL->scissor(nullptr);
+    g_pAbyssOpenGL->scissor(nullptr);
     glClear(GL_COLOR_BUFFER_BIT);
 }

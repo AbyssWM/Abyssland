@@ -23,13 +23,13 @@
 #include "state/FallbackState.hpp"
 #include "state/MonitorState.hpp"
 #include "state/WorkspaceState.hpp"
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 #include <ctime>
 #include <random>
 #include <print>
 #include <cstring>
 #include <filesystem>
-#include "debug/HyprCtl.hpp"
+#include "debug/AbyssCtl.hpp"
 #include "debug/crash/CrashReporter.hpp"
 #include "render/GLRenderer.hpp"
 #include "render/ShaderLoader.hpp"
@@ -64,10 +64,10 @@
 #include "layout/LayoutManager.hpp"
 #include "event/EventBus.hpp"
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList2.hpp>
-#include <hyprutils/string/Numeric.hpp>
-#include <aquamarine/input/Input.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList2.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssal/input/Input.hpp>
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -82,15 +82,15 @@
 #include <linux/vt.h>
 #endif
 
-using namespace Hyprutils::String;
-using namespace Aquamarine;
+using namespace Abyssutils::String;
+using namespace Abyssal;
 using enum NContentType::eContentType;
 using namespace NColorManagement;
 using namespace Desktop::View;
 using namespace Render::GL;
 
 static int handleCritSignal(int signo, void* data) {
-    Log::logger->log(Log::DEBUG, "Hyprland received signal {}", signo);
+    Log::logger->log(Log::DEBUG, "Abyssland received signal {}", signo);
 
     if (signo == SIGTERM || signo == SIGINT || signo == SIGKILL)
         g_pCompositor->stopCompositor();
@@ -125,7 +125,7 @@ static void handleUserSignal(int sig) {
 }
 
 bool CCompositor::setWatchdogFd(int fd) {
-    m_watchdogWriteFd = Hyprutils::OS::CFileDescriptor{fd};
+    m_watchdogWriteFd = Abyssutils::OS::CFileDescriptor{fd};
     m_watchdogWriteFd.setFlags(m_watchdogWriteFd.getFlags() | FD_CLOEXEC);
     return m_watchdogWriteFd.isValid() && !m_watchdogWriteFd.isClosed();
 }
@@ -183,20 +183,20 @@ void CCompositor::setMallocThreshold() {
 #endif
 }
 
-CCompositor::CCompositor(bool onlyConfig) : m_onlyConfigVerification(onlyConfig), m_hyprlandPID(getpid()) {
+CCompositor::CCompositor(bool onlyConfig) : m_onlyConfigVerification(onlyConfig), m_abysslandPID(getpid()) {
     if (onlyConfig)
         return;
 
     setMallocThreshold();
 
-    m_hyprTempDataRoot = std::string{getenv("XDG_RUNTIME_DIR")} + "/hypr";
+    m_abyssTempDataRoot = std::string{getenv("XDG_RUNTIME_DIR")} + "/abyss";
 
-    if (m_hyprTempDataRoot.starts_with("/hypr")) {
+    if (m_abyssTempDataRoot.starts_with("/abyss")) {
         std::println("Bailing out, $XDG_RUNTIME_DIR is invalid");
         throw std::runtime_error("CCompositor() failed");
     }
 
-    if (!m_hyprTempDataRoot.starts_with("/run/user"))
+    if (!m_abyssTempDataRoot.starts_with("/run/user"))
         std::println("[!!WARNING!!] XDG_RUNTIME_DIR looks non-standard. Proceeding anyways...");
 
     std::random_device              dev;
@@ -205,16 +205,16 @@ CCompositor::CCompositor(bool onlyConfig) : m_onlyConfigVerification(onlyConfig)
 
     m_instanceSignature = std::format("{}_{}_{}", GIT_COMMIT_HASH, std::time(nullptr), distribution(engine));
 
-    setenv("HYPRLAND_INSTANCE_SIGNATURE", m_instanceSignature.c_str(), true);
+    setenv("ABYSSLAND_INSTANCE_SIGNATURE", m_instanceSignature.c_str(), true);
 
-    if (!std::filesystem::exists(m_hyprTempDataRoot))
-        mkdir(m_hyprTempDataRoot.c_str(), S_IRWXU);
-    else if (!std::filesystem::is_directory(m_hyprTempDataRoot)) {
-        std::println("Bailing out, {} is not a directory", m_hyprTempDataRoot);
+    if (!std::filesystem::exists(m_abyssTempDataRoot))
+        mkdir(m_abyssTempDataRoot.c_str(), S_IRWXU);
+    else if (!std::filesystem::is_directory(m_abyssTempDataRoot)) {
+        std::println("Bailing out, {} is not a directory", m_abyssTempDataRoot);
         throw std::runtime_error("CCompositor() failed");
     }
 
-    m_instancePath = m_hyprTempDataRoot + "/" + m_instanceSignature;
+    m_instancePath = m_abyssTempDataRoot + "/" + m_instanceSignature;
 
     if (std::filesystem::exists(m_instancePath)) {
         std::println("Bailing out, {} exists??", m_instancePath);
@@ -255,7 +255,7 @@ void CCompositor::setRandomSplash() {
     m_currentSplash = SPLASHES->at(distribution(engine));
 }
 
-static std::vector<SP<Aquamarine::IOutput>> pendingOutputs;
+static std::vector<SP<Abyssal::IOutput>> pendingOutputs;
 
 //
 
@@ -287,7 +287,7 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
     // register crit signal handler
     m_critSigSource = wl_event_loop_add_signal(m_wlEventLoop, SIGTERM, handleCritSignal, nullptr);
 
-    if (!Env::envEnabled("HYPRLAND_NO_CRASHREPORTER")) {
+    if (!Env::envEnabled("ABYSSLAND_NO_CRASHREPORTER")) {
         signal(SIGSEGV, handleUnrecoverableSignal);
         signal(SIGABRT, handleUnrecoverableSignal);
     }
@@ -300,22 +300,22 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
     // set the buffer size to 1MB to avoid disconnects due to an app hanging for a short while
     wl_display_set_default_max_buffer_size(m_wlDisplay, 1_MB);
 
-    Aquamarine::SBackendOptions           options{};
-    SP<Hyprutils::CLI::CLoggerConnection> conn = makeShared<Hyprutils::CLI::CLoggerConnection>(Log::logger->hu());
+    Abyssal::SBackendOptions           options{};
+    SP<Abyssutils::CLI::CLoggerConnection> conn = makeShared<Abyssutils::CLI::CLoggerConnection>(Log::logger->hu());
     conn->setLogLevel(Log::DEBUG);
-    conn->setName("aquamarine");
+    conn->setName("abyssal");
     options.logConnection = std::move(conn);
 
-    std::vector<Aquamarine::SBackendImplementationOptions> implementations;
-    Aquamarine::SBackendImplementationOptions              option;
-    option.backendType        = Aquamarine::eBackendType::AQ_BACKEND_HEADLESS;
-    option.backendRequestMode = Aquamarine::eBackendRequestMode::AQ_BACKEND_REQUEST_MANDATORY;
+    std::vector<Abyssal::SBackendImplementationOptions> implementations;
+    Abyssal::SBackendImplementationOptions              option;
+    option.backendType        = Abyssal::eBackendType::ABYSSAL_BACKEND_HEADLESS;
+    option.backendRequestMode = Abyssal::eBackendRequestMode::ABYSSAL_BACKEND_REQUEST_MANDATORY;
     implementations.emplace_back(option);
-    option.backendType        = Aquamarine::eBackendType::AQ_BACKEND_DRM;
-    option.backendRequestMode = Aquamarine::eBackendRequestMode::AQ_BACKEND_REQUEST_IF_AVAILABLE;
+    option.backendType        = Abyssal::eBackendType::ABYSSAL_BACKEND_DRM;
+    option.backendRequestMode = Abyssal::eBackendRequestMode::ABYSSAL_BACKEND_REQUEST_IF_AVAILABLE;
     implementations.emplace_back(option);
-    option.backendType        = Aquamarine::eBackendType::AQ_BACKEND_WAYLAND;
-    option.backendRequestMode = Aquamarine::eBackendRequestMode::AQ_BACKEND_REQUEST_FALLBACK;
+    option.backendType        = Abyssal::eBackendType::ABYSSAL_BACKEND_WAYLAND;
+    option.backendRequestMode = Abyssal::eBackendRequestMode::ABYSSAL_BACKEND_REQUEST_FALLBACK;
     implementations.emplace_back(option);
 
     m_aqBackend = CBackend::create(implementations, options);
@@ -323,7 +323,7 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
     if (!m_aqBackend) {
         Log::logger->log(
             Log::CRIT,
-            "m_pAqBackend was null! This usually means aquamarine could not find a GPU or encountered some issues. Make sure you're running either on a tty or on a Wayland "
+            "m_pAqBackend was null! This usually means abyssal could not find a GPU or encountered some issues. Make sure you're running either on a tty or on a Wayland "
             "session, NOT an X11 one.");
         throwError("CBackend::create() failed!");
     }
@@ -335,7 +335,7 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
     if (!m_aqBackend->start()) {
         Log::logger->log(
             Log::CRIT,
-            "m_pAqBackend couldn't start! This usually means aquamarine could not find a GPU or encountered some issues. Make sure you're running either on a tty or on a "
+            "m_pAqBackend couldn't start! This usually means abyssal could not find a GPU or encountered some issues. Make sure you're running either on a tty or on a "
             "Wayland session, NOT an X11 one.");
         throwError("CBackend::create() failed!");
     }
@@ -344,12 +344,12 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
 
     Log::logger->log(Log::DEBUG, "Instance Signature: {}", m_instanceSignature);
     Log::logger->log(Log::DEBUG, "Runtime directory: {}", m_instancePath);
-    Log::logger->log(Log::DEBUG, "Hyprland PID: {}", m_hyprlandPID);
+    Log::logger->log(Log::DEBUG, "Abyssland PID: {}", m_abysslandPID);
     Log::logger->log(Log::DEBUG, "===== SYSTEM INFO: =====");
     Log::logger->log(Log::DEBUG, "{}", Helpers::SystemInfo::getSystemInfo());
     Log::logger->log(Log::DEBUG, "========================");
     Log::logger->log(Log::DEBUG, "\n\n"); // pad
-    Log::logger->log(Log::INFO, "If you are crashing, or encounter any bugs, please consult https://wiki.hypr.land/Crashes-and-Bugs/\n\n");
+    Log::logger->log(Log::INFO, "If you are crashing, or encounter any bugs, please consult https://github.com/AbyssWM/Abyssland");
     Log::logger->log(Log::DEBUG, "\nCurrent splash: {}\n\n", m_currentSplash);
 
     m_drm.fd = m_aqBackend->drmFD();
@@ -416,7 +416,7 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
 
     setenv("WAYLAND_DISPLAY", m_wlDisplaySocket.c_str(), 1);
     if (!getenv("XDG_CURRENT_DESKTOP")) {
-        setenv("XDG_CURRENT_DESKTOP", "Hyprland", 1);
+        setenv("XDG_CURRENT_DESKTOP", "Abyssland", 1);
         m_desktopEnvSet = true;
     }
 
@@ -455,44 +455,44 @@ void CCompositor::initServer(std::string socketName, int socketFd) {
 }
 
 void CCompositor::initAllSignals() {
-    m_aqBackend->events.newOutput.listenStatic([this](const SP<Aquamarine::IOutput>& output) {
-        Log::logger->log(Log::DEBUG, "New aquamarine output with name {}", output->name);
+    m_aqBackend->events.newOutput.listenStatic([this](const SP<Abyssal::IOutput>& output) {
+        Log::logger->log(Log::DEBUG, "New abyssal output with name {}", output->name);
         if (m_initialized)
             State::monitorState()->add(output);
         else
             pendingOutputs.emplace_back(output);
     });
 
-    m_aqBackend->events.newPointer.listenStatic([](const SP<Aquamarine::IPointer>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine pointer with name {}", dev->getName());
+    m_aqBackend->events.newPointer.listenStatic([](const SP<Abyssal::IPointer>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal pointer with name {}", dev->getName());
         g_pInputManager->newMouse(dev);
         g_pInputManager->updateCapabilities();
     });
 
-    m_aqBackend->events.newKeyboard.listenStatic([](const SP<Aquamarine::IKeyboard>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine keyboard with name {}", dev->getName());
+    m_aqBackend->events.newKeyboard.listenStatic([](const SP<Abyssal::IKeyboard>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal keyboard with name {}", dev->getName());
         g_pInputManager->newKeyboard(dev);
         g_pInputManager->updateCapabilities();
     });
 
-    m_aqBackend->events.newTouch.listenStatic([](const SP<Aquamarine::ITouch>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine touch with name {}", dev->getName());
+    m_aqBackend->events.newTouch.listenStatic([](const SP<Abyssal::ITouch>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal touch with name {}", dev->getName());
         g_pInputManager->newTouchDevice(dev);
         g_pInputManager->updateCapabilities();
     });
 
-    m_aqBackend->events.newSwitch.listenStatic([](const SP<Aquamarine::ISwitch>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine switch with name {}", dev->getName());
+    m_aqBackend->events.newSwitch.listenStatic([](const SP<Abyssal::ISwitch>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal switch with name {}", dev->getName());
         g_pInputManager->newSwitch(dev);
     });
 
-    m_aqBackend->events.newTablet.listenStatic([](const SP<Aquamarine::ITablet>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine tablet with name {}", dev->getName());
+    m_aqBackend->events.newTablet.listenStatic([](const SP<Abyssal::ITablet>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal tablet with name {}", dev->getName());
         g_pInputManager->newTablet(dev);
     });
 
-    m_aqBackend->events.newTabletPad.listenStatic([](const SP<Aquamarine::ITabletPad>& dev) {
-        Log::logger->log(Log::DEBUG, "New aquamarine tablet pad with name {}", dev->getName());
+    m_aqBackend->events.newTabletPad.listenStatic([](const SP<Abyssal::ITabletPad>& dev) {
+        Log::logger->log(Log::DEBUG, "New abyssal tablet pad with name {}", dev->getName());
         g_pInputManager->newTabletPad(dev);
     });
 
@@ -530,27 +530,27 @@ void CCompositor::cleanEnvironment() {
     // in compositor constructor
     unsetenv("WAYLAND_DISPLAY");
     // in startCompositor
-    unsetenv("HYPRLAND_INSTANCE_SIGNATURE");
+    unsetenv("ABYSSLAND_INSTANCE_SIGNATURE");
 
     // in main
-    unsetenv("HYPRLAND_CMD");
+    unsetenv("ABYSSLAND_CMD");
     unsetenv("XDG_BACKEND");
     if (m_desktopEnvSet)
         unsetenv("XDG_CURRENT_DESKTOP");
 
-    if (m_aqBackend->hasSession() && !Env::envEnabled("HYPRLAND_NO_SD_VARS")) {
+    if (m_aqBackend->hasSession() && !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
         const auto CMD =
 #ifdef USES_SYSTEMD
-            "systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
+            "systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
             "dbus-update-activation-environment 2>/dev/null && "
 #endif
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
+            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
         Config::Supplementary::executor()->spawn(CMD);
     }
 }
 
 void CCompositor::stopCompositor() {
-    Log::logger->log(Log::DEBUG, "Hyprland is stopping!");
+    Log::logger->log(Log::DEBUG, "Abyssland is stopping!");
 
     // this stops the wayland loop, wl_display_run
     wl_display_terminate(m_wlDisplay);
@@ -571,7 +571,7 @@ void CCompositor::cleanup() {
     m_isShuttingDown = true;
 
 #ifdef USES_SYSTEMD
-    if (NSystemd::sdBooted() > 0 && !Env::envEnabled("HYPRLAND_NO_SD_NOTIFY"))
+    if (NSystemd::sdBooted() > 0 && !Env::envEnabled("ABYSSLAND_NO_SD_NOTIFY"))
         NSystemd::sdNotify(0, "STOPPING=1");
 #endif
 
@@ -588,7 +588,7 @@ void CCompositor::cleanup() {
     Desktop::otherViewState()->clear();
 
     for (auto const& m : State::monitorState()->monitors()) {
-        g_pHyprOpenGL->destroyMonitorResources(m);
+        g_pAbyssOpenGL->destroyMonitorResources(m);
     }
 
     g_pXWayland.reset();
@@ -610,9 +610,9 @@ void CCompositor::cleanup() {
     Debug::overlay().reset();
     g_pEventManager.reset();
     g_pSessionLockManager.reset();
-    g_pHyprRenderer.reset();
+    g_pAbyssRenderer.reset();
     g_pProtocolManager.reset();
-    g_pHyprOpenGL.reset();
+    g_pAbyssOpenGL.reset();
     Render::g_pShaderLoader.reset();
     Config::mgr().reset();
     g_layoutManager.reset();
@@ -621,7 +621,7 @@ void CCompositor::cleanup() {
     g_pXWaylandManager.reset();
     Pointer::mgr().reset();
     g_pSeatManager.reset();
-    g_pHyprCtl.reset();
+    g_pAbyssCtl.reset();
     g_pEventLoopManager.reset();
     g_pVersionKeeperMgr.reset();
     g_pDonationNagManager.reset();
@@ -686,14 +686,14 @@ void CCompositor::initManagers(eManagersInitStage stage) {
             Pointer::mgr() = makeUnique<Pointer::CPointerManager>();
 
             Log::logger->log(Log::DEBUG, "Creating the AsyncResourceGatherer!");
-            g_pAsyncResourceGatherer = makeUnique<Hyprgraphics::CAsyncResourceGatherer>();
+            g_pAsyncResourceGatherer = makeUnique<Abyssgraphics::CAsyncResourceGatherer>();
         } break;
         case STAGE_BASICINIT: {
-            Log::logger->log(Log::DEBUG, "Creating the CHyprOpenGLImpl!");
-            g_pHyprOpenGL = makeUnique<CHyprOpenGLImpl>();
+            Log::logger->log(Log::DEBUG, "Creating the CAbyssOpenGLImpl!");
+            g_pAbyssOpenGL = makeUnique<CAbyssOpenGLImpl>();
 
-            Log::logger->log(Log::DEBUG, "Creating the HyprRenderer!");
-            g_pHyprRenderer = makeUnique<CHyprGLRenderer>();
+            Log::logger->log(Log::DEBUG, "Creating the AbyssRenderer!");
+            g_pAbyssRenderer = makeUnique<CAbyssGLRenderer>();
 
             Log::logger->log(Log::DEBUG, "Creating the ProtocolManager!");
             g_pProtocolManager = makeUnique<CProtocolManager>();
@@ -718,14 +718,14 @@ void CCompositor::initManagers(eManagersInitStage stage) {
 
         } break;
         case STAGE_LATE: {
-            Log::logger->log(Log::DEBUG, "Creating CHyprCtl");
-            g_pHyprCtl = makeUnique<CHyprCtl>();
+            Log::logger->log(Log::DEBUG, "Creating CAbyssCtl");
+            g_pAbyssCtl = makeUnique<CAbyssCtl>();
 
             Log::logger->log(Log::DEBUG, "Creating the InputManager!");
             g_pInputManager = makeUnique<CInputManager>();
 
             Log::logger->log(Log::DEBUG, "Creating the XWaylandManager!");
-            g_pXWaylandManager = makeUnique<CHyprXWaylandManager>();
+            g_pXWaylandManager = makeUnique<CAbyssXWaylandManager>();
 
             Log::logger->log(Log::DEBUG, "Creating the Debug Overlay!");
             Debug::overlay();
@@ -763,17 +763,17 @@ void CCompositor::initManagers(eManagersInitStage stage) {
 }
 
 void CCompositor::createLockFile() {
-    const auto    PATH = m_instancePath + "/hyprland.lock";
+    const auto    PATH = m_instancePath + "/abyssland.lock";
 
     std::ofstream ofs(PATH, std::ios::trunc);
 
-    ofs << m_hyprlandPID << "\n" << m_wlDisplaySocket << "\n";
+    ofs << m_abysslandPID << "\n" << m_wlDisplaySocket << "\n";
 
     ofs.close();
 }
 
 void CCompositor::removeLockFile() {
-    const auto PATH = m_instancePath + "/hyprland.lock";
+    const auto PATH = m_instancePath + "/abyssland.lock";
 
     if (std::filesystem::exists(PATH))
         std::filesystem::remove(PATH);
@@ -783,27 +783,27 @@ void CCompositor::startCompositor() {
     signal(SIGPIPE, SIG_IGN);
 
     if (
-        /* Session-less Hyprland usually means a nest, don't update the env in that case */
+        /* Session-less Abyssland usually means a nest, don't update the env in that case */
         m_aqBackend->hasSession() &&
         /* Activation environment management is not disabled */
-        !Env::envEnabled("HYPRLAND_NO_SD_VARS")) {
+        !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
         const auto CMD =
 #ifdef USES_SYSTEMD
-            "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
+            "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
             "dbus-update-activation-environment 2>/dev/null && "
 #endif
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
+            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
         Config::Supplementary::executor()->spawn(CMD);
     }
 
     Log::logger->log(Log::DEBUG, "Running on WAYLAND_DISPLAY: {}", m_wlDisplaySocket);
 
-    g_pHyprRenderer->setCursorFromName("left_ptr");
+    g_pAbyssRenderer->setCursorFromName("left_ptr");
 
 #ifdef USES_SYSTEMD
     if (NSystemd::sdBooted() > 0) {
         // tell systemd that we are ready so it can start other bond, following, related units
-        if (!Env::envEnabled("HYPRLAND_NO_SD_NOTIFY"))
+        if (!Env::envEnabled("ABYSSLAND_NO_SD_NOTIFY"))
             NSystemd::sdNotify(0, "READY=1");
     } else
         Log::logger->log(Log::DEBUG, "systemd integration is baked in but system itself is not booted à la systemd!");
@@ -819,7 +819,7 @@ void CCompositor::startCompositor() {
     }
 
     // This blocks until we are done.
-    Log::logger->log(Log::DEBUG, "Hyprland is ready, running the event loop!");
+    Log::logger->log(Log::DEBUG, "Abyssland is ready, running the event loop!");
     g_pEventLoopManager->enterLoop();
 }
 
@@ -875,33 +875,33 @@ Vector2D CCompositor::parseWindowVectorArgsRelative(const std::string& args, con
 
 void CCompositor::performUserChecks() {
     static auto PNOCHECKXDG      = CConfigValue<Config::INTEGER>("misc:disable_xdg_env_checks");
-    static auto PNOCHECKGUIUTILS = CConfigValue<Config::INTEGER>("misc:disable_hyprland_guiutils_check");
+    static auto PNOCHECKGUIUTILS = CConfigValue<Config::INTEGER>("misc:disable_abyssland_guiutils_check");
     static auto PNOWATCHDOG      = CConfigValue<Config::INTEGER>("misc:disable_watchdog_warning");
 
     if (!*PNOCHECKXDG) {
         const auto CURRENT_DESKTOP_ENV = getenv("XDG_CURRENT_DESKTOP");
-        if (!CURRENT_DESKTOP_ENV || std::string{CURRENT_DESKTOP_ENV} != "Hyprland") {
+        if (!CURRENT_DESKTOP_ENV || std::string{CURRENT_DESKTOP_ENV} != "Abyssland") {
             Notification::overlay()->addNotification(
-                I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, {{"value", CURRENT_DESKTOP_ENV ? CURRENT_DESKTOP_ENV : "unset"}}), CHyprColor{}, 15000,
+                I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, {{"value", CURRENT_DESKTOP_ENV ? CURRENT_DESKTOP_ENV : "unset"}}), CAbyssColor{}, 15000,
                 ICON_WARNING);
         }
     }
 
     if (!*PNOCHECKGUIUTILS) {
         if (!NFsUtils::executableExistsInPath("hyprland-dialog"))
-            Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_GUIUTILS), CHyprColor{}, 15000, ICON_WARNING);
+            Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_GUIUTILS), CAbyssColor{}, 15000, ICON_WARNING);
     }
 
-    if (g_pHyprRenderer->m_failedAssetsNo > 0) {
-        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_FAILED_ASSETS, {{"count", std::to_string(g_pHyprRenderer->m_failedAssetsNo)}}),
-                                                 CHyprColor{1.0, 0.1, 0.1, 1.0}, 15000, ICON_ERROR);
+    if (g_pAbyssRenderer->m_failedAssetsNo > 0) {
+        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_FAILED_ASSETS, {{"count", std::to_string(g_pAbyssRenderer->m_failedAssetsNo)}}),
+                                                 CAbyssColor{1.0, 0.1, 0.1, 1.0}, 15000, ICON_ERROR);
     }
 
     if (Config::mgr()->type() == Config::CONFIG_LEGACY)
-        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_OUTDATED_CONFIG), CHyprColor{}, 15000, ICON_WARNING);
+        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_OUTDATED_CONFIG), CAbyssColor{}, 15000, ICON_WARNING);
 
     if (!m_watchdogWriteFd.isValid() && !*PNOWATCHDOG)
-        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_WATCHDOG), CHyprColor{1.0, 0.1, 0.1, 1.0}, 15000, ICON_WARNING);
+        Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_WATCHDOG), CAbyssColor{1.0, 0.1, 0.1, 1.0}, 15000, ICON_WARNING);
 
     if (m_safeMode)
         openSafeModeBox();
@@ -935,12 +935,12 @@ void CCompositor::openSafeModeBox() {
 
             if (CACHE_HOME && CACHE_HOME[0] != '\0') {
                 reportPath += CACHE_HOME;
-                reportPath += "/hyprland/";
+                reportPath += "/abyssland/";
             } else if (HOME && HOME[0] != '\0') {
                 reportPath += HOME;
-                reportPath += "/.cache/hyprland/";
+                reportPath += "/.cache/abyssland/";
             }
-            Hyprutils::OS::CProcess proc("xdg-open", {reportPath});
+            Abyssutils::OS::CProcess proc("xdg-open", {reportPath});
 
             proc.runAsync();
 
@@ -993,7 +993,7 @@ std::optional<unsigned int> CCompositor::getVTNr() {
         return std::nullopt;
 
     unsigned int                   ttynum = 0;
-    Hyprutils::OS::CFileDescriptor fd{open("/dev/tty", O_RDONLY | O_NOCTTY)};
+    Abyssutils::OS::CFileDescriptor fd{open("/dev/tty", O_RDONLY | O_NOCTTY)};
     if (fd.isValid()) {
 #if defined(VT_GETSTATE)
         struct vt_stat st;

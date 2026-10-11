@@ -3,7 +3,7 @@
 #include "../../render/OpenGL.hpp"
 #include "../../helpers/Drm.hpp"
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CSyncReleaser::CSyncReleaser(SP<CSyncTimeline> timeline, uint64_t point) : m_timeline(timeline), m_point(point) {
     ;
@@ -21,7 +21,7 @@ CSyncReleaser::~CSyncReleaser() {
         m_timeline->signal(m_point);
 }
 
-void CSyncReleaser::addSyncFileFd(const Hyprutils::OS::CFileDescriptor& syncFd) {
+void CSyncReleaser::addSyncFileFd(const Abyssutils::OS::CFileDescriptor& syncFd) {
     if (m_fd.isValid())
         m_fd = DRM::mergeFence(m_fd, syncFd);
     else

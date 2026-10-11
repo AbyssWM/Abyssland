@@ -14,12 +14,12 @@
 #include "../../../../state/MonitorState.hpp"
 #include "../../../../event/EventBus.hpp"
 
-#include <hyprutils/string/VarList2.hpp>
-#include <hyprutils/string/ConstVarList.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/string/VarList2.hpp>
+#include <abyssutils/string/ConstVarList.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::String;
+using namespace Abyssutils::Utils;
 using namespace Layout;
 using namespace Layout::Tiled;
 

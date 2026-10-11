@@ -51,7 +51,7 @@ void CXWaylandSurface::recheckSupportedProps() {
 
     auto  listCookie = xcb_list_properties(g_pXWayland->m_wm->getConnection(), m_xID);
     auto* listReply  = xcb_list_properties_reply(g_pXWayland->m_wm->getConnection(), listCookie, nullptr);
-    auto  getCookie  = xcb_get_property(g_pXWayland->m_wm->getConnection(), 0, m_xID, HYPRATOMS["WM_PROTOCOLS"], XCB_ATOM_ATOM, 0, 32);
+    auto  getCookie  = xcb_get_property(g_pXWayland->m_wm->getConnection(), 0, m_xID, ABYSSATOMS["WM_PROTOCOLS"], XCB_ATOM_ATOM, 0, 32);
     auto* getReply   = xcb_get_property_reply(g_pXWayland->m_wm->getConnection(), getCookie, nullptr);
 
     if (listReply) {
@@ -178,10 +178,10 @@ bool CXWaylandSurface::wantsFocus() {
         return true;
 
     const std::array<uint32_t, 10> search = {
-        HYPRATOMS["_NET_WM_WINDOW_TYPE_COMBO"],   HYPRATOMS["_NET_WM_WINDOW_TYPE_DND"],          HYPRATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"],
-        HYPRATOMS["_NET_WM_WINDOW_TYPE_MENU"],    HYPRATOMS["_NET_WM_WINDOW_TYPE_NOTIFICATION"], HYPRATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"],
-        HYPRATOMS["_NET_WM_WINDOW_TYPE_SPLASH"],  HYPRATOMS["_NET_WM_WINDOW_TYPE_DESKTOP"],      HYPRATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"],
-        HYPRATOMS["_NET_WM_WINDOW_TYPE_UTILITY"],
+        ABYSSATOMS["_NET_WM_WINDOW_TYPE_COMBO"],   ABYSSATOMS["_NET_WM_WINDOW_TYPE_DND"],          ABYSSATOMS["_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"],
+        ABYSSATOMS["_NET_WM_WINDOW_TYPE_MENU"],    ABYSSATOMS["_NET_WM_WINDOW_TYPE_NOTIFICATION"], ABYSSATOMS["_NET_WM_WINDOW_TYPE_POPUP_MENU"],
+        ABYSSATOMS["_NET_WM_WINDOW_TYPE_SPLASH"],  ABYSSATOMS["_NET_WM_WINDOW_TYPE_DESKTOP"],      ABYSSATOMS["_NET_WM_WINDOW_TYPE_TOOLTIP"],
+        ABYSSATOMS["_NET_WM_WINDOW_TYPE_UTILITY"],
     };
 
     for (auto const& searched : search) {
@@ -262,9 +262,9 @@ void CXWaylandSurface::close() {
     // Recheck the supported props, check if we maybe have WM_DELETE_WINDOW.
     recheckSupportedProps();
 
-    if (m_supportedProps[HYPRATOMS["WM_DELETE_WINDOW"]]) {
+    if (m_supportedProps[ABYSSATOMS["WM_DELETE_WINDOW"]]) {
         xcb_client_message_data_t msg = {};
-        msg.data32[0]                 = HYPRATOMS["WM_DELETE_WINDOW"];
+        msg.data32[0]                 = ABYSSATOMS["WM_DELETE_WINDOW"];
         msg.data32[1]                 = XCB_CURRENT_TIME;
         g_pXWayland->m_wm->sendWMMessage(m_self.lock(), &msg, XCB_EVENT_MASK_NO_EVENT);
     } else {
@@ -284,11 +284,11 @@ void CXWaylandSurface::setWithdrawn(bool withdrawn_) {
     else
         props[0] = XCB_ICCCM_WM_STATE_NORMAL;
 
-    xcb_change_property(g_pXWayland->m_wm->getConnection(), XCB_PROP_MODE_REPLACE, m_xID, HYPRATOMS["WM_STATE"], HYPRATOMS["WM_STATE"], 32, props.size(), props.data());
+    xcb_change_property(g_pXWayland->m_wm->getConnection(), XCB_PROP_MODE_REPLACE, m_xID, ABYSSATOMS["WM_STATE"], ABYSSATOMS["WM_STATE"], 32, props.size(), props.data());
 }
 
 void CXWaylandSurface::ping() {
-    bool supportsPing = std::ranges::find(m_protocols, HYPRATOMS["_NET_WM_PING"]) != m_protocols.end();
+    bool supportsPing = std::ranges::find(m_protocols, ABYSSATOMS["_NET_WM_PING"]) != m_protocols.end();
 
     if (!supportsPing) {
         Log::logger->log(Log::TRACE, "CXWaylandSurface: XID {} does not support ping, just sending an instant reply", m_xID);
@@ -297,7 +297,7 @@ void CXWaylandSurface::ping() {
     }
 
     xcb_client_message_data_t msg = {};
-    msg.data32[0]                 = HYPRATOMS["_NET_WM_PING"];
+    msg.data32[0]                 = ABYSSATOMS["_NET_WM_PING"];
     msg.data32[1]                 = Time::millis(Time::steadyNow());
     msg.data32[2]                 = m_xID;
 

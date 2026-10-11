@@ -38,7 +38,7 @@ static bool shouldBlurLayer(PHLLS layer) {
 
 static void damageFadeoutMonitor(PHLMONITORREF monitor) {
     if (const auto MONITOR = monitor.lock(); MONITOR)
-        g_pHyprRenderer->damageMonitor(MONITOR);
+        g_pAbyssRenderer->damageMonitor(MONITOR);
 }
 
 SP<CLayerFadeout> CLayerFadeout::create(PHLLS layer, SP<Render::IFramebuffer> snapshot, float sourceAlpha) {

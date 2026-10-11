@@ -1,23 +1,23 @@
 #pragma once
 #include "../defines.hpp"
-#include "hyprland-global-shortcuts-v1.hpp"
+#include "abyssland-global-shortcuts-v1.hpp"
 #include "../protocols/WaylandProtocol.hpp"
 #include <vector>
 
 struct SShortcut {
-    SP<CHyprlandGlobalShortcutV1> resource;
+    SP<CAbysslandGlobalShortcutV1> resource;
     std::string                   id, description, appid;
     uint32_t                      shortcut = 0;
 };
 
 class CShortcutClient {
   public:
-    CShortcutClient(SP<CHyprlandGlobalShortcutsManagerV1> resource);
+    CShortcutClient(SP<CAbysslandGlobalShortcutsManagerV1> resource);
 
     bool good();
 
   private:
-    SP<CHyprlandGlobalShortcutsManagerV1> m_resource;
+    SP<CAbysslandGlobalShortcutsManagerV1> m_resource;
     std::vector<SP<SShortcut>>            m_shortcuts;
 
     friend class CGlobalShortcutsProtocol;

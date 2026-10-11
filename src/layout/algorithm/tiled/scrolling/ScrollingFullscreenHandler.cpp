@@ -13,7 +13,7 @@
 #include "../../../../layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp"
 #include "../../../../layout/target/WindowGroupTarget.hpp"
 #include "../../../../config/supplementary/propRefresher/PropRefresher.hpp"
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 #include <optional>
 
 using namespace Fullscreen;
@@ -159,7 +159,7 @@ eFullscreenRequestResult CScrollingFullscreenHandler::requestFullscreen(const SF
         if (*PDIRECTSCANOUT == 1 || (*PDIRECTSCANOUT == 2 && WINDOW->getContentType() == NContentType::CONTENT_TYPE_GAME)) {
             auto surf = WINDOW->getSolitaryResource();
             if (surf)
-                g_pHyprRenderer->setSurfaceScanoutMode(surf, nullptr);
+                g_pAbyssRenderer->setSurfaceScanoutMode(surf, nullptr);
         }
         Config::monitorRuleMgr()->ensureVRR(MONITOR);
     }
@@ -453,7 +453,7 @@ void CScrollingFullscreenHandler::syncFullscreenTargets() {
         return;
 
     m_syncingFullscreenTargets = true;
-    Hyprutils::Utils::CScopeGuard guard([this] { m_syncingFullscreenTargets = false; });
+    Abyssutils::Utils::CScopeGuard guard([this] { m_syncingFullscreenTargets = false; });
 
     // to prevent a rehash
     std::vector<std::pair<WP<Layout::ITarget>, SFullscreenMode>> toInsert;
@@ -608,7 +608,7 @@ void CScrollingFullscreenHandler::sScrollingDataRecalculateHelper(const SP<Layou
         if ((*PDIRECTSCANOUT == 1 || (*PDIRECTSCANOUT == 2 && LAST_FS_LAYOUTMANAGED_TILED_WINDOW->getContentType() == NContentType::CONTENT_TYPE_GAME))) {
             auto surf = LAST_FS_LAYOUTMANAGED_TILED_WINDOW->getSolitaryResource();
             if (surf)
-                g_pHyprRenderer->setSurfaceScanoutMode(surf, nullptr);
+                g_pAbyssRenderer->setSurfaceScanoutMode(surf, nullptr);
         }
     }
 
@@ -622,7 +622,7 @@ void CScrollingFullscreenHandler::sScrollingDataRecalculateHelper(const SP<Layou
             // ignore if DS is disabled.
             auto surf = CURRENTLY_FS_WINDOW->getSolitaryResource();
             if (surf)
-                g_pHyprRenderer->setSurfaceScanoutMode(surf, MONITOR->m_self.lock());
+                g_pAbyssRenderer->setSurfaceScanoutMode(surf, MONITOR->m_self.lock());
         }
     }
 

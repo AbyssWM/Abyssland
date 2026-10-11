@@ -3,7 +3,7 @@
 #include <string>
 #include <typeindex>
 #include <typeinfo>
-#include <hyprlang.hpp>
+#include <abyssparse.hpp>
 #include "../macros.hpp"
 #include "../config/shared/complex/ComplexDataType.hpp"
 #include "../config/shared/Types.hpp"
@@ -71,7 +71,7 @@ inline std::string CConfigValue<std::string>::operator*() const {
     if (m_typeIndex == typeid(std::string))
         return **rc<const std::string* const*>(m_p);
     else if (m_typeIndex == typeid(const char*))
-        return std::string{*rc<const Hyprlang::STRING*>(m_hlangp)};
+        return std::string{*rc<const Abyssparse::STRING*>(m_hlangp)};
     else
         RASSERT(false, "CConfigValue<std::string> on a FUCKED type");
     return "FUCK";
@@ -91,7 +91,7 @@ inline Config::INTEGER CConfigValue<Config::INTEGER>::operator*() const {
 template <>
 inline Config::IComplexConfigValue* CConfigValue<Config::IComplexConfigValue>::ptr() const {
     if (m_hlangp)
-        return rc<Config::IComplexConfigValue*>((*rc<Hyprlang::CUSTOMTYPE* const*>(m_hlangp))->getData());
+        return rc<Config::IComplexConfigValue*>((*rc<Abyssparse::CUSTOMTYPE* const*>(m_hlangp))->getData());
     else
         return *rc<Config::IComplexConfigValue* const*>(m_p);
 }

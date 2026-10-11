@@ -66,7 +66,7 @@ CForeignToplevelHandleWlr::CForeignToplevelHandleWlr(SP<CZwlrForeignToplevelHand
         }
 
         Fullscreen::controller()->setFullscreenMode(PWINDOW, std::nullopt, Fullscreen::FSMODE_FULLSCREEN);
-        g_pHyprRenderer->damageWindow(PWINDOW);
+        g_pAbyssRenderer->damageWindow(PWINDOW);
     });
 
     m_resource->setUnsetFullscreen([this](CZwlrForeignToplevelHandleV1* p) {
@@ -123,7 +123,7 @@ CForeignToplevelHandleWlr::CForeignToplevelHandleWlr(SP<CZwlrForeignToplevelHand
         if UNLIKELY (!PWINDOW->m_isMapped)
             return;
 
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "minimized", .data = std::format("{:x},1", rc<uintptr_t>(PWINDOW.get()))});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "minimized", .data = std::format("{:x},1", rc<uintptr_t>(PWINDOW.get()))});
     });
 
     m_resource->setUnsetMinimized([this](CZwlrForeignToplevelHandleV1* p) {
@@ -135,7 +135,7 @@ CForeignToplevelHandleWlr::CForeignToplevelHandleWlr(SP<CZwlrForeignToplevelHand
         if UNLIKELY (!PWINDOW->m_isMapped)
             return;
 
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "minimized", .data = std::format("{:x},0", rc<uintptr_t>(PWINDOW.get()))});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "minimized", .data = std::format("{:x},0", rc<uintptr_t>(PWINDOW.get()))});
     });
 
     m_resource->setClose([this](CZwlrForeignToplevelHandleV1* p) {

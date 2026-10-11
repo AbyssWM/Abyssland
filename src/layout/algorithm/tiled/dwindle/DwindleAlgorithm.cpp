@@ -15,13 +15,13 @@
 #include "../../../../state/MonitorLayoutController.hpp"
 #include "../../../../state/MonitorState.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
 using namespace Layout;
 using namespace Layout::Tiled;
 
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 void SDwindleNodeData::recalcSizePosRecursive(bool force, bool horizontalOverride, bool verticalOverride) {
     if (children[0]) {
@@ -406,7 +406,7 @@ void CDwindleAlgorithm::resizeTarget(const Vector2D& Δ, SP<ITarget> target, eRe
         // Get the parent's parent
         auto                          PPARENT2 = PPARENT->pParent;
 
-        Hyprutils::Utils::CScopeGuard x([target, this] {
+        Abyssutils::Utils::CScopeGuard x([target, this] {
             // snap all windows, don't animate resizes if they are manual
             if (target == g_layoutManager->dragController()->target()) {
                 for (const auto& w : m_dwindleNodesData) {

@@ -103,7 +103,7 @@ bool CHLBufferReference::operator==(const SP<IHLBuffer>& other) const {
     return m_buffer == other;
 }
 
-bool CHLBufferReference::operator==(const SP<Aquamarine::IBuffer>& other) const {
+bool CHLBufferReference::operator==(const SP<Abyssal::IBuffer>& other) const {
     return m_buffer == other;
 }
 

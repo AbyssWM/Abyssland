@@ -15,10 +15,10 @@
 #include "../state/MonitorState.hpp"
 #include "wlr-layer-shell-unstable-v1.hpp"
 #include <algorithm>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 #include <ranges>
 
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::Utils;
 
 static bool surfaceInTree(SP<CWLSurfaceResource> root, SP<CWLSurfaceResource> surface) {
     if (!root || !surface)

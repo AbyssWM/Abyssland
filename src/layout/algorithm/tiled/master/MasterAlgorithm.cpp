@@ -17,12 +17,12 @@
 #include "../../../../managers/fullscreen/FullscreenController.hpp"
 #include "../../../../managers/fullscreen/handler/FullscreenHandler.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
 using namespace Layout;
 using namespace Layout::Tiled;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 // Center-master slaves alternate left/right columns starting on the fallback side, so an odd
 // count puts the extra slave there: left by default, right when extraToRight. calculateWorkspace
@@ -910,7 +910,7 @@ std::optional<Vector2D> CMasterAlgorithm::predictSizeForNewTarget() {
     return std::nullopt;
 }
 
-void CMasterAlgorithm::buildOrientationCycleVectorFromVars(std::vector<eOrientation>& cycle, Hyprutils::String::CVarList2* vars) {
+void CMasterAlgorithm::buildOrientationCycleVectorFromVars(std::vector<eOrientation>& cycle, Abyssutils::String::CVarList2* vars) {
     for (size_t i = 1; i < vars->size(); ++i) {
         if ((*vars)[i] == "top") {
             cycle.emplace_back(ORIENTATION_TOP);
@@ -960,7 +960,7 @@ eOrientation CMasterAlgorithm::defaultOrientation() {
     return orientation;
 }
 
-void CMasterAlgorithm::runOrientationCycle(Hyprutils::String::CVarList2* vars, int next) {
+void CMasterAlgorithm::runOrientationCycle(Abyssutils::String::CVarList2* vars, int next) {
     std::vector<eOrientation> cycle;
     if (vars != nullptr)
         buildOrientationCycleVectorFromVars(cycle, vars);
@@ -1028,8 +1028,8 @@ void CMasterAlgorithm::calculateWorkspace() {
     if (!PMASTERNODE)
         return;
 
-    Hyprutils::Utils::CScopeGuard x([this] {
-        g_pHyprRenderer->damageMonitor(m_parent->space()->workspace()->m_monitor.lock());
+    Abyssutils::Utils::CScopeGuard x([this] {
+        g_pAbyssRenderer->damageMonitor(m_parent->space()->workspace()->m_monitor.lock());
 
         if (!m_forceWarps)
             return;

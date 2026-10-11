@@ -7,7 +7,7 @@
      - wl_buffer with shm
 */
 
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <memory>
 #include <vector>
 #include <cstdint>
@@ -21,10 +21,10 @@ class CWLSHMPoolResource;
 class CSHMPool {
   public:
     CSHMPool() = delete;
-    CSHMPool(Hyprutils::OS::CFileDescriptor fd, size_t size);
+    CSHMPool(Abyssutils::OS::CFileDescriptor fd, size_t size);
     ~CSHMPool();
 
-    Hyprutils::OS::CFileDescriptor m_fd;
+    Abyssutils::OS::CFileDescriptor m_fd;
     size_t                         m_size = 0;
     void*                          m_data = nullptr;
 
@@ -36,11 +36,11 @@ class CWLSHMBuffer : public IHLBuffer {
     CWLSHMBuffer(WP<CWLSHMPoolResource> pool, uint32_t id, int32_t offset, const Vector2D& size, int32_t stride, uint32_t fmt);
     virtual ~CWLSHMBuffer();
 
-    virtual Aquamarine::eBufferCapability          caps();
-    virtual Aquamarine::eBufferType                type();
+    virtual Abyssal::eBufferCapability          caps();
+    virtual Abyssal::eBufferType                type();
     virtual void                                   update(const CRegion& damage);
     virtual bool                                   isSynchronous();
-    virtual Aquamarine::SSHMAttrs                  shm();
+    virtual Abyssal::SSHMAttrs                  shm();
     virtual std::tuple<uint8_t*, uint32_t, size_t> beginDataPtr(uint32_t flags);
     virtual void                                   endDataPtr();
 
@@ -53,13 +53,13 @@ class CWLSHMBuffer : public IHLBuffer {
 
   private:
     struct {
-        CHyprSignalListener bufferResourceDestroy;
+        CAbyssSignalListener bufferResourceDestroy;
     } m_listeners;
 };
 
 class CWLSHMPoolResource {
   public:
-    CWLSHMPoolResource(UP<CWlShmPool>&& resource_, Hyprutils::OS::CFileDescriptor fd, size_t size);
+    CWLSHMPoolResource(UP<CWlShmPool>&& resource_, Abyssutils::OS::CFileDescriptor fd, size_t size);
 
     bool                   good();
 

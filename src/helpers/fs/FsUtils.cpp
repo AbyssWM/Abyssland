@@ -5,9 +5,9 @@
 #include <filesystem>
 #include <fstream>
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList.hpp>
-using namespace Hyprutils::String;
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList.hpp>
+using namespace Abyssutils::String;
 
 std::optional<std::string> NFsUtils::getDataHome() {
     const auto  DATA_HOME = getenv("XDG_DATA_HOME");
@@ -32,22 +32,22 @@ std::optional<std::string> NFsUtils::getDataHome() {
         return std::nullopt;
     }
 
-    dataRoot += "hyprland/";
+    dataRoot += "abyssland/";
 
     if (!std::filesystem::exists(dataRoot, ec) || ec) {
-        Log::logger->log(Log::DEBUG, "FsUtils::getDataHome: no hyprland data home, creating.");
+        Log::logger->log(Log::DEBUG, "FsUtils::getDataHome: no abyssland data home, creating.");
         std::filesystem::create_directory(dataRoot, ec);
         if (ec) {
-            Log::logger->log(Log::ERR, "FsUtils::getDataHome: can't create new data home for hyprland");
+            Log::logger->log(Log::ERR, "FsUtils::getDataHome: can't create new data home for abyssland");
             return std::nullopt;
         }
         std::filesystem::permissions(dataRoot, std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec, ec);
         if (ec)
-            Log::logger->log(Log::WARN, "FsUtils::getDataHome: couldn't set perms on hyprland data store. Proceeding anyways.");
+            Log::logger->log(Log::WARN, "FsUtils::getDataHome: couldn't set perms on abyssland data store. Proceeding anyways.");
     }
 
     if (!std::filesystem::exists(dataRoot, ec) || ec) {
-        Log::logger->log(Log::ERR, "FsUtils::getDataHome: no hyprland data home, failed to create.");
+        Log::logger->log(Log::ERR, "FsUtils::getDataHome: no abyssland data home, failed to create.");
         return std::nullopt;
     }
 

@@ -6,9 +6,9 @@
 
 #include <optional>
 #include <xkbcommon/xkbcommon.h>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
-AQUAMARINE_FORWARD(IKeyboard);
+ABYSSAL_FORWARD(IKeyboard);
 
 enum eKeyboardModifiers {
     HL_MODIFIER_SHIFT = (1 << 0),
@@ -30,7 +30,7 @@ class IKeyboard : public IHID {
     virtual wl_client* getClient() {
         return nullptr;
     };
-    virtual SP<Aquamarine::IKeyboard> aq() = 0;
+    virtual SP<Abyssal::IKeyboard> aq() = 0;
 
     struct SKeyEvent {
         uint32_t              timeMs     = 0;
@@ -112,10 +112,10 @@ class IKeyboard : public IHID {
 
     std::string                    m_xkbFilePath     = "";
     std::string                    m_xkbKeymapString = "";
-    Hyprutils::OS::CFileDescriptor m_xkbKeymapFD;
+    Abyssutils::OS::CFileDescriptor m_xkbKeymapFD;
 
     std::string                    m_xkbKeymapV1String = "";
-    Hyprutils::OS::CFileDescriptor m_xkbKeymapV1FD;
+    Abyssutils::OS::CFileDescriptor m_xkbKeymapV1FD;
 
     SStringRuleNames               m_currentRules;
     int                            m_repeatRate        = 0;

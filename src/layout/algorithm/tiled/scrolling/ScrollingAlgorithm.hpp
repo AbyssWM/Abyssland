@@ -137,9 +137,9 @@ namespace Layout::Tiled {
       private:
         SP<SScrollingData>                                                            m_scrollingData;
 
-        CHyprSignalListener                                                           m_configCallback;
-        CHyprSignalListener                                                           m_focusCallback;
-        CHyprSignalListener                                                           m_mouseButtonCallback;
+        CAbyssSignalListener                                                           m_configCallback;
+        CAbyssSignalListener                                                           m_focusCallback;
+        CAbyssSignalListener                                                           m_mouseButtonCallback;
 
         const UP<Fullscreen::ScrollingFullscreenHandler::CScrollingFullscreenHandler> m_scrollingFullscreenHandler;
 

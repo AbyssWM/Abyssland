@@ -26,13 +26,13 @@ void CMoveTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpdate
 
     // tiled window -> displace, then execute a move dispatcher on end.
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 
     // funny name but works on tiled too lmao
     m_lastDelta += DELTA;
     m_window->m_floatingOffset = (m_lastDelta * 0.5F).clamp(Vector2D{-100.F, -100.F}, Vector2D{100.F, 100.F});
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 }
 
 void CMoveTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) {

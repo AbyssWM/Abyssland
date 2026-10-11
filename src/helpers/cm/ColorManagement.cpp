@@ -4,7 +4,7 @@
 #include "../TransferFunction.hpp"
 #include "../../render/Renderer.hpp"
 #include "render/types.hpp"
-#include <hyprutils/memory/UniquePtr.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
 #include <map>
 #include <vector>
 #include <numeric>
@@ -17,7 +17,7 @@ namespace NColorManagement {
     // expected to be small
     static std::vector<UP<const CPrimaries>>                       knownPrimaries;
     static std::vector<UP<const CImageDescription>>                knownDescriptions;
-    static std::map<std::pair<uint, uint>, Hyprgraphics::CMatrix3> primariesConversion;
+    static std::map<std::pair<uint, uint>, Abyssgraphics::CMatrix3> primariesConversion;
 }
 
 const SPCPRimaries& NColorManagement::getPrimaries(ePrimaries name) {
@@ -67,11 +67,11 @@ uint CPrimaries::id() const {
     return m_id;
 }
 
-const Hyprgraphics::CMatrix3& CPrimaries::toXYZ() const {
+const Abyssgraphics::CMatrix3& CPrimaries::toXYZ() const {
     return m_primaries2XYZ;
 }
 
-const Hyprgraphics::CMatrix3& CPrimaries::convertMatrix(const WP<const CPrimaries> dst) const {
+const Abyssgraphics::CMatrix3& CPrimaries::convertMatrix(const WP<const CPrimaries> dst) const {
     const auto cacheKey = std::pair{m_id, dst->m_id};
     if (!primariesConversion.contains(cacheKey))
         primariesConversion.emplace(cacheKey, m_primaries.convertMatrix(dst->m_primaries));
@@ -176,10 +176,10 @@ static std::array<float, 3> matByVec(const Mat3x3& M, const std::array<float, 3>
 }
 
 std::optional<Mat3x3> NColorManagement::rgbToXYZFromPrimaries(SPCPRimaries pr) {
-    const auto R = Hyprgraphics::xy2xyz(pr.red);
-    const auto G = Hyprgraphics::xy2xyz(pr.green);
-    const auto B = Hyprgraphics::xy2xyz(pr.blue);
-    const auto W = Hyprgraphics::xy2xyz(pr.white);
+    const auto R = Abyssgraphics::xy2xyz(pr.red);
+    const auto G = Abyssgraphics::xy2xyz(pr.green);
+    const auto B = Abyssgraphics::xy2xyz(pr.blue);
+    const auto W = Abyssgraphics::xy2xyz(pr.white);
 
     // P has columns R,G,B
     Mat3x3 P{std::array<float, 9>{R.x, G.x, B.x, R.y, G.y, B.y, R.z, G.z, B.z}};
@@ -195,12 +195,12 @@ std::optional<Mat3x3> NColorManagement::rgbToXYZFromPrimaries(SPCPRimaries pr) {
     return P;
 }
 
-Mat3x3 NColorManagement::adaptBradford(Hyprgraphics::CColor::xy srcW, Hyprgraphics::CColor::xy dstW) {
+Mat3x3 NColorManagement::adaptBradford(Abyssgraphics::CColor::xy srcW, Abyssgraphics::CColor::xy dstW) {
     static const Mat3x3        Bradford{std::array<float, 9>{0.8951f, 0.2664f, -0.1614f, -0.7502f, 1.7135f, 0.0367f, 0.0389f, -0.0685f, 1.0296f}};
     static const Mat3x3        BradfordInv = invertMat3(Bradford).value();
 
-    const auto                 srcXYZ = Hyprgraphics::xy2xyz(srcW);
-    const auto                 dstXYZ = Hyprgraphics::xy2xyz(dstW);
+    const auto                 srcXYZ = Abyssgraphics::xy2xyz(srcW);
+    const auto                 dstXYZ = Abyssgraphics::xy2xyz(dstW);
 
     const auto                 srcLMS = matByVec(Bradford, {srcXYZ.x, srcXYZ.y, srcXYZ.z});
     const auto                 dstLMS = matByVec(Bradford, {dstXYZ.x, dstXYZ.y, dstXYZ.z});
@@ -491,8 +491,8 @@ static RGBAColor tonemap(RGBAColor color, std::array<std::array<double, 3>, 3> d
 
 RGBAColor NColorManagement::convertColor(RGBAColor color, PImageDescription srcDesc, PImageDescription dstDesc) {
     const auto settings =
-        g_pHyprRenderer->getCMSettings(srcDesc, dstDesc, nullptr, true, g_pHyprRenderer->m_renderData.pMonitor ? g_pHyprRenderer->m_renderData.pMonitor->m_sdrMinLuminance : -1,
-                                       g_pHyprRenderer->m_renderData.pMonitor ? g_pHyprRenderer->m_renderData.pMonitor->m_sdrMaxLuminance : -1);
+        g_pAbyssRenderer->getCMSettings(srcDesc, dstDesc, nullptr, true, g_pAbyssRenderer->m_renderData.pMonitor ? g_pAbyssRenderer->m_renderData.pMonitor->m_sdrMinLuminance : -1,
+                                       g_pAbyssRenderer->m_renderData.pMonitor ? g_pAbyssRenderer->m_renderData.pMonitor->m_sdrMaxLuminance : -1);
 
     color /= std::max(color.c.a, 0.001);
     color = toLinearRGB(color, srcDesc->value().transferFunction);
@@ -501,7 +501,7 @@ RGBAColor NColorManagement::convertColor(RGBAColor color, PImageDescription srcD
         color *= color.c.a;
     } else {
         const auto convertMatrix = srcDesc->getPrimaries()->convertMatrix(dstDesc->getPrimaries());
-        const auto converted     = convertMatrix * Hyprgraphics::CColor::XYZ{.x = color.c.r, .y = color.c.g, .z = color.c.b};
+        const auto converted     = convertMatrix * Abyssgraphics::CColor::XYZ{.x = color.c.r, .y = color.c.g, .z = color.c.b};
         color.c.r                = converted.x;
         color.c.g                = converted.y;
         color.c.b                = converted.z;
@@ -520,9 +520,9 @@ RGBAColor NColorManagement::convertColor(RGBAColor color, PImageDescription srcD
     return color;
 }
 
-CHyprColor NColorManagement::convertColor(const CHyprColor& color, PImageDescription srcDesc, PImageDescription dstDesc) {
+CAbyssColor NColorManagement::convertColor(const CAbyssColor& color, PImageDescription srcDesc, PImageDescription dstDesc) {
     const auto& converted = convertColor(RGBAColor{{.r = color.r, .g = color.g, .b = color.b, .a = color.a}}, srcDesc, dstDesc);
-    return CHyprColor(converted.c.r, converted.c.g, converted.c.b, converted.c.a);
+    return CAbyssColor(converted.c.r, converted.c.g, converted.c.b, converted.c.a);
 }
 
 PImageDescription NColorManagement::getDefaultImageDescription() {

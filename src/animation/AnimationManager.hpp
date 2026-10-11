@@ -1,7 +1,7 @@
 #pragma once
 
-#include <hyprutils/animation/AnimationManager.hpp>
-#include <hyprutils/animation/AnimatedVariable.hpp>
+#include <abyssutils/animation/AnimationManager.hpp>
+#include <abyssutils/animation/AnimatedVariable.hpp>
 
 #include "../defines.hpp"
 #include "../helpers/AnimatedVariable.hpp"
@@ -11,9 +11,9 @@
 
 namespace Animation {
 
-    class CHyprAnimationManager : public Hyprutils::Animation::CAnimationManager {
+    class CAbyssAnimationManager : public Abyssutils::Animation::CAnimationManager {
       public:
-        CHyprAnimationManager();
+        CAbyssAnimationManager();
 
         void         tick();
         void         frameTick();
@@ -23,13 +23,13 @@ namespace Animation {
         // Reset tick state after session changes (suspend/wake, lock/unlock)
         void resetTickState();
 
-        using SAnimationPropertyConfig = Hyprutils::Animation::SAnimationPropertyConfig;
+        using SAnimationPropertyConfig = Abyssutils::Animation::SAnimationPropertyConfig;
         template <Animable VarType>
         void createAnimation(const VarType& v, PHLANIMVAR<VarType>& pav, SP<SAnimationPropertyConfig> pConfig, eAVarDamagePolicy policy) {
             constexpr const eAnimatedVarType EAVTYPE = typeToeAnimatedVarType<VarType>;
             pav                                      = makeUnique<CAnimatedVariable<VarType>>();
 
-            pav->create2(EAVTYPE, sc<Hyprutils::Animation::CAnimationManager*>(this), pav, v);
+            pav->create2(EAVTYPE, sc<Abyssutils::Animation::CAnimationManager*>(this), pav, v);
             pav->setConfig(pConfig);
             pav->m_Context.eDamagePolicy = policy;
         }
@@ -62,5 +62,5 @@ namespace Animation {
         CTimer m_lastTickTimer;
     };
 
-    UP<CHyprAnimationManager>& mgr();
+    UP<CAbyssAnimationManager>& mgr();
 }

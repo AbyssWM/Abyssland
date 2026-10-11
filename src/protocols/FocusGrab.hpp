@@ -1,7 +1,7 @@
 #pragma once
 
 #include "WaylandProtocol.hpp"
-#include "hyprland-focus-grab-v1.hpp"
+#include "abyssland-focus-grab-v1.hpp"
 #include "../macros.hpp"
 #include <cstdint>
 #include <unordered_map>
@@ -25,13 +25,13 @@ class CFocusGrabSurfaceState {
 
   private:
     struct {
-        CHyprSignalListener destroy;
+        CAbyssSignalListener destroy;
     } m_listeners;
 };
 
 class CFocusGrab {
   public:
-    CFocusGrab(SP<CHyprlandFocusGrabV1> resource_);
+    CFocusGrab(SP<CAbysslandFocusGrabV1> resource_);
     ~CFocusGrab();
 
     bool good();
@@ -47,7 +47,7 @@ class CFocusGrab {
     void                                                                   refocusKeyboard();
     void                                                                   commit(bool removeOnly = false);
 
-    SP<CHyprlandFocusGrabV1>                                               m_resource;
+    SP<CAbysslandFocusGrabV1>                                               m_resource;
     std::unordered_map<WP<CWLSurfaceResource>, UP<CFocusGrabSurfaceState>> m_surfaces;
     SP<CSeatGrab>                                                          m_grab;
 
@@ -65,9 +65,9 @@ class CFocusGrabProtocol : public IWaylandProtocol {
   private:
     void                                         onManagerResourceDestroy(wl_resource* res);
     void                                         destroyGrab(CFocusGrab* grab);
-    void                                         onCreateGrab(CHyprlandFocusGrabManagerV1* pMgr, uint32_t id);
+    void                                         onCreateGrab(CAbysslandFocusGrabManagerV1* pMgr, uint32_t id);
 
-    std::vector<UP<CHyprlandFocusGrabManagerV1>> m_managers;
+    std::vector<UP<CAbysslandFocusGrabManagerV1>> m_managers;
     std::vector<UP<CFocusGrab>>                  m_grabs;
 
     friend class CFocusGrab;

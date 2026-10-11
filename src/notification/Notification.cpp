@@ -3,8 +3,8 @@
 
 using namespace Notification;
 
-CNotification::CNotification(std::string&& text, float timeout, CHyprColor color, eIcons icon, float fontSize) :
-    m_createdAt(Time::steadyNow()), m_text(std::move(text)), m_color(color == CHyprColor(0) ? ICONS_COLORS[icon] : color), m_icon(icon), m_fontSize(fontSize),
+CNotification::CNotification(std::string&& text, float timeout, CAbyssColor color, eIcons icon, float fontSize) :
+    m_createdAt(Time::steadyNow()), m_text(std::move(text)), m_color(color == CAbyssColor(0) ? ICONS_COLORS[icon] : color), m_icon(icon), m_fontSize(fontSize),
     m_timeMs(std::max(timeout, 1.F)) {
     ;
 }
@@ -14,7 +14,7 @@ void CNotification::setText(std::string&& text) {
     m_text = std::move(text);
 }
 
-void CNotification::setColor(CHyprColor color) {
+void CNotification::setColor(CAbyssColor color) {
     m_color = color;
 }
 
@@ -37,7 +37,7 @@ const std::string& CNotification::text() const {
     return m_text;
 }
 
-const CHyprColor& CNotification::color() const {
+const CAbyssColor& CNotification::color() const {
     return m_color;
 }
 

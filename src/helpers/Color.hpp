@@ -1,62 +1,62 @@
 #pragma once
 
 #include <cstdint>
-#include <hyprgraphics/color/Color.hpp>
+#include <abyssgraphics/color/Color.hpp>
 #include "../macros.hpp"
 
-class CHyprColor {
+class CAbyssColor {
   public:
-    CHyprColor();
-    CHyprColor(float r, float g, float b, float a);
-    CHyprColor(const Hyprgraphics::CColor& col, float a);
-    CHyprColor(uint64_t);
+    CAbyssColor();
+    CAbyssColor(float r, float g, float b, float a);
+    CAbyssColor(const Abyssgraphics::CColor& col, float a);
+    CAbyssColor(uint64_t);
 
     // AR32
     uint32_t                     getAsHex() const;
-    Hyprgraphics::CColor::SSRGB  asRGB() const;
-    Hyprgraphics::CColor::SOkLab asOkLab() const;
-    Hyprgraphics::CColor::SHSL   asHSL() const;
-    CHyprColor                   stripA() const;
-    CHyprColor                   modifyA(float newa) const;
+    Abyssgraphics::CColor::SSRGB  asRGB() const;
+    Abyssgraphics::CColor::SOkLab asOkLab() const;
+    Abyssgraphics::CColor::SHSL   asHSL() const;
+    CAbyssColor                   stripA() const;
+    CAbyssColor                   modifyA(float newa) const;
 
     //
-    bool operator==(const CHyprColor& c2) const {
+    bool operator==(const CAbyssColor& c2) const {
         return c2.r == r && c2.g == g && c2.b == b && c2.a == a;
     }
 
     // stubs for the AnimationMgr
-    CHyprColor operator-(const CHyprColor& c2) const {
-        RASSERT(false, "CHyprColor: - is a STUB");
+    CAbyssColor operator-(const CAbyssColor& c2) const {
+        RASSERT(false, "CAbyssColor: - is a STUB");
         return {};
     }
 
-    CHyprColor operator+(const CHyprColor& c2) const {
-        RASSERT(false, "CHyprColor: + is a STUB");
+    CAbyssColor operator+(const CAbyssColor& c2) const {
+        RASSERT(false, "CAbyssColor: + is a STUB");
         return {};
     }
 
-    CHyprColor operator*(const float& c2) const {
-        RASSERT(false, "CHyprColor: * is a STUB");
+    CAbyssColor operator*(const float& c2) const {
+        RASSERT(false, "CAbyssColor: * is a STUB");
         return {};
     }
 
     double r = 0, g = 0, b = 0, a = 0;
 
   private:
-    Hyprgraphics::CColor::SOkLab m_okLab; // cache for the OkLab representation
+    Abyssgraphics::CColor::SOkLab m_okLab; // cache for the OkLab representation
 };
 
 //NOLINTNEXTLINE
 namespace Colors {
-    inline const CHyprColor WHITE      = CHyprColor(1.F, 1.F, 1.F, 1.F);
-    inline const CHyprColor GREEN      = CHyprColor(0.F, 1.F, 0.F, 1.F);
-    inline const CHyprColor BLUE       = CHyprColor(0.F, 0.F, 1.F, 1.F);
-    inline const CHyprColor RED        = CHyprColor(1.F, 0.F, 0.F, 1.F);
-    inline const CHyprColor ORANGE     = CHyprColor(1.F, 0.5F, 0.F, 1.F);
-    inline const CHyprColor YELLOW     = CHyprColor(1.F, 1.F, 0.F, 1.F);
-    inline const CHyprColor MAGENTA    = CHyprColor(1.F, 0.F, 1.F, 1.F);
-    inline const CHyprColor PURPLE     = CHyprColor(0.5F, 0.F, 0.5F, 1.F);
-    inline const CHyprColor LIME       = CHyprColor(0.5F, 1.F, 0.1F, 1.F);
-    inline const CHyprColor LIGHT_BLUE = CHyprColor(0.1F, 1.F, 1.F, 1.F);
-    inline const CHyprColor BLACK      = CHyprColor(0.F, 0.F, 0.F, 1.F);
+    inline const CAbyssColor WHITE      = CAbyssColor(1.F, 1.F, 1.F, 1.F);
+    inline const CAbyssColor GREEN      = CAbyssColor(0.F, 1.F, 0.F, 1.F);
+    inline const CAbyssColor BLUE       = CAbyssColor(0.F, 0.F, 1.F, 1.F);
+    inline const CAbyssColor RED        = CAbyssColor(1.F, 0.F, 0.F, 1.F);
+    inline const CAbyssColor ORANGE     = CAbyssColor(1.F, 0.5F, 0.F, 1.F);
+    inline const CAbyssColor YELLOW     = CAbyssColor(1.F, 1.F, 0.F, 1.F);
+    inline const CAbyssColor MAGENTA    = CAbyssColor(1.F, 0.F, 1.F, 1.F);
+    inline const CAbyssColor PURPLE     = CAbyssColor(0.5F, 0.F, 0.5F, 1.F);
+    inline const CAbyssColor LIME       = CAbyssColor(0.5F, 1.F, 0.1F, 1.F);
+    inline const CAbyssColor LIGHT_BLUE = CAbyssColor(0.1F, 1.F, 1.F, 1.F);
+    inline const CAbyssColor BLACK      = CAbyssColor(0.F, 0.F, 0.F, 1.F);
 };

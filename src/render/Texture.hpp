@@ -2,12 +2,12 @@
 
 #include "../defines.hpp"
 #include "../helpers/cm/ColorManagement.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
-#include <hyprutils/math/Misc.hpp>
+#include <abyssal/buffer/Buffer.hpp>
+#include <abyssutils/math/Misc.hpp>
 #include <span>
 
 class IHLBuffer;
-HYPRUTILS_FORWARD(Math, CRegion);
+ABYSSUTILS_FORWARD(Math, CRegion);
 
 namespace Render {
     enum eTextureType : int8_t {
@@ -39,7 +39,7 @@ namespace Render {
 
         eTextureType                m_type      = TEXTURE_RGBA;
         Vector2D                    m_size      = {};
-        eTransform                  m_transform = HYPRUTILS_TRANSFORM_NORMAL;
+        eTransform                  m_transform = ABYSSUTILS_TRANSFORM_NORMAL;
         bool                        m_opaque    = false;
 
         uint32_t                    m_drmFormat     = 0; // for shm

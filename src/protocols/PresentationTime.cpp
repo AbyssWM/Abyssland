@@ -4,7 +4,7 @@
 #include "../event/EventBus.hpp"
 #include "core/Compositor.hpp"
 #include "core/Output.hpp"
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 
 CQueuedPresentationData::CQueuedPresentationData(SP<CWLSurfaceResource> surf, std::vector<WP<CPresentationFeedback>> feedbacks) :
     m_surface(surf), m_feedbacks(std::move(feedbacks)) {
@@ -58,9 +58,9 @@ void CPresentationFeedback::sendQueued(WP<CQueuedPresentationData> data, const t
             flags |= WP_PRESENTATION_FEEDBACK_KIND_VSYNC;
         if (data->m_zeroCopy)
             flags |= WP_PRESENTATION_FEEDBACK_KIND_ZERO_COPY;
-        if (reportedFlags & Aquamarine::IOutput::AQ_OUTPUT_PRESENT_HW_CLOCK)
+        if (reportedFlags & Abyssal::IOutput::ABYSSAL_OUTPUT_PRESENT_HW_CLOCK)
             flags |= WP_PRESENTATION_FEEDBACK_KIND_HW_CLOCK;
-        if (reportedFlags & Aquamarine::IOutput::AQ_OUTPUT_PRESENT_HW_COMPLETION)
+        if (reportedFlags & Abyssal::IOutput::ABYSSAL_OUTPUT_PRESENT_HW_COMPLETION)
             flags |= WP_PRESENTATION_FEEDBACK_KIND_HW_COMPLETION;
 
         time_t tv_sec = 0;

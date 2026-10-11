@@ -1,12 +1,12 @@
 #pragma once
 #include "PassElement.hpp"
 
-class CHyprDropShadowDecoration;
+class CAbyssDropShadowDecoration;
 
 class CShadowPassElement : public IPassElement {
   public:
     struct SShadowData {
-        CHyprDropShadowDecoration* deco = nullptr;
+        CAbyssDropShadowDecoration* deco = nullptr;
         float                      a    = 1.F;
     };
 

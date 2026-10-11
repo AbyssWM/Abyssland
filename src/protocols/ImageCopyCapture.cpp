@@ -71,7 +71,7 @@ void CImageCopyCaptureSession::sendConstraints() {
     for (DRMFormat format : formats) {
         m_resource->sendShmFormat(NFormatUtils::drmToShm(format));
 
-        auto     modifiers = g_pHyprRenderer->getDRMFormatModifiers(format);
+        auto     modifiers = g_pAbyssRenderer->getDRMFormatModifiers(format);
 
         wl_array modsArr;
         wl_array_init(&modsArr);
@@ -282,7 +282,7 @@ void CImageCopyCaptureCursorSession::sendConstraints() {
 
     m_sessionResource->sendShmFormat(NFormatUtils::drmToShm(format));
 
-    auto     modifiers = g_pHyprRenderer->getDRMFormatModifiers(format);
+    auto     modifiers = g_pAbyssRenderer->getDRMFormatModifiers(format);
 
     wl_array modsArr;
     wl_array_init(&modsArr);

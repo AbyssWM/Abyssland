@@ -5,12 +5,12 @@
 #include "../macros.hpp"
 
 #include <algorithm>
-#include <hyprutils/string/Numeric.hpp>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
 #include <utility>
 
 using namespace State;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 CMonitorQueryCore::CMonitorQueryCore(std::span<const SP<Monitor::IMonitorQueryable>> monitors) : m_monitors(monitors) {
     ;
@@ -46,7 +46,7 @@ CMonitorQueryCore&& CMonitorQueryCore::vec(Vector2D vec) && {
     return std::move(*this);
 }
 
-CMonitorQueryCore&& CMonitorQueryCore::output(SP<Aquamarine::IOutput> output) && {
+CMonitorQueryCore&& CMonitorQueryCore::output(SP<Abyssal::IOutput> output) && {
     m_output = output;
     return std::move(*this);
 }

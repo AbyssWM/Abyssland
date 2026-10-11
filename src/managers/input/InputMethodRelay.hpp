@@ -10,7 +10,7 @@
 
 class CInputManager;
 namespace Render {
-    class IHyprRenderer;
+    class IAbyssRenderer;
 }
 class CTextInputV1;
 class CInputMethodV2;
@@ -48,15 +48,15 @@ class CInputMethodRelay {
     WP<CWLSurfaceResource>       m_lastKbFocus;
 
     struct {
-        CHyprSignalListener newTIV3;
-        CHyprSignalListener newTIV1;
-        CHyprSignalListener newIME;
-        CHyprSignalListener commitIME;
-        CHyprSignalListener destroyIME;
-        CHyprSignalListener newPopup;
+        CAbyssSignalListener newTIV3;
+        CAbyssSignalListener newTIV1;
+        CAbyssSignalListener newIME;
+        CAbyssSignalListener commitIME;
+        CAbyssSignalListener destroyIME;
+        CAbyssSignalListener newPopup;
     } m_listeners;
 
-    friend class Render::IHyprRenderer;
+    friend class Render::IAbyssRenderer;
     friend class CInputManager;
     friend class CTextInputV1ProtocolManager;
     friend class CTextInput;

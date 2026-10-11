@@ -50,7 +50,7 @@ void CServerDecorationKDEProtocol::bindManager(wl_client* client, void* data, ui
 
     RESOURCE->setCreate([this](COrgKdeKwinServerDecorationManager* pMgr, uint32_t id, wl_resource* pointer) { this->createDecoration(pMgr, id, pointer); });
 
-    // send default mode of SSD, as Hyprland will never ask for CSD. Screw Gnome and GTK.
+    // send default mode of SSD, as Abyssland will never ask for CSD. Screw Gnome and GTK.
     RESOURCE->sendDefaultMode(kdeDefaultManagerModeCSD());
 }
 

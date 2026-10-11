@@ -9,12 +9,12 @@
 #include "../../protocols/LayerShell.hpp"
 #include "../../protocols/core/Compositor.hpp"
 
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 #include <re2/re2.h>
 #include <utility>
 
 using namespace Desktop;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 CViewQuery::CViewQuery(const IViewStateTracker& tracker) : m_tracker(tracker) {
     ;

@@ -16,7 +16,7 @@ namespace Render {
     class ITexture;
 }
 
-AQUAMARINE_FORWARD(IBuffer);
+ABYSSAL_FORWARD(IBuffer);
 
 /*
     The naming here is a bit confusing.
@@ -44,7 +44,7 @@ namespace Pointer {
         void move(const Vector2D& deltaLogical);
         void warpAbsolute(Vector2D abs, SP<IHID> dev);
 
-        void setCursorBuffer(SP<Aquamarine::IBuffer> buf, const Vector2D& hotspot, const float& scale);
+        void setCursorBuffer(SP<Abyssal::IBuffer> buf, const Vector2D& hotspot, const float& scale);
         void setCursorSurface(SP<Desktop::View::CWLSurface> buf, const Vector2D& hotspot);
         void resetCursorImage(bool apply = true);
 
@@ -74,7 +74,7 @@ namespace Pointer {
         CBox getCursorBoxGlobal();
 
         struct SCursorImage {
-            SP<Aquamarine::IBuffer>       pBuffer;
+            SP<Abyssal::IBuffer>       pBuffer;
             SP<Render::ITexture>          bufferTex;
             WP<Desktop::View::CWLSurface> surface;
 
@@ -82,8 +82,8 @@ namespace Pointer {
             Vector2D                      size;
             float                         scale = 1.F;
 
-            CHyprSignalListener           destroySurface;
-            CHyprSignalListener           commitSurface;
+            CAbyssSignalListener           destroySurface;
+            CAbyssSignalListener           commitSurface;
         };
 
         const SCursorImage&  currentCursorImage();
@@ -113,46 +113,46 @@ namespace Pointer {
         Vector2D transformedHotspot(PHLMONITOR pMonitor);
 
         struct SPointerListener {
-            CHyprSignalListener destroy;
-            CHyprSignalListener motion;
-            CHyprSignalListener motionAbsolute;
-            CHyprSignalListener button;
-            CHyprSignalListener axis;
-            CHyprSignalListener frame;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener motion;
+            CAbyssSignalListener motionAbsolute;
+            CAbyssSignalListener button;
+            CAbyssSignalListener axis;
+            CAbyssSignalListener frame;
 
-            CHyprSignalListener swipeBegin;
-            CHyprSignalListener swipeEnd;
-            CHyprSignalListener swipeUpdate;
+            CAbyssSignalListener swipeBegin;
+            CAbyssSignalListener swipeEnd;
+            CAbyssSignalListener swipeUpdate;
 
-            CHyprSignalListener pinchBegin;
-            CHyprSignalListener pinchEnd;
-            CHyprSignalListener pinchUpdate;
+            CAbyssSignalListener pinchBegin;
+            CAbyssSignalListener pinchEnd;
+            CAbyssSignalListener pinchUpdate;
 
-            CHyprSignalListener holdBegin;
-            CHyprSignalListener holdEnd;
+            CAbyssSignalListener holdBegin;
+            CAbyssSignalListener holdEnd;
 
             WP<IPointer>        pointer;
         };
         std::vector<SP<SPointerListener>> m_pointerListeners;
 
         struct STouchListener {
-            CHyprSignalListener destroy;
-            CHyprSignalListener down;
-            CHyprSignalListener up;
-            CHyprSignalListener motion;
-            CHyprSignalListener cancel;
-            CHyprSignalListener frame;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener down;
+            CAbyssSignalListener up;
+            CAbyssSignalListener motion;
+            CAbyssSignalListener cancel;
+            CAbyssSignalListener frame;
 
             WP<ITouch>          touch;
         };
         std::vector<SP<STouchListener>> m_touchListeners;
 
         struct STabletListener {
-            CHyprSignalListener destroy;
-            CHyprSignalListener axis;
-            CHyprSignalListener proximity;
-            CHyprSignalListener tip;
-            CHyprSignalListener button;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener axis;
+            CAbyssSignalListener proximity;
+            CAbyssSignalListener tip;
+            CAbyssSignalListener button;
 
             WP<CTablet>         tablet;
         };
@@ -182,19 +182,19 @@ namespace Pointer {
             bool                    swRendered          = false;
             CBox                    swRenderedBox; // logical, monitor local. valid only when swRendered
 
-            SP<Aquamarine::IBuffer> cursorFrontBuffer;
+            SP<Abyssal::IBuffer> cursorFrontBuffer;
         };
 
         std::vector<SP<SMonitorPointerState>> m_monitorStates;
         SP<SMonitorPointerState>              stateFor(PHLMONITOR mon);
         bool                                  attemptHardwareCursor(SP<SMonitorPointerState> state);
-        SP<Aquamarine::IBuffer>               renderHWCursorBuffer(SP<SMonitorPointerState> state, SP<Render::ITexture> texture);
-        bool                                  setHWCursorBuffer(SP<SMonitorPointerState> state, SP<Aquamarine::IBuffer> buf);
+        SP<Abyssal::IBuffer>               renderHWCursorBuffer(SP<SMonitorPointerState> state, SP<Render::ITexture> texture);
+        bool                                  setHWCursorBuffer(SP<SMonitorPointerState> state, SP<Abyssal::IBuffer> buf);
 
         struct {
-            CHyprSignalListener monitorAdded;
-            CHyprSignalListener monitorLayoutChanged;
-            CHyprSignalListener monitorPreRender;
+            CAbyssSignalListener monitorAdded;
+            CAbyssSignalListener monitorLayoutChanged;
+            CAbyssSignalListener monitorPreRender;
         } m_hooks;
     };
 

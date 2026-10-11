@@ -9,10 +9,10 @@
 
 #include "../helpers/fs/FsUtils.hpp"
 
-#include <hyprutils/os/Process.hpp>
-#include <hyprutils/string/VarList.hpp>
-using namespace Hyprutils::OS;
-using namespace Hyprutils::String;
+#include <abyssutils/os/Process.hpp>
+#include <abyssutils/string/VarList.hpp>
+using namespace Abyssutils::OS;
+using namespace Abyssutils::String;
 
 constexpr const char* LAST_NAG_FILE_NAME = "lastNag";
 constexpr uint64_t    DAY_IN_SECONDS     = 3600ULL * 24;
@@ -50,7 +50,7 @@ CDonationNagManager::CDonationNagManager() {
 
     uint64_t   currentMajor = 0;
     try {
-        CVarList vl(HYPRLAND_VERSION, 0, '.');
+        CVarList vl(ABYSSLAND_VERSION, 0, '.');
         currentMajor = std::stoull(vl[1]);
     } catch (...) {
         // ????
@@ -73,7 +73,7 @@ CDonationNagManager::CDonationNagManager() {
         return;
     }
 
-    if (!NFsUtils::executableExistsInPath("hyprland-donate-screen")) {
+    if (!NFsUtils::executableExistsInPath("abyssland-donate-screen")) {
         Log::logger->log(Log::ERR, "DonationNag: executable doesn't exist, skipping.");
         return;
     }
@@ -129,7 +129,7 @@ void CDonationNagManager::fire() {
     m_fired = true;
 
     g_pEventLoopManager->doLater([] {
-        CProcess proc("hyprland-donate-screen", {});
+        CProcess proc("abyssland-donate-screen", {});
         proc.runAsync();
     });
 }

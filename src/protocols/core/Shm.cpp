@@ -7,10 +7,10 @@
 #include "../types/WLBuffer.hpp"
 #include "../../helpers/Format.hpp"
 #include "../../render/Renderer.hpp"
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprgraphics::Egl;
-using namespace Hyprutils::OS;
+using namespace Abyssgraphics::Egl;
+using namespace Abyssutils::OS;
 
 CWLSHMBuffer::CWLSHMBuffer(WP<CWLSHMPoolResource> pool_, uint32_t id, int32_t offset_, const Vector2D& size_, int32_t stride_, uint32_t fmt_) {
     if UNLIKELY (!pool_)
@@ -39,20 +39,20 @@ CWLSHMBuffer::~CWLSHMBuffer() {
         m_resource->sendRelease();
 }
 
-Aquamarine::eBufferCapability CWLSHMBuffer::caps() {
-    return Aquamarine::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
+Abyssal::eBufferCapability CWLSHMBuffer::caps() {
+    return Abyssal::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
 }
 
-Aquamarine::eBufferType CWLSHMBuffer::type() {
-    return Aquamarine::eBufferType::BUFFER_TYPE_SHM;
+Abyssal::eBufferType CWLSHMBuffer::type() {
+    return Abyssal::eBufferType::BUFFER_TYPE_SHM;
 }
 
 bool CWLSHMBuffer::isSynchronous() {
     return true;
 }
 
-Aquamarine::SSHMAttrs CWLSHMBuffer::shm() {
-    Aquamarine::SSHMAttrs attrs;
+Abyssal::SSHMAttrs CWLSHMBuffer::shm() {
+    Abyssal::SSHMAttrs attrs;
     attrs.success = true;
     attrs.fd      = m_pool->m_fd.get();
     attrs.format  = NFormatUtils::shmToDRM(m_fmt);

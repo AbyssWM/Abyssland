@@ -6,5 +6,5 @@
 # CI: request @fufexan's review
 .github/workflows/** @fufexan
 
-# Hyprtester (framework): CC @kolayne
-? hyprtester/src/* @kolayne
+# Abysstester (framework): CC @kolayne
+? abysstester/src/* @kolayne

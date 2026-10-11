@@ -5,7 +5,7 @@
 #include "WaylandProtocol.hpp"
 #include "tablet-v2.hpp"
 #include "../helpers/math/Math.hpp"
-#include <aquamarine/input/Input.hpp>
+#include <abyssal/input/Input.hpp>
 
 class CTablet;
 class CTabletTool;
@@ -51,7 +51,7 @@ class CTabletPadGroupV2Resource {
     CTabletPadGroupV2Resource(SP<CZwpTabletPadGroupV2> resource_, size_t idx);
 
     bool   good();
-    void   sendData(SP<CTabletPad> pad, SP<Aquamarine::ITabletPad::STabletPadGroup> group);
+    void   sendData(SP<CTabletPad> pad, SP<Abyssal::ITabletPad::STabletPadGroup> group);
 
     size_t m_idx = 0;
 
@@ -80,7 +80,7 @@ class CTabletPadV2Resource {
   private:
     SP<CZwpTabletPadV2> m_resource;
 
-    void                createGroup(SP<Aquamarine::ITabletPad::STabletPadGroup> group, size_t idx);
+    void                createGroup(SP<Abyssal::ITabletPad::STabletPadGroup> group, size_t idx);
 
     friend class CTabletSeat;
     friend class CTabletV2Protocol;

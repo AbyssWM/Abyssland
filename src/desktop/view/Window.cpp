@@ -3,7 +3,7 @@
 #include <cmath>
 #include <ranges>
 #include <span>
-#include <hyprutils/animation/AnimatedVariable.hpp>
+#include <abyssutils/animation/AnimatedVariable.hpp>
 #include <re2/re2.h>
 
 #include "Group.hpp"
@@ -27,10 +27,10 @@
 #include "../state/WindowState.hpp"
 #include "../history/WindowHistoryTracker.hpp"
 #include "../../Compositor.hpp"
-#include "../../render/decorations/CHyprDropShadowDecoration.hpp"
-#include "../../render/decorations/CHyprInnerGlowDecoration.hpp"
-#include "../../render/decorations/CHyprGroupBarDecoration.hpp"
-#include "../../render/decorations/CHyprBorderDecoration.hpp"
+#include "../../render/decorations/CAbyssDropShadowDecoration.hpp"
+#include "../../render/decorations/CAbyssInnerGlowDecoration.hpp"
+#include "../../render/decorations/CAbyssGroupBarDecoration.hpp"
+#include "../../render/decorations/CAbyssBorderDecoration.hpp"
 #include "../../config/ConfigValue.hpp"
 #include "../../config/shared/actions/ConfigActions.hpp"
 #include "../../config/ConfigManager.hpp"
@@ -66,12 +66,12 @@
 #include "../../layout/target/WindowGroupTarget.hpp"
 #include "../../event/EventBus.hpp"
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::Animation;
+using namespace Abyssutils::String;
+using namespace Abyssutils::Animation;
 using enum NContentType::eContentType;
 
 using namespace Desktop;
@@ -126,9 +126,9 @@ PHLWINDOW CWindow::create(SP<CXWaylandSurface> surface) {
                                       AVARDAMAGE_ENTIRE);
     Animation::mgr()->createAnimation(0.f, pWindow->m_notRespondingTint, Config::animationTree()->getAnimationPropertyConfig("fade"), pWindow, AVARDAMAGE_ENTIRE);
 
-    pWindow->addWindowDeco(makeUnique<CHyprDropShadowDecoration>(pWindow));
-    pWindow->addWindowDeco(makeUnique<CHyprBorderDecoration>(pWindow));
-    pWindow->addWindowDeco(makeUnique<CHyprInnerGlowDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssDropShadowDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssBorderDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssInnerGlowDecoration>(pWindow));
 
     pWindow->m_target = Layout::CWindowTarget::create(pWindow);
 
@@ -164,9 +164,9 @@ PHLWINDOW CWindow::create(SP<CXDGSurfaceResource> resource) {
                                       AVARDAMAGE_ENTIRE);
     Animation::mgr()->createAnimation(0.f, pWindow->m_notRespondingTint, Config::animationTree()->getAnimationPropertyConfig("fade"), pWindow, AVARDAMAGE_ENTIRE);
 
-    pWindow->addWindowDeco(makeUnique<CHyprDropShadowDecoration>(pWindow));
-    pWindow->addWindowDeco(makeUnique<CHyprBorderDecoration>(pWindow));
-    pWindow->addWindowDeco(makeUnique<CHyprInnerGlowDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssDropShadowDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssBorderDecoration>(pWindow));
+    pWindow->addWindowDeco(makeUnique<CAbyssInnerGlowDecoration>(pWindow));
 
     pWindow->m_target = Layout::CWindowTarget::create(pWindow);
 
@@ -411,20 +411,20 @@ void CWindow::updateWindowDecos() {
     // Make a copy because updateWindow can remove decos. The built-in set fits inline,
     // while the fallback preserves support for arbitrary plugin decorations.
     constexpr size_t                                 INLINE_DECOS = 4;
-    std::array<IHyprWindowDecoration*, INLINE_DECOS> inlineDecos  = {};
+    std::array<IAbyssWindowDecoration*, INLINE_DECOS> inlineDecos  = {};
     if (m_windowDecorations.size() <= inlineDecos.size()) {
         std::ranges::transform(m_windowDecorations, inlineDecos.begin(), [](const auto& deco) { return deco.get(); });
         updateDecos(std::span{inlineDecos}.first(m_windowDecorations.size()));
         return;
     }
 
-    std::vector<IHyprWindowDecoration*> decos;
+    std::vector<IAbyssWindowDecoration*> decos;
     decos.reserve(m_windowDecorations.size());
     std::ranges::transform(m_windowDecorations, std::back_inserter(decos), [](const auto& deco) { return deco.get(); });
     updateDecos(decos);
 }
 
-void CWindow::addWindowDeco(UP<IHyprWindowDecoration> deco) {
+void CWindow::addWindowDeco(UP<IAbyssWindowDecoration> deco) {
     m_windowDecorations.emplace_back(std::move(deco));
     g_pDecorationPositioner->forceRecalcFor(m_self.lock());
     updateWindowDecos();
@@ -433,7 +433,7 @@ void CWindow::addWindowDeco(UP<IHyprWindowDecoration> deco) {
         layoutTarget()->recalc();
 }
 
-void CWindow::removeWindowDeco(IHyprWindowDecoration* deco) {
+void CWindow::removeWindowDeco(IAbyssWindowDecoration* deco) {
     m_decosToRemove.push_back(deco);
     g_pDecorationPositioner->forceRecalcFor(m_self.lock());
     updateWindowDecos();
@@ -483,7 +483,7 @@ pid_t CWindow::getPID() {
     return PID;
 }
 
-IHyprWindowDecoration* CWindow::getDecorationByType(eDecorationType type) {
+IAbyssWindowDecoration* CWindow::getDecorationByType(eDecorationType type) {
     for (auto const& wd : m_windowDecorations) {
         if (wd->getDecorationType() == type)
             return wd.get();
@@ -576,8 +576,8 @@ void CWindow::moveToWorkspace(PHLWORKSPACE pWorkspace) {
     Desktop::globalWindowController()->updateAllWindowsDecorations();
 
     if (valid(pWorkspace)) {
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "movewindow", .data = std::format("{:x},{}", rc<uintptr_t>(this), pWorkspace->m_name)});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "movewindowv2", .data = std::format("{:x},{},{}", rc<uintptr_t>(this), pWorkspace->m_id, pWorkspace->m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "movewindow", .data = std::format("{:x},{}", rc<uintptr_t>(this), pWorkspace->m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "movewindowv2", .data = std::format("{:x},{},{}", rc<uintptr_t>(this), pWorkspace->m_id, pWorkspace->m_name)});
         Event::bus()->m_events.window.moveToWorkspace.emit(m_self.lock(), pWorkspace);
     }
 
@@ -648,7 +648,7 @@ void CWindow::damageMotionBlur(bool allowStale) const {
 
     CBox damage = STATE->extents();
     damage.expand(4.F);
-    g_pHyprRenderer->damageBox(damage);
+    g_pAbyssRenderer->damageBox(damage);
 }
 
 void CWindow::recordMotionBlur(const CBox& previous, const CBox& current) {
@@ -1368,7 +1368,7 @@ void CWindow::activate(bool force) {
 
     m_isUrgent = true;
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "urgent", .data = std::format("{:x}", rc<uintptr_t>(this))});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "urgent", .data = std::format("{:x}", rc<uintptr_t>(this))});
     Event::bus()->m_events.window.urgent.emit(m_self.lock());
 
     if (!force &&
@@ -1449,13 +1449,13 @@ void CWindow::onUpdateMeta() {
 
     if (m_title != NEWTITLE) {
         m_title = NEWTITLE;
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "windowtitle", .data = std::format("{:x}", rc<uintptr_t>(this))});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "windowtitlev2", .data = std::format("{:x},{}", rc<uintptr_t>(this), m_title)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "windowtitle", .data = std::format("{:x}", rc<uintptr_t>(this))});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "windowtitlev2", .data = std::format("{:x},{}", rc<uintptr_t>(this), m_title)});
         Event::bus()->m_events.window.title.emit(m_self.lock());
 
         if (m_self == Desktop::focusState()->window()) { // if it's the active, let's post an event to update others
-            g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindow", .data = m_class + "," + m_title});
-            g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(this))});
+            g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindow", .data = m_class + "," + m_title});
+            g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(this))});
 
             // no need for a hook event
         }
@@ -1471,8 +1471,8 @@ void CWindow::onUpdateMeta() {
         Event::bus()->m_events.window.class_.emit(m_self.lock());
 
         if (m_self == Desktop::focusState()->window()) { // if it's the active, let's post an event to update others
-            g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindow", .data = m_class + "," + m_title});
-            g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(this))});
+            g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindow", .data = m_class + "," + m_title});
+            g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(this))});
 
             // no need for a hook event
         }
@@ -1552,13 +1552,13 @@ void CWindow::onX11ConfigureRequest(CBox box) {
         return;
     }
 
-    g_pHyprRenderer->damageWindow(m_self.lock());
+    g_pAbyssRenderer->damageWindow(m_self.lock());
 
     if (!m_isFloating || Fullscreen::controller()->isFullscreen(m_self.lock()) || g_layoutManager->dragController()->target() == layoutTarget() ||
         (m_suppressedEvents & Desktop::View::SUPPRESS_X11_CONFIGURE_REQUEST)) {
         sendWindowSize(true);
         g_pInputManager->refocus();
-        g_pHyprRenderer->damageWindow(m_self.lock());
+        g_pAbyssRenderer->damageWindow(m_self.lock());
         return;
     }
 
@@ -1603,7 +1603,7 @@ void CWindow::onX11ConfigureRequest(CBox box) {
 
     m_allowedOverFullscreen = true;
 
-    g_pHyprRenderer->damageWindow(m_self.lock());
+    g_pAbyssRenderer->damageWindow(m_self.lock());
 }
 
 void CWindow::warpCursor(bool force) {
@@ -1964,7 +1964,7 @@ void CWindow::updateDecorationValues() {
             setShadowColor(COLORINACTIVE.setByUser ? *SHADOWCOLINACTIVE : *SHADOWCOL);
         }
     } else {
-        Config::CGradientValueData transparent(CHyprColor(0, 0, 0, 0));
+        Config::CGradientValueData transparent(CAbyssColor(0, 0, 0, 0));
         m_realShadowColor = transparent;
     }
 
@@ -1990,7 +1990,7 @@ void CWindow::updateDecorationValues() {
             setGlowColor(COLORINACTIVE.setByUser ? *GLOWCOLINACTIVE : *GLOWCOL);
         }
     } else {
-        Config::CGradientValueData transparent(CHyprColor(0, 0, 0, 0));
+        Config::CGradientValueData transparent(CAbyssColor(0, 0, 0, 0));
         m_realGlowColor = transparent;
     }
 
@@ -2281,7 +2281,7 @@ void CWindow::mapWindow() {
         setStaticProps();
     }
 
-    // make it uncloseable if it's a Hyprland dialog
+    // make it uncloseable if it's a Abyssland dialog
     // TODO: make some closeable?
     if (CAsyncDialogBox::isAsyncDialogBox(getPID()))
         m_closeableSince = Time::steadyNow() + std::chrono::years(10 /* Should be enough, no? */);
@@ -2366,7 +2366,7 @@ void CWindow::mapWindow() {
     }
 
     // emit the IPC event before the layout might focus the window to avoid a focus event first
-    g_pEventManager->postEvent(SHyprIPCEvent{"openwindow", std::format("{:x},{},{},{}", m_self.lock(), PWORKSPACE->m_name, m_class, m_title)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"openwindow", std::format("{:x},{},{},{}", m_self.lock(), PWORKSPACE->m_name, m_class, m_title)});
     Event::bus()->m_events.window.openEarly.emit(m_self.lock());
 
     if (*PAUTOGROUP                                                                        // auto_group enabled
@@ -2571,7 +2571,7 @@ void CWindow::unmapWindow() {
     const auto PMONITOR = m_monitor.lock();
 
     m_events.unmap.emit();
-    g_pEventManager->postEvent(SHyprIPCEvent{"closewindow", std::format("{:x}", m_self.lock())});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"closewindow", std::format("{:x}", m_self.lock())});
     Event::bus()->m_events.window.close.emit(m_self.lock());
 
     if (m_isFloating && !m_isX11 && m_ruleApplicator->persistentSize().valueOrDefault()) {
@@ -2584,7 +2584,7 @@ void CWindow::unmapWindow() {
 
     // Allow the renderer to catch the last frame.
     const auto SNAPSHOT =
-        g_pHyprRenderer->shouldRenderWindow(m_self.lock()) && !m_ruleApplicator->noAnim().valueOrDefault() ? g_pHyprRenderer->makeSnapshotFB(m_self.lock()) : nullptr;
+        g_pAbyssRenderer->shouldRenderWindow(m_self.lock()) && !m_ruleApplicator->noAnim().valueOrDefault() ? g_pAbyssRenderer->makeSnapshotFB(m_self.lock()) : nullptr;
 
     // swallowing
     if (const auto SWALLOWEE = m_swallowee.lock()) {
@@ -2638,7 +2638,7 @@ void CWindow::unmapWindow() {
 
     g_layoutManager->removeTarget(m_target);
 
-    g_pHyprRenderer->damageWindow(m_self.lock());
+    g_pAbyssRenderer->damageWindow(m_self.lock());
 
     // do this after onWindowRemoved because otherwise it'll think the window is invalid
     m_isMapped = false;
@@ -2679,8 +2679,8 @@ void CWindow::unmapWindow() {
 
         // CWindow::onUnmap will remove this window's active status, but we can't really do it above.
         if (m_self.lock() == Desktop::focusState()->window() || !Desktop::focusState()->window()) {
-            g_pEventManager->postEvent(SHyprIPCEvent{"activewindow", ","});
-            g_pEventManager->postEvent(SHyprIPCEvent{"activewindowv2", ""});
+            g_pEventManager->postEvent(SAbyssIPCEvent{"activewindow", ","});
+            g_pEventManager->postEvent(SAbyssIPCEvent{"activewindowv2", ""});
 
             Event::bus()->m_events.window.active.emit(m_self.lock(), FOCUS_REASON_OTHER);
         }
@@ -2744,7 +2744,7 @@ void CWindow::commitWindow() {
         const auto MAXSIZE = m_xdgSurface->m_toplevel->layoutMaxSize();
 
         if (clampWindowSize(MINSIZE, MAXSIZE > Vector2D{1, 1} ? std::optional<Vector2D>{MAXSIZE} : std::nullopt))
-            g_pHyprRenderer->damageWindow(m_self.lock());
+            g_pAbyssRenderer->damageWindow(m_self.lock());
     }
 
     if (!m_workspace->m_visible)
@@ -2752,7 +2752,7 @@ void CWindow::commitWindow() {
 
     const auto PMONITOR = m_monitor.lock();
 
-    g_pHyprRenderer->damageSurface(wlSurface()->resource(), m_realPosition->goal().x, m_realPosition->goal().y, m_isX11 ? 1.0 / m_X11SurfaceScaledBy : 1.0);
+    g_pAbyssRenderer->damageSurface(wlSurface()->resource(), m_realPosition->goal().x, m_realPosition->goal().y, m_isX11 ? 1.0 / m_X11SurfaceScaledBy : 1.0);
 
     if (!m_isX11) {
         m_subsurfaceHead->recheckDamageForSubsurfaces();
@@ -2769,7 +2769,7 @@ void CWindow::commitWindow() {
                 PMONITOR->m_tearingState.frameScheduledWhileBusy = true;
             } else {
                 PMONITOR->m_tearingState.nextRenderTorn = true;
-                g_pHyprRenderer->renderMonitor(PMONITOR);
+                g_pAbyssRenderer->renderMonitor(PMONITOR);
             }
         }
     }
@@ -2850,7 +2850,7 @@ void CWindow::unmanagedSetGeometry() {
 
     if (Fullscreen::controller()->isFullscreen(m_self.lock()) || !m_isFloating) {
         sendWindowSize(true);
-        g_pHyprRenderer->damageWindow(m_self.lock());
+        g_pAbyssRenderer->damageWindow(m_self.lock());
         return;
     }
 
@@ -2865,7 +2865,7 @@ void CWindow::unmanagedSetGeometry() {
         abs(std::floor(SIZ.y) - LOGICALGEOSIZE.y) > 2) {
         Log::logger->log(Log::DEBUG, "Unmanaged window {} requests geometry update to {:j} {:j}", m_self.lock(), LOGICALPOS, m_xwaylandSurface->m_geometry.size());
 
-        g_pHyprRenderer->damageWindow(m_self.lock());
+        g_pAbyssRenderer->damageWindow(m_self.lock());
 
         m_reportedPosition    = m_xwaylandSurface->m_geometry.pos();
         m_pendingReportedSize = m_xwaylandSurface->m_geometry.size();
@@ -2878,7 +2878,7 @@ void CWindow::unmanagedSetGeometry() {
 
         Desktop::windowState()->raise(m_self.lock());
         updateWindowDecos();
-        g_pHyprRenderer->damageWindow(m_self.lock());
+        g_pAbyssRenderer->damageWindow(m_self.lock());
     }
 }
 

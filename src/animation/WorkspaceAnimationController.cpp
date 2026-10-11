@@ -12,9 +12,9 @@
 #include "../managers/fullscreen/FullscreenController.hpp"
 #include "wlr-layer-shell-unstable-v1.hpp"
 
-#include <hyprutils/string/VarList.hpp>
+#include <abyssutils/string/VarList.hpp>
 
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 using namespace Desktop::View;
 
 void Animation::Workspace::startAnimation(PHLWORKSPACE ws, eAnimationType type, bool left, bool instant, std::optional<std::string> style) {

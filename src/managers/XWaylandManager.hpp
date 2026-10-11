@@ -6,10 +6,10 @@
 
 class CWLSurfaceResource;
 
-class CHyprXWaylandManager {
+class CAbyssXWaylandManager {
   public:
-    CHyprXWaylandManager();
-    ~CHyprXWaylandManager();
+    CAbyssXWaylandManager();
+    ~CAbyssXWaylandManager();
 
     SP<CWLSurfaceResource> getWindowSurface(PHLWINDOW);
     void                   activateSurface(SP<CWLSurfaceResource>, bool);
@@ -25,4 +25,4 @@ class CHyprXWaylandManager {
     Vector2D               waylandToXWaylandCoords(const Vector2D&, PHLMONITOR);
 };
 
-inline UP<CHyprXWaylandManager> g_pXWaylandManager;
+inline UP<CAbyssXWaylandManager> g_pXWaylandManager;

@@ -4,7 +4,7 @@
 class CClearPassElement : public IPassElement {
   public:
     struct SClearData {
-        CHyprColor color;
+        CAbyssColor color;
     };
 
     CClearPassElement(const SClearData& data);

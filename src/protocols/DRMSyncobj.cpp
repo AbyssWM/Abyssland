@@ -7,7 +7,7 @@
 #include "render/OpenGL.hpp"
 
 #include <fcntl.h>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CDRMSyncPointState::CDRMSyncPointState(SP<CSyncTimeline> timeline_, uint64_t point_) : m_timeline(timeline_), m_point(point_) {}
 

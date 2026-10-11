@@ -2,7 +2,7 @@
 #include <output/IMonitorIdentifiable.hpp>
 
 #include <gtest/gtest.h>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 
 #include <string>
 
@@ -26,7 +26,7 @@ class CWorkspaceRuleTestMonitor : public Monitor::IMonitorIdentifiable {
 
     virtual bool matchesStaticSelector(std::string_view selector) const override {
         if (selector.starts_with("desc:")) {
-            const auto DESCRIPTION = Hyprutils::String::trim(selector.substr(5));
+            const auto DESCRIPTION = Abyssutils::String::trim(selector.substr(5));
             return m_description.starts_with(DESCRIPTION) || m_shortDescription.starts_with(DESCRIPTION);
         }
 

@@ -35,7 +35,7 @@ namespace Config {
         bool                      m_reloadScheduled = false;
 
         struct {
-            CHyprSignalListener preChecksRender;
+            CAbyssSignalListener preChecksRender;
         } m_listeners;
     };
 

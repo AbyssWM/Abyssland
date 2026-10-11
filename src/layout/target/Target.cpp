@@ -2,10 +2,10 @@
 #include "../space/Space.hpp"
 #include "../../debug/log/Logger.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
 using namespace Layout;
-using namespace Hyprutils::Utils;
+using namespace Abyssutils::Utils;
 
 void ITarget::setPositionGlobal(const STargetBox& box, uint8_t) {
     m_box = box;

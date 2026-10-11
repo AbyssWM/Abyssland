@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <format>
 
-using namespace Hyprutils::Animation;
+using namespace Abyssutils::Animation;
 using namespace ErrorOverlay;
 
 static std::string takeFirstNLines(const std::string& text, size_t lines) {
@@ -63,7 +63,7 @@ COverlay::COverlay() {
         if (!m_isCreated)
             return;
 
-        g_pHyprRenderer->damageMonitor(Desktop::focusState()->monitor());
+        g_pAbyssRenderer->damageMonitor(Desktop::focusState()->monitor());
         updateReservedArea(true);
         m_monitorChanged = true;
     });
@@ -73,11 +73,11 @@ COverlay::COverlay() {
             return;
 
         if (m_fadeOpacity->isBeingAnimated() || m_monitorChanged)
-            g_pHyprRenderer->damageBox(m_damageBox);
+            g_pAbyssRenderer->damageBox(m_damageBox);
     });
 }
 
-void COverlay::queueCreate(std::string message, const CHyprColor& color) {
+void COverlay::queueCreate(std::string message, const CAbyssColor& color) {
     queueCreate(std::move(message), Config::CGradientValueData{color});
 }
 
@@ -86,13 +86,13 @@ void COverlay::queueCreate(std::string message, const Config::CGradientValueData
     m_queuedBorderGradient = gradient;
 
     if (m_queuedBorderGradient.m_colors.empty())
-        m_queuedBorderGradient.reset(CHyprColor(1.0, 50.0 / 255.0, 50.0 / 255.0, 1.0));
+        m_queuedBorderGradient.reset(CAbyssColor(1.0, 50.0 / 255.0, 50.0 / 255.0, 1.0));
     else
         m_queuedBorderGradient.updateColorsOk();
 }
 
 void COverlay::queueError(std::string err) {
-    queueCreate(err + "\nHyprland may not work correctly.", CHyprColor(1.0, 50.0 / 255.0, 50.0 / 255.0, 1.0));
+    queueCreate(err + "\nAbyssland may not work correctly.", CAbyssColor(1.0, 50.0 / 255.0, 50.0 / 255.0, 1.0));
 }
 
 void COverlay::createQueued() {
@@ -122,11 +122,11 @@ void COverlay::createQueued() {
     const float barWidth     = std::max<float>(1.F, sc<float>(PMONITOR->m_pixelSize.x) - m_outerPad * 2.F);
     const float textMaxWidth = std::max<float>(1.F, barWidth - 2.F * (1.F + m_outerPad));
 
-    m_textTexture = g_pHyprRenderer->renderText(Hyprgraphics::CTextResource::STextResourceData{
+    m_textTexture = g_pAbyssRenderer->renderText(Abyssgraphics::CTextResource::STextResourceData{
         .text      = visibleText,
         .font      = *FONT_FAMILY,
         .fontSize  = sc<size_t>(FONTSIZE),
-        .color     = CHyprColor(0.9, 0.9, 0.9, 1.0).asRGB(),
+        .color     = CAbyssColor(0.9, 0.9, 0.9, 1.0).asRGB(),
         .maxSize   = Vector2D{textMaxWidth, -1.F},
         .ellipsize = false,
         .wrap      = true,
@@ -152,7 +152,7 @@ void COverlay::createQueued() {
     m_queued        = "";
     m_queuedDestroy = false;
 
-    g_pHyprRenderer->damageMonitor(PMONITOR);
+    g_pAbyssRenderer->damageMonitor(PMONITOR);
 
     updateReservedArea(true);
 }
@@ -173,7 +173,7 @@ void COverlay::updateReservedArea(bool reserve) {
     }
 
     for (const auto& m : State::monitorState()->monitors()) {
-        g_pHyprRenderer->arrangeLayersForMonitor(m->m_id);
+        g_pAbyssRenderer->arrangeLayersForMonitor(m->m_id);
     }
 }
 
@@ -205,7 +205,7 @@ void COverlay::draw() {
         }
     }
 
-    const auto PMONITOR = g_pHyprRenderer->m_renderData.pMonitor;
+    const auto PMONITOR = g_pAbyssRenderer->m_renderData.pMonitor;
     if (!PMONITOR)
         return;
 
@@ -222,7 +222,7 @@ void COverlay::draw() {
     m_damageBox.y      = sc<int>(PMONITOR->m_position.y + (TOPBAR ? 0 : PMONITOR->m_pixelSize.y - m_damageBox.height));
 
     if (m_fadeOpacity->isBeingAnimated() || m_monitorChanged)
-        g_pHyprRenderer->damageBox(m_damageBox);
+        g_pAbyssRenderer->damageBox(m_damageBox);
 
     m_monitorChanged = false;
 
@@ -230,9 +230,9 @@ void COverlay::draw() {
 
     CRectPassElement::SRectData bgData;
     bgData.box   = barBox;
-    bgData.color = CHyprColor(0.06, 0.06, 0.06, opacity);
+    bgData.color = CAbyssColor(0.06, 0.06, 0.06, opacity);
     bgData.round = sc<int>(std::round(m_radius));
-    g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(bgData)));
+    g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(bgData)));
 
     CBorderPassElement::SBorderData borderData;
     borderData.box        = barBox;
@@ -241,7 +241,7 @@ void COverlay::draw() {
     borderData.outerRound = sc<int>(std::round(m_radius));
     borderData.borderSize = 2;
     borderData.a          = opacity;
-    g_pHyprRenderer->m_renderPass.add(makeUnique<CBorderPassElement>(std::move(borderData)));
+    g_pAbyssRenderer->m_renderPass.add(makeUnique<CBorderPassElement>(std::move(borderData)));
 
     if (m_textTexture) {
         CTexPassElement::SRenderData textData;
@@ -250,7 +250,7 @@ void COverlay::draw() {
         textData.a          = opacity;
         textData.clipRegion = CRegion(barBox.copy().expand(-1));
 
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(textData)));
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(textData)));
     }
 }
 

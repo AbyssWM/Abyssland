@@ -4,13 +4,13 @@
 #include <set>
 #include <array>
 #include <cstdint>
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 #include "helpers/memory/Memory.hpp"
 
 // gangsta bootleg XCursor impl. adidas balkanized
 struct SXCursorImage {
-    Hyprutils::Math::Vector2D size;
-    Hyprutils::Math::Vector2D hotspot;
+    Abyssutils::Math::Vector2D size;
+    Abyssutils::Math::Vector2D hotspot;
     std::vector<uint32_t>     pixels; // XPixel is a u32
     uint32_t                  delay;  // animation delay to next frame (ms)
 };
@@ -40,6 +40,6 @@ class CXCursorManager {
     float                      m_lastLoadScale = 0;
     std::string                m_themeName     = "";
     SP<SXCursors>              m_defaultCursor;
-    SP<SXCursors>              m_hyprCursor;
+    SP<SXCursors>              m_abyssCursor;
     std::vector<SP<SXCursors>> m_cursors;
 };

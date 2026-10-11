@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <map>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 
 #include "../../shared/complex/ComplexDataTypes.hpp"
 
@@ -35,7 +35,7 @@ SParseError CLuaConfigFontWeight::parse(lua_State* s) {
             return {.errorCode = PARSE_ERROR_OK};
         }
 
-        if (Hyprutils::String::isNumber(str))
+        if (Abyssutils::String::isNumber(str))
             return {.errorCode = PARSE_ERROR_BAD_VALUE, .message = std::format("font weight \"{}\" was not found. Did you mean to put in an integer (without quotes?)", str)};
 
         return {.errorCode = PARSE_ERROR_BAD_VALUE, .message = std::format("font weight \"{}\" was not found", str)};

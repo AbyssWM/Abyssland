@@ -6,7 +6,7 @@
 #include "types/WLBuffer.hpp"
 #include "../render/OpenGL.hpp"
 
-CMesaDRMBufferResource::CMesaDRMBufferResource(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs attrs_) {
+CMesaDRMBufferResource::CMesaDRMBufferResource(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs attrs_) {
     LOGM(Log::DEBUG, "Creating a Mesa dmabuf, with id {}: size {}, fmt {}, planes {}", id, attrs_.size, attrs_.format, attrs_.planes);
     for (int i = 0; i < attrs_.planes; ++i) {
         LOGM(Log::DEBUG, " | plane {}: mod {} fd {} stride {} offset {}", i, attrs_.modifier, attrs_.fds[i], attrs_.strides[i], attrs_.offsets[i]);
@@ -62,7 +62,7 @@ CMesaDRMResource::CMesaDRMResource(SP<CWlDrm> resource_) : m_resource(resource_)
 
             uint64_t mod = DRM_FORMAT_MOD_INVALID;
 
-            auto     fmts = g_pHyprRenderer->getDRMFormats();
+            auto     fmts = g_pAbyssRenderer->getDRMFormats();
             for (auto const& f : fmts) {
                 if (f.drmFormat != fmt)
                     continue;
@@ -77,7 +77,7 @@ CMesaDRMResource::CMesaDRMResource(SP<CWlDrm> resource_) : m_resource(resource_)
                 break;
             }
 
-            Aquamarine::SDMABUFAttrs attrs;
+            Abyssal::SDMABUFAttrs attrs;
             attrs.success    = true;
             attrs.size       = {w, h};
             attrs.modifier   = mod;
@@ -102,7 +102,7 @@ CMesaDRMResource::CMesaDRMResource(SP<CWlDrm> resource_) : m_resource(resource_)
     m_resource->sendDevice(PROTO::mesaDRM->m_nodeName.c_str());
     m_resource->sendCapabilities(WL_DRM_CAPABILITY_PRIME);
 
-    auto fmts = g_pHyprRenderer->getDRMFormats();
+    auto fmts = g_pAbyssRenderer->getDRMFormats();
     for (auto const& fmt : fmts) {
         m_resource->sendFormat(fmt.drmFormat);
     }

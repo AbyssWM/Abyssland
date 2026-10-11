@@ -9,7 +9,7 @@ class CEventLoopTimer;
 
 namespace Render {
     // A window transformer can be attached to a window.
-    // If any is attached, Hyprland will render the window to a separate fb, then call the transform() func with it,
+    // If any is attached, Abyssland will render the window to a separate fb, then call the transform() func with it,
     // and finally render it back to the main fb after all transformers pass.
     //
     // Worth noting transformers for now only affect the main pass (not popups)
@@ -17,14 +17,14 @@ namespace Render {
       public:
         virtual ~IWindowTransformer() = default;
 
-        // called by Hyprland. For more data about what is being rendered, inspect render data.
+        // called by Abyssland. For more data about what is being rendered, inspect render data.
         // returns the out fb.
         virtual SP<Render::IFramebuffer> transform(SP<Render::IFramebuffer> in) = 0;
 
-        // called by Hyprland before a window main pass is started.
+        // called by Abyssland before a window main pass is started.
         virtual void preWindowRender(CSurfacePassElement::SRenderData* pRenderData);
 
-        // called by Hyprland before the transformed window fb is rendered back to the main fb.
+        // called by Abyssland before the transformed window fb is rendered back to the main fb.
         virtual void amendTransformedRenderData(const CBox& currentBox, SMotionBlurData* pMotionBlurData);
     };
 }

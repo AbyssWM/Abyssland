@@ -11,8 +11,8 @@
 #include <sys/timerfd.h>
 #include <ctime>
 
-#include <aquamarine/backend/Backend.hpp>
-using namespace Hyprutils::OS;
+#include <abyssal/backend/Backend.hpp>
+using namespace Abyssutils::OS;
 
 #define TIMESPEC_NSEC_PER_SEC 1000000000L
 
@@ -61,8 +61,8 @@ static int timerWrite(int fd, uint32_t mask, void* data) {
     return 0;
 }
 
-static int aquamarineFDWrite(int fd, uint32_t mask, void* data) {
-    auto POLLFD = sc<Aquamarine::SPollFD*>(data);
+static int abyssalFDWrite(int fd, uint32_t mask, void* data) {
+    auto POLLFD = sc<Abyssal::SPollFD*>(data);
     POLLFD->onSignal();
     return 0;
 }
@@ -275,8 +275,8 @@ void CEventLoopManager::syncPollFDs() {
         return shouldRemove;
     });
 
-    for (auto& fd : aqPollFDs | std::views::filter([&](SP<Aquamarine::SPollFD> fd) { return !m_aqEventSources.contains(fd->fd); })) {
-        auto eventSource         = wl_event_loop_add_fd(m_wayland.loop, fd->fd, WL_EVENT_READABLE, aquamarineFDWrite, fd.get());
+    for (auto& fd : aqPollFDs | std::views::filter([&](SP<Abyssal::SPollFD> fd) { return !m_aqEventSources.contains(fd->fd); })) {
+        auto eventSource         = wl_event_loop_add_fd(m_wayland.loop, fd->fd, WL_EVENT_READABLE, abyssalFDWrite, fd.get());
         m_aqEventSources[fd->fd] = {.pollFD = fd, .eventSource = eventSource};
     }
 }

@@ -8,7 +8,7 @@
 #include "../config/ConfigManager.hpp"
 #include "../state/MonitorState.hpp"
 
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 
 #include <sys/utsname.h>
 #include <fstream>
@@ -18,7 +18,7 @@
 
 using namespace Helpers::SystemInfo;
 using namespace Helpers;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 using namespace Render::GL;
 
 static void trimTrailingComma(std::string& str) {
@@ -26,11 +26,11 @@ static void trimTrailingComma(std::string& str) {
         str.pop_back();
 }
 
-std::string SystemInfo::getStatus(eHyprCtlOutputFormat fmt) {
-    Aquamarine::eBackendType backendType = Aquamarine::eBackendType::AQ_BACKEND_NULL;
+std::string SystemInfo::getStatus(eAbyssCtlOutputFormat fmt) {
+    Abyssal::eBackendType backendType = Abyssal::eBackendType::ABYSSAL_BACKEND_NULL;
 
     for (const auto& i : g_pCompositor->m_aqBackend->getImplementations()) {
-        if (i->type() == Aquamarine::eBackendType::AQ_BACKEND_NULL || i->type() == Aquamarine::eBackendType::AQ_BACKEND_HEADLESS)
+        if (i->type() == Abyssal::eBackendType::ABYSSAL_BACKEND_NULL || i->type() == Abyssal::eBackendType::ABYSSAL_BACKEND_HEADLESS)
             continue;
 
         backendType = i->type();
@@ -40,12 +40,12 @@ std::string SystemInfo::getStatus(eHyprCtlOutputFormat fmt) {
     std::string backendStr;
 
     switch (backendType) {
-        case Aquamarine::AQ_BACKEND_DRM: backendStr = "drm"; break;
-        case Aquamarine::AQ_BACKEND_WAYLAND: backendStr = "wayland"; break;
+        case Abyssal::ABYSSAL_BACKEND_DRM: backendStr = "drm"; break;
+        case Abyssal::ABYSSAL_BACKEND_WAYLAND: backendStr = "wayland"; break;
         default: backendStr = "error"; break;
     }
 
-    if (fmt == eHyprCtlOutputFormat::FORMAT_JSON) {
+    if (fmt == eAbyssCtlOutputFormat::FORMAT_JSON) {
 
         return std::format(R"#(
 {{
@@ -63,22 +63,22 @@ backend: {}
                        Config::typeToString(Config::mgr()->type()), backendStr);
 }
 
-std::string SystemInfo::getVersion(eHyprCtlOutputFormat fmt) {
+std::string SystemInfo::getVersion(eAbyssCtlOutputFormat fmt) {
 
     auto commitMsg = trim(GIT_COMMIT_MESSAGE);
     std::ranges::replace(commitMsg, '#', ' ');
 
-    if (fmt == eHyprCtlOutputFormat::FORMAT_NORMAL) {
-        std::string result = std::format("Hyprland {} built from branch {} at commit {} {} ({}).\n"
+    if (fmt == eAbyssCtlOutputFormat::FORMAT_NORMAL) {
+        std::string result = std::format("Abyssland {} built from branch {} at commit {} {} ({}).\n"
                                          "Date: {}\n"
                                          "Tag: {}, commits: {}\n",
-                                         HYPRLAND_VERSION, GIT_BRANCH, GIT_COMMIT_HASH, GIT_DIRTY, commitMsg, GIT_COMMIT_DATE, GIT_TAG, GIT_COMMITS);
+                                         ABYSSLAND_VERSION, GIT_BRANCH, GIT_COMMIT_HASH, GIT_DIRTY, commitMsg, GIT_COMMIT_DATE, GIT_TAG, GIT_COMMITS);
 
         result += "\n";
         result += getBuiltSystemLibraryNames();
         result += "\n";
         result += "Version ABI string: ";
-        result += __hyprland_api_get_hash();
+        result += __abyssland_api_get_hash();
         result += "\n";
 
 #if (!ISDEBUG && !defined(NO_XWAYLAND) && !defined(BUILT_WITH_NIX))
@@ -107,22 +107,22 @@ std::string SystemInfo::getVersion(eHyprCtlOutputFormat fmt) {
     "commit_date": "{}",
     "tag": "{}",
     "commits": "{}",
-    "buildAquamarine": "{}",
-    "buildHyprlang": "{}",
-    "buildHyprutils": "{}",
-    "buildHyprcursor": "{}",
-    "buildHyprgraphics": "{}",
-    "systemAquamarine": "{}",
-    "systemHyprlang": "{}",
-    "systemHyprutils": "{}",
-    "systemHyprcursor": "{}",
-    "systemHyprgraphics": "{}",
+    "buildAbyssal": "{}",
+    "buildAbyssparse": "{}",
+    "buildAbyssutils": "{}",
+    "buildAbysscursor": "{}",
+    "buildAbyssgraphics": "{}",
+    "systemAbyssal": "{}",
+    "systemAbyssparse": "{}",
+    "systemAbyssutils": "{}",
+    "systemAbysscursor": "{}",
+    "systemAbyssgraphics": "{}",
     "abiHash": "{}",
     "flags": [)#",
-            GIT_BRANCH, GIT_COMMIT_HASH, HYPRLAND_VERSION, (GIT_DIRTY == std::string_view{"dirty"} ? "true" : "false"), escapeJSONStrings(commitMsg), GIT_COMMIT_DATE, GIT_TAG,
-            GIT_COMMITS, AQUAMARINE_VERSION, HYPRLANG_VERSION, HYPRUTILS_VERSION, HYPRCURSOR_VERSION, HYPRGRAPHICS_VERSION, getSystemLibraryVersion("aquamarine"),
-            getSystemLibraryVersion("hyprlang"), getSystemLibraryVersion("hyprutils"), getSystemLibraryVersion("hyprcursor"), getSystemLibraryVersion("hyprgraphics"),
-            __hyprland_api_get_hash());
+            GIT_BRANCH, GIT_COMMIT_HASH, ABYSSLAND_VERSION, (GIT_DIRTY == std::string_view{"dirty"} ? "true" : "false"), escapeJSONStrings(commitMsg), GIT_COMMIT_DATE, GIT_TAG,
+            GIT_COMMITS, ABYSSAL_VERSION, ABYSSPARSE_VERSION, ABYSSUTILS_VERSION, ABYSSCURSOR_VERSION, ABYSSGRAPHICS_VERSION, getSystemLibraryVersion("abyssal"),
+            getSystemLibraryVersion("abyssparse"), getSystemLibraryVersion("abyssutils"), getSystemLibraryVersion("abysscursor"), getSystemLibraryVersion("abyssgraphics"),
+            __abyssland_api_get_hash());
 
 #if ISDEBUG
         result += "\"debug\",";
@@ -145,14 +145,14 @@ std::string SystemInfo::getVersion(eHyprCtlOutputFormat fmt) {
 }
 
 std::string SystemInfo::getSystemInfo() {
-    std::string result = getVersion(eHyprCtlOutputFormat::FORMAT_NORMAL);
+    std::string result = getVersion(eAbyssCtlOutputFormat::FORMAT_NORMAL);
 
     static auto check   = [](bool y) -> std::string { return y ? "✔️" : "❌"; };
-    static auto backend = [](Aquamarine::eBackendType t) -> std::string {
+    static auto backend = [](Abyssal::eBackendType t) -> std::string {
         switch (t) {
-            case Aquamarine::AQ_BACKEND_DRM: return "drm";
-            case Aquamarine::AQ_BACKEND_HEADLESS: return "headless";
-            case Aquamarine::AQ_BACKEND_WAYLAND: return "wayland";
+            case Abyssal::ABYSSAL_BACKEND_DRM: return "drm";
+            case Abyssal::ABYSSAL_BACKEND_HEADLESS: return "headless";
+            case Abyssal::ABYSSAL_BACKEND_WAYLAND: return "wayland";
             default: break;
         }
         return "?";
@@ -229,9 +229,9 @@ std::string SystemInfo::getSystemInfo() {
     } else
         result += "\tunknown: not runtime\n";
 
-    if (g_pHyprOpenGL) {
-        result += std::format("\nExplicit sync: {}", g_pHyprOpenGL->m_exts.EGL_ANDROID_native_fence_sync_ext ? "supported" : "missing");
-        result += std::format("\nGL ver: {}", g_pHyprOpenGL->m_eglContextVersion == CHyprOpenGLImpl::EGL_CONTEXT_GLES_3_2 ? "3.2" : "3.0");
+    if (g_pAbyssOpenGL) {
+        result += std::format("\nExplicit sync: {}", g_pAbyssOpenGL->m_exts.EGL_ANDROID_native_fence_sync_ext ? "supported" : "missing");
+        result += std::format("\nGL ver: {}", g_pAbyssOpenGL->m_eglContextVersion == CAbyssOpenGLImpl::EGL_CONTEXT_GLES_3_2 ? "3.2" : "3.0");
     }
 
     if (g_pCompositor) {

@@ -15,13 +15,13 @@ void CResizeTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpda
     if (!m_window)
         return;
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 
     g_layoutManager->resizeTarget((e.swipe ? e.swipe->delta : e.pinch->delta), m_window->layoutTarget(),
                                   Layout::cornerFromBox(m_window->getWindowMainSurfaceBox(), g_pInputManager->getMouseCoordsInternal()));
     m_window->finishAnimation();
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 }
 
 void CResizeTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) {

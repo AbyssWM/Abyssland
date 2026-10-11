@@ -86,7 +86,7 @@ CRegion CWLSurface::computeDamage() const {
         return {};
 
     CRegion damage = m_resource->m_current.accumulateBufferDamage();
-    damage.transform(Math::wlTransformToHyprutils(m_resource->m_current.transform), m_resource->m_current.bufferSize.x, m_resource->m_current.bufferSize.y);
+    damage.transform(Math::wlTransformToAbyssutils(m_resource->m_current.transform), m_resource->m_current.bufferSize.x, m_resource->m_current.bufferSize.y);
 
     const auto BUFSIZE = m_resource->m_current.bufferSize;
     if (BUFSIZE.x <= 0 || BUFSIZE.y <= 0)
@@ -148,8 +148,8 @@ void CWLSurface::destroy() {
     m_view.reset();
     m_inert = true;
 
-    if (g_pHyprRenderer && g_pHyprRenderer->m_lastCursorData.surf && g_pHyprRenderer->m_lastCursorData.surf->get() == this)
-        g_pHyprRenderer->m_lastCursorData.surf.reset();
+    if (g_pAbyssRenderer && g_pAbyssRenderer->m_lastCursorData.surf && g_pAbyssRenderer->m_lastCursorData.surf->get() == this)
+        g_pAbyssRenderer->m_lastCursorData.surf.reset();
 
     m_resource.reset();
 

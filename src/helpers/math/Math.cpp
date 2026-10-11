@@ -9,29 +9,29 @@ using namespace Math;
 
 // FIXME: expose in hu
 static std::unordered_map<eTransform, Mat3x3> transforms = {
-    {HYPRUTILS_TRANSFORM_NORMAL, std::array<float, 9>{1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_90, std::array<float, 9>{0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_180, std::array<float, 9>{-1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_270, std::array<float, 9>{0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_FLIPPED, std::array<float, 9>{-1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_FLIPPED_90, std::array<float, 9>{0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_FLIPPED_180, std::array<float, 9>{1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
-    {HYPRUTILS_TRANSFORM_FLIPPED_270, std::array<float, 9>{0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_NORMAL, std::array<float, 9>{1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_90, std::array<float, 9>{0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_180, std::array<float, 9>{-1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_270, std::array<float, 9>{0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_FLIPPED, std::array<float, 9>{-1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_FLIPPED_90, std::array<float, 9>{0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_FLIPPED_180, std::array<float, 9>{1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
+    {ABYSSUTILS_TRANSFORM_FLIPPED_270, std::array<float, 9>{0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}},
 };
 
-eTransform Math::wlTransformToHyprutils(wl_output_transform t) {
+eTransform Math::wlTransformToAbyssutils(wl_output_transform t) {
     switch (t) {
-        case WL_OUTPUT_TRANSFORM_NORMAL: return eTransform::HYPRUTILS_TRANSFORM_NORMAL;
-        case WL_OUTPUT_TRANSFORM_180: return eTransform::HYPRUTILS_TRANSFORM_180;
-        case WL_OUTPUT_TRANSFORM_90: return eTransform::HYPRUTILS_TRANSFORM_90;
-        case WL_OUTPUT_TRANSFORM_270: return eTransform::HYPRUTILS_TRANSFORM_270;
-        case WL_OUTPUT_TRANSFORM_FLIPPED: return eTransform::HYPRUTILS_TRANSFORM_FLIPPED;
-        case WL_OUTPUT_TRANSFORM_FLIPPED_180: return eTransform::HYPRUTILS_TRANSFORM_FLIPPED_180;
-        case WL_OUTPUT_TRANSFORM_FLIPPED_270: return eTransform::HYPRUTILS_TRANSFORM_FLIPPED_270;
-        case WL_OUTPUT_TRANSFORM_FLIPPED_90: return eTransform::HYPRUTILS_TRANSFORM_FLIPPED_90;
+        case WL_OUTPUT_TRANSFORM_NORMAL: return eTransform::ABYSSUTILS_TRANSFORM_NORMAL;
+        case WL_OUTPUT_TRANSFORM_180: return eTransform::ABYSSUTILS_TRANSFORM_180;
+        case WL_OUTPUT_TRANSFORM_90: return eTransform::ABYSSUTILS_TRANSFORM_90;
+        case WL_OUTPUT_TRANSFORM_270: return eTransform::ABYSSUTILS_TRANSFORM_270;
+        case WL_OUTPUT_TRANSFORM_FLIPPED: return eTransform::ABYSSUTILS_TRANSFORM_FLIPPED;
+        case WL_OUTPUT_TRANSFORM_FLIPPED_180: return eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_180;
+        case WL_OUTPUT_TRANSFORM_FLIPPED_270: return eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_270;
+        case WL_OUTPUT_TRANSFORM_FLIPPED_90: return eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_90;
         default: break;
     }
-    return eTransform::HYPRUTILS_TRANSFORM_NORMAL;
+    return eTransform::ABYSSUTILS_TRANSFORM_NORMAL;
 }
 
 wl_output_transform Math::invertTransform(wl_output_transform tr) {
@@ -60,7 +60,7 @@ static eTransform composeInternal(eTransform a, eTransform b) {
             return t;
     }
 
-    return eTransform::HYPRUTILS_TRANSFORM_NORMAL;
+    return eTransform::ABYSSUTILS_TRANSFORM_NORMAL;
 }
 
 eTransform Math::composeTransform(eTransform a, eTransform b) {
@@ -71,16 +71,16 @@ eTransform Math::composeTransform(eTransform a, eTransform b) {
         once = false;
 
         // bake the composition table
-        static_assert(HYPRUTILS_TRANSFORM_FLIPPED_270 == 7);
-        for (size_t i = 0; i <= HYPRUTILS_TRANSFORM_FLIPPED_270 /* 7 */; ++i) {
-            for (size_t j = 0; j <= HYPRUTILS_TRANSFORM_FLIPPED_270 /* 7 */; ++j) {
+        static_assert(ABYSSUTILS_TRANSFORM_FLIPPED_270 == 7);
+        for (size_t i = 0; i <= ABYSSUTILS_TRANSFORM_FLIPPED_270 /* 7 */; ++i) {
+            for (size_t j = 0; j <= ABYSSUTILS_TRANSFORM_FLIPPED_270 /* 7 */; ++j) {
                 lookup[i][j] = composeInternal(sc<eTransform>(i), sc<eTransform>(j));
             }
         }
     }
 
-    RASSERT(a >= HYPRUTILS_TRANSFORM_NORMAL && a <= HYPRUTILS_TRANSFORM_FLIPPED_270, "Invalid transform a in composeTransform");
-    RASSERT(b >= HYPRUTILS_TRANSFORM_NORMAL && b <= HYPRUTILS_TRANSFORM_FLIPPED_270, "Invalid transform b in composeTransform");
+    RASSERT(a >= ABYSSUTILS_TRANSFORM_NORMAL && a <= ABYSSUTILS_TRANSFORM_FLIPPED_270, "Invalid transform a in composeTransform");
+    RASSERT(b >= ABYSSUTILS_TRANSFORM_NORMAL && b <= ABYSSUTILS_TRANSFORM_FLIPPED_270, "Invalid transform b in composeTransform");
 
     return lookup[a][b];
 }

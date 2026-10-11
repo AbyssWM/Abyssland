@@ -19,13 +19,13 @@
 #include <sys/procctl.h>
 #endif
 
-#include <hyprutils/os/Process.hpp>
+#include <abyssutils/os/Process.hpp>
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 using namespace std::string_literals;
 
 //
-void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
+void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
     std::vector<std::string> argsStd;
     argsStd.emplace_back("--watchdog-fd");
     argsStd.emplace_back(std::format("{}", m_toHlPid.get()));
@@ -39,10 +39,10 @@ void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
         argsStd.emplace_back(a);
     }
 
-    // spawn a process manually. Hyprutils' Async is detached, while Sync redirects stdout
+    // spawn a process manually. Abyssutils' Async is detached, while Sync redirects stdout
     // TODO: make Sync respect fds?
 
-    std::vector<char*> args = {strdup(g_state->customPath.value_or("Hyprland").c_str())};
+    std::vector<char*> args = {strdup(g_state->customPath.value_or("Abyssland").c_str())};
     for (const auto& a : argsStd) {
         args.emplace_back(strdup(a.c_str()));
     }
@@ -50,7 +50,7 @@ void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
 
     int forkRet = fork();
     if (forkRet == 0) {
-        // Make hyprland die on our SIGKILL
+        // Make abyssland die on our SIGKILL
 #if defined(__linux__)
         prctl(PR_SET_PDEATHSIG, SIGKILL);
 #elif defined(__FreeBSD__)
@@ -59,13 +59,13 @@ void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
 #endif
 
         if (Nix::shouldUseNixGL()) {
-            argsStd.insert(argsStd.begin(), g_state->customPath.value_or("Hyprland"));
+            argsStd.insert(argsStd.begin(), g_state->customPath.value_or("Abyssland"));
             args.insert(args.begin(), strdup(argsStd.front().c_str()));
             execvp("nixGL", args.data());
         } else
-            execvp(g_state->customPath.value_or("Hyprland").c_str(), args.data());
+            execvp(g_state->customPath.value_or("Abyssland").c_str(), args.data());
 
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "fork(): execvp failed: {}", strerror(errno));
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "fork(): execvp failed: {}", strerror(errno));
         std::fflush(stdout);
         exit(1);
     } else
@@ -76,7 +76,7 @@ void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
             int status = 0;
             int ret    = waitpid(m_hlPid, &status, 0);
             if (ret == -1) {
-                g_logger->log(Hyprutils::CLI::LOG_ERR, "Couldn't waitpid for hyprland: {}", strerror(errno));
+                g_logger->log(Abyssutils::CLI::LOG_ERR, "Couldn't waitpid for abyssland: {}", strerror(errno));
                 break;
             }
 
@@ -85,37 +85,37 @@ void CHyprlandInstance::runHyprlandThread(bool safeMode, bool lockedCrash) {
         }
 
         if (write(m_wakeupWrite.get(), "vax", 3) < 0)
-            g_logger->log(Hyprutils::CLI::LOG_ERR, "Failed to write to wakeup fd {}: {}", m_wakeupWrite.get(), strerror(errno));
+            g_logger->log(Abyssutils::CLI::LOG_ERR, "Failed to write to wakeup fd {}: {}", m_wakeupWrite.get(), strerror(errno));
 
         std::fflush(stdout);
         std::fflush(stderr);
     });
 }
 
-void CHyprlandInstance::forceQuit() {
-    m_hyprlandExiting = true;
+void CAbysslandInstance::forceQuit() {
+    m_abysslandExiting = true;
     kill(m_hlPid, SIGTERM); // gracefully, can get stuck but it's unlikely
 
     m_hlThread.join(); // needs this otherwise can crash
 }
 
-void CHyprlandInstance::clearFd(const Hyprutils::OS::CFileDescriptor& fd) {
+void CAbysslandInstance::clearFd(const Abyssutils::OS::CFileDescriptor& fd) {
     if (!fd.isReadable()) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "Can't clear a unreadable fd");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "Can't clear a unreadable fd");
         return;
     }
 
     static std::array<char, 1024> buf;
     if (read(fd.get(), buf.data(), 1023) < 0)
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "Failed clearing fd {}: {}", fd.get(), strerror(errno));
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "Failed clearing fd {}: {}", fd.get(), strerror(errno));
 }
 
-void CHyprlandInstance::dispatchHyprlandEvent() {
+void CAbysslandInstance::dispatchAbysslandEvent() {
     std::string                   recvd = "";
     static std::array<char, 4096> buf;
     ssize_t                       n = read(m_fromHlPid.get(), buf.data(), 4096);
     if (n < 0) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "Failed dispatching hl events");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "Failed dispatching hl events");
         return;
     }
 
@@ -128,34 +128,34 @@ void CHyprlandInstance::dispatchHyprlandEvent() {
         const std::string_view sv = std::string_view{s};
         if (sv == "vax") {
             // init passed
-            m_hyprlandInitialized = true;
+            m_abysslandInitialized = true;
             continue;
         }
 
         if (sv == "end") {
             // exiting
-            m_hyprlandExiting = true;
+            m_abysslandExiting = true;
             continue;
         }
 
         if (sv == "lock") {
             // session locked
-            m_hyprlandLocked = true;
+            m_abysslandLocked = true;
             continue;
         }
 
         if (sv == "unlock") {
             // session unlocked
-            m_hyprlandLocked = false;
+            m_abysslandLocked = false;
             continue;
         }
     }
 }
 
-bool CHyprlandInstance::run(bool safeMode, bool lockedCrash) {
+bool CAbysslandInstance::run(bool safeMode, bool lockedCrash) {
     int pipefds[2];
     if (pipe(pipefds) != 0) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "pipe() failed, exiting");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "pipe() failed, exiting");
         exit(1);
     }
 
@@ -163,7 +163,7 @@ bool CHyprlandInstance::run(bool safeMode, bool lockedCrash) {
     m_toHlPid   = CFileDescriptor{pipefds[1]};
 
     if (pipe(pipefds) != 0) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "pipe() failed, exiting");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "pipe() failed, exiting");
         exit(1);
     }
 
@@ -174,9 +174,9 @@ bool CHyprlandInstance::run(bool safeMode, bool lockedCrash) {
     m_wakeupRead.setFlags(m_wakeupRead.getFlags() | FD_CLOEXEC);
     m_wakeupWrite.setFlags(m_wakeupWrite.getFlags() | FD_CLOEXEC);
 
-    m_hyprlandLocked = lockedCrash;
+    m_abysslandLocked = lockedCrash;
 
-    runHyprlandThread(safeMode, lockedCrash);
+    runAbysslandThread(safeMode, lockedCrash);
 
     pollfd pollfds[2] = {
         {
@@ -195,18 +195,18 @@ bool CHyprlandInstance::run(bool safeMode, bool lockedCrash) {
         int ret = poll(pollfds, 2, -1);
 
         if (ret < 0) {
-            g_logger->log(Hyprutils::CLI::LOG_ERR, "poll() failed, exiting");
+            g_logger->log(Abyssutils::CLI::LOG_ERR, "poll() failed, exiting");
             exit(1);
         }
 
         if (pollfds[1].revents & POLLIN) {
-            g_logger->log(Hyprutils::CLI::LOG_DEBUG, "got an event from hyprland");
-            dispatchHyprlandEvent();
+            g_logger->log(Abyssutils::CLI::LOG_DEBUG, "got an event from abyssland");
+            dispatchAbysslandEvent();
             continue;
         }
 
         if (pollfds[0].revents & POLLIN) {
-            g_logger->log(Hyprutils::CLI::LOG_DEBUG, "hyprland exit, breaking poll, checking state");
+            g_logger->log(Abyssutils::CLI::LOG_DEBUG, "abyssland exit, breaking poll, checking state");
             clearFd(m_wakeupRead);
             break;
         }
@@ -214,5 +214,5 @@ bool CHyprlandInstance::run(bool safeMode, bool lockedCrash) {
 
     m_hlThread.join();
 
-    return !m_hyprlandInitialized || m_hyprlandExiting;
+    return !m_abysslandInitialized || m_abysslandExiting;
 }

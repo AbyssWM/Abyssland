@@ -262,10 +262,10 @@ ActionResult Actions::pinWindow(eTogglableAction action, std::optional<PHLWINDOW
     PWORKSPACE->m_lastFocusedWindow =
         Desktop::viewState()->hitTest().windowAt(g_pInputManager->getMouseCoordsInternal(), Desktop::View::RESERVED_EXTENTS | Desktop::View::INPUT_EXTENTS);
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "pin", .data = std::format("{:x},{}", rc<uintptr_t>(window.get()), sc<int>(window->m_pinned))});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "pin", .data = std::format("{:x},{}", rc<uintptr_t>(window.get()), sc<int>(window->m_pinned))});
     Event::bus()->m_events.window.pin.emit(window);
 
-    g_pHyprRenderer->damageWindow(window, true);
+    g_pAbyssRenderer->damageWindow(window, true);
 
     return {};
 }
@@ -326,7 +326,7 @@ ActionResult Actions::moveToWorkspace(PHLWORKSPACE ws, bool silent, std::optiona
     const auto POLDWS = window->m_workspace;
 
     updateRelativeCursorCoords();
-    g_pHyprRenderer->damageWindow(window);
+    g_pAbyssRenderer->damageWindow(window);
 
     if (silent) {
         const auto OLDMIDDLE = window->middle();
@@ -698,7 +698,7 @@ ActionResult Actions::alterZOrder(const std::string& mode, std::optional<PHLWIND
 
 template <typename T>
 static void parsePropTrivial(Desktop::Types::COverridableVar<T>& prop, const std::string& s) {
-    static_assert(std::is_same_v<T, bool> || std::is_same_v<T, Hyprlang::INT> || std::is_same_v<T, int> || std::is_same_v<T, Hyprlang::FLOAT> || std::is_same_v<T, std::string>,
+    static_assert(std::is_same_v<T, bool> || std::is_same_v<T, Abyssparse::INT> || std::is_same_v<T, int> || std::is_same_v<T, Abyssparse::FLOAT> || std::is_same_v<T, std::string>,
                   "Invalid type passed to parsePropTrivial");
 
     if (s == "unset") {
@@ -712,13 +712,13 @@ static void parsePropTrivial(Desktop::Types::COverridableVar<T>& prop, const std
                 prop.increment(true, Desktop::Types::PRIORITY_SET_PROP);
             else
                 prop = Desktop::Types::COverridableVar<T>(truthy(s), Desktop::Types::PRIORITY_SET_PROP);
-        } else if constexpr (std::is_same_v<T, Hyprlang::INT> || std::is_same_v<T, int>) {
+        } else if constexpr (std::is_same_v<T, Abyssparse::INT> || std::is_same_v<T, int>) {
             if (s.starts_with("relative")) {
                 const auto VAL = std::stoi(s.substr(s.find(' ') + 1));
                 prop.increment(VAL, Desktop::Types::PRIORITY_SET_PROP);
             } else
                 prop = Desktop::Types::COverridableVar<T>(std::stoull(s), Desktop::Types::PRIORITY_SET_PROP);
-        } else if constexpr (std::is_same_v<T, Hyprlang::FLOAT>) {
+        } else if constexpr (std::is_same_v<T, Abyssparse::FLOAT>) {
             if (s.starts_with("relative")) {
                 const auto VAL = std::stof(s.substr(s.find(' ') + 1));
                 prop.increment(VAL, Desktop::Types::PRIORITY_SET_PROP);
@@ -726,7 +726,7 @@ static void parsePropTrivial(Desktop::Types::COverridableVar<T>& prop, const std
                 prop = Desktop::Types::COverridableVar<T>(std::stof(s), Desktop::Types::PRIORITY_SET_PROP);
         } else if constexpr (std::is_same_v<T, std::string>)
             prop = Desktop::Types::COverridableVar<T>(s, Desktop::Types::PRIORITY_SET_PROP);
-    } catch (...) { Log::logger->log(Log::ERR, "Hyprctl: parsePropTrivial: failed to parse setprop for {}", s); }
+    } catch (...) { Log::logger->log(Log::ERR, "Abyssctl: parsePropTrivial: failed to parse setprop for {}", s); }
 }
 
 ActionResult Actions::setProp(const std::string& PROP, const std::string& VAL, std::optional<PHLWINDOW> w) {
@@ -756,7 +756,7 @@ ActionResult Actions::setProp(const std::string& PROP, const std::string& VAL, s
         } else if (PROP == "active_border_color" || PROP == "inactive_border_color") {
             Config::CGradientValueData   colorData = {};
 
-            Hyprutils::String::CVarList2 vars(VAL, 0, 's', true);
+            Abyssutils::String::CVarList2 vars(VAL, 0, 's', true);
 
             if (vars.size() > 1) {
                 for (int i = 1; i < sc<int>(vars.size()); ++i) {
@@ -1266,7 +1266,7 @@ ActionResult Actions::forceIdle(float seconds) {
 }
 
 ActionResult Actions::event(const std::string& data) {
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "custom", .data = data});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "custom", .data = data});
     return {};
 }
 
@@ -1277,7 +1277,7 @@ ActionResult Actions::lockGroups(eTogglableAction action) {
         case TOGGLE_ACTION_DISABLE: g_pKeybindManager->m_groupsLocked = false; break;
     }
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "lockgroups", .data = g_pKeybindManager->m_groupsLocked ? "1" : "0"});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "lockgroups", .data = g_pKeybindManager->m_groupsLocked ? "1" : "0"});
     Desktop::globalWindowController()->updateAllWindowsDecorations();
 
     return {};
@@ -1317,7 +1317,7 @@ static void moveWindowIntoGroupHelper(PHLWINDOW pWindow, PHLWINDOW pWindowInDire
     Desktop::focusState()->fullWindowFocus(pWindow, Desktop::FOCUS_REASON_DISPATCH_MOVEWINDOWINTOGROUP);
     pWindow->warpCursor();
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveintogroup", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveintogroup", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
 }
 
 static void moveWindowOutOfGroupHelper(PHLWINDOW pWindow, Math::eDirection direction = Math::DIRECTION_DEFAULT) {
@@ -1338,7 +1338,7 @@ static void moveWindowOutOfGroupHelper(PHLWINDOW pWindow, Math::eDirection direc
         group->current()->warpCursor();
     }
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveoutofgroup", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveoutofgroup", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
 }
 
 ActionResult Actions::moveIntoGroup(Math::eDirection direction, std::optional<PHLWINDOW> w) {
@@ -1664,7 +1664,7 @@ ActionResult Actions::mouse(const std::string& action) {
 ActionResult Actions::setSubmap(const std::string& submap) {
     if (submap == "reset" || submap.empty()) {
         Config::Actions::state()->m_currentSubmap = "";
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "submap", .data = ""});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "submap", .data = ""});
         Event::bus()->m_events.keybinds.submap.emit(std::string(""));
         return {};
     }
@@ -1672,7 +1672,7 @@ ActionResult Actions::setSubmap(const std::string& submap) {
     for (const auto& k : g_pKeybindManager->m_keybinds) {
         if (k->submap.name == submap) {
             Config::Actions::state()->m_currentSubmap = submap;
-            g_pEventManager->postEvent(SHyprIPCEvent{.event = "submap", .data = submap});
+            g_pEventManager->postEvent(SAbyssIPCEvent{.event = "submap", .data = submap});
             Event::bus()->m_events.keybinds.submap.emit(submap);
             return {};
         }
@@ -1729,7 +1729,7 @@ ActionResult Actions::cycleNext(const bool next, std::optional<bool> onlyTiled, 
 }
 
 ActionResult Actions::moveIntoOrCreateGroup(Math::eDirection dir, std::optional<PHLWINDOW> w) {
-    static auto PIGNOREGROUPLOCK = CConfigValue<Hyprlang::INT>("binds:ignore_group_lock");
+    static auto PIGNOREGROUPLOCK = CConfigValue<Abyssparse::INT>("binds:ignore_group_lock");
 
     if (!*PIGNOREGROUPLOCK && g_pKeybindManager->m_groupsLocked)
         return {};

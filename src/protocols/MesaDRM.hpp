@@ -9,7 +9,7 @@
 
 class CMesaDRMBufferResource {
   public:
-    CMesaDRMBufferResource(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs attrs);
+    CMesaDRMBufferResource(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs attrs);
     ~CMesaDRMBufferResource();
 
     bool good();
@@ -18,7 +18,7 @@ class CMesaDRMBufferResource {
     SP<CDMABuffer> m_buffer;
 
     struct {
-        CHyprSignalListener bufferResourceDestroy;
+        CAbyssSignalListener bufferResourceDestroy;
     } m_listeners;
 
     friend class CMesaDRMResource;

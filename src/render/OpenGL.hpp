@@ -28,9 +28,9 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES2/gl2ext.h>
-#include <aquamarine/buffer/Buffer.hpp>
-#include <hyprutils/os/FileDescriptor.hpp>
-#include <hyprgraphics/resource/resources/ImageResource.hpp>
+#include <abyssal/buffer/Buffer.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
+#include <abyssgraphics/resource/resources/ImageResource.hpp>
 
 #include "../debug/TracyDefines.hpp"
 #include "../protocols/core/Compositor.hpp"
@@ -43,7 +43,7 @@
 
 struct gbm_device;
 namespace Render {
-    class IHyprRenderer;
+    class IAbyssRenderer;
 }
 namespace Config {
     class CGradientValueData;
@@ -139,13 +139,13 @@ namespace Render::GL {
 
         EGLSyncKHR m_sync = EGL_NO_SYNC_KHR;
 
-        friend class CHyprOpenGLImpl;
+        friend class CAbyssOpenGLImpl;
     };
 
-    class CHyprOpenGLImpl {
+    class CAbyssOpenGLImpl {
       public:
-        CHyprOpenGLImpl();
-        ~CHyprOpenGLImpl();
+        CAbyssOpenGLImpl();
+        ~CAbyssOpenGLImpl();
 
         struct SRectRenderData {
             const CRegion* damage        = nullptr;
@@ -202,7 +202,7 @@ namespace Render::GL {
         void beginSimple(PHLMONITOR, const CRegion& damage, SP<IRenderbuffer> rb = nullptr, SP<IFramebuffer> fb = nullptr);
         void end();
 
-        void renderRect(const CBox&, const CHyprColor&, SRectRenderData data);
+        void renderRect(const CBox&, const CAbyssColor&, SRectRenderData data);
         void renderTexture(SP<ITexture>, const CBox&, STextureRenderData data);
         void renderRoundedShadow(const CBox&, int round, float roundingPower, int range, const Config::CGradientValueData& color, float a = 1.0);
         void renderRoundedShadow(const CBox&, int round, float roundingPower, int range, const Config::CGradientValueData& grad1, const Config::CGradientValueData& grad2,
@@ -236,7 +236,7 @@ namespace Render::GL {
 
         std::vector<SDRMFormat>                   getDRMFormats();
         std::vector<uint64_t>                     getDRMFormatModifiers(DRMFormat format);
-        EGLImageKHR                               createEGLImage(const Aquamarine::SDMABUFAttrs& attrs);
+        EGLImageKHR                               createEGLImage(const Abyssal::SDMABUFAttrs& attrs);
 
         bool                                      initShaders(const std::string& path = "");
 
@@ -248,7 +248,7 @@ namespace Render::GL {
         bool                                      m_shadersInitialized = false;
         SP<SPreparedShaders>                      m_shaders;
 
-        Hyprutils::OS::CFileDescriptor            m_gbmFD;
+        Abyssutils::OS::CFileDescriptor            m_gbmFD;
         gbm_device*                               m_gbmDevice  = nullptr;
         EGLContext                                m_eglContext = nullptr;
         EGLDisplay                                m_eglDisplay = nullptr;
@@ -347,21 +347,21 @@ namespace Render::GL {
                                         bool modifySDR = false, float sdrMinLuminance = -1.0f, int sdrMaxLuminance = -1);
         void             passCMUniforms(WP<CShader>, const NColorManagement::PImageDescription imageDescription);
         void             passCMUniforms(WP<CShader>, const NColorManagement::PImageDescription imageDescription, const SCMSettings& settings);
-        void             renderRectInternal(const CBox&, const CHyprColor&, const SRectRenderData& data);
-        void             renderRectWithBlurInternal(const CBox&, const CHyprColor&, const SRectRenderData& data);
-        void             renderRectWithDamageInternal(const CBox&, const CHyprColor&, const SRectRenderData& data);
+        void             renderRectInternal(const CBox&, const CAbyssColor&, const SRectRenderData& data);
+        void             renderRectWithBlurInternal(const CBox&, const CAbyssColor&, const SRectRenderData& data);
+        void             renderRectWithDamageInternal(const CBox&, const CAbyssColor&, const SRectRenderData& data);
         WP<CShader>      renderToOutputInternal();
         WP<CShader>      renderToFBInternal(SP<ITexture> tex, const STextureRenderData& data, eTextureType texType, const CBox& newBox);
         void             renderTextureInternal(SP<ITexture>, const CBox&, const STextureRenderData& data);
         void             renderTextureWithBlurInternal(SP<ITexture>, const CBox&, const STextureRenderData& data);
 
-        friend class IHyprRenderer;
-        friend class CHyprGLRenderer;
+        friend class IAbyssRenderer;
+        friend class CAbyssGLRenderer;
         friend class CGLElementRenderer;
         friend class CTexPassElement;
         friend class CPreBlurElement;
         friend class CSurfacePassElement;
     };
 
-    inline UP<CHyprOpenGLImpl> g_pHyprOpenGL;
+    inline UP<CAbyssOpenGLImpl> g_pAbyssOpenGL;
 }

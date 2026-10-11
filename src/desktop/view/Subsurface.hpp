@@ -52,11 +52,11 @@ namespace Desktop::View {
         CSubsurface();
 
         struct {
-            CHyprSignalListener destroySubsurface;
-            CHyprSignalListener commitSubsurface;
-            CHyprSignalListener mapSubsurface;
-            CHyprSignalListener unmapSubsurface;
-            CHyprSignalListener newSubsurface;
+            CAbyssSignalListener destroySubsurface;
+            CAbyssSignalListener commitSubsurface;
+            CAbyssSignalListener mapSubsurface;
+            CAbyssSignalListener unmapSubsurface;
+            CAbyssSignalListener newSubsurface;
         } m_listeners;
 
         WP<CWLSubsurfaceResource> m_subsurface;

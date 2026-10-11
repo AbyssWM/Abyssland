@@ -9,7 +9,7 @@ class CVirtualPointer : public IPointer {
     static SP<CVirtualPointer>       create(SP<CVirtualPointerV1Resource> resource);
 
     virtual bool                     isVirtual();
-    virtual SP<Aquamarine::IPointer> aq();
+    virtual SP<Abyssal::IPointer> aq();
 
   private:
     CVirtualPointer(SP<CVirtualPointerV1Resource>);
@@ -17,23 +17,23 @@ class CVirtualPointer : public IPointer {
     WP<CVirtualPointerV1Resource> m_pointer;
 
     struct {
-        CHyprSignalListener destroy;
+        CAbyssSignalListener destroy;
 
-        CHyprSignalListener motion;
-        CHyprSignalListener motionAbsolute;
-        CHyprSignalListener button;
-        CHyprSignalListener axis;
-        CHyprSignalListener frame;
+        CAbyssSignalListener motion;
+        CAbyssSignalListener motionAbsolute;
+        CAbyssSignalListener button;
+        CAbyssSignalListener axis;
+        CAbyssSignalListener frame;
 
-        CHyprSignalListener swipeBegin;
-        CHyprSignalListener swipeEnd;
-        CHyprSignalListener swipeUpdate;
+        CAbyssSignalListener swipeBegin;
+        CAbyssSignalListener swipeEnd;
+        CAbyssSignalListener swipeUpdate;
 
-        CHyprSignalListener pinchBegin;
-        CHyprSignalListener pinchEnd;
-        CHyprSignalListener pinchUpdate;
+        CAbyssSignalListener pinchBegin;
+        CAbyssSignalListener pinchEnd;
+        CAbyssSignalListener pinchUpdate;
 
-        CHyprSignalListener holdBegin;
-        CHyprSignalListener holdEnd;
+        CAbyssSignalListener holdBegin;
+        CAbyssSignalListener holdEnd;
     } m_listeners;
 };

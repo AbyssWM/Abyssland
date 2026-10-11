@@ -24,8 +24,8 @@ class CAlphaModifier {
     void                          destroy();
 
     struct {
-        CHyprSignalListener surfaceCommitted;
-        CHyprSignalListener surfaceDestroyed;
+        CAbyssSignalListener surfaceCommitted;
+        CAbyssSignalListener surfaceDestroyed;
     } m_listeners;
 
     friend class CAlphaModifierProtocol;

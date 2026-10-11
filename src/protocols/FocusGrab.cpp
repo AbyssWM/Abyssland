@@ -1,6 +1,6 @@
 #include "FocusGrab.hpp"
 #include "../Compositor.hpp"
-#include <hyprland-focus-grab-v1.hpp>
+#include <abyssland-focus-grab-v1.hpp>
 #include "../managers/input/InputManager.hpp"
 #include "../managers/SeatManager.hpp"
 #include "../desktop/state/FocusState.hpp"
@@ -12,7 +12,7 @@ CFocusGrabSurfaceState::CFocusGrabSurfaceState(CFocusGrab* grab, SP<CWLSurfaceRe
     m_listeners.destroy = surface->m_events.destroy.listen([grab, surface] { grab->eraseSurface(surface); });
 }
 
-CFocusGrab::CFocusGrab(SP<CHyprlandFocusGrabV1> resource_) : m_resource(resource_) {
+CFocusGrab::CFocusGrab(SP<CAbysslandFocusGrabV1> resource_) : m_resource(resource_) {
     if UNLIKELY (!m_resource->resource())
         return;
 
@@ -21,11 +21,11 @@ CFocusGrab::CFocusGrab(SP<CHyprlandFocusGrabV1> resource_) : m_resource(resource
     m_grab->m_pointer  = true;
     m_grab->setCallback([this]() { finish(true); });
 
-    m_resource->setDestroy([this](CHyprlandFocusGrabV1* pMgr) { PROTO::focusGrab->destroyGrab(this); });
-    m_resource->setOnDestroy([this](CHyprlandFocusGrabV1* pMgr) { PROTO::focusGrab->destroyGrab(this); });
-    m_resource->setAddSurface([this](CHyprlandFocusGrabV1* pMgr, wl_resource* surface) { addSurface(CWLSurfaceResource::fromResource(surface)); });
-    m_resource->setRemoveSurface([this](CHyprlandFocusGrabV1* pMgr, wl_resource* surface) { removeSurface(CWLSurfaceResource::fromResource(surface)); });
-    m_resource->setCommit([this](CHyprlandFocusGrabV1* pMgr) { commit(); });
+    m_resource->setDestroy([this](CAbysslandFocusGrabV1* pMgr) { PROTO::focusGrab->destroyGrab(this); });
+    m_resource->setOnDestroy([this](CAbysslandFocusGrabV1* pMgr) { PROTO::focusGrab->destroyGrab(this); });
+    m_resource->setAddSurface([this](CAbysslandFocusGrabV1* pMgr, wl_resource* surface) { addSurface(CWLSurfaceResource::fromResource(surface)); });
+    m_resource->setRemoveSurface([this](CAbysslandFocusGrabV1* pMgr, wl_resource* surface) { removeSurface(CWLSurfaceResource::fromResource(surface)); });
+    m_resource->setCommit([this](CAbysslandFocusGrabV1* pMgr) { commit(); });
 }
 
 CFocusGrab::~CFocusGrab() {
@@ -147,11 +147,11 @@ CFocusGrabProtocol::CFocusGrabProtocol(const wl_interface* iface, const int& ver
 }
 
 void CFocusGrabProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
-    const auto RESOURCE = m_managers.emplace_back(makeUnique<CHyprlandFocusGrabManagerV1>(client, ver, id)).get();
-    RESOURCE->setOnDestroy([this](CHyprlandFocusGrabManagerV1* p) { onManagerResourceDestroy(p->resource()); });
+    const auto RESOURCE = m_managers.emplace_back(makeUnique<CAbysslandFocusGrabManagerV1>(client, ver, id)).get();
+    RESOURCE->setOnDestroy([this](CAbysslandFocusGrabManagerV1* p) { onManagerResourceDestroy(p->resource()); });
 
-    RESOURCE->setDestroy([this](CHyprlandFocusGrabManagerV1* p) { onManagerResourceDestroy(p->resource()); });
-    RESOURCE->setCreateGrab([this](CHyprlandFocusGrabManagerV1* pMgr, uint32_t id) { onCreateGrab(pMgr, id); });
+    RESOURCE->setDestroy([this](CAbysslandFocusGrabManagerV1* p) { onManagerResourceDestroy(p->resource()); });
+    RESOURCE->setCreateGrab([this](CAbysslandFocusGrabManagerV1* pMgr, uint32_t id) { onCreateGrab(pMgr, id); });
 }
 
 void CFocusGrabProtocol::onManagerResourceDestroy(wl_resource* res) {
@@ -162,8 +162,8 @@ void CFocusGrabProtocol::destroyGrab(CFocusGrab* grab) {
     std::erase_if(m_grabs, [&](const auto& other) { return other.get() == grab; });
 }
 
-void CFocusGrabProtocol::onCreateGrab(CHyprlandFocusGrabManagerV1* pMgr, uint32_t id) {
-    m_grabs.push_back(makeUnique<CFocusGrab>(makeShared<CHyprlandFocusGrabV1>(pMgr->client(), pMgr->version(), id)));
+void CFocusGrabProtocol::onCreateGrab(CAbysslandFocusGrabManagerV1* pMgr, uint32_t id) {
+    m_grabs.push_back(makeUnique<CFocusGrab>(makeShared<CAbysslandFocusGrabV1>(pMgr->client(), pMgr->version(), id)));
     const auto RESOURCE = m_grabs.back().get();
 
     if UNLIKELY (!RESOURCE->good()) {

@@ -2,9 +2,9 @@
 #include "../defines.hpp"
 #include "../protocols/Tablet.hpp"
 #include "../protocols/core/Compositor.hpp"
-#include <aquamarine/input/Input.hpp>
+#include <abyssal/input/Input.hpp>
 
-SP<CTablet> CTablet::create(SP<Aquamarine::ITablet> tablet) {
+SP<CTablet> CTablet::create(SP<Abyssal::ITablet> tablet) {
     SP<CTablet> pTab = SP<CTablet>(new CTablet(tablet));
 
     pTab->m_self = pTab;
@@ -14,7 +14,7 @@ SP<CTablet> CTablet::create(SP<Aquamarine::ITablet> tablet) {
     return pTab;
 }
 
-SP<CTabletTool> CTabletTool::create(SP<Aquamarine::ITabletTool> tablet) {
+SP<CTabletTool> CTabletTool::create(SP<Abyssal::ITabletTool> tablet) {
     SP<CTabletTool> pTab = SP<CTabletTool>(new CTabletTool(tablet));
 
     pTab->m_self = pTab;
@@ -24,7 +24,7 @@ SP<CTabletTool> CTabletTool::create(SP<Aquamarine::ITabletTool> tablet) {
     return pTab;
 }
 
-SP<CTabletPad> CTabletPad::create(SP<Aquamarine::ITabletPad> tablet) {
+SP<CTabletPad> CTabletPad::create(SP<Abyssal::ITabletPad> tablet) {
     SP<CTabletPad> pTab = SP<CTabletPad>(new CTabletPad(tablet));
 
     pTab->m_self = pTab;
@@ -36,23 +36,23 @@ SP<CTabletPad> CTabletPad::create(SP<Aquamarine::ITabletPad> tablet) {
 
 static uint32_t aqUpdateToHl(uint32_t aq) {
     uint32_t result = 0;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_X)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_X)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_X;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_Y)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_Y)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_Y;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_DISTANCE)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_DISTANCE)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_DISTANCE;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_PRESSURE)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_PRESSURE)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_PRESSURE;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_TILT_X)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_TILT_X)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_TILT_X;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_TILT_Y)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_TILT_Y)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_TILT_Y;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_ROTATION)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_ROTATION)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_ROTATION;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_SLIDER)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_SLIDER)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_SLIDER;
-    if (aq & Aquamarine::AQ_TABLET_TOOL_AXIS_WHEEL)
+    if (aq & Abyssal::ABYSSAL_TABLET_TOOL_AXIS_WHEEL)
         result |= CTablet::eTabletToolAxes::HID_TABLET_TOOL_AXIS_WHEEL;
     return result;
 }
@@ -61,11 +61,11 @@ uint32_t CTablet::getCapabilities() {
     return HID_INPUT_CAPABILITY_POINTER | HID_INPUT_CAPABILITY_TABLET;
 }
 
-SP<Aquamarine::ITablet> CTablet::aq() {
+SP<Abyssal::ITablet> CTablet::aq() {
     return m_tablet.lock();
 }
 
-CTablet::CTablet(SP<Aquamarine::ITablet> tablet_) : m_tablet(tablet_) {
+CTablet::CTablet(SP<Abyssal::ITablet> tablet_) : m_tablet(tablet_) {
     if (!m_tablet)
         return;
 
@@ -74,7 +74,7 @@ CTablet::CTablet(SP<Aquamarine::ITablet> tablet_) : m_tablet(tablet_) {
         m_events.destroy.emit();
     });
 
-    m_listeners.axis = m_tablet->events.axis.listen([this](const Aquamarine::ITablet::SAxisEvent& event) {
+    m_listeners.axis = m_tablet->events.axis.listen([this](const Abyssal::ITablet::SAxisEvent& event) {
         m_tabletEvents.axis.emit(SAxisEvent{
             .tool        = event.tool,
             .tablet      = m_self.lock(),
@@ -91,7 +91,7 @@ CTablet::CTablet(SP<Aquamarine::ITablet> tablet_) : m_tablet(tablet_) {
         });
     });
 
-    m_listeners.proximity = m_tablet->events.proximity.listen([this](const Aquamarine::ITablet::SProximityEvent& event) {
+    m_listeners.proximity = m_tablet->events.proximity.listen([this](const Abyssal::ITablet::SProximityEvent& event) {
         m_tabletEvents.proximity.emit(SProximityEvent{
             .tool      = event.tool,
             .tablet    = m_self.lock(),
@@ -101,7 +101,7 @@ CTablet::CTablet(SP<Aquamarine::ITablet> tablet_) : m_tablet(tablet_) {
         });
     });
 
-    m_listeners.tip = m_tablet->events.tip.listen([this](const Aquamarine::ITablet::STipEvent& event) {
+    m_listeners.tip = m_tablet->events.tip.listen([this](const Abyssal::ITablet::STipEvent& event) {
         m_tabletEvents.tip.emit(STipEvent{
             .tool   = event.tool,
             .tablet = m_self.lock(),
@@ -111,7 +111,7 @@ CTablet::CTablet(SP<Aquamarine::ITablet> tablet_) : m_tablet(tablet_) {
         });
     });
 
-    m_listeners.button = m_tablet->events.button.listen([this](const Aquamarine::ITablet::SButtonEvent& event) {
+    m_listeners.button = m_tablet->events.button.listen([this](const Abyssal::ITablet::SButtonEvent& event) {
         m_tabletEvents.button.emit(SButtonEvent{
             .tool   = event.tool,
             .tablet = m_self.lock(),
@@ -136,7 +136,7 @@ uint32_t CTabletPad::getCapabilities() {
     return HID_INPUT_CAPABILITY_TABLET;
 }
 
-SP<Aquamarine::ITabletPad> CTabletPad::aq() {
+SP<Abyssal::ITabletPad> CTabletPad::aq() {
     return m_pad.lock();
 }
 
@@ -144,7 +144,7 @@ eHIDType CTabletPad::getType() {
     return HID_TYPE_TABLET_PAD;
 }
 
-CTabletPad::CTabletPad(SP<Aquamarine::ITabletPad> pad_) : m_pad(pad_) {
+CTabletPad::CTabletPad(SP<Abyssal::ITabletPad> pad_) : m_pad(pad_) {
     if (!m_pad)
         return;
 
@@ -153,7 +153,7 @@ CTabletPad::CTabletPad(SP<Aquamarine::ITabletPad> pad_) : m_pad(pad_) {
         m_events.destroy.emit();
     });
 
-    m_listeners.button = m_pad->events.button.listen([this](const Aquamarine::ITabletPad::SButtonEvent& event) {
+    m_listeners.button = m_pad->events.button.listen([this](const Abyssal::ITabletPad::SButtonEvent& event) {
         m_padEvents.button.emit(SButtonEvent{
             .timeMs = event.timeMs,
             .button = event.button,
@@ -163,20 +163,20 @@ CTabletPad::CTabletPad(SP<Aquamarine::ITabletPad> pad_) : m_pad(pad_) {
         });
     });
 
-    m_listeners.ring = m_pad->events.ring.listen([this](const Aquamarine::ITabletPad::SRingEvent& event) {
+    m_listeners.ring = m_pad->events.ring.listen([this](const Abyssal::ITabletPad::SRingEvent& event) {
         m_padEvents.ring.emit(SRingEvent{
             .timeMs   = event.timeMs,
-            .finger   = event.source == Aquamarine::ITabletPad::AQ_TABLET_PAD_RING_SOURCE_FINGER,
+            .finger   = event.source == Abyssal::ITabletPad::ABYSSAL_TABLET_PAD_RING_SOURCE_FINGER,
             .ring     = event.ring,
             .position = event.pos,
             .mode     = event.mode,
         });
     });
 
-    m_listeners.strip = m_pad->events.strip.listen([this](const Aquamarine::ITabletPad::SStripEvent& event) {
+    m_listeners.strip = m_pad->events.strip.listen([this](const Abyssal::ITabletPad::SStripEvent& event) {
         m_padEvents.strip.emit(SStripEvent{
             .timeMs   = event.timeMs,
-            .finger   = event.source == Aquamarine::ITabletPad::AQ_TABLET_PAD_STRIP_SOURCE_FINGER,
+            .finger   = event.source == Abyssal::ITabletPad::ABYSSAL_TABLET_PAD_STRIP_SOURCE_FINGER,
             .strip    = event.strip,
             .position = event.pos,
             .mode     = event.mode,
@@ -198,7 +198,7 @@ uint32_t CTabletTool::getCapabilities() {
     return HID_INPUT_CAPABILITY_POINTER | HID_INPUT_CAPABILITY_TABLET;
 }
 
-SP<Aquamarine::ITabletTool> CTabletTool::aq() {
+SP<Abyssal::ITabletTool> CTabletTool::aq() {
     return m_tool.lock();
 }
 
@@ -206,7 +206,7 @@ eHIDType CTabletTool::getType() {
     return HID_TYPE_TABLET_TOOL;
 }
 
-CTabletTool::CTabletTool(SP<Aquamarine::ITabletTool> tool_) : m_tool(tool_) {
+CTabletTool::CTabletTool(SP<Abyssal::ITabletTool> tool_) : m_tool(tool_) {
     if (!m_tool)
         return;
 
@@ -215,17 +215,17 @@ CTabletTool::CTabletTool(SP<Aquamarine::ITabletTool> tool_) : m_tool(tool_) {
         m_events.destroy.emit();
     });
 
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_TILT)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_TILT)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_TILT;
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_PRESSURE)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_PRESSURE)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_PRESSURE;
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_DISTANCE)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_DISTANCE)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_DISTANCE;
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_ROTATION)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_ROTATION)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_ROTATION;
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_SLIDER)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_SLIDER)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_SLIDER;
-    if (m_tool->capabilities & Aquamarine::ITabletTool::AQ_TABLET_TOOL_CAPABILITY_WHEEL)
+    if (m_tool->capabilities & Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_CAPABILITY_WHEEL)
         m_toolCapabilities |= HID_TABLET_TOOL_CAPABILITY_WHEEL;
 
     m_deviceName = std::format("{:x}-{:x}", m_tool->serial, m_tool->id);

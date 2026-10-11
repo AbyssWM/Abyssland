@@ -14,9 +14,9 @@
 #include "../../state/MonitorState.hpp"
 #include "../../state/WorkspaceState.hpp"
 
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList2.hpp>
-using namespace Hyprutils::String;
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList2.hpp>
+using namespace Abyssutils::String;
 
 using namespace Config;
 using namespace Config::Legacy;
@@ -357,7 +357,7 @@ static SDispatchResult workspaceopt(const std::string&) {
     return {.success = false, .error = "workspaceopt is deprecated"};
 }
 
-static SDispatchResult exitHyprland(const std::string&) {
+static SDispatchResult exitAbyssland(const std::string&) {
     return wrap(Actions::exit());
 }
 
@@ -823,7 +823,7 @@ CDispatcherTranslator::CDispatcherTranslator() {
     m_dispMap["movecursortocorner"]             = ::movecursortocorner;
     m_dispMap["movecursor"]                     = ::movecursor;
     m_dispMap["workspaceopt"]                   = ::workspaceopt;
-    m_dispMap["exit"]                           = ::exitHyprland;
+    m_dispMap["exit"]                           = ::exitAbyssland;
     m_dispMap["movecurrentworkspacetomonitor"]  = ::movecurrentworkspacetomonitor;
     m_dispMap["focusworkspaceoncurrentmonitor"] = ::focusworkspaceoncurrentmonitor;
     m_dispMap["moveworkspacetomonitor"]         = ::moveworkspacetomonitor;

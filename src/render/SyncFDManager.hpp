@@ -1,20 +1,20 @@
 #pragma once
 
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 namespace Render {
     class ISyncFDManager {
       public:
         virtual ~ISyncFDManager() = default;
 
-        Hyprutils::OS::CFileDescriptor&  fd();
-        Hyprutils::OS::CFileDescriptor&& takeFd();
+        Abyssutils::OS::CFileDescriptor&  fd();
+        Abyssutils::OS::CFileDescriptor&& takeFd();
         virtual bool                     isValid();
 
       protected:
         ISyncFDManager() = default;
 
-        Hyprutils::OS::CFileDescriptor m_fd;
+        Abyssutils::OS::CFileDescriptor m_fd;
         bool                           m_valid = false;
     };
 }

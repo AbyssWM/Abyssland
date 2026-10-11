@@ -20,7 +20,7 @@ extern "C" {
 #include <fstream>
 
 // clang-format off
-static std::vector<uint32_t> HYPR_XCURSOR_PIXELS = {
+static std::vector<uint32_t> ABYSS_XCURSOR_PIXELS = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x1b001816, 0x01000101, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x8e008173, 0x5f00564d, 0x16001412, 0x09000807, 0x00000000, 0x00000000,
@@ -98,16 +98,16 @@ static std::vector<uint32_t> HYPR_XCURSOR_PIXELS = {
 // clang-format on
 
 CXCursorManager::CXCursorManager() {
-    m_hyprCursor = makeShared<SXCursors>();
+    m_abyssCursor = makeShared<SXCursors>();
     SXCursorImage image;
     image.size    = {32, 32};
     image.hotspot = {3, 2};
-    image.pixels  = HYPR_XCURSOR_PIXELS;
+    image.pixels  = ABYSS_XCURSOR_PIXELS;
     image.delay   = 0;
 
-    m_hyprCursor->images.push_back(image);
-    m_hyprCursor->shape = "left_ptr";
-    m_defaultCursor     = m_hyprCursor;
+    m_abyssCursor->images.push_back(image);
+    m_abyssCursor->shape = "left_ptr";
+    m_defaultCursor     = m_abyssCursor;
 }
 
 void CXCursorManager::loadTheme(std::string const& name, int size, float scale) {
@@ -136,7 +136,7 @@ void CXCursorManager::loadTheme(std::string const& name, int size, float scale) 
 
     if (m_cursors.empty()) {
         Log::logger->log(Log::ERR, "XCursor failed finding any shapes in theme \"{}\".", m_themeName);
-        m_defaultCursor = m_hyprCursor;
+        m_defaultCursor = m_abyssCursor;
         return;
     }
 

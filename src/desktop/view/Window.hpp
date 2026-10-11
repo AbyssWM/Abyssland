@@ -11,7 +11,7 @@
 #include "../../helpers/TagKeeper.hpp"
 #include "../../macros.hpp"
 #include "../../managers/XWaylandManager.hpp"
-#include "../../render/decorations/IHyprWindowDecoration.hpp"
+#include "../../render/decorations/IAbyssWindowDecoration.hpp"
 #include "../../render/transformer/Transformer.hpp"
 #include "../DesktopTypes.hpp"
 #include "../types/MultiAnimatedVariable.hpp"
@@ -194,7 +194,7 @@ namespace Desktop::View {
         uint64_t m_suppressedEvents = SUPPRESS_NONE;
 
         // Armed on FSMODE_FULLSCREEN exit to swallow the set_maximized that clients send to restore state.
-        // Hyprland sends XDG_TOPLEVEL_STATE_MAXIMIZED to tiled windows to suppress CSD.
+        // Abyssland sends XDG_TOPLEVEL_STATE_MAXIMIZED to tiled windows to suppress CSD.
         // Clients echoing it back would enter FSMODE_MAXIMIZED.
         bool m_suppressNextMaximize = false;
 
@@ -229,8 +229,8 @@ namespace Desktop::View {
 
         // Window decorations
         // TODO: make this a SP.
-        std::vector<UP<IHyprWindowDecoration>> m_windowDecorations;
-        std::vector<IHyprWindowDecoration*>    m_decosToRemove;
+        std::vector<UP<IAbyssWindowDecoration>> m_windowDecorations;
+        std::vector<IAbyssWindowDecoration*>    m_decosToRemove;
 
         // Special render data, rules, etc
         UP<Desktop::Rule::CWindowRuleApplicator> m_ruleApplicator;
@@ -301,13 +301,13 @@ namespace Desktop::View {
         CBox                   getWindowBoxUnified(uint64_t props);
         SBoxExtents            getWindowExtentsUnified(uint64_t props);
         CBox                   getWindowIdealBoundingBoxIgnoreReserved();
-        void                   addWindowDeco(UP<IHyprWindowDecoration> deco);
+        void                   addWindowDeco(UP<IAbyssWindowDecoration> deco);
         void                   updateWindowDecos();
-        void                   removeWindowDeco(IHyprWindowDecoration* deco);
+        void                   removeWindowDeco(IAbyssWindowDecoration* deco);
         void                   uncacheWindowDecos();
         bool                   checkInputOnDecos(const eInputType, const Vector2D&, std::any = {});
         pid_t                  getPID();
-        IHyprWindowDecoration* getDecorationByType(eDecorationType);
+        IAbyssWindowDecoration* getDecorationByType(eDecorationType);
         void                   updateToplevel();
         void                   updateSurfaceScaleTransformDetails(bool force = false);
         void                   moveToWorkspace(PHLWORKSPACE);
@@ -381,9 +381,9 @@ namespace Desktop::View {
         bool                              isScrollTouchpadOverridden();
         void                              updateWindowData();
         void                              updateWindowData(const Config::CWorkspaceRule&);
-        void                              onBorderAngleAnimEnd(WP<Hyprutils::Animation::CBaseAnimatedVariable> pav);
-        void                              onShadowAngleAnimEnd(WP<Hyprutils::Animation::CBaseAnimatedVariable> pav);
-        void                              onGlowAngleAnimEnd(WP<Hyprutils::Animation::CBaseAnimatedVariable> pav);
+        void                              onBorderAngleAnimEnd(WP<Abyssutils::Animation::CBaseAnimatedVariable> pav);
+        void                              onShadowAngleAnimEnd(WP<Abyssutils::Animation::CBaseAnimatedVariable> pav);
+        void                              onGlowAngleAnimEnd(WP<Abyssutils::Animation::CBaseAnimatedVariable> pav);
         bool                              isInCurvedCorner(double x, double y);
         bool                              hasPopupAt(const Vector2D& pos);
         int                               popupsCount();
@@ -445,19 +445,19 @@ namespace Desktop::View {
 
         // make private once we move listeners to inside CWindow
         struct {
-            CHyprSignalListener map;
-            CHyprSignalListener ack;
-            CHyprSignalListener unmap;
-            CHyprSignalListener commit;
-            CHyprSignalListener destroy;
-            CHyprSignalListener activate;
-            CHyprSignalListener configureRequest;
-            CHyprSignalListener setGeometry;
-            CHyprSignalListener updateState;
-            CHyprSignalListener updateMetadata;
-            CHyprSignalListener resourceChange;
-            CHyprSignalListener xdgMoveRequest;
-            CHyprSignalListener xdgResizeRequest;
+            CAbyssSignalListener map;
+            CAbyssSignalListener ack;
+            CAbyssSignalListener unmap;
+            CAbyssSignalListener commit;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener activate;
+            CAbyssSignalListener configureRequest;
+            CAbyssSignalListener setGeometry;
+            CAbyssSignalListener updateState;
+            CAbyssSignalListener updateMetadata;
+            CAbyssSignalListener resourceChange;
+            CAbyssSignalListener xdgMoveRequest;
+            CAbyssSignalListener xdgResizeRequest;
         } m_listeners;
 
       private:

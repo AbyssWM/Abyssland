@@ -21,13 +21,13 @@ class CVirtualKeyboardV1Resource;
 class CVirtualPointerV1Resource;
 class IKeyboard;
 
-AQUAMARINE_FORWARD(IPointer);
-AQUAMARINE_FORWARD(IKeyboard);
-AQUAMARINE_FORWARD(ITouch);
-AQUAMARINE_FORWARD(ISwitch);
-AQUAMARINE_FORWARD(ITablet);
-AQUAMARINE_FORWARD(ITabletTool);
-AQUAMARINE_FORWARD(ITabletPad);
+ABYSSAL_FORWARD(IPointer);
+ABYSSAL_FORWARD(IKeyboard);
+ABYSSAL_FORWARD(ITouch);
+ABYSSAL_FORWARD(ISwitch);
+ABYSSAL_FORWARD(ITablet);
+ABYSSAL_FORWARD(ITabletTool);
+ABYSSAL_FORWARD(ITabletPad);
 
 enum eClickBehaviorMode : uint8_t {
     CLICKMODE_DEFAULT = 0,
@@ -98,15 +98,15 @@ class CInputManager {
     void               onKeyboardMod(SP<IKeyboard>);
 
     void               newKeyboard(SP<IKeyboard>);
-    void               newKeyboard(SP<Aquamarine::IKeyboard>);
+    void               newKeyboard(SP<Abyssal::IKeyboard>);
     void               newVirtualKeyboard(SP<CVirtualKeyboardV1Resource>);
     void               newMouse(SP<IPointer>);
-    void               newMouse(SP<Aquamarine::IPointer>);
+    void               newMouse(SP<Abyssal::IPointer>);
     void               newVirtualMouse(SP<CVirtualPointerV1Resource>);
-    void               newTouchDevice(SP<Aquamarine::ITouch>);
-    void               newSwitch(SP<Aquamarine::ISwitch>);
-    void               newTabletPad(SP<Aquamarine::ITabletPad>);
-    void               newTablet(SP<Aquamarine::ITablet>);
+    void               newTouchDevice(SP<Abyssal::ITouch>);
+    void               newSwitch(SP<Abyssal::ISwitch>);
+    void               newTabletPad(SP<Abyssal::ITabletPad>);
+    void               newTablet(SP<Abyssal::ITablet>);
     void               destroyTouchDevice(SP<ITouch>);
     void               destroyKeyboard(SP<IKeyboard>);
     void               destroyPointer(SP<IPointer>);
@@ -219,12 +219,12 @@ class CInputManager {
   private:
     // Listeners
     struct {
-        CHyprSignalListener setCursorShape;
-        CHyprSignalListener newIdleInhibitor;
-        CHyprSignalListener newVirtualKeyboard;
-        CHyprSignalListener newVirtualMouse;
-        CHyprSignalListener setCursor;
-        CHyprSignalListener overrideChanged;
+        CAbyssSignalListener setCursorShape;
+        CAbyssSignalListener newIdleInhibitor;
+        CAbyssSignalListener newVirtualKeyboard;
+        CAbyssSignalListener newVirtualMouse;
+        CAbyssSignalListener setCursor;
+        CAbyssSignalListener overrideChanged;
     } m_listeners;
 
     bool                 m_cursorImageOverridden = false;
@@ -249,7 +249,7 @@ class CInputManager {
     void               mouseMoveUnified(uint32_t, bool refocus = false, bool mouse = false, std::optional<Vector2D> overridePos = std::nullopt);
     void               recheckMouseWarpOnMouseInput();
 
-    SP<CTabletTool>    ensureTabletToolPresent(SP<Aquamarine::ITabletTool>);
+    SP<CTabletTool>    ensureTabletToolPresent(SP<Abyssal::ITabletTool>);
 
     void               applyConfigToKeyboard(SP<IKeyboard>);
 
@@ -274,7 +274,7 @@ class CInputManager {
     struct SIdleInhibitor {
         SP<CIdleInhibitor>  inhibitor;
         bool                nonDesktop = false;
-        CHyprSignalListener surfaceDestroyListener;
+        CAbyssSignalListener surfaceDestroyListener;
     };
     std::vector<UP<SIdleInhibitor>> m_idleInhibitors;
 

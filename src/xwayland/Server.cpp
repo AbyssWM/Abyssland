@@ -25,7 +25,7 @@
 #include "../defines.hpp"
 #include "../Compositor.hpp"
 #include "../pointer/cursor/CursorManager.hpp"
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 // Constants
 constexpr int          SOCKET_DIR_PERMISSIONS = 0755;

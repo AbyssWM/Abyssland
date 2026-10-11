@@ -5,19 +5,19 @@
 #include "../Framebuffer.hpp"
 #include "GLFramebuffer.hpp"
 #include "../Renderbuffer.hpp"
-#include <hyprutils/memory/SharedPtr.hpp>
-#include <hyprutils/signal/Listener.hpp>
-#include <hyprutils/signal/Signal.hpp>
+#include <abyssutils/memory/SharedPtr.hpp>
+#include <abyssutils/signal/Listener.hpp>
+#include <abyssutils/signal/Signal.hpp>
 
 #include <dlfcn.h>
 
 using namespace Render::GL;
 
 CGLRenderbuffer::~CGLRenderbuffer() {
-    if (!g_pCompositor || g_pCompositor->m_isShuttingDown || !g_pHyprRenderer)
+    if (!g_pCompositor || g_pCompositor->m_isShuttingDown || !g_pAbyssRenderer)
         return;
 
-    g_pHyprOpenGL->makeEGLCurrent();
+    g_pAbyssOpenGL->makeEGLCurrent();
 
     if (m_framebuffer) {
         unbind();
@@ -28,13 +28,13 @@ CGLRenderbuffer::~CGLRenderbuffer() {
         glDeleteRenderbuffers(1, &m_rbo);
 
     if (m_image != EGL_NO_IMAGE_KHR)
-        g_pHyprOpenGL->m_proc.eglDestroyImageKHR(g_pHyprOpenGL->m_eglDisplay, m_image);
+        g_pAbyssOpenGL->m_proc.eglDestroyImageKHR(g_pAbyssOpenGL->m_eglDisplay, m_image);
 }
 
-CGLRenderbuffer::CGLRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format) : IRenderbuffer(buffer, format) {
+CGLRenderbuffer::CGLRenderbuffer(SP<Abyssal::IBuffer> buffer, uint32_t format) : IRenderbuffer(buffer, format) {
     auto dma = buffer->dmabuf();
 
-    m_image = g_pHyprOpenGL->createEGLImage(dma);
+    m_image = g_pAbyssOpenGL->createEGLImage(dma);
     if (m_image == EGL_NO_IMAGE_KHR) {
         Log::logger->log(Log::ERR, "rb: createEGLImage failed");
         return;
@@ -42,7 +42,7 @@ CGLRenderbuffer::CGLRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format
 
     glGenRenderbuffers(1, &m_rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-    g_pHyprOpenGL->m_proc.glEGLImageTargetRenderbufferStorageOES(GL_RENDERBUFFER, m_image);
+    g_pAbyssOpenGL->m_proc.glEGLImageTargetRenderbufferStorageOES(GL_RENDERBUFFER, m_image);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     m_framebuffer = makeShared<CGLFramebuffer>();
@@ -60,14 +60,14 @@ CGLRenderbuffer::CGLRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format
 
     GLFB(m_framebuffer)->unbind();
 
-    m_listeners.destroyBuffer = buffer->events.destroy.listen([this] { g_pHyprRenderer->onRenderbufferDestroy(this); });
+    m_listeners.destroyBuffer = buffer->events.destroy.listen([this] { g_pAbyssRenderer->onRenderbufferDestroy(this); });
 
     m_good = true;
 }
 
 void CGLRenderbuffer::bind() {
-    g_pHyprOpenGL->makeEGLCurrent();
-    g_pHyprRenderer->bindFB(m_framebuffer);
+    g_pAbyssOpenGL->makeEGLCurrent();
+    g_pAbyssRenderer->bindFB(m_framebuffer);
 }
 
 void CGLRenderbuffer::unbind() {

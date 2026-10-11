@@ -18,7 +18,7 @@
 #include "../../helpers/math/Math.hpp"
 #include "../types/SurfaceRole.hpp"
 
-constexpr const char* HL_SEAT_NAME = "Hyprland";
+constexpr const char* HL_SEAT_NAME = "Abyssland";
 
 class IKeyboard;
 class CWLSurfaceResource;
@@ -64,7 +64,7 @@ class CWLTouchResource {
     int                    m_fingers = 0;
 
     struct {
-        CHyprSignalListener destroySurface;
+        CAbyssSignalListener destroySurface;
     } m_listeners;
 };
 
@@ -106,7 +106,7 @@ class CWLPointerResource {
     Vector2D               fixPosWithWlFixed(const Vector2D& pos);
 
     struct {
-        CHyprSignalListener destroySurface;
+        CAbyssSignalListener destroySurface;
     } m_listeners;
 
     friend class CWLSeatResource;
@@ -131,7 +131,7 @@ class CWLKeyboardResource {
     WP<CWLSurfaceResource> m_currentSurface;
 
     struct {
-        CHyprSignalListener destroySurface;
+        CAbyssSignalListener destroySurface;
     } m_listeners;
 
     std::string m_lastKeymap  = "<none>";

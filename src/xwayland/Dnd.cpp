@@ -8,7 +8,7 @@
 #include "../desktop/view/WLSurface.hpp"
 #include "../protocols/core/Compositor.hpp"
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 #define PROPERTY_FORMAT_32BIT 32
 #define PROPERTY_LENGTH       1
@@ -17,11 +17,11 @@ using namespace Hyprutils::OS;
 #ifndef NO_XWAYLAND
 static xcb_atom_t dndActionToAtom(uint32_t actions) {
     if (actions & WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY)
-        return HYPRATOMS["XdndActionCopy"];
+        return ABYSSATOMS["XdndActionCopy"];
     else if (actions & WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE)
-        return HYPRATOMS["XdndActionMove"];
+        return ABYSSATOMS["XdndActionMove"];
     else if (actions & WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK)
-        return HYPRATOMS["XdndActionAsk"];
+        return ABYSSATOMS["XdndActionAsk"];
 
     return XCB_ATOM_NONE;
 }
@@ -43,7 +43,7 @@ void CX11DataDevice::sendDndEvent(xcb_window_t targetWindow, xcb_atom_t type, xc
 xcb_window_t CX11DataDevice::getProxyWindow(xcb_window_t window) {
     xcb_window_t              targetWindow = window;
     xcb_get_property_cookie_t proxyCookie =
-        xcb_get_property((g_pXWayland->m_wm->getConnection()), PROPERTY_OFFSET, window, HYPRATOMS["XdndProxy"], XCB_ATOM_WINDOW, PROPERTY_OFFSET, PROPERTY_LENGTH);
+        xcb_get_property((g_pXWayland->m_wm->getConnection()), PROPERTY_OFFSET, window, ABYSSATOMS["XdndProxy"], XCB_ATOM_WINDOW, PROPERTY_OFFSET, PROPERTY_LENGTH);
     xcb_get_property_reply_t* proxyReply = xcb_get_property_reply(g_pXWayland->m_wm->getConnection(), proxyCookie, nullptr);
 
     const auto                isValidPropertyReply = [](xcb_get_property_reply_t* reply) {
@@ -54,7 +54,7 @@ xcb_window_t CX11DataDevice::getProxyWindow(xcb_window_t window) {
         xcb_window_t              proxyWindow = *sc<xcb_window_t*>(xcb_get_property_value(proxyReply));
 
         xcb_get_property_cookie_t proxyVerifyCookie =
-            xcb_get_property(g_pXWayland->m_wm->getConnection(), PROPERTY_OFFSET, proxyWindow, HYPRATOMS["XdndProxy"], XCB_ATOM_WINDOW, PROPERTY_OFFSET, PROPERTY_LENGTH);
+            xcb_get_property(g_pXWayland->m_wm->getConnection(), PROPERTY_OFFSET, proxyWindow, ABYSSATOMS["XdndProxy"], XCB_ATOM_WINDOW, PROPERTY_OFFSET, PROPERTY_LENGTH);
         xcb_get_property_reply_t* proxyVerifyReply = xcb_get_property_reply(g_pXWayland->m_wm->getConnection(), proxyVerifyCookie, nullptr);
 
         if (isValidPropertyReply(proxyVerifyReply)) {
@@ -121,10 +121,10 @@ void CX11DataDevice::sendEnter(uint32_t serial, SP<CWLSurfaceResource> surf, con
         targets.push_back(g_pXWayland->m_wm->mimeToAtom(m));
     }
 
-    xcb_change_property(g_pXWayland->m_wm->getConnection(), XCB_PROP_MODE_REPLACE, g_pXWayland->m_wm->m_dndSelection.window, HYPRATOMS["XdndTypeList"], XCB_ATOM_ATOM, 32,
+    xcb_change_property(g_pXWayland->m_wm->getConnection(), XCB_PROP_MODE_REPLACE, g_pXWayland->m_wm->m_dndSelection.window, ABYSSATOMS["XdndTypeList"], XCB_ATOM_ATOM, 32,
                         targets.size(), targets.data());
 
-    xcb_set_selection_owner(g_pXWayland->m_wm->getConnection(), g_pXWayland->m_wm->m_dndSelection.window, HYPRATOMS["XdndSelection"], XCB_TIME_CURRENT_TIME);
+    xcb_set_selection_owner(g_pXWayland->m_wm->getConnection(), g_pXWayland->m_wm->m_dndSelection.window, ABYSSATOMS["XdndSelection"], XCB_TIME_CURRENT_TIME);
     xcb_flush(g_pXWayland->m_wm->getConnection());
 
     xcb_window_t              targetWindow = getProxyWindow(XSURF->m_xID);
@@ -134,7 +134,7 @@ void CX11DataDevice::sendEnter(uint32_t serial, SP<CWLSurfaceResource> surf, con
     data.data32[1]                 = XDND_VERSION << 24;
     data.data32[1] |= 1;
 
-    sendDndEvent(targetWindow, HYPRATOMS["XdndEnter"], data);
+    sendDndEvent(targetWindow, ABYSSATOMS["XdndEnter"], data);
 
     m_lastSurface = XSURF;
     m_lastOffer   = offer;
@@ -167,7 +167,7 @@ void CX11DataDevice::sendLeave() {
     xcb_client_message_data_t data = {{0}};
     data.data32[0]                 = g_pXWayland->m_wm->m_dndSelection.window;
 
-    sendDndEvent(targetWindow, HYPRATOMS["XdndLeave"], data);
+    sendDndEvent(targetWindow, ABYSSATOMS["XdndLeave"], data);
 
     cleanupState();
 #endif
@@ -189,7 +189,7 @@ void CX11DataDevice::sendMotion(uint32_t timeMs, const Vector2D& local) {
     data.data32[3]                 = timeMs;
     data.data32[4]                 = dndActionToAtom(m_lastOffer->getSource()->actions());
 
-    sendDndEvent(targetWindow, HYPRATOMS["XdndPosition"], data);
+    sendDndEvent(targetWindow, ABYSSATOMS["XdndPosition"], data);
 
     m_lastTime = timeMs;
 #endif
@@ -208,7 +208,7 @@ void CX11DataDevice::sendDrop() {
     data.data32[0]                 = g_pXWayland->m_wm->m_dndSelection.window;
     data.data32[2]                 = m_lastTime;
 
-    sendDndEvent(targetWindow, HYPRATOMS["XdndDrop"], data);
+    sendDndEvent(targetWindow, ABYSSATOMS["XdndDrop"], data);
 
     cleanupState();
 #endif
@@ -291,7 +291,7 @@ void CX11DataDevice::forceCleanupDnd() {
         }
     }
 
-    xcb_set_selection_owner(g_pXWayland->m_wm->getConnection(), XCB_ATOM_NONE, HYPRATOMS["XdndSelection"], XCB_TIME_CURRENT_TIME);
+    xcb_set_selection_owner(g_pXWayland->m_wm->getConnection(), XCB_ATOM_NONE, ABYSSATOMS["XdndSelection"], XCB_TIME_CURRENT_TIME);
     xcb_flush(g_pXWayland->m_wm->getConnection());
 
     cleanupState();

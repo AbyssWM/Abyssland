@@ -1,6 +1,6 @@
 #include "ContentType.hpp"
 #include "debug/log/Logger.hpp"
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 #include <drm_mode.h>
 #include <format>
 
@@ -9,7 +9,7 @@ namespace NContentType {
         {"none", CONTENT_TYPE_NONE}, {"photo", CONTENT_TYPE_PHOTO}, {"video", CONTENT_TYPE_VIDEO}, {"game", CONTENT_TYPE_GAME}};
 
     eContentType fromString(const std::string name) {
-        if (Hyprutils::String::isNumber(name)) {
+        if (Abyssutils::String::isNumber(name)) {
             try {
                 auto n = std::stoi(name);
                 if (n >= 0 && n <= 3)

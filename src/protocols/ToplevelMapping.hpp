@@ -2,14 +2,14 @@
 
 #include <vector>
 #include "WaylandProtocol.hpp"
-#include "hyprland-toplevel-mapping-v1.hpp"
+#include "abyssland-toplevel-mapping-v1.hpp"
 
 class CToplevelWindowMappingHandle {
   public:
-    CToplevelWindowMappingHandle(SP<CHyprlandToplevelWindowMappingHandleV1> resource_);
+    CToplevelWindowMappingHandle(SP<CAbysslandToplevelWindowMappingHandleV1> resource_);
 
   private:
-    SP<CHyprlandToplevelWindowMappingHandleV1> m_resource;
+    SP<CAbysslandToplevelWindowMappingHandleV1> m_resource;
 
     friend class CToplevelMappingManager;
     friend class CToplevelMappingProtocol;
@@ -17,12 +17,12 @@ class CToplevelWindowMappingHandle {
 
 class CToplevelMappingManager {
   public:
-    CToplevelMappingManager(SP<CHyprlandToplevelMappingManagerV1> resource_);
+    CToplevelMappingManager(SP<CAbysslandToplevelMappingManagerV1> resource_);
 
     bool good() const;
 
   private:
-    SP<CHyprlandToplevelMappingManagerV1> m_resource;
+    SP<CAbysslandToplevelMappingManagerV1> m_resource;
 };
 
 class CToplevelMappingProtocol : IWaylandProtocol {
@@ -33,7 +33,7 @@ class CToplevelMappingProtocol : IWaylandProtocol {
 
   private:
     void                                          onManagerResourceDestroy(CToplevelMappingManager* mgr);
-    void                                          destroyHandle(CHyprlandToplevelWindowMappingHandleV1* handle);
+    void                                          destroyHandle(CAbysslandToplevelWindowMappingHandleV1* handle);
 
     std::vector<UP<CToplevelMappingManager>>      m_managers;
     std::vector<SP<CToplevelWindowMappingHandle>> m_handles;

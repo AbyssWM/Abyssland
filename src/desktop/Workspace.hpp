@@ -83,7 +83,7 @@ class CWorkspace {
   private:
     void                init(PHLWORKSPACE self);
 
-    CHyprSignalListener m_focusedWindowHook;
+    CAbyssSignalListener m_focusedWindowHook;
     bool                m_inert = true;
 
     SP<CWorkspace>      m_selfPersistent; // for persistent workspaces.

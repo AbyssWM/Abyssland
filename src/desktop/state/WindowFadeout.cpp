@@ -39,7 +39,7 @@ static bool shouldBlurWindow(PHLWINDOW window) {
 
 static void damageFadeoutMonitor(PHLMONITORREF monitor) {
     if (const auto MONITOR = monitor.lock(); MONITOR)
-        g_pHyprRenderer->damageMonitor(MONITOR);
+        g_pAbyssRenderer->damageMonitor(MONITOR);
 }
 
 template <typename T>

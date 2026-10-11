@@ -116,9 +116,9 @@ class CXWaylandSurface {
     void recheckSupportedProps();
 
     struct {
-        CHyprSignalListener destroyResource;
-        CHyprSignalListener destroySurface;
-        CHyprSignalListener commitSurface;
+        CAbyssSignalListener destroyResource;
+        CAbyssSignalListener destroySurface;
+        CAbyssSignalListener commitSurface;
     } m_listeners;
 
     std::unordered_map<xcb_atom_t, bool> m_supportedProps;

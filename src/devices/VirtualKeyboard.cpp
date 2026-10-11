@@ -55,7 +55,7 @@ bool CVirtualKeyboard::isVirtual() {
     return true;
 }
 
-SP<Aquamarine::IKeyboard> CVirtualKeyboard::aq() {
+SP<Abyssal::IKeyboard> CVirtualKeyboard::aq() {
     return nullptr;
 }
 

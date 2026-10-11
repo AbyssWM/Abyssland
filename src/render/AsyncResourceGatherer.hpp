@@ -1,8 +1,8 @@
 #pragma once
 
-#include <hyprgraphics/resource/AsyncResourceGatherer.hpp>
-#include <hyprgraphics/resource/resources/ImageResource.hpp>
+#include <abyssgraphics/resource/AsyncResourceGatherer.hpp>
+#include <abyssgraphics/resource/resources/ImageResource.hpp>
 
 #include "../helpers/memory/Memory.hpp"
 
-inline UP<Hyprgraphics::CAsyncResourceGatherer> g_pAsyncResourceGatherer;
+inline UP<Abyssgraphics::CAsyncResourceGatherer> g_pAsyncResourceGatherer;

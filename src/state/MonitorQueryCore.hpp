@@ -8,7 +8,7 @@
 #include <span>
 #include <string_view>
 
-namespace Aquamarine {
+namespace Abyssal {
     class IOutput;
 }
 
@@ -28,7 +28,7 @@ namespace State {
         CMonitorQueryCore&&            selector(std::string_view str) &&;
         CMonitorQueryCore&&            configString(std::string_view str) &&;
         CMonitorQueryCore&&            vec(Vector2D vec) &&;
-        CMonitorQueryCore&&            output(SP<Aquamarine::IOutput> output) &&;
+        CMonitorQueryCore&&            output(SP<Abyssal::IOutput> output) &&;
         CMonitorQueryCore&&            inDirection(Math::eDirection dir) &&;
         CMonitorQueryCore&&            relativeTo(SP<Monitor::IMonitorQueryable> reference) &&;
 
@@ -43,7 +43,7 @@ namespace State {
 
         std::optional<MONITORID>                        m_id;
         std::optional<std::string_view>                 m_name, m_desc, m_str, m_configString;
-        std::optional<SP<Aquamarine::IOutput>>          m_output;
+        std::optional<SP<Abyssal::IOutput>>          m_output;
         SP<Monitor::IMonitorQueryable>                  m_relativeTo;
         std::optional<Math::eDirection>                 m_dir;
         std::optional<Vector2D>                         m_vec;

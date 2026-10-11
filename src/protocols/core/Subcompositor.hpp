@@ -58,7 +58,7 @@ class CWLSubsurfaceResource {
     void              unlinkFromParent();
 
     struct {
-        CHyprSignalListener commitSurface;
+        CAbyssSignalListener commitSurface;
     } m_listeners;
 };
 

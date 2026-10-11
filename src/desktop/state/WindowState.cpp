@@ -56,7 +56,7 @@ void CWindowState::moveToZ(PHLWINDOW w, bool top) {
             moveToBottom(pw);
 
         if (pw->m_isMapped)
-            g_pHyprRenderer->damageMonitor(pw->m_monitor.lock());
+            g_pAbyssRenderer->damageMonitor(pw->m_monitor.lock());
     };
 
     if (!w->m_isX11) {

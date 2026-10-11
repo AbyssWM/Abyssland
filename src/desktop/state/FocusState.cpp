@@ -41,7 +41,7 @@ static SFullscreenWorkspaceFocusResult onFullscreenWorkspaceFocusWindow(PHLWINDO
         pWindow->m_allowedOverFullscreen = true;
         pWindow->updateFullscreenInputState();
         Animation::Workspace::setFullscreenFloatingFade(pWindow, 1.F);
-        g_pHyprRenderer->damageWindow(pWindow);
+        g_pAbyssRenderer->damageWindow(pWindow);
         return {};
     }
 
@@ -136,8 +136,8 @@ void CFocusState::rawWindowFocus(PHLWINDOW pWindow, eFocusReason reason, SP<CWLS
 
         g_pSeatManager->setKeyboardFocus(nullptr);
 
-        g_pEventManager->postEvent(SHyprIPCEvent{"activewindow", ","});
-        g_pEventManager->postEvent(SHyprIPCEvent{"activewindowv2", ""});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activewindow", ","});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activewindowv2", ""});
 
         Event::bus()->m_events.window.active.emit(nullptr, reason);
 
@@ -206,8 +206,8 @@ void CFocusState::rawWindowFocus(PHLWINDOW pWindow, eFocusReason reason, SP<CWLS
         pWindow->m_isUrgent = false;
 
     // Send an event
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindow", .data = pWindow->m_class + "," + pWindow->m_title});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindow", .data = pWindow->m_class + "," + pWindow->m_title});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindowv2", .data = std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
 
     Event::bus()->m_events.window.active.emit(pWindow, reason);
 
@@ -240,8 +240,8 @@ void CFocusState::rawSurfaceFocus(SP<CWLSurfaceResource> pSurface, PHLWINDOW pWi
 
     if (!pSurface) {
         g_pSeatManager->setKeyboardFocus(nullptr);
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindow", .data = ","});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "activewindowv2", .data = ""});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindow", .data = ","});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "activewindowv2", .data = ""});
         Event::bus()->m_events.input.keyboard.focus.emit(nullptr);
         m_focusSurface.reset();
         return;
@@ -284,8 +284,8 @@ void CFocusState::rawMonitorFocus(PHLMONITOR pMonitor) {
     const auto WORKSPACE_ID   = PWORKSPACE ? std::to_string(PWORKSPACE->m_id) : std::to_string(WORKSPACE_INVALID);
     const auto WORKSPACE_NAME = PWORKSPACE ? PWORKSPACE->m_name : "?";
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "focusedmon", .data = pMonitor->m_name + "," + WORKSPACE_NAME});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "focusedmonv2", .data = pMonitor->m_name + "," + WORKSPACE_ID});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "focusedmon", .data = pMonitor->m_name + "," + WORKSPACE_NAME});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "focusedmonv2", .data = pMonitor->m_name + "," + WORKSPACE_ID});
 
     Event::bus()->m_events.monitor.focused.emit(pMonitor);
     m_focusMonitor = pMonitor;

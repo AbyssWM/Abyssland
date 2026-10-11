@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/cli/Logger.hpp>
+#include <abyssutils/cli/Logger.hpp>
 #include <utility>
 
 #include "../../helpers/memory/Memory.hpp"
@@ -15,15 +15,15 @@ namespace Log {
         void initIS(const std::string_view& IS);
         void initCallbacks();
 
-        void log(Hyprutils::CLI::eLogLevel level, const std::string_view& str);
+        void log(Abyssutils::CLI::eLogLevel level, const std::string_view& str);
 
         template <typename... Args>
         //NOLINTNEXTLINE
-        void log(Hyprutils::CLI::eLogLevel level, std::format_string<Args...> fmt, Args&&... args) {
+        void log(Abyssutils::CLI::eLogLevel level, std::format_string<Args...> fmt, Args&&... args) {
             if (!m_logsEnabled)
                 return;
 
-            if (level == Hyprutils::CLI::LOG_TRACE && !m_isTrace)
+            if (level == Abyssutils::CLI::LOG_TRACE && !m_isTrace)
                 return;
 
             std::string logMsg = "";
@@ -33,12 +33,12 @@ namespace Log {
         }
 
         const std::string&       rolling();
-        Hyprutils::CLI::CLogger& hu();
+        Abyssutils::CLI::CLogger& hu();
 
       private:
         void                    recheckCfg();
 
-        Hyprutils::CLI::CLogger m_logger;
+        Abyssutils::CLI::CLogger m_logger;
         bool                    m_logsEnabled = true;
         bool                    m_isTrace     = false;
     };
@@ -46,10 +46,10 @@ namespace Log {
     inline UP<CLogger> logger = makeUnique<CLogger>();
 
     //
-    inline constexpr const Hyprutils::CLI::eLogLevel DEBUG = Hyprutils::CLI::LOG_DEBUG;
-    inline constexpr const Hyprutils::CLI::eLogLevel WARN  = Hyprutils::CLI::LOG_WARN;
-    inline constexpr const Hyprutils::CLI::eLogLevel ERR   = Hyprutils::CLI::LOG_ERR;
-    inline constexpr const Hyprutils::CLI::eLogLevel CRIT  = Hyprutils::CLI::LOG_CRIT;
-    inline constexpr const Hyprutils::CLI::eLogLevel INFO  = Hyprutils::CLI::LOG_DEBUG;
-    inline constexpr const Hyprutils::CLI::eLogLevel TRACE = Hyprutils::CLI::LOG_TRACE;
+    inline constexpr const Abyssutils::CLI::eLogLevel DEBUG = Abyssutils::CLI::LOG_DEBUG;
+    inline constexpr const Abyssutils::CLI::eLogLevel WARN  = Abyssutils::CLI::LOG_WARN;
+    inline constexpr const Abyssutils::CLI::eLogLevel ERR   = Abyssutils::CLI::LOG_ERR;
+    inline constexpr const Abyssutils::CLI::eLogLevel CRIT  = Abyssutils::CLI::LOG_CRIT;
+    inline constexpr const Abyssutils::CLI::eLogLevel INFO  = Abyssutils::CLI::LOG_DEBUG;
+    inline constexpr const Abyssutils::CLI::eLogLevel TRACE = Abyssutils::CLI::LOG_TRACE;
 };

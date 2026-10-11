@@ -33,7 +33,7 @@ class CFractionalScaleAddon {
     WP<CWLSurfaceResource>   m_surface;
 
     struct {
-        CHyprSignalListener surfaceUnmap;
+        CAbyssSignalListener surfaceUnmap;
     } m_listeners;
 
     friend class CFractionalScaleProtocol;

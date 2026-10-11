@@ -6,6 +6,6 @@
 
 namespace Helpers::SystemInfo {
     std::string getSystemInfo();
-    std::string getVersion(eHyprCtlOutputFormat fmt);
-    std::string getStatus(eHyprCtlOutputFormat fmt);
+    std::string getVersion(eAbyssCtlOutputFormat fmt);
+    std::string getStatus(eAbyssCtlOutputFormat fmt);
 };

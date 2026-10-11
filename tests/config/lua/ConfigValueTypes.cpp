@@ -357,7 +357,7 @@ TEST(ConfigLuaValueTypes, gradientParseAndPush) {
     CLuaState          S;
     const auto         L = S.get();
 
-    CLuaConfigGradient value(CHyprColor(0xFF000000));
+    CLuaConfigGradient value(CAbyssColor(0xFF000000));
 
     lua_pushstring(L, "0xFF112233");
     auto err = value.parse(L);

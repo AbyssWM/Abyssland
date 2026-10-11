@@ -11,7 +11,7 @@
 #include "../i18n/Engine.hpp"
 #include "../event/EventBus.hpp"
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static constexpr auto TIMER_TIMEOUT = std::chrono::milliseconds(1500);
 

@@ -168,7 +168,7 @@ CWLSurfaceResource::CWLSurfaceResource(SP<CWlSurface> resource_) : m_resource(re
         // fifo and fences first
         m_events.stateCommit.emit(state);
 
-        if (state->buffer && state->buffer->type() == Aquamarine::BUFFER_TYPE_DMABUF && state->buffer->dmabuf().success && !state->updated.bits.acquire) {
+        if (state->buffer && state->buffer->type() == Abyssal::BUFFER_TYPE_DMABUF && state->buffer->dmabuf().success && !state->updated.bits.acquire) {
             state->buffer->m_syncFds = dc<CDMABuffer*>(state->buffer.m_buffer.get())->exportSyncFiles();
             if (!state->buffer->m_syncFds.empty())
                 m_stateQueue.lock(state, LOCK_REASON_FENCE);
@@ -639,7 +639,7 @@ void CWLSurfaceResource::commitState(SSurfaceState& state) {
     }
 
     if (m_current.texture)
-        m_current.texture->m_transform = Math::wlTransformToHyprutils(m_current.transform);
+        m_current.texture->m_transform = Math::wlTransformToAbyssutils(m_current.transform);
 
     if (m_role->role() == SURFACE_ROLE_SUBSURFACE) {
         auto subsurface = sc<CSubsurfaceRole*>(m_role.get())->m_subsurface.lock();

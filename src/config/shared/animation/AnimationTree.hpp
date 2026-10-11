@@ -4,15 +4,15 @@
 
 #include "../../../helpers/memory/Memory.hpp"
 
-#include <hyprutils/animation/AnimationConfig.hpp>
+#include <abyssutils/animation/AnimationConfig.hpp>
 
 namespace Config {
     class CAnimationTreeController {
       public:
         CAnimationTreeController();
 
-        const std::unordered_map<std::string, SP<Hyprutils::Animation::SAnimationPropertyConfig>>& getAnimationConfig();
-        SP<Hyprutils::Animation::SAnimationPropertyConfig>                                         getAnimationPropertyConfig(const std::string&);
+        const std::unordered_map<std::string, SP<Abyssutils::Animation::SAnimationPropertyConfig>>& getAnimationConfig();
+        SP<Abyssutils::Animation::SAnimationPropertyConfig>                                         getAnimationPropertyConfig(const std::string&);
 
         //
         void reset();
@@ -22,7 +22,7 @@ namespace Config {
         bool nodeExists(const std::string& name);
 
       private:
-        Hyprutils::Animation::CAnimationConfigTree m_animationTree;
+        Abyssutils::Animation::CAnimationConfigTree m_animationTree;
     };
 
     UP<CAnimationTreeController>& animationTree();

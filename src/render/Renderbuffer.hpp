@@ -3,12 +3,12 @@
 #include "../helpers/signal/Signal.hpp"
 #include "../helpers/memory/Memory.hpp"
 #include "Framebuffer.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 
 namespace Render {
     class IRenderbuffer {
       public:
-        IRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format);
+        IRenderbuffer(SP<Abyssal::IBuffer> buffer, uint32_t format);
         virtual ~IRenderbuffer() = default;
 
         bool                    good();
@@ -17,14 +17,14 @@ namespace Render {
         virtual void            bind()   = 0;
         virtual void            unbind() = 0;
 
-        WP<Aquamarine::IBuffer> m_hlBuffer;
+        WP<Abyssal::IBuffer> m_hlBuffer;
 
       protected:
         SP<IFramebuffer> m_framebuffer;
         bool             m_good = false;
 
         struct {
-            CHyprSignalListener destroyBuffer;
+            CAbyssSignalListener destroyBuffer;
         } m_listeners;
     };
 }

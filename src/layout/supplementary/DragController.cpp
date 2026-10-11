@@ -326,7 +326,7 @@ void CDragStateController::mouseMove(const Vector2D& mousePos) {
 
     const auto  TIMERDELTA    = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - TIMER).count();
     const auto  MSDELTA       = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - MSTIMER).count();
-    const auto  MSMONITOR     = 1000.0 / (g_pHyprRenderer->m_mostHzMonitor ? g_pHyprRenderer->m_mostHzMonitor->m_refreshRate : 60.0);
+    const auto  MSMONITOR     = 1000.0 / (g_pAbyssRenderer->m_mostHzMonitor ? g_pAbyssRenderer->m_mostHzMonitor->m_refreshRate : 60.0);
     static int  totalMs       = 0;
     bool        canSkipUpdate = true;
 

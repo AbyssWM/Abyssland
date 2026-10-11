@@ -6,7 +6,7 @@
 #include <format>
 #include <expected>
 #include <utility>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include "../SharedDefs.hpp"
 #include "../macros.hpp"
 
@@ -33,8 +33,8 @@ std::optional<float>                    getPlusMinusKeywordResult(std::string in
 double                                  normalizeAngleRad(double ang);
 std::vector<SCallstackFrameInfo>        getBacktrace();
 [[noreturn]] void                       throwError(const std::string& err);
-Hyprutils::OS::CFileDescriptor          allocateSHMFile(size_t len);
-bool                                    allocateSHMFilePair(size_t size, Hyprutils::OS::CFileDescriptor& rw_fd_ptr, Hyprutils::OS::CFileDescriptor& ro_fd_ptr);
+Abyssutils::OS::CFileDescriptor          allocateSHMFile(size_t len);
+bool                                    allocateSHMFilePair(size_t size, Abyssutils::OS::CFileDescriptor& rw_fd_ptr, Abyssutils::OS::CFileDescriptor& ro_fd_ptr);
 float                                   stringToPercentage(const std::string& VALUE, const float REL);
 bool                                    isNvidiaDriverVersionAtLeast(int threshold);
 std::expected<std::string, std::string> binaryNameForWlClient(wl_client* client);

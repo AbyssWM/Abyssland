@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/animation/AnimationConfig.hpp>
+#include <abyssutils/animation/AnimationConfig.hpp>
 
 #include <vector>
 #include <optional>
@@ -13,7 +13,7 @@
 
 #include "../ConfigManager.hpp"
 
-#include <hyprlang.hpp>
+#include <abyssparse.hpp>
 
 #define HANDLE void*
 
@@ -28,7 +28,7 @@ namespace Config::Legacy {
     struct SPluginKeyword {
         HANDLE                       handle = nullptr;
         std::string                  name   = "";
-        Hyprlang::PCONFIGHANDLERFUNC fn     = nullptr;
+        Abyssparse::PCONFIGHANDLERFUNC fn     = nullptr;
     };
 
     struct SPluginVariable {
@@ -69,13 +69,13 @@ namespace Config::Legacy {
         virtual std::expected<void, std::string> registerPluginValue(void* handle, SP<Config::Values::IValue> value) override;
         virtual void                             onPluginUnload(void* handle) override;
 
-        void                                     addPluginConfigVar(HANDLE handle, const std::string& name, const Hyprlang::CConfigValue& value);
-        void                                     addPluginKeyword(HANDLE handle, const std::string& name, Hyprlang::PCONFIGHANDLERFUNC fun, Hyprlang::SHandlerOptions opts = {});
+        void                                     addPluginConfigVar(HANDLE handle, const std::string& name, const Abyssparse::CConfigValue& value);
+        void                                     addPluginKeyword(HANDLE handle, const std::string& name, Abyssparse::PCONFIGHANDLERFUNC fun, Abyssparse::SHandlerOptions opts = {});
         void                                     removePluginConfig(HANDLE handle);
 
         std::string                              parseKeyword(const std::string&, const std::string&);
 
-        Hyprlang::CConfigValue*                  getHyprlangConfigValuePtr(const std::string& name, const std::string& specialCat = "");
+        Abyssparse::CConfigValue*                  getAbyssparseConfigValuePtr(const std::string& name, const std::string& specialCat = "");
 
         // keywords
         std::optional<std::string> handleRawExec(const std::string&, const std::string&);
@@ -100,10 +100,10 @@ namespace Config::Legacy {
         std::optional<std::string> handleLayerrule(const std::string&, const std::string&);
 
         std::optional<std::string> handleMonitorv2(const std::string& output);
-        Hyprlang::CParseResult     handleMonitorv2();
+        Abyssparse::CParseResult     handleMonitorv2();
         std::optional<std::string> addRuleFromConfigKey(const std::string& name);
         std::optional<std::string> addLayerRuleFromConfigKey(const std::string& name);
-        Hyprlang::CParseResult     reloadRules();
+        Abyssparse::CParseResult     reloadRules();
 
         std::string                m_configCurrentPath;
 
@@ -115,16 +115,16 @@ namespace Config::Legacy {
         std::optional<std::string>                       verifyConfigExists();
         void                                             reloadRuleConfigs();
 
-        void                                             postConfigReload(const Hyprlang::CParseResult& result);
+        void                                             postConfigReload(const Abyssparse::CParseResult& result);
 
-        void                                             registerConfigVar(const char* name, const Hyprlang::INT& val);
-        void                                             registerConfigVar(const char* name, const Hyprlang::FLOAT& val);
-        void                                             registerConfigVar(const char* name, const Hyprlang::VEC2& val);
-        void                                             registerConfigVar(const char* name, const Hyprlang::STRING& val);
-        void                                             registerConfigVar(const char* name, Hyprlang::CUSTOMTYPE&& val);
-        Hyprlang::CConfigValue*                          getConfigValueSafeDevice(const std::string& dev, const std::string& val, const std::string& fallback);
+        void                                             registerConfigVar(const char* name, const Abyssparse::INT& val);
+        void                                             registerConfigVar(const char* name, const Abyssparse::FLOAT& val);
+        void                                             registerConfigVar(const char* name, const Abyssparse::VEC2& val);
+        void                                             registerConfigVar(const char* name, const Abyssparse::STRING& val);
+        void                                             registerConfigVar(const char* name, Abyssparse::CUSTOMTYPE&& val);
+        Abyssparse::CConfigValue*                          getConfigValueSafeDevice(const std::string& dev, const std::string& val, const std::string& fallback);
 
-        UP<Hyprlang::CConfig>                            m_config;
+        UP<Abyssparse::CConfig>                            m_config;
 
         std::vector<std::string>                         m_configPaths;
         std::string                                      m_mainConfigPath;

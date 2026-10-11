@@ -1,10 +1,10 @@
 ; a primitive systemd --user example
-; see example/hyprland.service for more details
+; see example/abyssland.service for more details
 [Unit]
 Description = %p
-BindsTo     = hyprland.service
-Wants       = hyprland.service
-After       = hyprland.service
+BindsTo     = abyssland.service
+Wants       = abyssland.service
+After       = abyssland.service
 
 [Service]
 ExecStart = /usr/bin/swaybg --color #%i

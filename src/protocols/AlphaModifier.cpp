@@ -38,7 +38,7 @@ void CAlphaModifier::setResource(UP<CWpAlphaModifierSurfaceV1>&& resource) {
             auto box                 = surface->getSurfaceBoxGlobal();
 
             if (box.has_value())
-                g_pHyprRenderer->damageBox(*box);
+                g_pAbyssRenderer->damageBox(*box);
 
             if (!m_resource)
                 PROTO::alphaModifier->destroyAlphaModifier(this);

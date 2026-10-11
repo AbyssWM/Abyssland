@@ -16,8 +16,8 @@
 #include "desktop/state/WindowState.hpp"
 #include "helpers/cm/ColorManagement.hpp"
 
-#include <aquamarine/backend/Backend.hpp>
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/backend/Backend.hpp>
+#include <abyssal/output/Output.hpp>
 
 class CWLSurfaceResource;
 
@@ -47,9 +47,9 @@ class CCompositor {
     bool                     m_initialized = false;
     bool                     m_safeMode    = false;
     bool                     m_startLocked = false;
-    SP<Aquamarine::CBackend> m_aqBackend;
+    SP<Abyssal::CBackend> m_aqBackend;
 
-    std::string              m_hyprTempDataRoot = "";
+    std::string              m_abyssTempDataRoot = "";
 
     std::string              m_wlDisplaySocket   = "";
     std::string              m_instanceSignature = "";
@@ -99,14 +99,14 @@ class CCompositor {
     void                           setMallocThreshold();
     void                           openSafeModeBox();
 
-    uint64_t                       m_hyprlandPID    = 0;
+    uint64_t                       m_abysslandPID    = 0;
     wl_event_source*               m_critSigSource  = nullptr;
     rlimit                         m_originalNofile = {};
-    Hyprutils::OS::CFileDescriptor m_watchdogWriteFd;
+    Abyssutils::OS::CFileDescriptor m_watchdogWriteFd;
 
     struct {
-        CHyprSignalListener lock;
-        CHyprSignalListener unlock;
+        CAbyssSignalListener lock;
+        CAbyssSignalListener unlock;
     } m_listeners;
 };
 

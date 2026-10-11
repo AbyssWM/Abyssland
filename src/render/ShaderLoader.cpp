@@ -1,9 +1,9 @@
 #include "ShaderLoader.hpp"
 #include <format>
-#include <hyprutils/memory/Casts.hpp>
-#include <hyprutils/memory/UniquePtr.hpp>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/path/Path.hpp>
+#include <abyssutils/memory/Casts.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/path/Path.hpp>
 #include "../debug/log/Logger.hpp"
 #include "shaders/Shaders.hpp"
 #include "../helpers/fs/FsUtils.hpp"
@@ -173,14 +173,14 @@ std::string CShaderLoader::loadShader(const std::string& filename) {
         if (src.has_value())
             return src.value();
     }
-    const auto home = Hyprutils::Path::getHome();
+    const auto home = Abyssutils::Path::getHome();
     if (home.has_value()) {
-        const auto src = NFsUtils::readFileAsString(home.value() + "/hypr/shaders/" + filename);
+        const auto src = NFsUtils::readFileAsString(home.value() + "/abyss/shaders/" + filename);
         if (src.has_value())
             return src.value();
     }
     for (auto& e : ASSET_PATHS) {
-        const auto src = NFsUtils::readFileAsString(std::string{e} + "/hypr/shaders/" + filename);
+        const auto src = NFsUtils::readFileAsString(std::string{e} + "/abyss/shaders/" + filename);
         if (src.has_value())
             return src.value();
     }

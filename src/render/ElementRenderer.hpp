@@ -12,7 +12,7 @@
 #include "./pass/TextureMatteElement.hpp"
 #include "./pass/InnerGlowPassElement.hpp"
 #include "./pass/TransformedWindowPassElement.hpp"
-#include <hyprutils/math/Region.hpp>
+#include <abyssutils/math/Region.hpp>
 
 namespace Render {
     class IElementRenderer {

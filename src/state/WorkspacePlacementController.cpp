@@ -204,8 +204,8 @@ void CWorkspacePlacementController::swapActiveWorkspaces(PHLMONITOR pMonitorA, P
     g_layoutManager->recalculateMonitor(pMonitorA);
     g_layoutManager->recalculateMonitor(pMonitorB);
 
-    g_pHyprRenderer->damageMonitor(pMonitorB);
-    g_pHyprRenderer->damageMonitor(pMonitorA);
+    g_pAbyssRenderer->damageMonitor(pMonitorB);
+    g_pAbyssRenderer->damageMonitor(pMonitorA);
 
     Animation::Workspace::setFullscreenFadeAnimation(
         PWORKSPACEB, Fullscreen::controller()->hasFullscreen(PWORKSPACEB) ? Animation::Workspace::ANIMATION_TYPE_IN : Animation::Workspace::ANIMATION_TYPE_OUT);
@@ -221,16 +221,16 @@ void CWorkspacePlacementController::swapActiveWorkspaces(PHLMONITOR pMonitorA, P
             Desktop::FOCUS_REASON_DESKTOP_STATE_CHANGE);
 
         const auto PNEWWORKSPACE = pMonitorA->m_id == Desktop::focusState()->monitor()->m_id ? PWORKSPACEB : PWORKSPACEA;
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "workspace", .data = PNEWWORKSPACE->m_name});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "workspacev2", .data = std::format("{},{}", PNEWWORKSPACE->m_id, PNEWWORKSPACE->m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "workspace", .data = PNEWWORKSPACE->m_name});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "workspacev2", .data = std::format("{},{}", PNEWWORKSPACE->m_id, PNEWWORKSPACE->m_name)});
         Event::bus()->m_events.workspace.active.emit(PNEWWORKSPACE);
     }
 
     // events
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspace", .data = PWORKSPACEA->m_name + "," + pMonitorB->m_name});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", PWORKSPACEA->m_id, PWORKSPACEA->m_name, pMonitorB->m_name)});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspace", .data = PWORKSPACEB->m_name + "," + pMonitorA->m_name});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", PWORKSPACEB->m_id, PWORKSPACEB->m_name, pMonitorA->m_name)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspace", .data = PWORKSPACEA->m_name + "," + pMonitorB->m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", PWORKSPACEA->m_id, PWORKSPACEA->m_name, pMonitorB->m_name)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspace", .data = PWORKSPACEB->m_name + "," + pMonitorA->m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", PWORKSPACEB->m_id, PWORKSPACEB->m_name, pMonitorA->m_name)});
 
     Event::bus()->m_events.workspace.moveToMonitor.emit(PWORKSPACEA, pMonitorB);
     Event::bus()->m_events.workspace.moveToMonitor.emit(PWORKSPACEB, pMonitorA);
@@ -347,7 +347,7 @@ void CWorkspacePlacementController::moveWorkspaceToMonitor(PHLWORKSPACE pWorkspa
         pWorkspace->m_events.activeChanged.emit();
 
         g_layoutManager->recalculateMonitor(pMonitor);
-        g_pHyprRenderer->damageMonitor(pMonitor);
+        g_pAbyssRenderer->damageMonitor(pMonitor);
 
         Animation::Workspace::startAnimation(pWorkspace, Animation::Workspace::ANIMATION_TYPE_IN, true, true);
         pWorkspace->m_visible = true;
@@ -373,8 +373,8 @@ void CWorkspacePlacementController::moveWorkspaceToMonitor(PHLWORKSPACE pWorkspa
     Desktop::globalWindowController()->updateSuspendedStates();
 
     // event
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspace", .data = pWorkspace->m_name + "," + pMonitor->m_name});
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", pWorkspace->m_id, pWorkspace->m_name, pMonitor->m_name)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspace", .data = pWorkspace->m_name + "," + pMonitor->m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "moveworkspacev2", .data = std::format("{},{},{}", pWorkspace->m_id, pWorkspace->m_name, pMonitor->m_name)});
 
     Event::bus()->m_events.workspace.moveToMonitor.emit(pWorkspace, pMonitor);
 }

@@ -4,7 +4,7 @@
 #include "lua/ConfigManager.hpp"
 #include "../debug/log/Logger.hpp"
 
-#include <hyprutils/path/Path.hpp>
+#include <abyssutils/path/Path.hpp>
 #include <filesystem>
 
 using namespace Config;
@@ -77,7 +77,7 @@ UP<IConfigManager>& Config::mgr() {
 const char* Config::typeToString(eConfigManagerType t) {
     switch (t) {
         case CONFIG_LUA: return "lua";
-        case CONFIG_LEGACY: return "hyprlang";
+        case CONFIG_LEGACY: return "abyssparse";
         default: return "error";
     }
 }

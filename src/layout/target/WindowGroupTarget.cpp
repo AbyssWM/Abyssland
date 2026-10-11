@@ -69,7 +69,7 @@ std::optional<Vector2D> CWindowGroupTarget::maxSize() {
 }
 
 void CWindowGroupTarget::damageEntire() {
-    g_pHyprRenderer->damageWindow(m_group->current());
+    g_pAbyssRenderer->damageWindow(m_group->current());
 }
 
 void CWindowGroupTarget::warpPositionSize() {

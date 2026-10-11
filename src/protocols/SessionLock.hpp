@@ -37,9 +37,9 @@ class CSessionLockSurface {
     void                         sendConfigure();
 
     struct {
-        CHyprSignalListener monitorMode;
-        CHyprSignalListener surfaceCommit;
-        CHyprSignalListener surfaceDestroy;
+        CAbyssSignalListener monitorMode;
+        CAbyssSignalListener surfaceCommit;
+        CAbyssSignalListener surfaceDestroy;
     } m_listeners;
 };
 

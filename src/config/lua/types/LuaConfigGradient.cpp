@@ -7,14 +7,14 @@
 using namespace Config;
 using namespace Config::Lua;
 
-static std::expected<CHyprColor, std::string> parseColorString(const std::string& str) {
+static std::expected<CAbyssColor, std::string> parseColorString(const std::string& str) {
     auto result = ParserUtils::parseColor(str);
     if (!result)
         return std::unexpected(std::format("invalid color \"{}\"", str));
-    return CHyprColor(sc<uint64_t>(*result));
+    return CAbyssColor(sc<uint64_t>(*result));
 }
 
-CLuaConfigGradient::CLuaConfigGradient(CHyprColor def) : m_default(def), m_data(def) {
+CLuaConfigGradient::CLuaConfigGradient(CAbyssColor def) : m_default(def), m_data(def) {
     ;
 }
 
@@ -40,7 +40,7 @@ SParseError CLuaConfigGradient::parse(lua_State* s) {
         return {.errorCode = PARSE_ERROR_BAD_VALUE, .message = "gradient table must have a \"colors\" array"};
     }
 
-    std::vector<CHyprColor> colors;
+    std::vector<CAbyssColor> colors;
     int                     len = sc<int>(lua_rawlen(s, -1));
     if (len == 0) {
         lua_pop(s, 1);

@@ -446,7 +446,7 @@ void CFullscreenController::setWindowFullscreenModeInternal(const PHLWINDOW wind
     }
 
     if (window->m_isFloating && WINDOW_FS_MODE.internal == FSMODE_NONE && mode != FSMODE_NONE)
-        g_pHyprRenderer->damageWindow(window);
+        g_pAbyssRenderer->damageWindow(window);
 
     if (hasFullscreen(WORKSPACE) && !isFullscreen(window) && !layoutAware) {
 
@@ -482,7 +482,7 @@ void CFullscreenController::setWindowFullscreenModeInternal(const PHLWINDOW wind
     SPACE->recalculate(FULLSCREEN_REQUEST_RESULT == FULLSCREEN_REQUEST_DEFAULT_HANDLED ? Layout::RECALCULATE_REASON_TOGGLE_DEFAULT_HANDLED_FULLSCREEN :
                                                                                          Layout::RECALCULATE_REASON_TOGGLE_LAYOUT_HANDLED_FULLSCREEN);
 
-    g_pEventManager->postEvent(SHyprIPCEvent{.event = "fullscreen", .data = std::to_string(sc<int>(mode) != FSMODE_NONE)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "fullscreen", .data = std::to_string(sc<int>(mode) != FSMODE_NONE)});
     Event::bus()->m_events.window.fullscreen.emit(window);
 
     window->m_ruleApplicator->propertiesChanged(Desktop::Rule::RULE_PROP_FULLSCREEN | Desktop::Rule::RULE_PROP_FULLSCREENSTATE_CLIENT |

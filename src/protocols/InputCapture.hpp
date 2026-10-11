@@ -3,11 +3,11 @@
 #include "managers/input/Eis.hpp"
 #include "helpers/memory/Memory.hpp"
 #include "helpers/signal/Signal.hpp"
-#include "hyprland-input-capture-v1.hpp"
+#include "abyssland-input-capture-v1.hpp"
 #include "../protocols/WaylandProtocol.hpp"
 #include <cstdint>
-#include <hyprutils/math/Vector2D.hpp>
-#include <hyprutils/signal/Listener.hpp>
+#include <abyssutils/math/Vector2D.hpp>
+#include <abyssutils/signal/Listener.hpp>
 #include <optional>
 #include <wayland-server.h>
 
@@ -15,7 +15,7 @@ class CEventLoopTimer;
 
 class CInputCaptureResource {
   public:
-    CInputCaptureResource(SP<CHyprlandInputCaptureV1> resource_, std::string handle);
+    CInputCaptureResource(SP<CAbysslandInputCaptureV1> resource_, std::string handle);
     ~CInputCaptureResource();
 
     void motion(double dx, double dy);
@@ -56,13 +56,13 @@ class CInputCaptureResource {
     bool keyRepeats(uint32_t key);
 
     //
-    SP<CHyprlandInputCaptureV1> m_resource;
+    SP<CAbysslandInputCaptureV1> m_resource;
     UP<CEis>                    m_eis;
     SP<CEventLoopTimer>         m_keyRepeatTimer;
 
     uint32_t                    m_activationId = 0;
     eClientStatus               m_status       = eClientStatus::CLIENT_STATUS_CREATED;
-    CHyprSignalListener         m_monitorCallback;
+    CAbyssSignalListener         m_monitorCallback;
 
     struct {
         bool     active = false;
@@ -106,13 +106,13 @@ class CInputCaptureProtocol : public IWaylandProtocol {
     void release();
 
   private:
-    std::vector<UP<CHyprlandInputCaptureManagerV1>> m_vManagers;
+    std::vector<UP<CAbysslandInputCaptureManagerV1>> m_vManagers;
     std::vector<SP<CInputCaptureResource>>          m_Sessions;
     SP<CInputCaptureResource>                       active = nullptr;
     std::vector<SBarrier>                           barriers;
 
     //
-    void                                     onCreateSession(CHyprlandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle);
+    void                                     onCreateSession(CAbysslandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle);
     std::optional<SBarrier>                  isColliding(double px, double py, double nx, double ny);
     std::optional<SP<CInputCaptureResource>> getSession(std::string sessionId);
 };

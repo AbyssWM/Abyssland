@@ -28,7 +28,7 @@ class CCommitTimerResource {
     void releaseDueStates(const Time::steady_tp& upcomingFlip);
 
     struct {
-        CHyprSignalListener surfaceStateCommit;
+        CAbyssSignalListener surfaceStateCommit;
     } m_listeners;
 
     friend class CCommitTimingProtocol;

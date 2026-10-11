@@ -4,7 +4,7 @@
 #include <cstdint>
 #include "WaylandProtocol.hpp"
 #include "security-context-v1.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CSecurityContext {
   public:
@@ -17,8 +17,8 @@ class CSecurityContext {
     std::string                    m_appID;
     std::string                    m_instanceID;
 
-    Hyprutils::OS::CFileDescriptor m_listenFD;
-    Hyprutils::OS::CFileDescriptor m_closeFD;
+    Abyssutils::OS::CFileDescriptor m_listenFD;
+    Abyssutils::OS::CFileDescriptor m_closeFD;
 
     void                           onListen(uint32_t mask);
     void                           onClose(uint32_t mask);
@@ -50,7 +50,7 @@ struct SCSecurityContextSandboxedClientDestroyWrapper {
 
 class CSecurityContextSandboxedClient {
   public:
-    static SP<CSecurityContextSandboxedClient> create(Hyprutils::OS::CFileDescriptor clientFD);
+    static SP<CSecurityContextSandboxedClient> create(Abyssutils::OS::CFileDescriptor clientFD);
     ~CSecurityContextSandboxedClient();
 
     void                                           onDestroy();
@@ -58,10 +58,10 @@ class CSecurityContextSandboxedClient {
     SCSecurityContextSandboxedClientDestroyWrapper m_destroyListener;
 
   private:
-    CSecurityContextSandboxedClient(Hyprutils::OS::CFileDescriptor clientFD_);
+    CSecurityContextSandboxedClient(Abyssutils::OS::CFileDescriptor clientFD_);
 
     wl_client*                     m_client = nullptr;
-    Hyprutils::OS::CFileDescriptor m_clientFD;
+    Abyssutils::OS::CFileDescriptor m_clientFD;
 
     friend class CSecurityContextProtocol;
     friend class CSecurityContext;

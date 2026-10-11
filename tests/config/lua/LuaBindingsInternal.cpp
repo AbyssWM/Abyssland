@@ -72,7 +72,7 @@ namespace {
       public:
         CTempDir() {
             const auto NOW = std::chrono::steady_clock::now().time_since_epoch().count();
-            m_path         = std::filesystem::temp_directory_path() / std::format("hyprland-lua-require-{}", NOW);
+            m_path         = std::filesystem::temp_directory_path() / std::format("abyssland-lua-require-{}", NOW);
             std::filesystem::create_directories(m_path);
         }
 
@@ -351,7 +351,7 @@ TEST(ConfigLuaBindingsInternal, pluginLuaFnIsUnloadedWithoutDanglingCall) {
 TEST(ConfigLuaRequire, absolutePathLoadsAndTracksFile) {
     CScopedCompositor compositor;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     const auto        module     = tmp.path() / "absolute.lua";
     writeFile(mainConfig, "");
     writeFile(module, "return { value = 42 }");
@@ -375,7 +375,7 @@ TEST(ConfigLuaRequire, absolutePathLoadsAndTracksFile) {
 TEST(ConfigLuaRequire, relativePathResolvesFromConfigDirectory) {
     CScopedCompositor compositor;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     const auto        module     = tmp.path() / "modules" / "relative.lua";
     writeFile(mainConfig, "");
     writeFile(module, "return 'relative-ok'");
@@ -401,7 +401,7 @@ TEST(ConfigLuaRequire, relativePathResolvesFromConfigDirectory) {
 TEST(ConfigLuaRequire, wildcardLoadsSortedTableAndTracksFilesAndDirectory) {
     CScopedCompositor compositor;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     const auto        modulesDir = tmp.path() / "modules";
     const auto        moduleA    = modulesDir / "a.lua";
     const auto        moduleB    = modulesDir / "b.lua";
@@ -430,7 +430,7 @@ TEST(ConfigLuaRequire, wildcardLoadsSortedTableAndTracksFilesAndDirectory) {
 TEST(ConfigLuaRequire, wildcardNoMatchIsCatchableError) {
     CScopedCompositor compositor;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     writeFile(mainConfig, "");
 
     CConfigManager mgr;
@@ -450,7 +450,7 @@ TEST(ConfigLuaRequire, wildcardNoMatchIsCatchableError) {
 TEST(ConfigLuaRequire, normalModuleRequireStillUsesConfigDirectoryPackagePath) {
     CScopedCompositor compositor;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     const auto        module     = tmp.path() / "colors.lua";
     writeFile(mainConfig, "");
     writeFile(module, "return 'normal-ok'");
@@ -477,7 +477,7 @@ TEST(ConfigLuaRequire, packagePathPreservesLuaDefaultsAfterConfigDirectory) {
     CScopedCompositor compositor;
     CLuaState         defaultState;
     CTempDir          tmp;
-    const auto        mainConfig = tmp.path() / "hyprland.lua";
+    const auto        mainConfig = tmp.path() / "abyssland.lua";
     writeFile(mainConfig, "");
 
     const auto defaultPath = packagePath(defaultState.get());

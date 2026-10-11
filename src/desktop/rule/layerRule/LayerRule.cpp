@@ -5,11 +5,11 @@
 
 #include <algorithm>
 #include <format>
-#include <hyprutils/string/Numeric.hpp>
+#include <abyssutils/string/Numeric.hpp>
 
 using namespace Desktop;
 using namespace Desktop::Rule;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 static const char* numericParseError(eNumericParseResult r) {
     switch (r) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/memory/WeakPtr.hpp>
+#include <abyssutils/memory/WeakPtr.hpp>
 #include <lua.hpp>
 
 #include "../../../desktop/view/Group.hpp"

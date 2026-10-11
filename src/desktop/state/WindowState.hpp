@@ -32,7 +32,7 @@ namespace Desktop {
         void                   moveToZ(PHLWINDOW w, bool top);
 
         struct {
-            CHyprSignalListener viewCreate;
+            CAbyssSignalListener viewCreate;
         } m_listeners;
     };
 

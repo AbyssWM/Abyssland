@@ -27,8 +27,8 @@ namespace {
     constexpr int    OVERLAY_FPS_GRAPH_GAP_TOP     = 2;
     constexpr float  OVERLAY_FPS_GRAPH_BG_ALPHA    = 0.35F;
 
-    const CHyprColor FPS_COLOR_BAD  = CHyprColor{1.F, 0.2F, 0.2F, 1.F};
-    const CHyprColor FPS_COLOR_GOOD = CHyprColor{0.2F, 1.F, 0.2F, 1.F};
+    const CAbyssColor FPS_COLOR_BAD  = CAbyssColor{1.F, 0.2F, 0.2F, 1.F};
+    const CAbyssColor FPS_COLOR_GOOD = CAbyssColor{0.2F, 1.F, 0.2F, 1.F};
 
     struct SFPSGraphLayout {
         float innerWidth  = 0.F;
@@ -43,16 +43,16 @@ namespace {
     };
 }
 
-static Hyprgraphics::CColor::SOkLab lerp(const Hyprgraphics::CColor::SOkLab& a, const Hyprgraphics::CColor::SOkLab& b, float ratio) {
-    return Hyprgraphics::CColor::SOkLab{
+static Abyssgraphics::CColor::SOkLab lerp(const Abyssgraphics::CColor::SOkLab& a, const Abyssgraphics::CColor::SOkLab& b, float ratio) {
+    return Abyssgraphics::CColor::SOkLab{
         .l = std::lerp(a.l, b.l, ratio),
         .a = std::lerp(a.a, b.a, ratio),
         .b = std::lerp(a.b, b.b, ratio),
     };
 }
 
-static CHyprColor fpsBarColor(float normalizedFPS) {
-    return CHyprColor{Hyprgraphics::CColor{lerp(FPS_COLOR_BAD.asOkLab(), FPS_COLOR_GOOD.asOkLab(), normalizedFPS)}, 1.F};
+static CAbyssColor fpsBarColor(float normalizedFPS) {
+    return CAbyssColor{Abyssgraphics::CColor{lerp(FPS_COLOR_BAD.asOkLab(), FPS_COLOR_GOOD.asOkLab(), normalizedFPS)}, 1.F};
 }
 
 static SFPSGraphLayout fpsGraphLayout() {
@@ -72,9 +72,9 @@ static SFPSGraphDrawResult drawFPSGraph(float x, float y, float idealFPS, const 
 
     CRectPassElement::SRectData bgData;
     bgData.box   = {x, y, LAYOUT.width, LAYOUT.height};
-    bgData.color = CHyprColor{0.F, 0.F, 0.F, OVERLAY_FPS_GRAPH_BG_ALPHA};
+    bgData.color = CAbyssColor{0.F, 0.F, 0.F, OVERLAY_FPS_GRAPH_BG_ALPHA};
     bgData.round = 2;
-    g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(bgData));
+    g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(bgData));
 
     const size_t BARCOUNT         = std::min(fpsHistory.size(), sc<size_t>(OVERLAY_FPS_GRAPH_HISTORY_SEC));
     const size_t LEADINGBLANKBARS = sc<size_t>(OVERLAY_FPS_GRAPH_HISTORY_SEC) - BARCOUNT;
@@ -89,7 +89,7 @@ static SFPSGraphDrawResult drawFPSGraph(float x, float y, float idealFPS, const 
         CRectPassElement::SRectData barData;
         barData.box   = {BARX, BARY, sc<float>(OVERLAY_FPS_GRAPH_BAR_WIDTH), BARHEIGHT};
         barData.color = fpsBarColor(NORMALIZEDFPS);
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(barData));
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(barData));
     }
 
     return {
@@ -181,7 +181,7 @@ void CMonitorOverlay::frameData(PHLMONITOR pMonitor) {
     }
 
     // anim data too
-    const auto PMONITORFORTICKS = g_pHyprRenderer->m_mostHzMonitor ? g_pHyprRenderer->m_mostHzMonitor.lock() : Desktop::focusState()->monitor();
+    const auto PMONITORFORTICKS = g_pAbyssRenderer->m_mostHzMonitor ? g_pAbyssRenderer->m_mostHzMonitor.lock() : Desktop::focusState()->monitor();
     if (PMONITORFORTICKS && PMONITORFORTICKS == pMonitor) {
         const auto TICKLIMIT = std::max<size_t>(1, sc<size_t>(std::ceil(std::max(1.F, PMONITORFORTICKS->m_refreshRate))));
 
@@ -196,7 +196,7 @@ const CBox& CMonitorOverlay::lastDrawnBox() const {
     return m_lastDrawnBox;
 }
 
-void CMonitorOverlay::updateLine(size_t idx, const std::string& text, const CHyprColor& color, int fontSize, const std::string& fontFamily) {
+void CMonitorOverlay::updateLine(size_t idx, const std::string& text, const CAbyssColor& color, int fontSize, const std::string& fontFamily) {
     if (m_cachedLines.size() <= idx)
         m_cachedLines.resize(idx + 1);
 
@@ -207,7 +207,7 @@ void CMonitorOverlay::updateLine(size_t idx, const std::string& text, const CHyp
     line.text     = text;
     line.color    = color;
     line.fontSize = fontSize;
-    line.texture  = g_pHyprRenderer->renderText(text, color, fontSize, false, fontFamily);
+    line.texture  = g_pAbyssRenderer->renderText(text, color, fontSize, false, fontFamily);
 }
 
 void CMonitorOverlay::rebuildCache() {
@@ -252,21 +252,21 @@ void CMonitorOverlay::rebuildCache() {
 
     static auto FONTFAMILY = CConfigValue<Config::STRING>("misc:font_family");
 
-    CHyprColor  fpsColor = CHyprColor{1.F, 0.2F, 0.2F, 1.F};
+    CAbyssColor  fpsColor = CAbyssColor{1.F, 0.2F, 0.2F, 1.F};
     if (FPS > IDEALFPS * 0.95F)
-        fpsColor = CHyprColor{0.2F, 1.F, 0.2F, 1.F};
+        fpsColor = CAbyssColor{0.2F, 1.F, 0.2F, 1.F};
     else if (FPS > IDEALFPS * 0.8F)
-        fpsColor = CHyprColor{1.F, 1.F, 0.2F, 1.F};
+        fpsColor = CAbyssColor{1.F, 1.F, 0.2F, 1.F};
 
     size_t idx = 0;
-    updateLine(idx++, PMONITOR->m_name, CHyprColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
+    updateLine(idx++, PMONITOR->m_name, CAbyssColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
     updateLine(idx++, std::format("{} FPS", sc<int>(std::round(FPS))), fpsColor, 16, *FONTFAMILY);
-    updateLine(idx++, std::format("Avg Frametime: {:.2f}ms (var {:.2f}ms)", FRAMEMETRICS.avg, FRAMEMETRICS.var), CHyprColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
-    updateLine(idx++, std::format("Avg Rendertime: {:.2f}ms (var {:.2f}ms)", RENDERMETRICS.avg, RENDERMETRICS.var), CHyprColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
-    updateLine(idx++, std::format("Avg Rendertime (No Overlay): {:.2f}ms (var {:.2f}ms)", RENDERMETRICSNOOVL.avg, RENDERMETRICSNOOVL.var), CHyprColor{1.F, 1.F, 1.F, 1.F}, 10,
+    updateLine(idx++, std::format("Avg Frametime: {:.2f}ms (var {:.2f}ms)", FRAMEMETRICS.avg, FRAMEMETRICS.var), CAbyssColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
+    updateLine(idx++, std::format("Avg Rendertime: {:.2f}ms (var {:.2f}ms)", RENDERMETRICS.avg, RENDERMETRICS.var), CAbyssColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
+    updateLine(idx++, std::format("Avg Rendertime (No Overlay): {:.2f}ms (var {:.2f}ms)", RENDERMETRICSNOOVL.avg, RENDERMETRICSNOOVL.var), CAbyssColor{1.F, 1.F, 1.F, 1.F}, 10,
                *FONTFAMILY);
     updateLine(idx++, std::format("Avg Anim Tick: {:.2f}ms (var {:.2f}ms) ({:.2f} TPS)", ANIMATIONTICKMETRICS.avg, ANIMATIONTICKMETRICS.var, TICKTPS),
-               CHyprColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
+               CAbyssColor{1.F, 1.F, 1.F, 1.F}, 10, *FONTFAMILY);
 
     m_cachedLines.resize(idx);
 }
@@ -300,7 +300,7 @@ int CMonitorOverlay::draw(int offset, bool& cacheUpdated) {
         data.tex = line.texture;
         data.box = {OVERLAY_MARGIN_LEFT + OVERLAY_BOX_MARGIN, y, line.texture->m_size.x, line.texture->m_size.y};
         data.a   = 1.F;
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
+        g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
 
         maxTextW = std::max(maxTextW, sc<float>(line.texture->m_size.x));
         y += line.texture->m_size.y + OVERLAY_LINE_GAP;
@@ -365,7 +365,7 @@ void COverlay::createWarningTexture(float maxW) {
 
     static auto FONT = CConfigValue<Config::STRING>("misc:font_family");
 
-    m_warningTexture = g_pHyprRenderer->renderText(Hyprgraphics::CTextResource::STextResourceData{
+    m_warningTexture = g_pAbyssRenderer->renderText(Abyssgraphics::CTextResource::STextResourceData{
         .text     = "[!] FPS might be below your monitor's refresh rate if there are no content updates",
         .font     = *FONT,
         .fontSize = 8,
@@ -421,10 +421,10 @@ void COverlay::draw() {
         if (fullSize.y > 1 && fullSize.x > 1) {
             CRectPassElement::SRectData data;
             data.box   = CBox{{OVERLAY_MARGIN_LEFT, OVERLAY_MARGIN_TOP}, fullSize + Vector2D{OVERLAY_BOX_MARGIN, OVERLAY_BOX_MARGIN} * 2.F};
-            data.color = CHyprColor{0.1F, 0.1F, 0.1F, 0.6F};
+            data.color = CAbyssColor{0.1F, 0.1F, 0.1F, 0.6F};
             data.round = 10;
             data.blur  = true;
-            g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(data)));
+            g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(data)));
 
             createWarningTexture(fullSize.x);
         }
@@ -467,10 +467,10 @@ void COverlay::draw() {
             CRectPassElement::SRectData data;
             data.box   = CBox{{OVERLAY_MARGIN_LEFT, offsetY + (OVERLAY_MARGIN_TOP * 2) + OVERLAY_BOX_MARGIN},
                               {maxWidth + (OVERLAY_BOX_MARGIN * 2.F), m_warningTexture->m_size.y + (OVERLAY_BOX_MARGIN * 2.F)}};
-            data.color = CHyprColor{0.1F, 0.1F, 0.1F, 0.6F};
+            data.color = CAbyssColor{0.1F, 0.1F, 0.1F, 0.6F};
             data.round = 10;
             data.blur  = true;
-            g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(data)));
+            g_pAbyssRenderer->m_renderPass.add(makeUnique<CRectPassElement>(std::move(data)));
         }
 
         {
@@ -479,7 +479,7 @@ void COverlay::draw() {
                 Vector2D{OVERLAY_MARGIN_LEFT + ((maxWidth - m_warningTexture->m_size.x) / 2.F), sc<float>(offsetY) + (OVERLAY_MARGIN_TOP * 2) + (OVERLAY_BOX_MARGIN * 2)}.round(),
                 m_warningTexture->m_size};
             data.tex = m_warningTexture;
-            g_pHyprRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
+            g_pAbyssRenderer->m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
         }
     }
 
@@ -489,10 +489,10 @@ void COverlay::draw() {
 
     if (cacheUpdated || newDrawnBox != m_lastDrawnBox) {
         if (m_lastDrawnBox.width > 0 && m_lastDrawnBox.height > 0)
-            g_pHyprRenderer->damageBox(m_lastDrawnBox);
+            g_pAbyssRenderer->damageBox(m_lastDrawnBox);
 
         if (newDrawnBox.width > 0 && newDrawnBox.height > 0)
-            g_pHyprRenderer->damageBox(newDrawnBox);
+            g_pAbyssRenderer->damageBox(newDrawnBox);
 
         m_lastDrawnBox = newDrawnBox;
     }

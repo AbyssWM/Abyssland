@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdint>
 #include <optional>
-#include <hyprutils/math/Edges.hpp>
+#include <abyssutils/math/Edges.hpp>
 #include "WaylandProtocol.hpp"
 #include "xdg-shell.hpp"
 #include "../helpers/math/Math.hpp"
@@ -232,8 +232,8 @@ class CXDGSurfaceResource {
     std::vector<WP<CXDGPopupResource>> m_popups;
 
     struct {
-        CHyprSignalListener surfaceDestroy;
-        CHyprSignalListener surfaceCommit;
+        CAbyssSignalListener surfaceDestroy;
+        CAbyssSignalListener surfaceCommit;
     } m_listeners;
 
     friend class CXDGPopupResource;

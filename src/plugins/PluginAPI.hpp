@@ -2,13 +2,13 @@
 
 /*
 
-Hyprland Plugin API.
+Abyssland Plugin API.
 
 Most documentation will be made with comments in this code, but more info can be also found on the wiki.
 
 !WARNING!
-The Hyprland API passes C++ objects over, so no ABI compatibility is guaranteed.
-Make sure to compile your plugins with the same compiler as Hyprland, and ideally,
+The Abyssland API passes C++ objects over, so no ABI compatibility is guaranteed.
+Make sure to compile your plugins with the same compiler as Abyssland, and ideally,
 on the same machine.
 
 See examples/examplePlugin for an example plugin
@@ -18,7 +18,7 @@ Feel like the API is missing something you'd like to use in your plugin? Open an
 
 */
 
-#define HYPRLAND_API_VERSION "0.1"
+#define ABYSSLAND_API_VERSION "0.1"
 
 #include "../helpers/Color.hpp"
 #include "HookSystem.hpp"
@@ -32,7 +32,7 @@ Feel like the API is missing something you'd like to use in your plugin? Open an
 #include <functional>
 #include <string>
 #include <string_view>
-#include <hyprlang.hpp>
+#include <abyssparse.hpp>
 
 using PLUGIN_DESCRIPTION_INFO = struct {
     std::string name;
@@ -69,10 +69,10 @@ struct SVersionInfo {
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 #endif
 
-class IHyprLayout;
-class IHyprWindowDecoration;
+class IAbyssLayout;
+class IAbyssWindowDecoration;
 struct SConfigValue;
-class Hypr_dummyClass {};
+class Abyss_dummyClass {};
 extern "C" {
 struct lua_State;
 }
@@ -82,7 +82,7 @@ namespace Layout {
     class IFloatingAlgorithm;
 };
 
-using HOOK_CALLBACK_FN = Hypr_dummyClass;
+using HOOK_CALLBACK_FN = Abyss_dummyClass;
 using PLUGIN_LUA_FN    = int (*)(lua_State* L);
 
 /*
@@ -104,7 +104,7 @@ using PPLUGIN_API_VERSION_FUNC = REQUIRED std::string (*)();
     called on plugin init. Passes a handle as the parameter, which the plugin should keep for identification later.
     The plugin should return a PLUGIN_DESCRIPTION_INFO struct with information about itself.
 
-    Keep in mind this is executed synchronously, and as such any blocking calls to hyprland might hang. (e.g. system("hyprctl ..."))
+    Keep in mind this is executed synchronously, and as such any blocking calls to abyssland might hang. (e.g. system("abyssctl ..."))
 */
 using PPLUGIN_INIT_FUNC = REQUIRED PLUGIN_DESCRIPTION_INFO (*)(HANDLE);
 #define PLUGIN_INIT          pluginInit
@@ -125,7 +125,7 @@ using PPLUGIN_EXIT_FUNC = OPTIONAL void (*)();
 */
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-namespace HyprlandAPI {
+namespace AbysslandAPI {
 
     /*
         Add a config value.
@@ -138,7 +138,7 @@ namespace HyprlandAPI {
 
         deprecated: please use V2
     */
-    APICALL [[deprecated]] bool addConfigValue(HANDLE handle, const std::string& name, const Hyprlang::CConfigValue& value);
+    APICALL [[deprecated]] bool addConfigValue(HANDLE handle, const std::string& name, const Abyssparse::CConfigValue& value);
 
     /*
         Add a config keyword.
@@ -148,25 +148,25 @@ namespace HyprlandAPI {
 
         deprecated: please use V2
     */
-    APICALL [[deprecated]] bool addConfigKeyword(HANDLE handle, const std::string& name, Hyprlang::PCONFIGHANDLERFUNC fn, Hyprlang::SHandlerOptions opts);
+    APICALL [[deprecated]] bool addConfigKeyword(HANDLE handle, const std::string& name, Abyssparse::PCONFIGHANDLERFUNC fn, Abyssparse::SHandlerOptions opts);
 
     /*
         Get a config value.
 
-        Please see the <hyprlang.hpp> header or https://hypr.land/hyprlang/ for docs regarding Hyprlang types.
+        Please see the <abyssparse.hpp> header or https://github.com/AbyssWM for docs regarding Abyssparse types.
 
         returns: a pointer to the config value struct, which is guaranteed to be valid for the life of this plugin, unless another `addConfigValue` is called afterwards.
                 nullptr on error.
 
         Deprecated: please use V2
     */
-    APICALL [[deprecated]] Hyprlang::CConfigValue* getConfigValue(HANDLE handle, const std::string& name);
+    APICALL [[deprecated]] Abyssparse::CConfigValue* getConfigValue(HANDLE handle, const std::string& name);
 
     /*
         Deprecated: doesn't do anything anymore, use Event::bus()
 
         Register a dynamic (function) callback to a selected event.
-        Pointer will be free'd by Hyprland on unregisterCallback().
+        Pointer will be free'd by Abyssland on unregisterCallback().
 
         returns: a pointer to the newly allocated function. nullptr on fail.
 
@@ -184,29 +184,29 @@ namespace HyprlandAPI {
     APICALL [[deprecated]] bool unregisterCallback(HANDLE handle, SP<HOOK_CALLBACK_FN> fn);
 
     /*
-        Calls a hyprctl command.
+        Calls a abyssctl command.
 
-        returns: the output (as in hyprctl)
+        returns: the output (as in abyssctl)
     */
-    APICALL std::string invokeHyprctlCommand(const std::string& call, const std::string& args, const std::string& format = "");
+    APICALL std::string invokeAbyssctlCommand(const std::string& call, const std::string& args, const std::string& format = "");
 
     /*
-        Adds a layout to Hyprland.
+        Adds a layout to Abyssland.
 
         returns: true on success. False otherwise.
 
         deprecated: addTiledAlgo, addFloatingAlgo
     */
-    APICALL [[deprecated]] bool addLayout(HANDLE handle, const std::string& name, IHyprLayout* layout);
+    APICALL [[deprecated]] bool addLayout(HANDLE handle, const std::string& name, IAbyssLayout* layout);
 
     /*
-        Removes an added layout from Hyprland.
+        Removes an added layout from Abyssland.
 
         returns: true on success. False otherwise.
 
         deprecated: V2 removeAlgo
     */
-    APICALL [[deprecated]] bool removeLayout(HANDLE handle, IHyprLayout* layout);
+    APICALL [[deprecated]] bool removeLayout(HANDLE handle, IAbyssLayout* layout);
 
     /*
         Algorithm fns. Used for registering and removing. Return success.
@@ -227,7 +227,7 @@ namespace HyprlandAPI {
 
         returns: true on success. False otherwise.
     */
-    APICALL bool addNotification(HANDLE handle, const std::string& text, const CHyprColor& color, const float timeMs);
+    APICALL bool addNotification(HANDLE handle, const std::string& text, const CAbyssColor& color, const float timeMs);
 
     /*
         Creates a trampoline function hook to an internal hl func.
@@ -262,14 +262,14 @@ namespace HyprlandAPI {
 
         returns: true on success. False otherwise.
     */
-    APICALL bool addWindowDecoration(HANDLE handle, PHLWINDOW pWindow, UP<IHyprWindowDecoration> pDecoration);
+    APICALL bool addWindowDecoration(HANDLE handle, PHLWINDOW pWindow, UP<IAbyssWindowDecoration> pDecoration);
 
     /*
         Removes a window decoration
 
         returns: true on success. False otherwise.
     */
-    APICALL bool removeWindowDecoration(HANDLE handle, IHyprWindowDecoration* pDecoration);
+    APICALL bool removeWindowDecoration(HANDLE handle, IAbyssWindowDecoration* pDecoration);
 
     /*
         Adds a keybind dispatcher.
@@ -300,7 +300,7 @@ namespace HyprlandAPI {
         data has to contain:
          - text: std::string or const char*
          - time: uint64_t
-         - color: CHyprColor -> CHyprColor(0) will apply the default color for the notification icon
+         - color: CAbyssColor -> CAbyssColor(0) will apply the default color for the notification icon
 
         data may contain:
          - icon: eIcons
@@ -319,24 +319,24 @@ namespace HyprlandAPI {
     APICALL std::vector<SFunctionMatch> findFunctionsByName(HANDLE handle, const std::string& name);
 
     /*
-        Returns the hyprland version data. It's highly advised to not run plugins compiled
+        Returns the abyssland version data. It's highly advised to not run plugins compiled
         for a different hash.
     */
-    APICALL SVersionInfo getHyprlandVersion(HANDLE handle);
+    APICALL SVersionInfo getAbysslandVersion(HANDLE handle);
 
     /*
-        Registers a hyprctl command
+        Registers a abyssctl command
 
         returns: Pointer. Nullptr on fail.
     */
-    APICALL SP<SHyprCtlCommand> registerHyprCtlCommand(HANDLE handle, SHyprCtlCommand cmd);
+    APICALL SP<SAbyssCtlCommand> registerAbyssCtlCommand(HANDLE handle, SAbyssCtlCommand cmd);
 
     /*
-        Unregisters a hyprctl command
+        Unregisters a abyssctl command
 
         returns: true on success. False otherwise.
     */
-    APICALL bool unregisterHyprCtlCommand(HANDLE handle, SP<SHyprCtlCommand> cmd);
+    APICALL bool unregisterAbyssCtlCommand(HANDLE handle, SP<SAbyssCtlCommand> cmd);
 
     /*
         Add a new config value. Keep the pointer, you can use it for retrieving the value.
@@ -383,14 +383,14 @@ namespace HyprlandAPI {
 /*
     Get the descriptive string this plugin/server was compiled with.
 
-    This function will end up in both hyprland and any/all plugins,
+    This function will end up in both abyssland and any/all plugins,
     and can be found by a simple dlsym()
 
     _get_hash() is server,
     _get_client_hash() is client.
 */
-APICALL EXPORT const char*        __hyprland_api_get_hash();
-APICALL inline EXPORT const char* __hyprland_api_get_client_hash() {
+APICALL EXPORT const char*        __abyssland_api_get_hash();
+APICALL inline EXPORT const char* __abyssland_api_get_client_hash() {
     static auto stripPatch = [](const char* ver) -> std::string {
         std::string_view v = ver;
         if (!v.contains('.'))
@@ -399,8 +399,8 @@ APICALL inline EXPORT const char* __hyprland_api_get_client_hash() {
         return std::string{v.substr(0, v.find_last_of('.'))};
     };
 
-    static const std::string ver = (std::string{GIT_COMMIT_HASH} + "_aq_" + stripPatch(AQUAMARINE_VERSION) + "_hu_" + stripPatch(HYPRUTILS_VERSION) + "_hg_" +
-                                    stripPatch(HYPRGRAPHICS_VERSION) + "_hc_" + stripPatch(HYPRCURSOR_VERSION) + "_hlg_" + stripPatch(HYPRLANG_VERSION));
+    static const std::string ver = (std::string{GIT_COMMIT_HASH} + "_aq_" + stripPatch(ABYSSAL_VERSION) + "_hu_" + stripPatch(ABYSSUTILS_VERSION) + "_hg_" +
+                                    stripPatch(ABYSSGRAPHICS_VERSION) + "_hc_" + stripPatch(ABYSSCURSOR_VERSION) + "_hlg_" + stripPatch(ABYSSPARSE_VERSION));
 
     return ver.c_str();
 }

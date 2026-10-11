@@ -22,7 +22,7 @@
 #include "../../desktop/rule/Engine.hpp"
 #include "../../desktop/rule/windowRule/WindowRule.hpp"
 #include "../../desktop/rule/layerRule/LayerRule.hpp"
-#include "../../debug/HyprCtl.hpp"
+#include "../../debug/AbyssCtl.hpp"
 #include "../../layout/LayoutManager.hpp"
 #include "../../desktop/state/FocusState.hpp"
 #include "../../desktop/state/GlobalWindowController.hpp"
@@ -65,7 +65,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <hyprutils/path/Path.hpp>
+#include <abyssutils/path/Path.hpp>
 #include <cstring>
 #include <string>
 #include <sys/stat.h>
@@ -80,13 +80,13 @@
 #include <numbers>
 #include <ranges>
 #include <unordered_set>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/ConstVarList.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/ConstVarList.hpp>
 #include <filesystem>
 #include <memory>
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::Animation;
+using namespace Abyssutils::String;
+using namespace Abyssutils::Animation;
 using namespace Config;
 using namespace Config::Legacy;
 using enum NContentType::eContentType;
@@ -100,7 +100,7 @@ WP<CConfigManager> Config::Legacy::mgr() {
     return nullptr;
 }
 
-static Hyprlang::CParseResult configHandleGradientSet(const char* VALUE, void** data) {
+static Abyssparse::CParseResult configHandleGradientSet(const char* VALUE, void** data) {
     std::string V = VALUE;
 
     if (!*data)
@@ -153,7 +153,7 @@ static Hyprlang::CParseResult configHandleGradientSet(const char* VALUE, void** 
 
     DATA->updateColorsOk();
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (!parseError.empty())
         result.setError(parseError.c_str());
 
@@ -165,7 +165,7 @@ static void configHandleGradientDestroy(void** data) {
         delete sc<Config::CGradientValueData*>(*data);
 }
 
-static Hyprlang::CParseResult configHandleGapSet(const char* VALUE, void** data) {
+static Abyssparse::CParseResult configHandleGapSet(const char* VALUE, void** data) {
     std::string V = VALUE;
 
     if (!*data)
@@ -173,7 +173,7 @@ static Hyprlang::CParseResult configHandleGapSet(const char* VALUE, void** data)
 
     const auto             DATA = sc<CCssGapData*>(*data);
     CVarList2              varlist((std::string(V)));
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
 
     try {
         DATA->parseGapData(varlist);
@@ -190,12 +190,12 @@ static void configHandleGapDestroy(void** data) {
         delete sc<CCssGapData*>(*data);
 }
 
-static Hyprlang::CParseResult configHandleFontWeightSet(const char* VALUE, void** data) {
+static Abyssparse::CParseResult configHandleFontWeightSet(const char* VALUE, void** data) {
     if (!*data)
         *data = new CFontWeightConfigValueData();
 
     const auto             DATA = sc<CFontWeightConfigValueData*>(*data);
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
 
     try {
         DATA->parseWeight(VALUE);
@@ -212,267 +212,267 @@ static void configHandleFontWeightDestroy(void** data) {
         delete sc<CFontWeightConfigValueData*>(*data);
 }
 
-static Hyprlang::CParseResult handleExec(const char* c, const char* v) {
+static Abyssparse::CParseResult handleExec(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleExec(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleRawExec(const char* c, const char* v) {
+static Abyssparse::CParseResult handleRawExec(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleRawExec(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleExecOnce(const char* c, const char* v) {
+static Abyssparse::CParseResult handleExecOnce(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleExecOnce(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleExecRawOnce(const char* c, const char* v) {
+static Abyssparse::CParseResult handleExecRawOnce(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleExecRawOnce(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleExecShutdown(const char* c, const char* v) {
+static Abyssparse::CParseResult handleExecShutdown(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleExecShutdown(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleMonitor(const char* c, const char* v) {
+static Abyssparse::CParseResult handleMonitor(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleMonitor(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleBezier(const char* c, const char* v) {
+static Abyssparse::CParseResult handleBezier(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleBezier(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleAnimation(const char* c, const char* v) {
+static Abyssparse::CParseResult handleAnimation(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleAnimation(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleBind(const char* c, const char* v) {
+static Abyssparse::CParseResult handleBind(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleBind(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleUnbind(const char* c, const char* v) {
+static Abyssparse::CParseResult handleUnbind(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleUnbind(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleWorkspaceRules(const char* c, const char* v) {
+static Abyssparse::CParseResult handleWorkspaceRules(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleWorkspaceRules(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleSubmap(const char* c, const char* v) {
+static Abyssparse::CParseResult handleSubmap(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleSubmap(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleSource(const char* c, const char* v) {
+static Abyssparse::CParseResult handleSource(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleSource(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleEnv(const char* c, const char* v) {
+static Abyssparse::CParseResult handleEnv(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleEnv(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handlePlugin(const char* c, const char* v) {
+static Abyssparse::CParseResult handlePlugin(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handlePlugin(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handlePermission(const char* c, const char* v) {
+static Abyssparse::CParseResult handlePermission(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handlePermission(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleGesture(const char* c, const char* v) {
+static Abyssparse::CParseResult handleGesture(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleGesture(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleWindowrule(const char* c, const char* v) {
+static Abyssparse::CParseResult handleWindowrule(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleWindowrule(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleWindowrulev2(const char* c, const char* v) {
-    Hyprlang::CParseResult res;
+static Abyssparse::CParseResult handleWindowrulev2(const char* c, const char* v) {
+    Abyssparse::CParseResult res;
     res.setError("windowrulev2 is deprecated. Correct syntax can be found on the wiki.");
     return res;
 }
 
-static Hyprlang::CParseResult handleLayerrule(const char* c, const char* v) {
+static Abyssparse::CParseResult handleLayerrule(const char* c, const char* v) {
     const std::string      VALUE   = v;
     const std::string      COMMAND = c;
 
     const auto             RESULT = Config::Legacy::mgr()->handleLayerrule(COMMAND, VALUE);
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     if (RESULT.has_value())
         result.setError(RESULT.value().c_str());
     return result;
 }
 
-static Hyprlang::CParseResult handleLayerrulev2(const char* c, const char* v) {
-    Hyprlang::CParseResult res;
+static Abyssparse::CParseResult handleLayerrulev2(const char* c, const char* v) {
+    Abyssparse::CParseResult res;
     res.setError("layerrulev2 doesn't exist. Correct syntax can be found on the wiki.");
     return res;
 }
 
-void CConfigManager::registerConfigVar(const char* name, const Hyprlang::INT& val) {
+void CConfigManager::registerConfigVar(const char* name, const Abyssparse::INT& val) {
     m_configValueNumber++;
     m_config->addConfigValue(name, val);
 }
 
-void CConfigManager::registerConfigVar(const char* name, const Hyprlang::FLOAT& val) {
+void CConfigManager::registerConfigVar(const char* name, const Abyssparse::FLOAT& val) {
     m_configValueNumber++;
     m_config->addConfigValue(name, val);
 }
 
-void CConfigManager::registerConfigVar(const char* name, const Hyprlang::VEC2& val) {
+void CConfigManager::registerConfigVar(const char* name, const Abyssparse::VEC2& val) {
     m_configValueNumber++;
     m_config->addConfigValue(name, val);
 }
 
-void CConfigManager::registerConfigVar(const char* name, const Hyprlang::STRING& val) {
+void CConfigManager::registerConfigVar(const char* name, const Abyssparse::STRING& val) {
     m_configValueNumber++;
     m_config->addConfigValue(name, val);
 }
 
-void CConfigManager::registerConfigVar(const char* name, Hyprlang::CUSTOMTYPE&& val) {
+void CConfigManager::registerConfigVar(const char* name, Abyssparse::CUSTOMTYPE&& val) {
     m_configValueNumber++;
     m_config->addConfigValue(name, std::move(val));
 }
@@ -483,89 +483,89 @@ CConfigManager::CConfigManager() {
     m_mainConfigPath = Supplementary::Jeremy::getMainConfigPath()->path;
 
     m_configPaths.emplace_back(m_mainConfigPath);
-    m_config = makeUnique<Hyprlang::CConfig>(m_configPaths.begin()->c_str(), Hyprlang::SConfigOptions{.throwAllErrors = true, .allowMissingConfig = true});
+    m_config = makeUnique<Abyssparse::CConfig>(m_configPaths.begin()->c_str(), Abyssparse::SConfigOptions{.throwAllErrors = true, .allowMissingConfig = true});
 
     for (const auto& v : Values::CONFIG_VALUES) {
         const char* NAME = v->name();
 
         if (auto p = dc<Config::Values::CIntValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::INT{p->defaultVal()});
+            registerConfigVar(NAME, Abyssparse::INT{p->defaultVal()});
         else if (auto p = dc<Config::Values::CFloatValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::FLOAT{p->defaultVal()});
+            registerConfigVar(NAME, Abyssparse::FLOAT{p->defaultVal()});
         else if (auto p = dc<Config::Values::CBoolValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::INT{p->defaultVal() ? 1 : 0});
+            registerConfigVar(NAME, Abyssparse::INT{p->defaultVal() ? 1 : 0});
         else if (auto p = dc<Config::Values::CStringValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::STRING{p->defaultVal().c_str()});
+            registerConfigVar(NAME, Abyssparse::STRING{p->defaultVal().c_str()});
         else if (auto p = dc<Config::Values::CColorValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::INT{p->defaultVal()});
+            registerConfigVar(NAME, Abyssparse::INT{p->defaultVal()});
         else if (auto p = dc<Config::Values::CVec2Value*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::VEC2{p->defaultVal().x, p->defaultVal().y});
+            registerConfigVar(NAME, Abyssparse::VEC2{p->defaultVal().x, p->defaultVal().y});
         else if (auto p = dc<Config::Values::CCssGapValue*>(v.get()))
-            registerConfigVar(NAME, Hyprlang::CConfigCustomValueType{configHandleGapSet, configHandleGapDestroy, std::to_string(p->defaultVal().m_top).c_str()});
+            registerConfigVar(NAME, Abyssparse::CConfigCustomValueType{configHandleGapSet, configHandleGapDestroy, std::to_string(p->defaultVal().m_top).c_str()});
         else if (auto p = dc<Config::Values::CFontWeightValue*>(v.get()))
             registerConfigVar(NAME,
-                              Hyprlang::CConfigCustomValueType{&configHandleFontWeightSet, configHandleFontWeightDestroy, std::format("{}", p->defaultVal().m_value).c_str()});
+                              Abyssparse::CConfigCustomValueType{&configHandleFontWeightSet, configHandleFontWeightDestroy, std::format("{}", p->defaultVal().m_value).c_str()});
         else if (auto p = dc<Config::Values::CGradientValue*>(v.get()))
             registerConfigVar(NAME,
-                              Hyprlang::CConfigCustomValueType{&configHandleGradientSet, configHandleGradientDestroy,
+                              Abyssparse::CConfigCustomValueType{&configHandleGradientSet, configHandleGradientDestroy,
                                                                std::format("0x{:x}", (int64_t)p->defaultVal().m_colors.begin()->getAsHex()).c_str()});
         else
             RASSERT(false, "legacy cfg: bad value {}", NAME);
     }
 
-    registerConfigVar("autogenerated", Hyprlang::INT{0});
+    registerConfigVar("autogenerated", Abyssparse::INT{0});
     // devices
     m_config->addSpecialCategory("device", {"name"});
     m_config->addSpecialConfigValue("device", "sensitivity", {0.F});
     m_config->addSpecialConfigValue("device", "accel_profile", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "rotation", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("device", "rotation", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("device", "kb_file", {STRVAL_EMPTY});
     m_config->addSpecialConfigValue("device", "kb_layout", {"us"});
     m_config->addSpecialConfigValue("device", "kb_variant", {STRVAL_EMPTY});
     m_config->addSpecialConfigValue("device", "kb_options", {STRVAL_EMPTY});
     m_config->addSpecialConfigValue("device", "kb_rules", {STRVAL_EMPTY});
     m_config->addSpecialConfigValue("device", "kb_model", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "repeat_rate", Hyprlang::INT{25});
-    m_config->addSpecialConfigValue("device", "repeat_delay", Hyprlang::INT{600});
-    m_config->addSpecialConfigValue("device", "natural_scroll", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("device", "repeat_rate", Abyssparse::INT{25});
+    m_config->addSpecialConfigValue("device", "repeat_delay", Abyssparse::INT{600});
+    m_config->addSpecialConfigValue("device", "natural_scroll", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("device", "tap_button_map", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "numlock_by_default", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "resolve_binds_by_sym", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "disable_while_typing", Hyprlang::INT{1});
-    m_config->addSpecialConfigValue("device", "clickfinger_behavior", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "middle_button_emulation", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "tap-to-click", Hyprlang::INT{1});
-    m_config->addSpecialConfigValue("device", "tap-and-drag", Hyprlang::INT{1});
-    m_config->addSpecialConfigValue("device", "drag_lock", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "left_handed", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("device", "numlock_by_default", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "resolve_binds_by_sym", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "disable_while_typing", Abyssparse::INT{1});
+    m_config->addSpecialConfigValue("device", "clickfinger_behavior", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "middle_button_emulation", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "tap-to-click", Abyssparse::INT{1});
+    m_config->addSpecialConfigValue("device", "tap-and-drag", Abyssparse::INT{1});
+    m_config->addSpecialConfigValue("device", "drag_lock", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "left_handed", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("device", "scroll_method", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "scroll_button", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("device", "scroll_button_lock", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("device", "scroll_button", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("device", "scroll_button_lock", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("device", "scroll_points", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "scroll_factor", Hyprlang::FLOAT{-1});
-    m_config->addSpecialConfigValue("device", "transform", Hyprlang::INT{-1});
+    m_config->addSpecialConfigValue("device", "scroll_factor", Abyssparse::FLOAT{-1});
+    m_config->addSpecialConfigValue("device", "transform", Abyssparse::INT{-1});
     m_config->addSpecialConfigValue("device", "output", {STRVAL_EMPTY});
-    m_config->addSpecialConfigValue("device", "enabled", Hyprlang::INT{1});                  // only for mice, touchpads, and touchdevices
-    m_config->addSpecialConfigValue("device", "region_position", Hyprlang::VEC2{0, 0});      // only for tablets
-    m_config->addSpecialConfigValue("device", "absolute_region_position", Hyprlang::INT{0}); // only for tablets
-    m_config->addSpecialConfigValue("device", "region_size", Hyprlang::VEC2{0, 0});          // only for tablets
-    m_config->addSpecialConfigValue("device", "relative_input", Hyprlang::INT{0});           // only for tablets
-    m_config->addSpecialConfigValue("device", "active_area_position", Hyprlang::VEC2{0, 0}); // only for tablets
-    m_config->addSpecialConfigValue("device", "active_area_size", Hyprlang::VEC2{0, 0});     // only for tablets
-    m_config->addSpecialConfigValue("device", "flip_x", Hyprlang::INT{0});                   // only for touchpads
-    m_config->addSpecialConfigValue("device", "flip_y", Hyprlang::INT{0});                   // only for touchpads
-    m_config->addSpecialConfigValue("device", "drag_3fg", Hyprlang::INT{0});                 // only for touchpads
-    m_config->addSpecialConfigValue("device", "keybinds", Hyprlang::INT{1});                 // enable/disable keybinds
-    m_config->addSpecialConfigValue("device", "share_states", Hyprlang::INT{0});             // only for virtualkeyboards
-    m_config->addSpecialConfigValue("device", "release_pressed_on_close", Hyprlang::INT{0}); // only for virtualkeyboards
+    m_config->addSpecialConfigValue("device", "enabled", Abyssparse::INT{1});                  // only for mice, touchpads, and touchdevices
+    m_config->addSpecialConfigValue("device", "region_position", Abyssparse::VEC2{0, 0});      // only for tablets
+    m_config->addSpecialConfigValue("device", "absolute_region_position", Abyssparse::INT{0}); // only for tablets
+    m_config->addSpecialConfigValue("device", "region_size", Abyssparse::VEC2{0, 0});          // only for tablets
+    m_config->addSpecialConfigValue("device", "relative_input", Abyssparse::INT{0});           // only for tablets
+    m_config->addSpecialConfigValue("device", "active_area_position", Abyssparse::VEC2{0, 0}); // only for tablets
+    m_config->addSpecialConfigValue("device", "active_area_size", Abyssparse::VEC2{0, 0});     // only for tablets
+    m_config->addSpecialConfigValue("device", "flip_x", Abyssparse::INT{0});                   // only for touchpads
+    m_config->addSpecialConfigValue("device", "flip_y", Abyssparse::INT{0});                   // only for touchpads
+    m_config->addSpecialConfigValue("device", "drag_3fg", Abyssparse::INT{0});                 // only for touchpads
+    m_config->addSpecialConfigValue("device", "keybinds", Abyssparse::INT{1});                 // enable/disable keybinds
+    m_config->addSpecialConfigValue("device", "share_states", Abyssparse::INT{0});             // only for virtualkeyboards
+    m_config->addSpecialConfigValue("device", "release_pressed_on_close", Abyssparse::INT{0}); // only for virtualkeyboards
     m_config->addSpecialConfigValue("device", "tags", STRVAL_EMPTY);                         // only for keyboards and mice
-    m_config->addSpecialConfigValue("device", "eraser_button_mode", Hyprlang::INT{0});       // only for tablettools
-    m_config->addSpecialConfigValue("device", "eraser_button_override", Hyprlang::INT{0});   // only for tablettools
-    m_config->addSpecialConfigValue("device", "pressure_range_min", Hyprlang::FLOAT{-1.0});  // only for tablettools
-    m_config->addSpecialConfigValue("device", "pressure_range_max", Hyprlang::FLOAT{-1.0});  // only for tablettools
+    m_config->addSpecialConfigValue("device", "eraser_button_mode", Abyssparse::INT{0});       // only for tablettools
+    m_config->addSpecialConfigValue("device", "eraser_button_override", Abyssparse::INT{0});   // only for tablettools
+    m_config->addSpecialConfigValue("device", "pressure_range_min", Abyssparse::FLOAT{-1.0});  // only for tablettools
+    m_config->addSpecialConfigValue("device", "pressure_range_max", Abyssparse::FLOAT{-1.0});  // only for tablettools
 
     m_config->addSpecialCategory("monitorv2", {.key = "output"});
-    m_config->addSpecialConfigValue("monitorv2", "disabled", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("monitorv2", "disabled", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("monitorv2", "mode", {"preferred"});
     m_config->addSpecialConfigValue("monitorv2", "position", {"auto"});
     m_config->addSpecialConfigValue("monitorv2", "scale", {"auto"});
@@ -574,26 +574,26 @@ CConfigManager::CConfigManager() {
     m_config->addSpecialConfigValue("monitorv2", "bitdepth", {STRVAL_EMPTY}); // TODO use correct type
     m_config->addSpecialConfigValue("monitorv2", "cm", {"auto"});
     m_config->addSpecialConfigValue("monitorv2", "sdr_eotf", {"default"});
-    m_config->addSpecialConfigValue("monitorv2", "sdrbrightness", Hyprlang::FLOAT{1.0});
-    m_config->addSpecialConfigValue("monitorv2", "sdrsaturation", Hyprlang::FLOAT{1.0});
-    m_config->addSpecialConfigValue("monitorv2", "vrr", Hyprlang::INT{0});
+    m_config->addSpecialConfigValue("monitorv2", "sdrbrightness", Abyssparse::FLOAT{1.0});
+    m_config->addSpecialConfigValue("monitorv2", "sdrsaturation", Abyssparse::FLOAT{1.0});
+    m_config->addSpecialConfigValue("monitorv2", "vrr", Abyssparse::INT{0});
     m_config->addSpecialConfigValue("monitorv2", "transform", {STRVAL_EMPTY}); // TODO use correct type
-    m_config->addSpecialConfigValue("monitorv2", "supports_wide_color", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("monitorv2", "supports_hdr", Hyprlang::INT{0});
-    m_config->addSpecialConfigValue("monitorv2", "sdr_min_luminance", Hyprlang::FLOAT{0.2});
-    m_config->addSpecialConfigValue("monitorv2", "sdr_max_luminance", Hyprlang::INT{80});
-    m_config->addSpecialConfigValue("monitorv2", "min_luminance", Hyprlang::FLOAT{-1.0});
-    m_config->addSpecialConfigValue("monitorv2", "max_luminance", Hyprlang::INT{-1});
-    m_config->addSpecialConfigValue("monitorv2", "max_avg_luminance", Hyprlang::INT{-1});
-    m_config->addSpecialConfigValue("monitorv2", "icc", Hyprlang::STRING{""});
+    m_config->addSpecialConfigValue("monitorv2", "supports_wide_color", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("monitorv2", "supports_hdr", Abyssparse::INT{0});
+    m_config->addSpecialConfigValue("monitorv2", "sdr_min_luminance", Abyssparse::FLOAT{0.2});
+    m_config->addSpecialConfigValue("monitorv2", "sdr_max_luminance", Abyssparse::INT{80});
+    m_config->addSpecialConfigValue("monitorv2", "min_luminance", Abyssparse::FLOAT{-1.0});
+    m_config->addSpecialConfigValue("monitorv2", "max_luminance", Abyssparse::INT{-1});
+    m_config->addSpecialConfigValue("monitorv2", "max_avg_luminance", Abyssparse::INT{-1});
+    m_config->addSpecialConfigValue("monitorv2", "icc", Abyssparse::STRING{""});
 
     // windowrule v3
     m_config->addSpecialCategory("windowrule", {.key = "name"});
-    m_config->addSpecialConfigValue("windowrule", "enable", Hyprlang::INT{1});
+    m_config->addSpecialConfigValue("windowrule", "enable", Abyssparse::INT{1});
 
     // layerrule v2
     m_config->addSpecialCategory("layerrule", {.key = "name"});
-    m_config->addSpecialConfigValue("layerrule", "enable", Hyprlang::INT{1});
+    m_config->addSpecialConfigValue("layerrule", "enable", Abyssparse::INT{1});
 
     reloadRuleConfigs();
 
@@ -633,7 +633,7 @@ CConfigManager::CConfigManager() {
         Log::logger->log(
             Log::DEBUG,
             "!!!!HEY YOU, YES YOU!!!!: further logs to stdout / logfile are disabled by default. BEFORE SENDING THIS LOG, ENABLE THEM. Use debug:disable_logs = false to do so: "
-            "https://wiki.hypr.land/Configuring/Basics/Variables/#debug");
+            "https://github.com/AbyssWM/Abyssland");
     }
 
     if (g_pEventLoopManager && ERR.has_value())
@@ -648,19 +648,19 @@ void CConfigManager::reloadRuleConfigs() {
     // FIXME: this should also remove old values if they are removed
 
     for (const auto& r : Desktop::Rule::allMatchPropStrings()) {
-        m_config->addSpecialConfigValue("windowrule", std::string{"match:"}.append(r).c_str(), Hyprlang::STRING{""});
+        m_config->addSpecialConfigValue("windowrule", std::string{"match:"}.append(r).c_str(), Abyssparse::STRING{""});
     }
 
     for (const auto& r : Desktop::Rule::windowEffects()->allEffectStrings()) {
-        m_config->addSpecialConfigValue("windowrule", r.c_str(), Hyprlang::STRING{""});
+        m_config->addSpecialConfigValue("windowrule", r.c_str(), Abyssparse::STRING{""});
     }
 
     for (const auto& r : Desktop::Rule::allMatchPropStrings()) {
-        m_config->addSpecialConfigValue("layerrule", std::string{"match:"}.append(r).c_str(), Hyprlang::STRING{""});
+        m_config->addSpecialConfigValue("layerrule", std::string{"match:"}.append(r).c_str(), Abyssparse::STRING{""});
     }
 
     for (const auto& r : Desktop::Rule::layerEffects()->allEffectStrings()) {
-        m_config->addSpecialConfigValue("layerrule", r.c_str(), Hyprlang::STRING{""});
+        m_config->addSpecialConfigValue("layerrule", r.c_str(), Abyssparse::STRING{""});
     }
 }
 
@@ -708,7 +708,7 @@ std::string CConfigManager::getErrors() {
 }
 
 static std::vector<const char*> HL_VERSION_VARS = {
-    "HYPRLAND_V_0_53",
+    "ABYSSLAND_V_0_53",
 };
 
 static void exportHlVersionVars() {
@@ -788,20 +788,20 @@ std::optional<std::string> CConfigManager::resetHLConfig() {
 std::optional<std::string> CConfigManager::handleMonitorv2(const std::string& output) {
     auto parser = Config::CMonitorRuleParser(output);
     auto VAL    = m_config->getSpecialConfigValuePtr("monitorv2", "disabled", output.c_str());
-    if (VAL && VAL->m_bSetByUser && std::any_cast<Hyprlang::INT>(VAL->getValue()))
+    if (VAL && VAL->m_bSetByUser && std::any_cast<Abyssparse::INT>(VAL->getValue()))
         parser.setDisabled();
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "mode", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parseMode(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parseMode(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "position", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parsePosition(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parsePosition(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "scale", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parseScale(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parseScale(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "addreserved", output.c_str());
     if (VAL && VAL->m_bSetByUser) {
-        const auto ARGS = CVarList(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        const auto ARGS = CVarList(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
         try {
             // top, right, bottom, left
             parser.setReserved({std::stoi(ARGS[0]), std::stoi(ARGS[3]), std::stoi(ARGS[1]), std::stoi(ARGS[2])});
@@ -809,16 +809,16 @@ std::optional<std::string> CConfigManager::handleMonitorv2(const std::string& ou
     }
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "mirror", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.setMirror(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.setMirror(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "bitdepth", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parseBitdepth(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parseBitdepth(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "cm", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parseCM(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parseCM(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "sdr_eotf", output.c_str());
     if (VAL && VAL->m_bSetByUser) {
-        const std::string value = std::any_cast<Hyprlang::STRING>(VAL->getValue());
+        const std::string value = std::any_cast<Abyssparse::STRING>(VAL->getValue());
         // remap legacy
         if (value == "0")
             parser.rule().m_sdrEotf = NTransferFunction::TF_AUTO;
@@ -831,45 +831,45 @@ std::optional<std::string> CConfigManager::handleMonitorv2(const std::string& ou
     }
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "sdrbrightness", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_sdrBrightness = std::any_cast<Hyprlang::FLOAT>(VAL->getValue());
+        parser.rule().m_sdrBrightness = std::any_cast<Abyssparse::FLOAT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "sdrsaturation", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_sdrSaturation = std::any_cast<Hyprlang::FLOAT>(VAL->getValue());
+        parser.rule().m_sdrSaturation = std::any_cast<Abyssparse::FLOAT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "vrr", output.c_str());
     if (VAL && VAL->m_bSetByUser) {
-        const auto VRR      = sc<int>(std::any_cast<Hyprlang::INT>(VAL->getValue()));
+        const auto VRR      = sc<int>(std::any_cast<Abyssparse::INT>(VAL->getValue()));
         parser.rule().m_vrr = VRR < 0 ? std::nullopt : std::optional(VRR);
     }
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "transform", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.parseTransform(std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+        parser.parseTransform(std::any_cast<Abyssparse::STRING>(VAL->getValue()));
 
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "supports_wide_color", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_supportsWideColor = std::any_cast<Hyprlang::INT>(VAL->getValue());
+        parser.rule().m_supportsWideColor = std::any_cast<Abyssparse::INT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "supports_hdr", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_supportsHDR = std::any_cast<Hyprlang::INT>(VAL->getValue());
+        parser.rule().m_supportsHDR = std::any_cast<Abyssparse::INT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "sdr_min_luminance", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_sdrMinLuminance = std::any_cast<Hyprlang::FLOAT>(VAL->getValue());
+        parser.rule().m_sdrMinLuminance = std::any_cast<Abyssparse::FLOAT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "sdr_max_luminance", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_sdrMaxLuminance = std::any_cast<Hyprlang::INT>(VAL->getValue());
+        parser.rule().m_sdrMaxLuminance = std::any_cast<Abyssparse::INT>(VAL->getValue());
 
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "min_luminance", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_minLuminance = std::any_cast<Hyprlang::FLOAT>(VAL->getValue());
+        parser.rule().m_minLuminance = std::any_cast<Abyssparse::FLOAT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "max_luminance", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_maxLuminance = std::any_cast<Hyprlang::INT>(VAL->getValue());
+        parser.rule().m_maxLuminance = std::any_cast<Abyssparse::INT>(VAL->getValue());
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "max_avg_luminance", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_maxAvgLuminance = std::any_cast<Hyprlang::INT>(VAL->getValue());
+        parser.rule().m_maxAvgLuminance = std::any_cast<Abyssparse::INT>(VAL->getValue());
 
     VAL = m_config->getSpecialConfigValuePtr("monitorv2", "icc", output.c_str());
     if (VAL && VAL->m_bSetByUser)
-        parser.rule().m_iccFile = std::any_cast<Hyprlang::STRING>(VAL->getValue());
+        parser.rule().m_iccFile = std::any_cast<Abyssparse::STRING>(VAL->getValue());
 
     auto newrule = parser.rule();
 
@@ -878,8 +878,8 @@ std::optional<std::string> CConfigManager::handleMonitorv2(const std::string& ou
     return parser.getError();
 }
 
-Hyprlang::CParseResult CConfigManager::handleMonitorv2() {
-    Hyprlang::CParseResult result;
+Abyssparse::CParseResult CConfigManager::handleMonitorv2() {
+    Abyssparse::CParseResult result;
     for (const auto& output : m_config->listKeysForSpecialCategory("monitorv2")) {
         const auto error = handleMonitorv2(output);
         if (error.has_value()) {
@@ -892,7 +892,7 @@ Hyprlang::CParseResult CConfigManager::handleMonitorv2() {
 
 std::optional<std::string> CConfigManager::addRuleFromConfigKey(const std::string& name) {
     const auto ENABLED = m_config->getSpecialConfigValuePtr("windowrule", "enable", name.c_str());
-    if (ENABLED && ENABLED->m_bSetByUser && std::any_cast<Hyprlang::INT>(ENABLED->getValue()) == 0)
+    if (ENABLED && ENABLED->m_bSetByUser && std::any_cast<Abyssparse::INT>(ENABLED->getValue()) == 0)
         return std::nullopt;
 
     SP<Desktop::Rule::CWindowRule> rule = makeShared<Desktop::Rule::CWindowRule>(name);
@@ -900,13 +900,13 @@ std::optional<std::string> CConfigManager::addRuleFromConfigKey(const std::strin
     for (const auto& r : Desktop::Rule::allMatchPropStrings()) {
         auto VAL = m_config->getSpecialConfigValuePtr("windowrule", std::string{"match:"}.append(r).c_str(), name.c_str());
         if (VAL && VAL->m_bSetByUser)
-            rule->registerMatch(Desktop::Rule::matchPropFromString(r).value_or(Desktop::Rule::RULE_PROP_NONE), std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+            rule->registerMatch(Desktop::Rule::matchPropFromString(r).value_or(Desktop::Rule::RULE_PROP_NONE), std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     }
 
     for (const auto& e : Desktop::Rule::windowEffects()->allEffectStrings()) {
         auto VAL = m_config->getSpecialConfigValuePtr("windowrule", e.c_str(), name.c_str());
         if (VAL && VAL->m_bSetByUser) {
-            auto res = rule->addEffect(Desktop::Rule::windowEffects()->get(e).value_or(Desktop::Rule::WINDOW_RULE_EFFECT_NONE), std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+            auto res = rule->addEffect(Desktop::Rule::windowEffects()->get(e).value_or(Desktop::Rule::WINDOW_RULE_EFFECT_NONE), std::any_cast<Abyssparse::STRING>(VAL->getValue()));
             if (!res)
                 return res.error();
         }
@@ -919,7 +919,7 @@ std::optional<std::string> CConfigManager::addRuleFromConfigKey(const std::strin
 std::optional<std::string> CConfigManager::addLayerRuleFromConfigKey(const std::string& name) {
 
     const auto ENABLED = m_config->getSpecialConfigValuePtr("layerrule", "enable", name.c_str());
-    if (ENABLED && ENABLED->m_bSetByUser && std::any_cast<Hyprlang::INT>(ENABLED->getValue()) != 0)
+    if (ENABLED && ENABLED->m_bSetByUser && std::any_cast<Abyssparse::INT>(ENABLED->getValue()) != 0)
         return std::nullopt;
 
     SP<Desktop::Rule::CLayerRule> rule = makeShared<Desktop::Rule::CLayerRule>(name);
@@ -927,13 +927,13 @@ std::optional<std::string> CConfigManager::addLayerRuleFromConfigKey(const std::
     for (const auto& r : Desktop::Rule::allMatchPropStrings()) {
         auto VAL = m_config->getSpecialConfigValuePtr("layerrule", std::string{"match:"}.append(r).c_str(), name.c_str());
         if (VAL && VAL->m_bSetByUser)
-            rule->registerMatch(Desktop::Rule::matchPropFromString(r).value_or(Desktop::Rule::RULE_PROP_NONE), std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+            rule->registerMatch(Desktop::Rule::matchPropFromString(r).value_or(Desktop::Rule::RULE_PROP_NONE), std::any_cast<Abyssparse::STRING>(VAL->getValue()));
     }
 
     for (const auto& e : Desktop::Rule::layerEffects()->allEffectStrings()) {
         auto VAL = m_config->getSpecialConfigValuePtr("layerrule", e.c_str(), name.c_str());
         if (VAL && VAL->m_bSetByUser) {
-            auto res = rule->addEffect(Desktop::Rule::layerEffects()->get(e).value_or(Desktop::Rule::LAYER_RULE_EFFECT_NONE), std::any_cast<Hyprlang::STRING>(VAL->getValue()));
+            auto res = rule->addEffect(Desktop::Rule::layerEffects()->get(e).value_or(Desktop::Rule::LAYER_RULE_EFFECT_NONE), std::any_cast<Abyssparse::STRING>(VAL->getValue()));
             if (!res)
                 return res.error();
         }
@@ -943,10 +943,10 @@ std::optional<std::string> CConfigManager::addLayerRuleFromConfigKey(const std::
     return std::nullopt;
 }
 
-Hyprlang::CParseResult CConfigManager::reloadRules() {
+Abyssparse::CParseResult CConfigManager::reloadRules() {
     Desktop::Rule::ruleEngine()->clearAllRules();
 
-    Hyprlang::CParseResult result;
+    Abyssparse::CParseResult result;
     for (const auto& name : m_config->listKeysForSpecialCategory("windowrule")) {
         const auto error = addRuleFromConfigKey(name);
         if (error.has_value())
@@ -967,7 +967,7 @@ Hyprlang::CParseResult CConfigManager::reloadRules() {
     return result;
 }
 
-void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
+void CConfigManager::postConfigReload(const Abyssparse::CParseResult& result) {
     for (auto const& w : Desktop::windowState()->windows()) {
         w->uncacheWindowDecos();
     }
@@ -979,7 +979,7 @@ void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
         g_pInputManager->setTouchDeviceConfigs();
         g_pInputManager->setTabletConfigs();
 
-        g_pHyprRenderer->m_reloadScreenShader = true;
+        g_pAbyssRenderer->m_reloadScreenShader = true;
     }
 
     // parseError will be displayed next frame
@@ -989,12 +989,12 @@ void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
     else
         m_configErrors = "";
 
-    if (result.error && !std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:suppress_errors")))
+    if (result.error && !std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:suppress_errors")))
         ErrorOverlay::overlay()->queueCreate(result.getError(), ErrorOverlay::Colors::ERROR);
-    else if (std::any_cast<Hyprlang::INT>(m_config->getConfigValue("autogenerated")) == 1)
+    else if (std::any_cast<Abyssparse::INT>(m_config->getConfigValue("autogenerated")) == 1)
         ErrorOverlay::overlay()->queueCreate(
             "Warning: You're using an autogenerated config! Edit the config file to get rid of this message. (config file: " + getMainConfigPath() +
-                " )\nSUPER+Q -> kitty (if it doesn't launch, make sure it's installed or choose a different terminal in the config)\nSUPER+M -> exit Hyprland",
+                " )\nSUPER+Q -> kitty (if it doesn't launch, make sure it's installed or choose a different terminal in the config)\nSUPER+M -> exit Abyssland",
             ErrorOverlay::Colors::ERROR);
     else
         ErrorOverlay::overlay()->destroy();
@@ -1010,7 +1010,7 @@ void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
     }
 
 #ifndef NO_XWAYLAND
-    const auto PENABLEXWAYLAND     = std::any_cast<Hyprlang::INT>(m_config->getConfigValue("xwayland:enabled"));
+    const auto PENABLEXWAYLAND     = std::any_cast<Abyssparse::INT>(m_config->getConfigValue("xwayland:enabled"));
     g_pCompositor->m_wantsXwayland = PENABLEXWAYLAND;
     // enable/disable xwayland usage
     if (!m_isFirstLaunch &&
@@ -1034,21 +1034,21 @@ void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
     Desktop::globalWindowController()->updateAllWindowsDecorations();
 
     // manual crash
-    if (std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:manual_crash")) && !m_manualCrashInitiated) {
+    if (std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:manual_crash")) && !m_manualCrashInitiated) {
         m_manualCrashInitiated = true;
-        Notification::overlay()->addNotification("Manual crash has been set up. Set debug:manual_crash back to 0 in order to crash the compositor.", CHyprColor(0), 5000,
+        Notification::overlay()->addNotification("Manual crash has been set up. Set debug:manual_crash back to 0 in order to crash the compositor.", CAbyssColor(0), 5000,
                                                  ICON_INFO);
-    } else if (m_manualCrashInitiated && !std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:manual_crash"))) {
+    } else if (m_manualCrashInitiated && !std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:manual_crash"))) {
         // cowabunga it is
-        g_pHyprRenderer->initiateManualCrash();
+        g_pAbyssRenderer->initiateManualCrash();
     }
 
-    auto disableStdout = !std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:enable_stdout_logs"));
+    auto disableStdout = !std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:enable_stdout_logs"));
     if (disableStdout && m_isFirstLaunch)
         Log::logger->log(Log::DEBUG,
                          "Disabling stdout logs (debug.enable_stdout_logs = 0). "
                          "Further logs will be written to {}",
-                         g_pCompositor->m_instancePath + (ISDEBUG ? "/hyprlandd.log" : "/hyprland.log"));
+                         g_pCompositor->m_instancePath + (ISDEBUG ? "/abysslandd.log" : "/abyssland.log"));
 
     for (auto const& m : State::monitorState()->monitors()) {
         // mark blur dirty
@@ -1071,7 +1071,7 @@ void CConfigManager::postConfigReload(const Hyprlang::CParseResult& result) {
 
     Event::bus()->m_events.config.reloaded.emit();
     if (g_pEventManager)
-        g_pEventManager->postEvent(SHyprIPCEvent{"configreloaded", ""});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"configreloaded", ""});
 }
 
 void CConfigManager::init() {
@@ -1100,19 +1100,19 @@ std::string CConfigManager::parseKeyword(const std::string& COMMAND, const std::
     Desktop::globalWindowController()->updateAllWindowsDecorations();
 
     // manual crash
-    if (std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:manual_crash")) && !m_manualCrashInitiated) {
+    if (std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:manual_crash")) && !m_manualCrashInitiated) {
         m_manualCrashInitiated = true;
-        Notification::overlay()->addNotification("Manual crash has been set up. Set debug:manual_crash back to 0 in order to crash the compositor.", CHyprColor(0), 5000,
+        Notification::overlay()->addNotification("Manual crash has been set up. Set debug:manual_crash back to 0 in order to crash the compositor.", CAbyssColor(0), 5000,
                                                  ICON_INFO);
-    } else if (m_manualCrashInitiated && !std::any_cast<Hyprlang::INT>(m_config->getConfigValue("debug:manual_crash"))) {
+    } else if (m_manualCrashInitiated && !std::any_cast<Abyssparse::INT>(m_config->getConfigValue("debug:manual_crash"))) {
         // cowabunga it is
-        g_pHyprRenderer->initiateManualCrash();
+        g_pAbyssRenderer->initiateManualCrash();
     }
 
     return RET.error ? RET.getError() : "";
 }
 
-Hyprlang::CConfigValue* CConfigManager::getConfigValueSafeDevice(const std::string& dev, const std::string& val, const std::string& fallback) {
+Abyssparse::CConfigValue* CConfigManager::getConfigValueSafeDevice(const std::string& dev, const std::string& val, const std::string& fallback) {
 
     const auto VAL = m_config->getSpecialConfigValuePtr("device", val.c_str(), dev.c_str());
 
@@ -1133,7 +1133,7 @@ int CConfigManager::getDeviceInt(const std::string& dev, const std::string& v, c
     if (!val)
         return {};
 
-    return std::any_cast<Hyprlang::INT>(val->getValue());
+    return std::any_cast<Abyssparse::INT>(val->getValue());
 }
 
 float CConfigManager::getDeviceFloat(const std::string& dev, const std::string& v, const std::string& fallback) {
@@ -1141,7 +1141,7 @@ float CConfigManager::getDeviceFloat(const std::string& dev, const std::string& 
     if (!val)
         return {};
 
-    return std::any_cast<Hyprlang::FLOAT>(val->getValue());
+    return std::any_cast<Abyssparse::FLOAT>(val->getValue());
 }
 
 Vector2D CConfigManager::getDeviceVec(const std::string& dev, const std::string& v, const std::string& fallback) {
@@ -1149,7 +1149,7 @@ Vector2D CConfigManager::getDeviceVec(const std::string& dev, const std::string&
     if (!val)
         return {};
 
-    auto vec = std::any_cast<Hyprlang::VEC2>(val->getValue());
+    auto vec = std::any_cast<Abyssparse::VEC2>(val->getValue());
     return {vec.x, vec.y};
 }
 
@@ -1158,7 +1158,7 @@ std::string CConfigManager::getDeviceString(const std::string& dev, const std::s
     if (!val)
         return "";
 
-    auto VAL = std::string{std::any_cast<Hyprlang::STRING>(val->getValue())};
+    auto VAL = std::string{std::any_cast<Abyssparse::STRING>(val->getValue())};
 
     if (VAL == STRVAL_EMPTY)
         return "";
@@ -1183,7 +1183,7 @@ SConfigOptionReply CConfigManager::getConfigValue(const std::string& val) {
     return {.dataptr = VAL->getDataStaticPtr(), .type = &VAL->getValue().type(), .setByUser = VAL->m_bSetByUser};
 }
 
-Hyprlang::CConfigValue* CConfigManager::getHyprlangConfigValuePtr(const std::string& name, const std::string& specialCat) {
+Abyssparse::CConfigValue* CConfigManager::getAbyssparseConfigValuePtr(const std::string& name, const std::string& specialCat) {
     if (!specialCat.empty())
         return m_config->getSpecialConfigValuePtr(specialCat.c_str(), name.c_str(), nullptr);
 
@@ -1213,7 +1213,7 @@ void CConfigManager::handlePluginLoads() {
     }
 }
 
-void CConfigManager::addPluginConfigVar(HANDLE handle, const std::string& name, const Hyprlang::CConfigValue& value) {
+void CConfigManager::addPluginConfigVar(HANDLE handle, const std::string& name, const Abyssparse::CConfigValue& value) {
     if (!name.starts_with("plugin:"))
         return;
 
@@ -1223,7 +1223,7 @@ void CConfigManager::addPluginConfigVar(HANDLE handle, const std::string& name, 
     m_pluginVariables.push_back({handle, field});
 }
 
-void CConfigManager::addPluginKeyword(HANDLE handle, const std::string& name, Hyprlang::PCONFIGHANDLERFUNC fn, Hyprlang::SHandlerOptions opts) {
+void CConfigManager::addPluginKeyword(HANDLE handle, const std::string& name, Abyssparse::PCONFIGHANDLERFUNC fn, Abyssparse::SHandlerOptions opts) {
     m_pluginKeywords.emplace_back(SPluginKeyword{handle, name, fn});
     m_config->registerHandler(fn, name.c_str(), opts);
 }
@@ -2048,7 +2048,7 @@ std::optional<std::string> CConfigManager::handleWindowrule(const std::string& c
     }
 
     m_keywordRules.emplace_back(std::move(rule));
-    if (g_pHyprCtl && g_pHyprCtl->m_currentRequestParams.isDynamicKeyword)
+    if (g_pAbyssCtl && g_pAbyssCtl->m_currentRequestParams.isDynamicKeyword)
         Desktop::Rule::ruleEngine()->registerRule(SP<Desktop::Rule::IRule>{m_keywordRules.back()});
 
     return std::nullopt;
@@ -2118,7 +2118,7 @@ std::expected<void, std::string> CConfigManager::generateDefaultConfig(const std
         ofs << EXAMPLE_CONFIG;
     else {
         std::string n = std::string{EXAMPLE_CONFIG};
-        replaceInString(n, "\n$menu = hyprlauncher\n", "\n$menu = hyprland-run\n");
+        replaceInString(n, "\n$menu = abysslauncher\n", "\n$menu = hyprland-run\n");
         ofs << n;
     }
 
@@ -2157,25 +2157,25 @@ std::expected<void, std::string> CConfigManager::registerPluginValue(void* handl
         return std::unexpected("name must start with plugin:");
 
     if (auto p = dc<Config::Values::CIntValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::INT{p->defaultVal()});
+        addPluginConfigVar(handle, NAME, Abyssparse::INT{p->defaultVal()});
     else if (auto p = dc<Config::Values::CFloatValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::FLOAT{p->defaultVal()});
+        addPluginConfigVar(handle, NAME, Abyssparse::FLOAT{p->defaultVal()});
     else if (auto p = dc<Config::Values::CBoolValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::INT{p->defaultVal() ? 1 : 0});
+        addPluginConfigVar(handle, NAME, Abyssparse::INT{p->defaultVal() ? 1 : 0});
     else if (auto p = dc<Config::Values::CStringValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::STRING{p->defaultVal().c_str()});
+        addPluginConfigVar(handle, NAME, Abyssparse::STRING{p->defaultVal().c_str()});
     else if (auto p = dc<Config::Values::CColorValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::INT{p->defaultVal()});
+        addPluginConfigVar(handle, NAME, Abyssparse::INT{p->defaultVal()});
     else if (auto p = dc<Config::Values::CVec2Value*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::VEC2{p->defaultVal().x, p->defaultVal().y});
+        addPluginConfigVar(handle, NAME, Abyssparse::VEC2{p->defaultVal().x, p->defaultVal().y});
     else if (auto p = dc<Config::Values::CCssGapValue*>(value.get()))
-        addPluginConfigVar(handle, NAME, Hyprlang::CConfigCustomValueType{configHandleGapSet, configHandleGapDestroy, std::to_string(p->defaultVal().m_top).c_str()});
+        addPluginConfigVar(handle, NAME, Abyssparse::CConfigCustomValueType{configHandleGapSet, configHandleGapDestroy, std::to_string(p->defaultVal().m_top).c_str()});
     else if (auto p = dc<Config::Values::CFontWeightValue*>(value.get()))
         addPluginConfigVar(handle, NAME,
-                           Hyprlang::CConfigCustomValueType{&configHandleFontWeightSet, configHandleFontWeightDestroy, std::format("{}", p->defaultVal().m_value).c_str()});
+                           Abyssparse::CConfigCustomValueType{&configHandleFontWeightSet, configHandleFontWeightDestroy, std::format("{}", p->defaultVal().m_value).c_str()});
     else if (auto p = dc<Config::Values::CGradientValue*>(value.get()))
         addPluginConfigVar(handle, NAME,
-                           Hyprlang::CConfigCustomValueType{&configHandleGradientSet, configHandleGradientDestroy,
+                           Abyssparse::CConfigCustomValueType{&configHandleGradientSet, configHandleGradientDestroy,
                                                             std::format("{:x}", (int64_t)p->defaultVal().m_colors.begin()->getAsHex()).c_str()});
     else
         return std::unexpected("unknown value type");

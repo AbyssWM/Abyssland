@@ -21,7 +21,7 @@ namespace Desktop {
         std::vector<PHLLS> m_layers;
 
         struct {
-            CHyprSignalListener viewCreate;
+            CAbyssSignalListener viewCreate;
         } m_listeners;
     };
 

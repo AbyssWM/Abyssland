@@ -162,8 +162,8 @@ CLuaEventHandler::CLuaEventHandler(lua_State* L) : m_lua(L) {
         });
     }));
 
-    m_listeners.push_back(bus()->m_events.start.listen([this]() { dispatch("hyprland.start", 0, [](lua_State* L) {}); }));
-    m_listeners.push_back(bus()->m_events.exit.listen([this]() { dispatch("hyprland.shutdown", 0, [](lua_State* L) {}); }));
+    m_listeners.push_back(bus()->m_events.start.listen([this]() { dispatch("abyssland.start", 0, [](lua_State* L) {}); }));
+    m_listeners.push_back(bus()->m_events.exit.listen([this]() { dispatch("abyssland.shutdown", 0, [](lua_State* L) {}); }));
 
     m_listeners.push_back(bus()->m_events.pluginEventAdded.listen([this](SP<Event::CEventBus::CCustomEvent> event) {
         auto ret = addCustomEvent(event);
@@ -293,8 +293,8 @@ std::unordered_set<std::string> CLuaEventHandler::knownEvents() {
         "config.props_refreshed",
         "keybinds.submap",
         "screenshare.state",
-        "hyprland.start",
-        "hyprland.shutdown",
+        "abyssland.start",
+        "abyssland.shutdown",
         "input.keyboard.key",
     };
     for (auto& kv : Event::bus()->m_events.plugin)

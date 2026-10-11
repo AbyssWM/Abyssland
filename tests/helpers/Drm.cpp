@@ -21,7 +21,7 @@ TEST(Helpers, drmDevIDFromFDCharacterDevice) {
 }
 
 TEST(Helpers, drmDevIDFromFDRejectsRegularFiles) {
-    char      path[] = "/tmp/hyprland-drm-testXXXXXX";
+    char      path[] = "/tmp/abyssland-drm-testXXXXXX";
     const int FD     = mkstemp(path);
     ASSERT_GE(FD, 0);
 

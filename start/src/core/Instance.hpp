@@ -1,38 +1,38 @@
 #pragma once
 
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <thread>
 
 #include "../helpers/Memory.hpp"
 
-class CHyprlandInstance {
+class CAbysslandInstance {
   public:
-    CHyprlandInstance()  = default;
-    ~CHyprlandInstance() = default;
+    CAbysslandInstance()  = default;
+    ~CAbysslandInstance() = default;
 
-    CHyprlandInstance(const CHyprlandInstance&) = delete;
-    CHyprlandInstance(CHyprlandInstance&)       = delete;
-    CHyprlandInstance(CHyprlandInstance&&)      = delete;
+    CAbysslandInstance(const CAbysslandInstance&) = delete;
+    CAbysslandInstance(CAbysslandInstance&)       = delete;
+    CAbysslandInstance(CAbysslandInstance&&)      = delete;
 
     bool run(bool safeMode = false, bool lockedCrash = false); // if returns false, restart.
     void forceQuit();
 
-    bool m_hyprlandLocked = false;
+    bool m_abysslandLocked = false;
 
   private:
-    void                           runHyprlandThread(bool safeMode, bool lockedCrash);
-    void                           clearFd(const Hyprutils::OS::CFileDescriptor& fd);
-    void                           dispatchHyprlandEvent();
+    void                           runAbysslandThread(bool safeMode, bool lockedCrash);
+    void                           clearFd(const Abyssutils::OS::CFileDescriptor& fd);
+    void                           dispatchAbysslandEvent();
 
     int                            m_hlPid = -1;
 
-    Hyprutils::OS::CFileDescriptor m_fromHlPid, m_toHlPid;
-    Hyprutils::OS::CFileDescriptor m_wakeupRead, m_wakeupWrite;
+    Abyssutils::OS::CFileDescriptor m_fromHlPid, m_toHlPid;
+    Abyssutils::OS::CFileDescriptor m_wakeupRead, m_wakeupWrite;
 
-    bool                           m_hyprlandInitialized = false;
-    bool                           m_hyprlandExiting     = false;
+    bool                           m_abysslandInitialized = false;
+    bool                           m_abysslandExiting     = false;
 
     std::thread                    m_hlThread;
 };
 
-inline UP<CHyprlandInstance> g_instance;
+inline UP<CAbysslandInstance> g_instance;

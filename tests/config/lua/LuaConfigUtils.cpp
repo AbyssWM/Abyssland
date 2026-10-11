@@ -85,7 +85,7 @@ TEST(ConfigLuaUtils, fromGenericValueMapsSupportedTypes) {
         EXPECT_NE(dynamic_cast<CLuaConfigFontWeight*>(out.get()), nullptr);
     }
     {
-        auto out = fromGenericValue(makeShared<Values::CGradientValue>("a", "", CHyprColor(0xFF112233)));
+        auto out = fromGenericValue(makeShared<Values::CGradientValue>("a", "", CAbyssColor(0xFF112233)));
         ASSERT_NE(out.get(), nullptr);
         EXPECT_NE(dynamic_cast<CLuaConfigGradient*>(out.get()), nullptr);
     }

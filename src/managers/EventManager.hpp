@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include "../defines.hpp"
 #include "../helpers/memory/Memory.hpp"
 
-struct SHyprIPCEvent {
+struct SAbyssIPCEvent {
     std::string event;
     std::string data;
 };
@@ -14,10 +14,10 @@ class CEventManager {
     CEventManager();
     ~CEventManager();
 
-    void postEvent(const SHyprIPCEvent& event);
+    void postEvent(const SAbyssIPCEvent& event);
 
   private:
-    std::string formatEvent(const SHyprIPCEvent& event) const;
+    std::string formatEvent(const SAbyssIPCEvent& event) const;
 
     static int  onServerEvent(int fd, uint32_t mask, void* data);
     static int  onClientEvent(int fd, uint32_t mask, void* data);
@@ -26,7 +26,7 @@ class CEventManager {
     int         onClientEvent(int fd, uint32_t mask);
 
     struct SClient {
-        Hyprutils::OS::CFileDescriptor fd;
+        Abyssutils::OS::CFileDescriptor fd;
         std::vector<SP<std::string>>   events;
         wl_event_source*               eventSource = nullptr;
         size_t                         writeOffset = 0;
@@ -37,7 +37,7 @@ class CEventManager {
     bool                           flushClient(SClient& client);
 
   private:
-    Hyprutils::OS::CFileDescriptor m_socketFD;
+    Abyssutils::OS::CFileDescriptor m_socketFD;
     wl_event_source*               m_eventSource = nullptr;
 
     std::vector<SClient>           m_clients;

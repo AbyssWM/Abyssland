@@ -1,12 +1,12 @@
 #include "WorkspaceQueryCore.hpp"
 
 #include <algorithm>
-#include <hyprutils/string/Numeric.hpp>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
 #include <utility>
 
 using namespace State;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 CWorkspaceQueryCore::CWorkspaceQueryCore(std::span<const SWorkspaceQueryable> workspaces) : m_workspaces(workspaces) {
     ;

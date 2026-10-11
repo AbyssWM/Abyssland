@@ -1,16 +1,16 @@
 #include "Renderbuffer.hpp"
 #include "Framebuffer.hpp"
 #include "Renderer.hpp"
-#include <hyprutils/memory/SharedPtr.hpp>
-#include <hyprutils/signal/Listener.hpp>
-#include <hyprutils/signal/Signal.hpp>
+#include <abyssutils/memory/SharedPtr.hpp>
+#include <abyssutils/signal/Listener.hpp>
+#include <abyssutils/signal/Signal.hpp>
 
 #include <dlfcn.h>
 
 using namespace Render;
 
-IRenderbuffer::IRenderbuffer(SP<Aquamarine::IBuffer> buffer, uint32_t format) : m_hlBuffer(buffer) {
-    m_listeners.destroyBuffer = buffer->events.destroy.listen([this] { g_pHyprRenderer->onRenderbufferDestroy(this); });
+IRenderbuffer::IRenderbuffer(SP<Abyssal::IBuffer> buffer, uint32_t format) : m_hlBuffer(buffer) {
+    m_listeners.destroyBuffer = buffer->events.destroy.listen([this] { g_pAbyssRenderer->onRenderbufferDestroy(this); });
 }
 
 bool IRenderbuffer::good() {

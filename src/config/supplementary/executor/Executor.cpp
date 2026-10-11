@@ -9,11 +9,11 @@
 #include "../../../managers/TokenManager.hpp"
 #include "../../../output/Monitor.hpp"
 
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 #include <chrono>
 
 using namespace Config::Supplementary;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 UP<CExecutor>& Config::Supplementary::executor() {
     static UP<CExecutor> p = makeUnique<CExecutor>();
@@ -31,10 +31,10 @@ CExecutor::CExecutor() {
         if (g_pCompositor->m_aqBackend->hasSession())
             spawnRaw(
 #ifdef USES_SYSTEMD
-                "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
+                "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
                 "dbus-update-activation-environment 2>/dev/null && "
 #endif
-                "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS");
+                "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS");
 
         m_firstExecDispatched = true;
 
@@ -142,7 +142,7 @@ std::optional<uint64_t> CExecutor::spawnWithRules(std::string args, PHLWORKSPACE
     return PROC;
 }
 
-std::vector<std::pair<std::string, std::string>> CExecutor::getHyprlandLaunchEnv(PHLWORKSPACE pInitialWorkspace) {
+std::vector<std::pair<std::string, std::string>> CExecutor::getAbysslandLaunchEnv(PHLWORKSPACE pInitialWorkspace) {
     static auto PINITIALWSTRACKING        = CConfigValue<Config::INTEGER>("misc:initial_workspace_tracking");
     static auto PINITIALWSTRACKINGTIMEOUT = CConfigValue<Config::INTEGER>("misc:initial_workspace_token_timeout");
 
@@ -171,7 +171,7 @@ std::vector<std::pair<std::string, std::string>> CExecutor::getHyprlandLaunchEnv
 std::optional<uint64_t> CExecutor::spawnRawProc(const std::string& args, PHLWORKSPACE pInitialWorkspace, const std::string& execRuleToken) {
     Log::logger->log(Log::DEBUG, "[executor] Executing {}", args);
 
-    const auto HLENV = getHyprlandLaunchEnv(pInitialWorkspace);
+    const auto HLENV = getAbysslandLaunchEnv(pInitialWorkspace);
 
     pid_t      child = fork();
     if (child < 0) {

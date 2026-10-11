@@ -31,8 +31,8 @@ class CExtWorkspaceGroupResource {
     UP<CExtWorkspaceGroupHandleV1>   m_resource;
 
     struct {
-        CHyprSignalListener destroyed;
-        CHyprSignalListener outputBound;
+        CAbyssSignalListener destroyed;
+        CAbyssSignalListener outputBound;
     } m_listeners;
 
     friend class CExtWorkspaceManagerResource;
@@ -66,11 +66,11 @@ class CExtWorkspaceResource {
     } m_pendingState;
 
     struct {
-        CHyprSignalListener destroyed;
-        CHyprSignalListener activeChanged;
-        CHyprSignalListener monitorChanged;
-        CHyprSignalListener renamed;
-        CHyprSignalListener idChanged;
+        CAbyssSignalListener destroyed;
+        CAbyssSignalListener activeChanged;
+        CAbyssSignalListener monitorChanged;
+        CAbyssSignalListener renamed;
+        CAbyssSignalListener idChanged;
     } m_listeners;
 
     friend class CExtWorkspaceManagerResource;

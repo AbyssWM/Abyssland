@@ -48,13 +48,13 @@
 #include "../event/EventBus.hpp"
 #include "../helpers/Drm.hpp"
 #include "MonitorFrameScheduler.hpp"
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 #include "debug/log/Logger.hpp"
 #include "notification/NotificationOverlay.hpp"
 #include "MonitorFrameScheduler.hpp"
-#include <hyprutils/memory/UniquePtr.hpp>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 #include <cstring>
 #include <climits>
 #include <optional>
@@ -62,9 +62,9 @@
 #include <vector>
 #include <algorithm>
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::Utils;
-using namespace Hyprutils::OS;
+using namespace Abyssutils::String;
+using namespace Abyssutils::Utils;
+using namespace Abyssutils::OS;
 using enum NContentType::eContentType;
 using namespace NColorManagement;
 using namespace Desktop::View;
@@ -81,28 +81,28 @@ constexpr const char* drmFormatToString(uint32_t drmFormat) {
     }
 }
 
-CMonitor::CMonitor(SP<Aquamarine::IOutput> output_) : m_name(output_->name), m_state(this), m_output(output_), m_imageDescription(getDefaultImageDescription()) {
+CMonitor::CMonitor(SP<Abyssal::IOutput> output_) : m_name(output_->name), m_state(this), m_output(output_), m_imageDescription(getDefaultImageDescription()) {
     Animation::mgr()->createAnimation(0.f, m_specialFade, Config::animationTree()->getAnimationPropertyConfig("specialWorkspaceIn"), AVARDAMAGE_NONE);
-    m_specialFade->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_specialFade->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     Animation::mgr()->createAnimation(0.f, m_specialDim, Config::animationTree()->getAnimationPropertyConfig("specialWorkspaceIn"), AVARDAMAGE_NONE);
-    m_specialDim->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_specialDim->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     Animation::mgr()->createAnimation(0.f, m_specialBlur, Config::animationTree()->getAnimationPropertyConfig("specialWorkspaceIn"), AVARDAMAGE_NONE);
-    m_specialBlur->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_specialBlur->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     static auto PZOOMFACTOR = CConfigValue<Config::FLOAT>("cursor:zoom_factor");
     Animation::mgr()->createAnimation(*PZOOMFACTOR, m_cursorZoom, Config::animationTree()->getAnimationPropertyConfig("zoomFactor"), AVARDAMAGE_NONE);
-    m_cursorZoom->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_cursorZoom->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     Animation::mgr()->createAnimation(0.F, m_zoomAnimProgress, Config::animationTree()->getAnimationPropertyConfig("monitorAdded"), AVARDAMAGE_NONE);
-    m_zoomAnimProgress->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_zoomAnimProgress->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     Animation::mgr()->createAnimation(0.F, m_backgroundOpacity, Config::animationTree()->getAnimationPropertyConfig("monitorAdded"), AVARDAMAGE_NONE);
-    m_backgroundOpacity->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_backgroundOpacity->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
     Animation::mgr()->createAnimation(0.F, m_dpmsBlackOpacity, Config::animationTree()->getAnimationPropertyConfig("fadeDpms"), AVARDAMAGE_NONE);
-    m_dpmsBlackOpacity->setUpdateCallback([this](auto) { g_pHyprRenderer->damageMonitor(m_self.lock()); });
+    m_dpmsBlackOpacity->setUpdateCallback([this](auto) { g_pAbyssRenderer->damageMonitor(m_self.lock()); });
 }
 
 CMonitor::~CMonitor() {
     m_events.destroy.emit();
-    if (g_pHyprRenderer && g_pHyprRenderer->glBackend())
-        g_pHyprRenderer->glBackend()->destroyMonitorResources(m_self);
+    if (g_pAbyssRenderer && g_pAbyssRenderer->glBackend())
+        g_pAbyssRenderer->glBackend()->destroyMonitorResources(m_self);
 }
 
 void CMonitor::onConnect(bool noRule) {
@@ -130,9 +130,9 @@ void CMonitor::onConnect(bool noRule) {
         if (true && Screenshare::mgr())
             Screenshare::mgr()->onOutputCommit(m_self.lock());
     });
-    m_listeners.needsFrame = m_output->events.needsFrame.listen([this] { scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_NEEDS_FRAME); });
+    m_listeners.needsFrame = m_output->events.needsFrame.listen([this] { scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_NEEDS_FRAME); });
 
-    m_listeners.presented = m_output->events.present.listen([this](const Aquamarine::IOutput::SPresentEvent& event) {
+    m_listeners.presented = m_output->events.present.listen([this](const Abyssal::IOutput::SPresentEvent& event) {
         if (m_pendingDpmsAnimation) {
             m_pendingDpmsAnimationCounter++;
             // we give ourselves 5 frames of a buffer. The first presentation event still doesn't usually say that we actually
@@ -156,7 +156,7 @@ void CMonitor::onConnect(bool noRule) {
             ts = *event.when;
         } else {
             clock_gettime(CLOCK_MONOTONIC, &ts);
-            flags &= ~Aquamarine::IOutput::AQ_OUTPUT_PRESENT_HW_CLOCK;
+            flags &= ~Abyssal::IOutput::ABYSSAL_OUTPUT_PRESENT_HW_CLOCK;
         }
 
         PROTO::presentation->onPresented(m_self.lock(), ts, event.refresh, event.seq, flags);
@@ -178,7 +178,7 @@ void CMonitor::onConnect(bool noRule) {
                 if (!self)
                     return;
 
-                g_pHyprRenderer->damageMonitor(self.lock());
+                g_pAbyssRenderer->damageMonitor(self.lock());
             });
         }
 
@@ -186,12 +186,12 @@ void CMonitor::onConnect(bool noRule) {
         // this becomes really noticeable in new render scheduling. causing firefox to simply wait for a new frame callback.
         // when nothing is scheduling new frames.
         auto mon = m_self.lock();
-        if (!isMirror() && !g_pHyprRenderer->shouldRenderMonitor(mon)) {
+        if (!isMirror() && !g_pAbyssRenderer->shouldRenderMonitor(mon)) {
             auto const NOW = Time::steadyNow();
             if (m_activeWorkspace)
-                g_pHyprRenderer->sendFrameEventsToWorkspace(mon, m_activeWorkspace, NOW);
+                g_pAbyssRenderer->sendFrameEventsToWorkspace(mon, m_activeWorkspace, NOW);
             if (m_activeSpecialWorkspace)
-                g_pHyprRenderer->sendFrameEventsToWorkspace(mon, m_activeSpecialWorkspace, NOW);
+                g_pAbyssRenderer->sendFrameEventsToWorkspace(mon, m_activeSpecialWorkspace, NOW);
         }
 
         m_frameScheduler->onPresented();
@@ -212,7 +212,7 @@ void CMonitor::onConnect(bool noRule) {
         State::monitorState()->remove(m_self.lock());
     });
 
-    m_listeners.state = m_output->events.state.listen([this](const Aquamarine::IOutput::SStateEvent& event) {
+    m_listeners.state = m_output->events.state.listen([this](const Abyssal::IOutput::SStateEvent& event) {
         if (event.size == Vector2D{}) {
             // an indication to re-set state
             // we can't do much for createdByUser displays I think
@@ -245,7 +245,7 @@ void CMonitor::onConnect(bool noRule) {
     m_frameScheduler         = makeUnique<CMonitorFrameScheduler>(m_self.lock());
     m_frameScheduler->m_self = WP<CMonitorFrameScheduler>(m_frameScheduler);
 
-    m_tearingState.canTear = m_output->getBackend()->type() == Aquamarine::AQ_BACKEND_DRM;
+    m_tearingState.canTear = m_output->getBackend()->type() == Abyssal::ABYSSAL_BACKEND_DRM;
 
     m_description = m_output->description;
     // remove comma character from description. This allow monitor specific rules to work on monitor with comma on their description
@@ -255,7 +255,7 @@ void CMonitor::onConnect(bool noRule) {
     m_shortDescription = trim(std::format("{} {} {}", m_output->make, m_output->model, m_output->serial));
     std::erase(m_shortDescription, ',');
 
-    if (m_output->getBackend()->type() != Aquamarine::AQ_BACKEND_DRM)
+    if (m_output->getBackend()->type() != Abyssal::ABYSSAL_BACKEND_DRM)
         m_createdByUser = true; // should be true. WL and Headless backends should be addable / removable
 
     // get monitor rule that matches
@@ -347,7 +347,7 @@ void CMonitor::onConnect(bool noRule) {
     if (!Desktop::focusState()->monitor()) // set the last monitor if it isn't set yet
         Desktop::focusState()->rawMonitorFocus(m_self.lock());
 
-    g_pHyprRenderer->arrangeLayersForMonitor(m_id);
+    g_pAbyssRenderer->arrangeLayersForMonitor(m_id);
     g_layoutManager->recalculateMonitor(m_self.lock());
 
     // ensure VRR (will enable if necessary)
@@ -378,14 +378,14 @@ void CMonitor::onConnect(bool noRule) {
     if (!found)
         Desktop::focusState()->rawMonitorFocus(m_self.lock());
 
-    scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_NEW_MONITOR);
+    scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_NEW_MONITOR);
 
     PROTO::gamma->applyGammaToState(m_self.lock());
 
     m_events.connect.emit();
 
-    g_pEventManager->postEvent(SHyprIPCEvent{"monitoradded", m_name});
-    g_pEventManager->postEvent(SHyprIPCEvent{"monitoraddedv2", std::format("{},{},{}", m_id, m_name, m_shortDescription)});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"monitoradded", m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"monitoraddedv2", std::format("{},{},{}", m_id, m_name, m_shortDescription)});
     Event::bus()->m_events.monitor.added.emit(m_self.lock());
 }
 
@@ -394,8 +394,8 @@ void CMonitor::onDisconnect(bool destroy) {
     CScopeGuard x = {[this]() {
         if (g_pCompositor->m_isShuttingDown)
             return;
-        g_pEventManager->postEvent(SHyprIPCEvent{"monitorremoved", m_name});
-        g_pEventManager->postEvent(SHyprIPCEvent{"monitorremovedv2", std::format("{},{},{}", m_id, m_name, m_shortDescription)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"monitorremoved", m_name});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"monitorremovedv2", std::format("{},{},{}", m_id, m_name, m_shortDescription)});
         Event::bus()->m_events.monitor.removed.emit(m_self.lock());
         State::monitorLayoutController()->scheduleRecheck();
     }};
@@ -409,8 +409,8 @@ void CMonitor::onDisconnect(bool destroy) {
     Log::logger->log(Log::DEBUG, "onDisconnect called for {}", m_name);
 
     m_events.disconnect.emit();
-    if (g_pHyprRenderer && g_pHyprRenderer->glBackend())
-        g_pHyprRenderer->glBackend()->destroyMonitorResources(m_self);
+    if (g_pAbyssRenderer && g_pAbyssRenderer->glBackend())
+        g_pAbyssRenderer->glBackend()->destroyMonitorResources(m_self);
 
     // record what workspace this monitor was on
     if (m_activeWorkspace) {
@@ -505,7 +505,7 @@ void CMonitor::onDisconnect(bool destroy) {
     if (Desktop::focusState()->monitor() == m_self)
         Desktop::focusState()->rawMonitorFocus(BACKUPMON);
 
-    if (g_pHyprRenderer->m_mostHzMonitor == m_self) {
+    if (g_pAbyssRenderer->m_mostHzMonitor == m_self) {
         int        mostHz         = 0;
         PHLMONITOR pMonitorMostHz = nullptr;
 
@@ -516,7 +516,7 @@ void CMonitor::onDisconnect(bool destroy) {
             }
         }
 
-        g_pHyprRenderer->m_mostHzMonitor = pMonitorMostHz;
+        g_pAbyssRenderer->m_mostHzMonitor = pMonitorMostHz;
     }
 }
 
@@ -702,7 +702,7 @@ bool CMonitor::applyMonitorRuleSoft(Config::CMonitorRule&& pMonitorRule) {
 
     if (m_createdByUser) {
         CBox transformedBox = {0, 0, m_transformedSize.x, m_transformedSize.y};
-        transformedBox.transform(Math::wlTransformToHyprutils(Math::invertTransform(m_transform)), m_transformedSize.x, m_transformedSize.y);
+        transformedBox.transform(Math::wlTransformToAbyssutils(Math::invertTransform(m_transform)), m_transformedSize.x, m_transformedSize.y);
 
         m_pixelSize = Vector2D(transformedBox.width, transformedBox.height);
     }
@@ -752,7 +752,7 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
     m_transform = RULE->m_transform;
 
     // accumulate requested modes in reverse order (cause inesrting at front is inefficient)
-    std::vector<SP<Aquamarine::SOutputMode>> requestedModes;
+    std::vector<SP<Abyssal::SOutputMode>> requestedModes;
     std::string                              requestedStr = "unknown";
 
     // use sortFunc, add best 3 to requestedModes in reverse, since we test in reverse
@@ -836,15 +836,15 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
             if (!DELTALESSTHAN(bestMode->pixelSize.x, RULE->m_resolution.x, 1) || !DELTALESSTHAN(bestMode->pixelSize.y, RULE->m_resolution.y, 1) ||
                 !DELTALESSTHAN(bestMode->refreshRate / 1000.f, RULE->m_refreshRate, 1))
                 requestedModes.push_back(
-                    makeShared<Aquamarine::SOutputMode>(Aquamarine::SOutputMode{.pixelSize = RULE->m_resolution, .refreshRate = RULE->m_refreshRate * 1000.f}));
+                    makeShared<Abyssal::SOutputMode>(Abyssal::SOutputMode{.pixelSize = RULE->m_resolution, .refreshRate = RULE->m_refreshRate * 1000.f}));
         }
 
         // then if requested is custom, try custom mode first
         if (RULE->m_drmMode.type == DRM_MODE_TYPE_USERDEF) {
-            if (m_output->getBackend()->type() != Aquamarine::eBackendType::AQ_BACKEND_DRM)
+            if (m_output->getBackend()->type() != Abyssal::eBackendType::ABYSSAL_BACKEND_DRM)
                 Log::logger->log(Log::ERR, "Tried to set custom modeline on non-DRM output");
             else
-                requestedModes.push_back(makeShared<Aquamarine::SOutputMode>(Aquamarine::SOutputMode{
+                requestedModes.push_back(makeShared<Abyssal::SOutputMode>(Abyssal::SOutputMode{
                     .pixelSize = {RULE->m_drmMode.hdisplay, RULE->m_drmMode.vdisplay}, .refreshRate = RULE->m_drmMode.vrefresh, .modeInfo = RULE->m_drmMode}));
         }
     }
@@ -918,8 +918,8 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
 
     // try requested as custom mode jic it works
     if (!success && RULE->m_resolution != Vector2D() && RULE->m_resolution != Vector2D(-1, -1) && RULE->m_resolution != Vector2D(-1, -2)) {
-        auto        refreshRate = m_output->getBackend()->type() == Aquamarine::eBackendType::AQ_BACKEND_DRM ? RULE->m_refreshRate * 1000 : 0;
-        auto        mode        = makeShared<Aquamarine::SOutputMode>(Aquamarine::SOutputMode{.pixelSize = RULE->m_resolution, .refreshRate = refreshRate});
+        auto        refreshRate = m_output->getBackend()->type() == Abyssal::eBackendType::ABYSSAL_BACKEND_DRM ? RULE->m_refreshRate * 1000 : 0;
+        auto        mode        = makeShared<Abyssal::SOutputMode>(Abyssal::SOutputMode{.pixelSize = RULE->m_resolution, .refreshRate = refreshRate});
         std::string modeStr     = std::format("{:X0}@{:.2f}Hz", mode->pixelSize, mode->refreshRate / 1000.f);
 
         m_state.applyCustomModeWithSwapchain(mode);
@@ -948,7 +948,7 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
             auto errorMessage = I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_MONITOR_MODE_FAIL,
                                                              {{"name", m_name}, {"mode", std::format("{:X0}@{:.2f}Hz", mode->pixelSize, mode->refreshRate / 1000.f)}});
             Log::logger->log(Log::WARN, errorMessage);
-            Notification::overlay()->addNotification(errorMessage, CHyprColor(0xff0000ff), 5000, ICON_WARNING);
+            Notification::overlay()->addNotification(errorMessage, CAbyssColor(0xff0000ff), 5000, ICON_WARNING);
 
             m_refreshRate   = mode->refreshRate / 1000.f;
             m_size          = mode->pixelSize;
@@ -1042,7 +1042,7 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
                         Notification::overlay()->addNotification(
                             I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_MONITOR_AUTO_SCALE,
                                                          {{"name", m_name}, {"scale", std::format("{:.2f}", m_scale)}, {"fixed_scale", std::format("{:.2f}", searchScale)}}),
-                            CHyprColor(1.0, 0.0, 0.0, 1.0), 5000, ICON_WARNING);
+                            CAbyssColor(1.0, 0.0, 0.0, 1.0), 5000, ICON_WARNING);
                     }
                 }
                 m_scale = searchScale;
@@ -1062,8 +1062,8 @@ bool CMonitor::applyMonitorRule(Config::CMonitorRule&& pMonitorRule) {
     if ((WAS10B != m_enabled10bit || OLDPIXELSIZE != m_pixelSize)) {
         m_resources.reset(); // TODO skip for 10bit change and fp16?
 
-        if (g_pHyprRenderer && g_pHyprRenderer->glBackend())
-            g_pHyprRenderer->glBackend()->destroyMonitorResources(m_self);
+        if (g_pAbyssRenderer && g_pAbyssRenderer->glBackend())
+            g_pAbyssRenderer->glBackend()->destroyMonitorResources(m_self);
     }
 
     applyMonitorRuleSoft(std::move(pMonitorRule));
@@ -1122,7 +1122,7 @@ void CMonitor::clearModeRetry() {
     m_modeRetryTimer.reset();
 }
 
-void CMonitor::scheduleFrame(Aquamarine::IOutput::scheduleFrameReason reason) {
+void CMonitor::scheduleFrame(Abyssal::IOutput::scheduleFrameReason reason) {
     if ((g_pCompositor->m_aqBackend->hasSession() && !g_pCompositor->m_aqBackend->session->active) || !g_pCompositor->m_sessionActive)
         return;
 
@@ -1138,9 +1138,9 @@ void CMonitor::scheduleFrame(Aquamarine::IOutput::scheduleFrameReason reason) {
 void CMonitor::addDamage(const pixman_region32_t* rg) {
     if (m_cursorZoom->value() != 1.f && State::monitorState()->query().vec(Pointer::mgr()->position()).run() == m_self) {
         m_damage.damageEntire();
-        scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_DAMAGE);
+        scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_DAMAGE);
     } else if (m_damage.damage(rg))
-        scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_DAMAGE);
+        scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_DAMAGE);
 }
 
 void CMonitor::addDamage(const CRegion& rg) {
@@ -1150,12 +1150,12 @@ void CMonitor::addDamage(const CRegion& rg) {
 void CMonitor::addDamage(const CBox& box) {
     if (m_cursorZoom->value() != 1.f && State::monitorState()->query().vec(Pointer::mgr()->position()).run() == m_self) {
         m_damage.damageEntire();
-        scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_DAMAGE);
+        scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_DAMAGE);
         return;
     }
 
     if (m_damage.damage(box))
-        scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_DAMAGE);
+        scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_DAMAGE);
 }
 
 bool CMonitor::shouldSkipScheduleFrameOnMouseEvent() {
@@ -1164,7 +1164,7 @@ bool CMonitor::shouldSkipScheduleFrameOnMouseEvent() {
 
     // skip scheduling extra frames for fullsreen apps with vrr
     const auto FULLSCREEN_WINDOW  = Fullscreen::controller()->getFullscreenWindow(m_self.lock());
-    const bool shouldRenderCursor = g_pHyprRenderer->shouldRenderCursor();
+    const bool shouldRenderCursor = g_pAbyssRenderer->shouldRenderCursor();
     const bool noBreak            = FULLSCREEN_WINDOW && (*PNOBREAK == 1 || (*PNOBREAK == 2 && FULLSCREEN_WINDOW->getContentType() == CONTENT_TYPE_GAME));
     const bool shouldSkip         = (!shouldRenderCursor || noBreak) && m_output->state->state().adaptiveSync;
 
@@ -1230,8 +1230,8 @@ float CMonitor::scale() const {
     return m_scale;
 }
 
-Hyprutils::Math::eTransform CMonitor::transform() const {
-    return Math::wlTransformToHyprutils(m_transform);
+Abyssutils::Math::eTransform CMonitor::transform() const {
+    return Math::wlTransformToAbyssutils(m_transform);
 }
 
 bool CMonitor::enabled() const {
@@ -1242,7 +1242,7 @@ bool CMonitor::hasOutput() const {
     return !!m_output;
 }
 
-SP<Aquamarine::IOutput> CMonitor::output() const {
+SP<Abyssal::IOutput> CMonitor::output() const {
     return m_output;
 }
 
@@ -1502,8 +1502,8 @@ void CMonitor::changeWorkspace(const PHLWORKSPACE& pWorkspace, bool internal, bo
 
         g_layoutManager->recalculateMonitor(m_self.lock(), Layout::CLayoutManager::RECALCULATE_MONITOR_REASON_WORKSPACE_CHANGE);
 
-        g_pEventManager->postEvent(SHyprIPCEvent{"workspace", pWorkspace->m_name});
-        g_pEventManager->postEvent(SHyprIPCEvent{"workspacev2", std::format("{},{}", pWorkspace->m_id, pWorkspace->m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"workspace", pWorkspace->m_name});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"workspacev2", std::format("{},{}", pWorkspace->m_id, pWorkspace->m_name)});
         Event::bus()->m_events.workspace.active.emit(pWorkspace);
     }
 
@@ -1515,7 +1515,7 @@ void CMonitor::changeWorkspace(const PHLWORKSPACE& pWorkspace, bool internal, bo
 
     pWorkspace->m_events.activeChanged.emit();
 
-    g_pHyprRenderer->damageMonitor(m_self.lock());
+    g_pAbyssRenderer->damageMonitor(m_self.lock());
 
     Animation::Workspace::setFullscreenFadeAnimation(
         pWorkspace, Fullscreen::controller()->hasFullscreen(pWorkspace) ? Animation::Workspace::ANIMATION_TYPE_IN : Animation::Workspace::ANIMATION_TYPE_OUT);
@@ -1557,15 +1557,15 @@ void CMonitor::setSpecialWorkspace(const PHLWORKSPACE& pWorkspace) {
 
     setSpecialWorkspaceVisualState(!!pWorkspace);
 
-    g_pHyprRenderer->damageMonitor(m_self.lock());
+    g_pAbyssRenderer->damageMonitor(m_self.lock());
 
     if (!pWorkspace) {
         // remove special if exists
         if (m_activeSpecialWorkspace) {
             m_activeSpecialWorkspace->m_visible = false;
             Animation::Workspace::startAnimation(m_activeSpecialWorkspace, Animation::Workspace::ANIMATION_TYPE_OUT, false);
-            g_pEventManager->postEvent(SHyprIPCEvent{"activespecial", "," + m_name});
-            g_pEventManager->postEvent(SHyprIPCEvent{"activespecialv2", ",," + m_name});
+            g_pEventManager->postEvent(SAbyssIPCEvent{"activespecial", "," + m_name});
+            g_pEventManager->postEvent(SAbyssIPCEvent{"activespecialv2", ",," + m_name});
 
             // Reset layer surface state when closing special workspace
             for (auto const& ls : Desktop::layerState()->layers()) {
@@ -1612,9 +1612,9 @@ void CMonitor::setSpecialWorkspace(const PHLWORKSPACE& pWorkspace) {
         PMONITOR->setSpecialWorkspaceVisualState(false);
         PMONITOR->m_activeSpecialWorkspace.reset();
         g_layoutManager->recalculateMonitor(PMONITOR, Layout::CLayoutManager::RECALCULATE_MONITOR_REASON_TOGGLE_SPECIAL_WORKSPACE);
-        g_pHyprRenderer->damageMonitor(PMONITOR);
-        g_pEventManager->postEvent(SHyprIPCEvent{"activespecial", "," + PMONITOR->m_name});
-        g_pEventManager->postEvent(SHyprIPCEvent{"activespecialv2", ",," + PMONITOR->m_name});
+        g_pAbyssRenderer->damageMonitor(PMONITOR);
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activespecial", "," + PMONITOR->m_name});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activespecialv2", ",," + PMONITOR->m_name});
 
         // Reset layer surfaces on the old monitor when special workspace is stolen
         for (auto const& ls : Desktop::layerState()->layers()) {
@@ -1685,10 +1685,10 @@ void CMonitor::setSpecialWorkspace(const PHLWORKSPACE& pWorkspace) {
             g_pInputManager->refocus();
     }
 
-    g_pEventManager->postEvent(SHyprIPCEvent{"activespecial", pWorkspace->m_name + "," + m_name});
-    g_pEventManager->postEvent(SHyprIPCEvent{"activespecialv2", std::to_string(pWorkspace->m_id) + "," + pWorkspace->m_name + "," + m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"activespecial", pWorkspace->m_name + "," + m_name});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"activespecialv2", std::to_string(pWorkspace->m_id) + "," + pWorkspace->m_name + "," + m_name});
 
-    g_pHyprRenderer->damageMonitor(m_self.lock());
+    g_pAbyssRenderer->damageMonitor(m_self.lock());
 
     Animation::Workspace::setFullscreenFadeAnimation(
         pWorkspace, Fullscreen::controller()->hasFullscreen(pWorkspace) ? Animation::Workspace::ANIMATION_TYPE_IN : Animation::Workspace::ANIMATION_TYPE_OUT);
@@ -1752,9 +1752,9 @@ const Mat3x3& CMonitor::getScaleMatrix() {
 void CMonitor::updateMatrix() {
     m_projMatrix = Mat3x3::identity();
     if (m_transform != WL_OUTPUT_TRANSFORM_NORMAL)
-        m_projMatrix.translate(m_pixelSize / 2.0).transform(Math::wlTransformToHyprutils(m_transform)).translate(-m_transformedSize / 2.0);
+        m_projMatrix.translate(m_pixelSize / 2.0).transform(Math::wlTransformToAbyssutils(m_transform)).translate(-m_transformedSize / 2.0);
 
-    m_projOutputMatrix = Mat3x3::outputProjection(m_pixelSize, HYPRUTILS_TRANSFORM_NORMAL);
+    m_projOutputMatrix = Mat3x3::outputProjection(m_pixelSize, ABYSSUTILS_TRANSFORM_NORMAL);
 }
 
 WORKSPACEID CMonitor::activeWorkspaceID() {
@@ -1794,7 +1794,7 @@ void CMonitor::scheduleDone() {
 void CMonitor::setCTM(const Mat3x3& ctm_) {
     m_ctm        = ctm_;
     m_ctmUpdated = true;
-    scheduleFrame(Aquamarine::IOutput::scheduleFrameReason::AQ_SCHEDULE_NEEDS_FRAME);
+    scheduleFrame(Abyssal::IOutput::scheduleFrameReason::ABYSSAL_SCHEDULE_NEEDS_FRAME);
 }
 
 uint32_t CMonitor::isSolitaryBlocked(bool full) {
@@ -1957,7 +1957,7 @@ uint8_t CMonitor::isTearingBlocked(bool full) {
         }
     }
 
-    if (g_pHyprRenderer->m_renderData.mouseZoomFactor != 1.0) {
+    if (g_pAbyssRenderer->m_renderData.mouseZoomFactor != 1.0) {
         reasons |= TC_ZOOM;
         if (!full) {
             Log::logger->log(Log::WARN, "Tearing commit requested but scale factor is not 1, ignoring");
@@ -2014,7 +2014,7 @@ uint16_t CMonitor::isDSBlocked(bool full) {
     const auto  PWORKSPACE     = m_activeWorkspace;
 
     // Fast reject for the hot render path; full=true callers still collect
-    // the remaining blockers for hyprctl/debug output below.
+    // the remaining blockers for abyssctl/debug output below.
     if (!canAttemptDirectScanoutFast()) {
         reasons |= DS_BLOCK_CANDIDATE;
         if (!full)
@@ -2047,7 +2047,7 @@ uint16_t CMonitor::isDSBlocked(bool full) {
             return reasons;
     }
 
-    if (g_pHyprRenderer->m_directScanoutBlocked) {
+    if (g_pAbyssRenderer->m_directScanoutBlocked) {
         reasons |= DS_BLOCK_RECORD;
         if (!full)
             return reasons;
@@ -2173,8 +2173,8 @@ bool CMonitor::attemptDirectScanout() {
 
     m_output->state->setBuffer(PBUFFER);
     Log::logger->log(Log::TRACE, "attemptDirectScanout: setting presentation mode");
-    m_output->state->setPresentationMode(m_tearingState.activelyTearing ? Aquamarine::eOutputPresentationMode::AQ_OUTPUT_PRESENTATION_IMMEDIATE :
-                                                                          Aquamarine::eOutputPresentationMode::AQ_OUTPUT_PRESENTATION_VSYNC);
+    m_output->state->setPresentationMode(m_tearingState.activelyTearing ? Abyssal::eOutputPresentationMode::ABYSSAL_OUTPUT_PRESENTATION_IMMEDIATE :
+                                                                          Abyssal::eOutputPresentationMode::ABYSSAL_OUTPUT_PRESENTATION_VSYNC);
 
     if (NEEDS_TEST && !m_state.test()) {
         Log::logger->log(Log::TRACE, "attemptDirectScanout: failed basic test");
@@ -2186,8 +2186,8 @@ bool CMonitor::attemptDirectScanout() {
     m_output->state->addDamage(PSURFACE->m_current.accumulateBufferDamage());
 
     // multigpu needs a fence to trigger fence syncing blits and also committing with the recreated dgpu fence
-    if (g_pHyprRenderer->explicitSyncSupported() && isMultiGPU()) {
-        auto sync = g_pHyprRenderer->createSyncFDManager();
+    if (g_pAbyssRenderer->explicitSyncSupported() && isMultiGPU()) {
+        auto sync = g_pAbyssRenderer->createSyncFDManager();
 
         if (sync && sync->isValid()) {
             m_inFence = sync->takeFd();
@@ -2300,7 +2300,7 @@ bool CMonitor::shouldUseSoftwareCursors() {
     switch (*PNOHW) {
         case 0: return false;
         case 1: return true;
-        case 2: return g_pHyprRenderer->isNvidia() && (g_pHyprRenderer->isMgpu() || State::monitorLayoutController()->isVRRActiveOnAnyMonitor());
+        case 2: return g_pAbyssRenderer->isNvidia() && (g_pAbyssRenderer->isMgpu() || State::monitorLayoutController()->isVRRActiveOnAnyMonitor());
         default: break;
     }
 
@@ -2371,7 +2371,7 @@ void CMonitor::commitDPMSState(bool state) {
     }
 
     if (state)
-        g_pHyprRenderer->damageMonitor(m_self.lock());
+        g_pAbyssRenderer->damageMonitor(m_self.lock());
 }
 
 void CMonitor::debugLastPresentation(const std::string& message) {
@@ -2380,13 +2380,13 @@ void CMonitor::debugLastPresentation(const std::string& message) {
 }
 
 void CMonitor::onCursorMovedOnMonitor() {
-    if (!m_tearingState.activelyTearing || !m_solitaryClient || !g_pHyprRenderer->shouldRenderCursor())
+    if (!m_tearingState.activelyTearing || !m_solitaryClient || !g_pAbyssRenderer->shouldRenderCursor())
         return;
 
     // submit a frame immediately. This will only update the cursor pos.
     // output->state->setBuffer(output->state->state().buffer);
     // output->state->addDamage(CRegion{});
-    // output->state->setPresentationMode(Aquamarine::eOutputPresentationMode::AQ_OUTPUT_PRESENTATION_IMMEDIATE);
+    // output->state->setPresentationMode(Abyssal::eOutputPresentationMode::ABYSSAL_OUTPUT_PRESENTATION_IMMEDIATE);
     // if (!output->commit())
     //     Log::logger->log(Log::ERR, "onCursorMovedOnMonitor: tearing and wanted to update cursor, failed.");
 
@@ -2498,7 +2498,7 @@ bool CMonitor::needsCM() {
 }
 
 static bool isCompatibleTF(eTransferFunction sourceTF, eTransferFunction targetTF) {
-    static auto PNONSHADER = CConfigValue<Hyprlang::INT>("render:non_shader_cm");
+    static auto PNONSHADER = CConfigValue<Abyssparse::INT>("render:non_shader_cm");
     const auto  sdrEOTF    = NTransferFunction::fromConfig();
     return sourceTF == targetTF                                                                                                         // same
         || (sdrEOTF == NTransferFunction::TF_FORCED_GAMMA22 && sourceTF == NColorManagement::CM_TRANSFER_FUNCTION_SRGB                  // forced source gamma22 to output gamma22
@@ -2696,12 +2696,12 @@ bool CMonitorState::updateSwapchain() {
     options.size    = MODE->pixelSize;
     return m_owner->m_output->swapchain->reconfigure(options);
 }
-void CMonitorState::applyModeWithSwapchain(const SP<Aquamarine::SOutputMode>& mode) {
+void CMonitorState::applyModeWithSwapchain(const SP<Abyssal::SOutputMode>& mode) {
     m_owner->m_output->state->setMode(mode);
     updateSwapchain();
 }
 
-void CMonitorState::applyCustomModeWithSwapchain(const SP<Aquamarine::SOutputMode>& mode) {
+void CMonitorState::applyCustomModeWithSwapchain(const SP<Abyssal::SOutputMode>& mode) {
     m_owner->m_output->state->setCustomMode(mode);
     updateSwapchain();
 }
@@ -2711,7 +2711,7 @@ bool CMonitor::needsACopyFB() {
 }
 
 bool CMonitor::needsUnmodifiedCopy() {
-    static const auto PKEEP = CConfigValue<Hyprlang::INT>("render:keep_unmodified_copy");
+    static const auto PKEEP = CConfigValue<Abyssparse::INT>("render:keep_unmodified_copy");
     if (*PKEEP == 1)
         return true;
 
@@ -2729,7 +2729,7 @@ bool CMonitor::needsUnmodifiedCopy() {
 }
 
 bool CMonitor::useFP16() {
-    static const auto PFP16 = CConfigValue<Hyprlang::INT>("render:use_fp16");
+    static const auto PFP16 = CConfigValue<Abyssparse::INT>("render:use_fp16");
 
     auto              isSRGB = [this] {
         if (m_imageDescription->value().transferFunction != CM_TRANSFER_FUNCTION_SRGB && m_imageDescription->value().transferFunction != CM_TRANSFER_FUNCTION_GAMMA22)
@@ -2752,7 +2752,7 @@ bool CMonitor::useFP16() {
 }
 
 PImageDescription CMonitor::workBufferImageDescription() {
-    static const auto PFP16TF = CConfigValue<Hyprlang::INT>("render:fp16_sdr_tf");
+    static const auto PFP16TF = CConfigValue<Abyssparse::INT>("render:fp16_sdr_tf");
 
     if (!useFP16() && !m_imageDescription->value().icc.present)
         return m_imageDescription;

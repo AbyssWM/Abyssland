@@ -78,9 +78,9 @@ class CLayerShellResource {
     SP<CZwlrLayerSurfaceV1> m_resource;
 
     struct {
-        CHyprSignalListener commitSurface;
-        CHyprSignalListener destroySurface;
-        CHyprSignalListener unmapSurface;
+        CAbyssSignalListener commitSurface;
+        CAbyssSignalListener destroySurface;
+        CAbyssSignalListener unmapSurface;
     } m_listeners;
 
     bool                                       m_closed = false;

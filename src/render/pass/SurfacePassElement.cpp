@@ -8,10 +8,10 @@
 #include "../../layout/LayoutManager.hpp"
 #include "../Renderer.hpp"
 
-#include <hyprutils/math/Box.hpp>
-#include <hyprutils/math/Vector2D.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
-using namespace Hyprutils::Utils;
+#include <abyssutils/math/Box.hpp>
+#include <abyssutils/math/Vector2D.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
+using namespace Abyssutils::Utils;
 
 CSurfacePassElement::CSurfacePassElement(const CSurfacePassElement::SRenderData& data_) : m_data(data_) {
     ;
@@ -92,7 +92,7 @@ bool CSurfacePassElement::needsLiveBlur() {
     if (m_data.popup)
         return BLUR;
 
-    const bool NEWOPTIM = g_pHyprRenderer->shouldUseNewBlurOptimizations(m_data.pLS, m_data.pWindow);
+    const bool NEWOPTIM = g_pAbyssRenderer->shouldUseNewBlurOptimizations(m_data.pLS, m_data.pWindow);
 
     return BLUR && (m_data.blockBlurOptimization || !NEWOPTIM);
 }
@@ -109,7 +109,7 @@ bool CSurfacePassElement::needsPrecomputeBlur() {
     if (m_data.popup)
         return false;
 
-    const bool NEWOPTIM = g_pHyprRenderer->shouldUseNewBlurOptimizations(m_data.pLS, m_data.pWindow);
+    const bool NEWOPTIM = g_pAbyssRenderer->shouldUseNewBlurOptimizations(m_data.pLS, m_data.pWindow);
 
     return BLUR && NEWOPTIM && !m_data.blockBlurOptimization;
 }
@@ -157,8 +157,8 @@ CRegion CSurfacePassElement::visibleRegion(bool& cancel) {
     // deal with any rounding errors that might come from scaling
     visibleRegion.expand(1);
 
-    auto uvTL = g_pHyprRenderer->m_renderData.primarySurfaceUVTopLeft;
-    auto uvBR = g_pHyprRenderer->m_renderData.primarySurfaceUVBottomRight;
+    auto uvTL = g_pAbyssRenderer->m_renderData.primarySurfaceUVTopLeft;
+    auto uvBR = g_pAbyssRenderer->m_renderData.primarySurfaceUVBottomRight;
 
     if (uvTL == Vector2D(-1, -1))
         uvTL = Vector2D(0, 0);
@@ -179,7 +179,7 @@ CRegion CSurfacePassElement::visibleRegion(bool& cancel) {
 }
 
 void CSurfacePassElement::discard() {
-    if (!g_pHyprRenderer->m_bBlockSurfaceFeedback) {
+    if (!g_pAbyssRenderer->m_bBlockSurfaceFeedback) {
         Log::logger->log(Log::TRACE, "discard for invisible surface");
         m_data.surface->presentFeedback(m_data.when, m_data.pMonitor->m_self.lock(), true);
     }

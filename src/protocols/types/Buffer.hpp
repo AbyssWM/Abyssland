@@ -5,16 +5,16 @@
 #include "./WLBuffer.hpp"
 #include "../DRMSyncobj.hpp"
 
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 
 class CSyncReleaser;
 class CHLBufferReference;
 
-class IHLBuffer : public Aquamarine::IBuffer {
+class IHLBuffer : public Abyssal::IBuffer {
   public:
     virtual ~IHLBuffer();
-    virtual Aquamarine::eBufferCapability       caps()                        = 0;
-    virtual Aquamarine::eBufferType             type()                        = 0;
+    virtual Abyssal::eBufferCapability       caps()                        = 0;
+    virtual Abyssal::eBufferType             type()                        = 0;
     virtual void                                update(const CRegion& damage) = 0;
     virtual bool                                isSynchronous()               = 0; // whether the updates to this buffer are synchronous, aka happen over cpu
     virtual bool                                good()                        = 0;
@@ -30,11 +30,11 @@ class IHLBuffer : public Aquamarine::IBuffer {
     bool                                        m_opaque = false;
     SP<CWLBufferResource>                       m_resource;
     std::vector<UP<CSyncReleaser>>              m_syncReleasers;
-    std::vector<Hyprutils::OS::CFileDescriptor> m_syncFds;
+    std::vector<Abyssutils::OS::CFileDescriptor> m_syncFds;
 
     struct {
-        CHyprSignalListener backendRelease;
-        CHyprSignalListener backendRelease2; // for explicit ds
+        CAbyssSignalListener backendRelease;
+        CAbyssSignalListener backendRelease2; // for explicit ds
     } m_hlEvents;
 
   private:
@@ -58,7 +58,7 @@ class CHLBufferReference {
 
     bool                operator==(const CHLBufferReference& other) const;
     bool                operator==(const SP<IHLBuffer>& other) const;
-    bool                operator==(const SP<Aquamarine::IBuffer>& other) const;
+    bool                operator==(const SP<Abyssal::IBuffer>& other) const;
     SP<IHLBuffer>       operator->() const;
     //
     operator bool() const;

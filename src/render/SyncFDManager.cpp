@@ -3,11 +3,11 @@
 
 using namespace Render;
 
-Hyprutils::OS::CFileDescriptor& ISyncFDManager::fd() {
+Abyssutils::OS::CFileDescriptor& ISyncFDManager::fd() {
     return m_fd;
 }
 
-Hyprutils::OS::CFileDescriptor&& ISyncFDManager::takeFd() {
+Abyssutils::OS::CFileDescriptor&& ISyncFDManager::takeFd() {
     return std::move(m_fd);
 }
 

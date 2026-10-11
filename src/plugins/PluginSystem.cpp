@@ -3,7 +3,7 @@
 #include <dlfcn.h>
 #include <ranges>
 #include "../config/ConfigManager.hpp"
-#include "../debug/HyprCtl.hpp"
+#include "../debug/AbyssCtl.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
 #include "../managers/permissions/DynamicPermissionManager.hpp"
 #include "../notification/NotificationOverlay.hpp"
@@ -18,8 +18,8 @@ SP<CPromise<CPlugin*>> CPluginSystem::loadPlugin(const std::string& path, eSpeci
 
     pid_t pid = 0;
 
-    if (g_pHyprCtl->m_currentRequestParams.pid > 0)
-        pid = g_pHyprCtl->m_currentRequestParams.pid;
+    if (g_pAbyssCtl->m_currentRequestParams.pid > 0)
+        pid = g_pAbyssCtl->m_currentRequestParams.pid;
 
     return CPromise<CPlugin*>::make([path, pid, pidType, this](SP<CPromiseResolver<CPlugin*>> resolver) {
         const auto PERM = g_pDynamicPermissionManager->clientPermissionModeWithString(pidType != SPECIAL_PID_TYPE_NONE ? pidType : pid, path, PERMISSION_TYPE_PLUGIN);
@@ -101,7 +101,7 @@ std::expected<CPlugin*, std::string> CPluginSystem::loadPluginInternal(const std
 
     const std::string PLUGINAPIVER = apiVerFunc();
 
-    if (PLUGINAPIVER != HYPRLAND_API_VERSION) {
+    if (PLUGINAPIVER != ABYSSLAND_API_VERSION) {
         Log::logger->log(Log::ERR, " [PluginSystem] Plugin {} could not be loaded. (API version mismatch)", path);
         dlclose(MODULE);
         m_loadedPlugins.pop_back();
@@ -163,16 +163,16 @@ void CPluginSystem::unloadPlugin(const CPlugin* plugin, bool eject) {
 
     const auto rd = plugin->m_registeredDecorations;
     for (auto const& d : rd)
-        HyprlandAPI::removeWindowDecoration(plugin->m_handle, d);
+        AbysslandAPI::removeWindowDecoration(plugin->m_handle, d);
 
     const auto rdi = plugin->m_registeredDispatchers;
     for (auto const& d : rdi)
-        HyprlandAPI::removeDispatcher(plugin->m_handle, d);
+        AbysslandAPI::removeDispatcher(plugin->m_handle, d);
 
-    const auto rhc = plugin->m_registeredHyprctlCommands;
+    const auto rhc = plugin->m_registeredAbyssctlCommands;
     for (auto const& c : rhc) {
         if (const auto sp = c.lock())
-            HyprlandAPI::unregisterHyprCtlCommand(plugin->m_handle, sp);
+            AbysslandAPI::unregisterAbyssCtlCommand(plugin->m_handle, sp);
     }
 
     if (Config::mgr())
@@ -228,7 +228,7 @@ void CPluginSystem::updateConfigPlugins(const std::vector<std::string>& plugins,
                 const auto NAME = path.contains('/') ? path.substr(path.find_last_of('/') + 1) : path;
                 Log::logger->log(Log::ERR, "CPluginSystem::updateConfigPlugins: failed to load plugin {}: {}", NAME, result->error());
                 Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, {{"name", NAME}, {"error", result->error()}}),
-                                                         CHyprColor{0, 0, 0, 0}, 5000, ICON_ERROR);
+                                                         CAbyssColor{0, 0, 0, 0}, 5000, ICON_ERROR);
                 return;
             }
 

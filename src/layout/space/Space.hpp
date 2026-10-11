@@ -78,7 +78,7 @@ namespace Layout {
         CBox m_workArea, m_floatingWorkArea;
 
         // for recalc
-        CHyprSignalListener m_geomUpdateCallback;
+        CAbyssSignalListener m_geomUpdateCallback;
     };
 
     bool isHardRecalculateReason(eRecalculateReason reason);

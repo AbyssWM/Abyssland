@@ -1,19 +1,19 @@
 #pragma once
 
-#include <aquamarine/backend/Backend.hpp>
+#include <abyssal/backend/Backend.hpp>
 #include <vector>
 #include <unordered_map>
 #include "WaylandProtocol.hpp"
 #include "drm-lease-v1.hpp"
 #include "../helpers/signal/Signal.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 /*
     TODO: this protocol is not made for systems with multiple DRM nodes (e.g. multigpu)
 */
 
-AQUAMARINE_FORWARD(CDRMBackend);
-AQUAMARINE_FORWARD(CDRMLease);
+ABYSSAL_FORWARD(CDRMBackend);
+ABYSSAL_FORWARD(CDRMLease);
 class CDRMLeaseDeviceResource;
 class CDRMLeaseProtocol;
 class CDRMLeaseConnectorResource;
@@ -28,10 +28,10 @@ class CDRMLeaseResource {
 
     WP<CDRMLeaseDeviceResource>                 m_parent;
     std::vector<WP<CDRMLeaseConnectorResource>> m_requested;
-    SP<Aquamarine::CDRMLease>                   m_lease;
+    SP<Abyssal::CDRMLease>                   m_lease;
 
     struct {
-        CHyprSignalListener destroyLease;
+        CAbyssSignalListener destroyLease;
     } m_listeners;
 
   private:
@@ -69,7 +69,7 @@ class CDRMLeaseConnectorResource {
     SP<CWpDrmLeaseConnectorV1> m_resource;
 
     struct {
-        CHyprSignalListener destroyMonitor;
+        CAbyssSignalListener destroyMonitor;
     } m_listeners;
 
     friend class CDRMLeaseDeviceResource;
@@ -95,13 +95,13 @@ class CDRMLeaseDeviceResource {
 
 class CDRMLeaseProtocol : public IWaylandProtocol {
   public:
-    CDRMLeaseProtocol(const wl_interface* iface, const int& ver, const std::string& name, SP<Aquamarine::IBackendImplementation> backend);
+    CDRMLeaseProtocol(const wl_interface* iface, const int& ver, const std::string& name, SP<Abyssal::IBackendImplementation> backend);
 
     virtual void                           bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id);
 
     void                                   offer(PHLMONITOR monitor);
 
-    SP<Aquamarine::IBackendImplementation> getBackend();
+    SP<Abyssal::IBackendImplementation> getBackend();
     std::string                            getDeviceName();
     bool                                   good();
 
@@ -119,7 +119,7 @@ class CDRMLeaseProtocol : public IWaylandProtocol {
 
     std::string                                 m_deviceName = "";
     bool                                        m_success    = false;
-    SP<Aquamarine::CDRMBackend>                 m_backend;
+    SP<Abyssal::CDRMBackend>                 m_backend;
     std::vector<PHLMONITORREF>                  m_offeredOutputs;
 
     friend class CDRMLeaseDeviceResource;

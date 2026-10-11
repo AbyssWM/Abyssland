@@ -1,7 +1,7 @@
 #pragma once
 
-#include <hyprutils/string/VarList.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssutils/string/VarList.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
 //NOLINTNEXTLINE
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;

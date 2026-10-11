@@ -4,34 +4,34 @@
 
 class CMouse : public IPointer {
   public:
-    static SP<CMouse>                create(SP<Aquamarine::IPointer> mouse);
+    static SP<CMouse>                create(SP<Abyssal::IPointer> mouse);
 
     virtual bool                     isVirtual();
-    virtual SP<Aquamarine::IPointer> aq();
+    virtual SP<Abyssal::IPointer> aq();
 
   private:
-    CMouse(SP<Aquamarine::IPointer> mouse);
+    CMouse(SP<Abyssal::IPointer> mouse);
 
-    WP<Aquamarine::IPointer> m_mouse;
+    WP<Abyssal::IPointer> m_mouse;
 
     struct {
-        CHyprSignalListener destroy;
+        CAbyssSignalListener destroy;
 
-        CHyprSignalListener motion;
-        CHyprSignalListener motionAbsolute;
-        CHyprSignalListener button;
-        CHyprSignalListener axis;
-        CHyprSignalListener frame;
+        CAbyssSignalListener motion;
+        CAbyssSignalListener motionAbsolute;
+        CAbyssSignalListener button;
+        CAbyssSignalListener axis;
+        CAbyssSignalListener frame;
 
-        CHyprSignalListener swipeBegin;
-        CHyprSignalListener swipeEnd;
-        CHyprSignalListener swipeUpdate;
+        CAbyssSignalListener swipeBegin;
+        CAbyssSignalListener swipeEnd;
+        CAbyssSignalListener swipeUpdate;
 
-        CHyprSignalListener pinchBegin;
-        CHyprSignalListener pinchEnd;
-        CHyprSignalListener pinchUpdate;
+        CAbyssSignalListener pinchBegin;
+        CAbyssSignalListener pinchEnd;
+        CAbyssSignalListener pinchUpdate;
 
-        CHyprSignalListener holdBegin;
-        CHyprSignalListener holdEnd;
+        CAbyssSignalListener holdBegin;
+        CAbyssSignalListener holdEnd;
     } m_listeners;
 };

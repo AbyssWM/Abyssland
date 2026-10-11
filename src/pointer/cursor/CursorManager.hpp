@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <hyprcursor/hyprcursor.hpp>
+#include <abysscursor/abysscursor.hpp>
 #include "../../includes.hpp"
 #include "../../desktop/view/WLSurface.hpp"
 #include "../../helpers/math/Math.hpp"
@@ -9,24 +9,24 @@
 #include "../../macros.hpp"
 #include "../../managers/eventLoop/EventLoopManager.hpp"
 #include "../../managers/XCursorManager.hpp"
-#include <aquamarine/buffer/Buffer.hpp>
+#include <abyssal/buffer/Buffer.hpp>
 
-AQUAMARINE_FORWARD(IBuffer);
+ABYSSAL_FORWARD(IBuffer);
 
 namespace Pointer::Cursor {
 
-    class CCursorBuffer : public Aquamarine::IBuffer {
+    class CCursorBuffer : public Abyssal::IBuffer {
       public:
         CCursorBuffer(cairo_surface_t* surf, const Vector2D& size, const Vector2D& hotspot);
         CCursorBuffer(const uint8_t* pixelData, const Vector2D& size, const Vector2D& hotspot);
         ~CCursorBuffer() = default;
 
-        virtual Aquamarine::eBufferCapability          caps();
-        virtual Aquamarine::eBufferType                type();
-        virtual void                                   update(const Hyprutils::Math::CRegion& damage);
+        virtual Abyssal::eBufferCapability          caps();
+        virtual Abyssal::eBufferType                type();
+        virtual void                                   update(const Abyssutils::Math::CRegion& damage);
         virtual bool                                   isSynchronous(); // whether the updates to this buffer are synchronous, aka happen over cpu
         virtual bool                                   good();
-        virtual Aquamarine::SSHMAttrs                  shm();
+        virtual Abyssal::SSHMAttrs                  shm();
         virtual std::tuple<uint8_t*, uint32_t, size_t> beginDataPtr(uint32_t flags);
         virtual void                                   endDataPtr();
 
@@ -41,7 +41,7 @@ namespace Pointer::Cursor {
         CCursorManager();
         ~CCursorManager();
 
-        SP<Aquamarine::IBuffer> getCursorBuffer();
+        SP<Abyssal::IBuffer> getCursorBuffer();
 
         void                    setCursorFromName(const std::string& name);
         void                    setCursorSurface(SP<Desktop::View::CWLSurface> surf, const Vector2D& hotspot);
@@ -62,7 +62,7 @@ namespace Pointer::Cursor {
         bool                               m_ourBufferConnected = false;
         std::vector<SP<CCursorBuffer>>     m_cursorBuffers;
 
-        UP<Hyprcursor::CHyprcursorManager> m_hyprcursor;
+        UP<Abysscursor::CAbysscursorManager> m_abysscursor;
         UP<CXCursorManager>                m_xcursor;
         SP<SXCursors>                      m_currentXcursor;
 
@@ -70,11 +70,11 @@ namespace Pointer::Cursor {
         int                                m_size        = 0;
         float                              m_cursorScale = 1.0;
 
-        Hyprcursor::SCursorStyleInfo       m_currentStyleInfo;
+        Abysscursor::SCursorStyleInfo       m_currentStyleInfo;
 
         SP<CEventLoopTimer>                m_animationTimer;
         int                                m_currentAnimationFrame = 0;
-        Hyprcursor::SCursorShapeData       m_currentCursorShapeData;
+        Abysscursor::SCursorShapeData       m_currentCursorShapeData;
     };
 
     UP<CCursorManager>& mgr();

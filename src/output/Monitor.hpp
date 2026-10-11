@@ -26,9 +26,9 @@
 #include "../helpers/cm/ColorManagement.hpp"
 #include "../helpers/signal/Signal.hpp"
 #include "DamageRing.hpp"
-#include <aquamarine/output/Output.hpp>
-#include <aquamarine/allocator/Swapchain.hpp>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssal/output/Output.hpp>
+#include <abyssal/allocator/Swapchain.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include <sys/types.h>
 
 #include "../helpers/TransferFunction.hpp"
@@ -50,8 +50,8 @@ namespace Monitor {
         bool commit();
         bool test();
         bool updateSwapchain();
-        void applyModeWithSwapchain(const SP<Aquamarine::SOutputMode>& mode);
-        void applyCustomModeWithSwapchain(const SP<Aquamarine::SOutputMode>& mode);
+        void applyModeWithSwapchain(const SP<Abyssal::SOutputMode>& mode);
+        void applyCustomModeWithSwapchain(const SP<Abyssal::SOutputMode>& mode);
 
       private:
         void      ensureBufferPresent();
@@ -61,7 +61,7 @@ namespace Monitor {
 
     class CMonitor : public IMonitorQueryable, public IMonitorArrangeable {
       public:
-        CMonitor(SP<Aquamarine::IOutput> output);
+        CMonitor(SP<Abyssal::IOutput> output);
         virtual ~CMonitor() override;
 
         Vector2D                    m_position         = Vector2D(-1, -1); // means unset
@@ -88,7 +88,7 @@ namespace Monitor {
         CMonitorState               m_state;
         CDamageRing                 m_damage;
 
-        SP<Aquamarine::IOutput>     m_output;
+        SP<Abyssal::IOutput>     m_output;
         float                       m_refreshRate     = 60; // Hz
         int                         m_forceFullFrames = 0;
         bool                        m_scheduledRecalc = false;
@@ -96,8 +96,8 @@ namespace Monitor {
         float                       m_xwaylandScale   = 1.f;
 
         std::optional<Vector2D>     m_forceSize;
-        SP<Aquamarine::SOutputMode> m_currentMode;
-        SP<Aquamarine::CSwapchain>  m_cursorSwapchain;
+        SP<Abyssal::SOutputMode> m_currentMode;
+        SP<Abyssal::CSwapchain>  m_cursorSwapchain;
         uint32_t                    m_drmFormat     = DRM_FORMAT_INVALID;
         uint32_t                    m_prevDrmFormat = DRM_FORMAT_INVALID;
 
@@ -131,7 +131,7 @@ namespace Monitor {
         SP<Render::ITexture>        m_background;
 
         // explicit sync
-        Hyprutils::OS::CFileDescriptor m_inFence; // TODO: remove when aq uses CFileDescriptor
+        Abyssutils::OS::CFileDescriptor m_inFence; // TODO: remove when aq uses CFileDescriptor
 
         PHLMONITORREF                  m_self;
 
@@ -194,7 +194,7 @@ namespace Monitor {
 
         std::array<std::vector<PHLLSREF>, 4> m_layerSurfaceLayers;
 
-        // keep in sync with HyprCtl
+        // keep in sync with AbyssCtl
         enum eDSBlockReason : uint16_t {
             DS_OK = 0,
 
@@ -215,7 +215,7 @@ namespace Monitor {
             DS_CHECKS_COUNT = 14,
         };
 
-        // keep in sync with HyprCtl
+        // keep in sync with AbyssCtl
         enum eSolitaryCheck : uint32_t {
             SC_OK = 0,
 
@@ -241,7 +241,7 @@ namespace Monitor {
             SC_CHECKS_COUNT = 18,
         };
 
-        // keep in sync with HyprCtl
+        // keep in sync with AbyssCtl
         enum eTearingCheck : uint8_t {
             TC_OK = 0,
 
@@ -264,7 +264,7 @@ namespace Monitor {
         void         addDamage(const pixman_region32_t* rg);
         void         addDamage(const CRegion& rg);
         void         addDamage(const CBox& box);
-        void         scheduleFrame(Aquamarine::IOutput::scheduleFrameReason reason = Aquamarine::IOutput::AQ_SCHEDULE_CLIENT_UNKNOWN);
+        void         scheduleFrame(Abyssal::IOutput::scheduleFrameReason reason = Abyssal::IOutput::ABYSSAL_SCHEDULE_CLIENT_UNKNOWN);
         bool         shouldSkipScheduleFrameOnMouseEvent();
         void         setMirror(const std::string&);
         bool         isMirror();
@@ -303,14 +303,14 @@ namespace Monitor {
         virtual Vector2D                    pixelSize() const override;
         virtual Vector2D                    transformedSize() const override;
         virtual float                       scale() const override;
-        virtual Hyprutils::Math::eTransform transform() const override;
+        virtual Abyssutils::Math::eTransform transform() const override;
         virtual CBox                        logicalBox() const override;
         virtual CBox                        logicalBoxMinusReserved() const override;
         virtual Vector2D                    middle() const override;
         virtual void                        moveTo(const Vector2D& pos) override;
         virtual bool                        enabled() const override;
         virtual bool                        hasOutput() const override;
-        virtual SP<Aquamarine::IOutput>     output() const override;
+        virtual SP<Abyssal::IOutput>     output() const override;
         virtual std::optional<Vector2D>     explicitPosition() const override;
         virtual Config::eAutoDirs           autoDirection() const override;
         virtual Vector2D                    xwaylandPosition() const override;
@@ -412,12 +412,12 @@ namespace Monitor {
         NColorManagement::PImageDescription m_cachedInternalDescription = NColorManagement::CImageDescription::from(NColorManagement::SImageDescription{});
 
         struct {
-            CHyprSignalListener frame;
-            CHyprSignalListener destroy;
-            CHyprSignalListener state;
-            CHyprSignalListener needsFrame;
-            CHyprSignalListener presented;
-            CHyprSignalListener commit;
+            CAbyssSignalListener frame;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener state;
+            CAbyssSignalListener needsFrame;
+            CAbyssSignalListener presented;
+            CAbyssSignalListener commit;
         } m_listeners;
 
         int   m_supportsWideColor = 0;

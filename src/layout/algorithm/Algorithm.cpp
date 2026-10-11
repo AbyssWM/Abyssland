@@ -84,13 +84,13 @@ SP<CSpace> CAlgorithm::space() const {
 void CAlgorithm::setFloating(SP<ITarget> target, bool floating, bool reposition) {
     removeTarget(target);
 
-    g_pHyprRenderer->damageWindow(target->window());
+    g_pAbyssRenderer->damageWindow(target->window());
 
     target->setFloating(floating);
 
     moveTarget(target, std::nullopt, reposition);
 
-    g_pHyprRenderer->damageWindow(target->window());
+    g_pAbyssRenderer->damageWindow(target->window());
 }
 
 size_t CAlgorithm::tiledTargets() const {
@@ -229,7 +229,7 @@ const UP<IFloatingAlgorithm>& CAlgorithm::floatingAlgo() const {
 }
 
 SP<ITarget> CAlgorithm::getNextCandidate(SP<ITarget> old) {
-    static auto FOCUSONCLOSE = CConfigValue<Hyprlang::INT>("input:focus_on_close");
+    static auto FOCUSONCLOSE = CConfigValue<Abyssparse::INT>("input:focus_on_close");
 
     if (old->floating() || *FOCUSONCLOSE == 2) {
         // use window history to determine best target

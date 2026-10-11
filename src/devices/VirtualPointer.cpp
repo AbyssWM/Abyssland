@@ -1,6 +1,6 @@
 #include "VirtualPointer.hpp"
 #include "../protocols/VirtualPointer.hpp"
-#include <aquamarine/input/Input.hpp>
+#include <abyssal/input/Input.hpp>
 
 SP<CVirtualPointer> CVirtualPointer::create(SP<CVirtualPointerV1Resource> resource) {
     SP<CVirtualPointer> pPointer = SP<CVirtualPointer>(new CVirtualPointer(resource));
@@ -49,6 +49,6 @@ bool CVirtualPointer::isVirtual() {
     return true;
 }
 
-SP<Aquamarine::IPointer> CVirtualPointer::aq() {
+SP<Abyssal::IPointer> CVirtualPointer::aq() {
     return nullptr;
 }

@@ -7,8 +7,8 @@
 #include "../../render/Texture.hpp"
 #include "../../render/Renderer.hpp"
 
-#include <hyprutils/utils/ScopeGuard.hpp>
-using namespace Hyprutils::Utils;
+#include <abyssutils/utils/ScopeGuard.hpp>
+using namespace Abyssutils::Utils;
 
 #include <lcms2.h>
 
@@ -67,7 +67,7 @@ static std::expected<std::optional<SVCGTTable16>, std::string> readVCGT16(cmsHPR
     // 8 ... 11: gammaType (0 = table)
     uint32_t gammaType = bigEndianU32(raw.data() + 8);
     if (gammaType != 0)
-        return std::unexpected("VCGT formula type is not supported by Hyprland");
+        return std::unexpected("VCGT formula type is not supported by Abyssland");
 
     SVCGTTable16 table;
     table.channels  = bigEndianU16(raw.data() + 12);
@@ -226,7 +226,7 @@ static std::expected<void, std::string> buildIcc3DLut(cmsHPROFILE profile, SImag
     Log::logger->log(Log::DEBUG, "3D LUT constructed, size {}", image.icc.lutDataPacked.size());
 
     // upload
-    image.icc.lutTexture = g_pHyprRenderer->createTexture(image.icc.lutDataPacked, image.icc.lutSize);
+    image.icc.lutTexture = g_pAbyssRenderer->createTexture(image.icc.lutDataPacked, image.icc.lutSize);
 
     return {};
 }

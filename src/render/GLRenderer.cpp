@@ -1,6 +1,6 @@
 #include "GLRenderer.hpp"
-#include "decorations/CHyprInnerGlowDecoration.hpp"
-#include <aquamarine/output/Output.hpp>
+#include "decorations/CAbyssInnerGlowDecoration.hpp"
+#include <abyssal/output/Output.hpp>
 #include "../config/ConfigValue.hpp"
 #include "../pointer/cursor/CursorManager.hpp"
 #include "../pointer/PointerManager.hpp"
@@ -22,11 +22,11 @@
 #include "./gl/GLTexture.hpp"
 
 #include <cstdint>
-#include <hyprutils/memory/SharedPtr.hpp>
-#include <hyprutils/memory/UniquePtr.hpp>
-#include <hyprutils/utils/ScopeGuard.hpp>
-using namespace Hyprutils::Utils;
-using namespace Hyprutils::OS;
+#include <abyssutils/memory/SharedPtr.hpp>
+#include <abyssutils/memory/UniquePtr.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
+using namespace Abyssutils::Utils;
+using namespace Abyssutils::OS;
 using enum NContentType::eContentType;
 using namespace NColorManagement;
 using namespace Render;
@@ -36,18 +36,18 @@ extern "C" {
 #include <xf86drm.h>
 }
 
-CHyprGLRenderer::CHyprGLRenderer() : IHyprRenderer(), m_elementRenderer(makeUnique<CGLElementRenderer>()) {}
+CAbyssGLRenderer::CAbyssGLRenderer() : IAbyssRenderer(), m_elementRenderer(makeUnique<CGLElementRenderer>()) {}
 
-IHyprRenderer::eType CHyprGLRenderer::type() {
+IAbyssRenderer::eType CAbyssGLRenderer::type() {
     return RT_GL;
 }
 
-void CHyprGLRenderer::initRender() {
-    g_pHyprOpenGL->makeEGLCurrent();
-    g_pHyprRenderer->m_renderData.pMonitor = renderData().pMonitor;
+void CAbyssGLRenderer::initRender() {
+    g_pAbyssOpenGL->makeEGLCurrent();
+    g_pAbyssRenderer->m_renderData.pMonitor = renderData().pMonitor;
 }
 
-bool CHyprGLRenderer::initRenderBuffer(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) {
+bool CAbyssGLRenderer::initRenderBuffer(SP<Abyssal::IBuffer> buffer, uint32_t fmt) {
     try {
         m_currentRenderbuffer = getOrCreateRenderbuffer(m_currentBuffer, fmt);
     } catch (std::exception& e) {
@@ -58,34 +58,34 @@ bool CHyprGLRenderer::initRenderBuffer(SP<Aquamarine::IBuffer> buffer, uint32_t 
     return !!m_currentRenderbuffer;
 }
 
-bool CHyprGLRenderer::beginFullFakeRenderInternal(PHLMONITOR pMonitor, CRegion& damage, SP<IFramebuffer> fb, bool simple) {
+bool CAbyssGLRenderer::beginFullFakeRenderInternal(PHLMONITOR pMonitor, CRegion& damage, SP<IFramebuffer> fb, bool simple) {
     initRender();
 
     RASSERT(fb, "Cannot render FULL_FAKE without a provided fb!");
     bindFB(fb);
     if (simple)
-        g_pHyprOpenGL->beginSimple(pMonitor, damage, nullptr, fb);
+        g_pAbyssOpenGL->beginSimple(pMonitor, damage, nullptr, fb);
     else
-        g_pHyprOpenGL->begin(pMonitor, damage, fb);
+        g_pAbyssOpenGL->begin(pMonitor, damage, fb);
     return true;
 }
 
-bool CHyprGLRenderer::beginRenderInternal(PHLMONITOR pMonitor, CRegion& damage, bool simple) {
+bool CAbyssGLRenderer::beginRenderInternal(PHLMONITOR pMonitor, CRegion& damage, bool simple) {
 
     m_currentRenderbuffer->bind();
     if (simple)
-        g_pHyprOpenGL->beginSimple(pMonitor, damage, m_currentRenderbuffer);
+        g_pAbyssOpenGL->beginSimple(pMonitor, damage, m_currentRenderbuffer);
     else
-        g_pHyprOpenGL->begin(pMonitor, damage);
+        g_pAbyssOpenGL->begin(pMonitor, damage);
 
     return true;
 }
 
-void CHyprGLRenderer::endRender(const std::function<void()>& renderingDoneCallback) {
-    const auto  PMONITOR           = g_pHyprRenderer->m_renderData.pMonitor;
+void CAbyssGLRenderer::endRender(const std::function<void()>& renderingDoneCallback) {
+    const auto  PMONITOR           = g_pAbyssRenderer->m_renderData.pMonitor;
     static auto PNVIDIAANTIFLICKER = CConfigValue<Config::INTEGER>("opengl:nvidia_anti_flicker");
 
-    g_pHyprRenderer->m_renderData.damage = m_renderPass.render(g_pHyprRenderer->m_renderData.damage);
+    g_pAbyssRenderer->m_renderData.damage = m_renderPass.render(g_pAbyssRenderer->m_renderData.damage);
 
     auto cleanup = CScopeGuard([this]() {
         if (m_currentRenderbuffer)
@@ -95,11 +95,11 @@ void CHyprGLRenderer::endRender(const std::function<void()>& renderingDoneCallba
     });
 
     if (m_renderMode != RENDER_MODE_TO_BUFFER_READ_ONLY)
-        g_pHyprOpenGL->end();
+        g_pAbyssOpenGL->end();
     else {
-        g_pHyprRenderer->m_renderData.pMonitor.reset();
-        g_pHyprRenderer->m_renderData.mouseZoomFactor   = 1.f;
-        g_pHyprRenderer->m_renderData.mouseZoomUseMouse = true;
+        g_pAbyssRenderer->m_renderData.pMonitor.reset();
+        g_pAbyssRenderer->m_renderData.mouseZoomFactor   = 1.f;
+        g_pAbyssRenderer->m_renderData.mouseZoomUseMouse = true;
     }
 
     if (m_renderMode == RENDER_MODE_FULL_FAKE)
@@ -164,47 +164,47 @@ void CHyprGLRenderer::endRender(const std::function<void()>& renderingDoneCallba
     }
 }
 
-void CHyprGLRenderer::renderOffToMain(SP<IFramebuffer> off) {
-    g_pHyprOpenGL->renderOffToMain(off);
+void CAbyssGLRenderer::renderOffToMain(SP<IFramebuffer> off) {
+    g_pAbyssOpenGL->renderOffToMain(off);
 }
 
-SP<IRenderbuffer> CHyprGLRenderer::getOrCreateRenderbufferInternal(SP<Aquamarine::IBuffer> buffer, uint32_t fmt) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<IRenderbuffer> CAbyssGLRenderer::getOrCreateRenderbufferInternal(SP<Abyssal::IBuffer> buffer, uint32_t fmt) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     return makeShared<CGLRenderbuffer>(buffer, fmt);
 }
 
-UP<ISyncFDManager> CHyprGLRenderer::createSyncFDManager() {
+UP<ISyncFDManager> CAbyssGLRenderer::createSyncFDManager() {
     return CEGLSync::create();
 }
 
-SP<ITexture> CHyprGLRenderer::createStencilTexture(const int width, const int height) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createStencilTexture(const int width, const int height) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     auto tex = makeShared<CGLTexture>();
     tex->allocate({width, height});
 
     return tex;
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(bool opaque) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createTexture(bool opaque) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     return makeShared<CGLTexture>(opaque);
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, const Vector2D& size, bool keepDataCopy, bool opaque) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createTexture(uint32_t drmFormat, uint8_t* pixels, uint32_t stride, const Vector2D& size, bool keepDataCopy, bool opaque) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     return makeShared<CGLTexture>(drmFormat, pixels, stride, size, keepDataCopy, opaque);
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(const Aquamarine::SDMABUFAttrs& attrs, bool opaque) {
-    g_pHyprOpenGL->makeEGLCurrent();
-    const auto image = g_pHyprOpenGL->createEGLImage(attrs);
+SP<ITexture> CAbyssGLRenderer::createTexture(const Abyssal::SDMABUFAttrs& attrs, bool opaque) {
+    g_pAbyssOpenGL->makeEGLCurrent();
+    const auto image = g_pAbyssOpenGL->createEGLImage(attrs);
     if (!image)
         return nullptr;
     return makeShared<CGLTexture>(attrs, image, opaque);
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(const int width, const int height, unsigned char* const data) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createTexture(const int width, const int height, unsigned char* const data) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     SP<ITexture> tex = makeShared<CGLTexture>();
 
     tex->allocate({width, height}, DRM_FORMAT_ARGB8888); // FIXME assume DRM_FORMAT_ARGB8888
@@ -226,8 +226,8 @@ SP<ITexture> CHyprGLRenderer::createTexture(const int width, const int height, u
     return tex;
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(cairo_surface_t* cairo) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createTexture(cairo_surface_t* cairo) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     const auto CAIROFORMAT = cairo_image_surface_get_format(cairo);
     auto       tex         = makeShared<CGLTexture>();
 
@@ -253,78 +253,78 @@ SP<ITexture> CHyprGLRenderer::createTexture(cairo_surface_t* cairo) {
     return tex;
 }
 
-SP<ITexture> CHyprGLRenderer::createTexture(std::span<const float> lut3D, size_t N) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<ITexture> CAbyssGLRenderer::createTexture(std::span<const float> lut3D, size_t N) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     return makeShared<CGLTexture>(lut3D, N);
 }
 
-bool CHyprGLRenderer::explicitSyncSupported() {
-    return g_pHyprOpenGL->explicitSyncSupported();
+bool CAbyssGLRenderer::explicitSyncSupported() {
+    return g_pAbyssOpenGL->explicitSyncSupported();
 }
 
-std::vector<SDRMFormat> CHyprGLRenderer::getDRMFormats() {
-    return g_pHyprOpenGL->getDRMFormats();
+std::vector<SDRMFormat> CAbyssGLRenderer::getDRMFormats() {
+    return g_pAbyssOpenGL->getDRMFormats();
 }
 
-std::vector<uint64_t> CHyprGLRenderer::getDRMFormatModifiers(DRMFormat format) {
-    return g_pHyprOpenGL->getDRMFormatModifiers(format);
+std::vector<uint64_t> CAbyssGLRenderer::getDRMFormatModifiers(DRMFormat format) {
+    return g_pAbyssOpenGL->getDRMFormatModifiers(format);
 }
 
-SP<IFramebuffer> CHyprGLRenderer::createFB(const std::string& name) {
-    g_pHyprOpenGL->makeEGLCurrent();
+SP<IFramebuffer> CAbyssGLRenderer::createFB(const std::string& name) {
+    g_pAbyssOpenGL->makeEGLCurrent();
     return makeShared<CGLFramebuffer>(name);
 }
 
-void CHyprGLRenderer::disableScissor() {
-    g_pHyprOpenGL->scissor(nullptr);
+void CAbyssGLRenderer::disableScissor() {
+    g_pAbyssOpenGL->scissor(nullptr);
 }
 
-void CHyprGLRenderer::blend(bool enabled) {
-    g_pHyprOpenGL->blend(enabled);
+void CAbyssGLRenderer::blend(bool enabled) {
+    g_pAbyssOpenGL->blend(enabled);
 }
 
-void CHyprGLRenderer::drawShadow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& color, float a) {
-    g_pHyprOpenGL->renderRoundedShadow(box, round, roundingPower, range, color, a);
+void CAbyssGLRenderer::drawShadow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& color, float a) {
+    g_pAbyssOpenGL->renderRoundedShadow(box, round, roundingPower, range, color, a);
 }
 
-void CHyprGLRenderer::drawShadow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& grad1, const Config::CGradientValueData& grad2,
+void CAbyssGLRenderer::drawShadow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& grad1, const Config::CGradientValueData& grad2,
                                  float lerp, float a) {
-    g_pHyprOpenGL->renderRoundedShadow(box, round, roundingPower, range, grad1, grad2, lerp, a);
+    g_pAbyssOpenGL->renderRoundedShadow(box, round, roundingPower, range, grad1, grad2, lerp, a);
 }
 
-void CHyprGLRenderer::drawGlow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& color, float a) {
-    g_pHyprOpenGL->renderInnerGlow(box, round, roundingPower, range, color, 0, a);
+void CAbyssGLRenderer::drawGlow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& color, float a) {
+    g_pAbyssOpenGL->renderInnerGlow(box, round, roundingPower, range, color, 0, a);
 }
 
-void CHyprGLRenderer::drawGlow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& grad1, const Config::CGradientValueData& grad2,
+void CAbyssGLRenderer::drawGlow(const CBox& box, int round, float roundingPower, int range, const Config::CGradientValueData& grad1, const Config::CGradientValueData& grad2,
                                float lerp, float a) {
-    g_pHyprOpenGL->renderInnerGlow(box, round, roundingPower, range, grad1, grad2, lerp, 0, a);
+    g_pAbyssOpenGL->renderInnerGlow(box, round, roundingPower, range, grad1, grad2, lerp, 0, a);
 }
 
-SP<ITexture> CHyprGLRenderer::blurFramebuffer(SP<IFramebuffer> source, float a, CRegion* originalDamage) {
+SP<ITexture> CAbyssGLRenderer::blurFramebuffer(SP<IFramebuffer> source, float a, CRegion* originalDamage) {
     auto src = GLFB(source);
-    return g_pHyprOpenGL->blurFramebufferWithDamage(a, originalDamage, *src)->getTexture();
+    return g_pAbyssOpenGL->blurFramebufferWithDamage(a, originalDamage, *src)->getTexture();
 }
 
-void CHyprGLRenderer::setViewport(int x, int y, int width, int height) {
-    g_pHyprOpenGL->setViewport(x, y, width, height);
+void CAbyssGLRenderer::setViewport(int x, int y, int width, int height) {
+    g_pAbyssOpenGL->setViewport(x, y, width, height);
 }
 
-bool CHyprGLRenderer::reloadShaders(const std::string& path) {
-    return g_pHyprOpenGL->initShaders(path);
+bool CAbyssGLRenderer::reloadShaders(const std::string& path) {
+    return g_pAbyssOpenGL->initShaders(path);
 }
 
-SP<ITexture> CHyprGLRenderer::getBlurTexture(PHLMONITORREF pMonitor) {
+SP<ITexture> CAbyssGLRenderer::getBlurTexture(PHLMONITORREF pMonitor) {
     return pMonitor->resources()->m_blurFB->getTexture();
 }
 
-void CHyprGLRenderer::unsetEGL() {
-    if (!g_pHyprOpenGL)
+void CAbyssGLRenderer::unsetEGL() {
+    if (!g_pAbyssOpenGL)
         return;
 
-    eglMakeCurrent(g_pHyprOpenGL->m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglMakeCurrent(g_pAbyssOpenGL->m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-WP<IElementRenderer> CHyprGLRenderer::elementRenderer() {
+WP<IElementRenderer> CAbyssGLRenderer::elementRenderer() {
     return m_elementRenderer;
 }

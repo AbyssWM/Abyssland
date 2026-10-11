@@ -18,7 +18,7 @@
 #include "../../../output/Monitor.hpp"
 
 #include "../../../config/shared/monitor/MonitorRuleManager.hpp"
-#include <hyprutils/memory/Casts.hpp>
+#include <abyssutils/memory/Casts.hpp>
 
 using namespace Fullscreen;
 
@@ -113,7 +113,7 @@ eFullscreenRequestResult IFullscreenHandler::requestFullscreen(const SFullscreen
     if (*PDIRECTSCANOUT == 1 || (*PDIRECTSCANOUT == 2 && WINDOW->getContentType() == NContentType::CONTENT_TYPE_GAME)) {
         auto surf = WINDOW->getSolitaryResource();
         if (surf)
-            g_pHyprRenderer->setSurfaceScanoutMode(surf, request.mode != FSMODE_NONE ? MONITOR : nullptr);
+            g_pAbyssRenderer->setSurfaceScanoutMode(surf, request.mode != FSMODE_NONE ? MONITOR : nullptr);
     }
     Config::monitorRuleMgr()->ensureVRR(MONITOR);
 

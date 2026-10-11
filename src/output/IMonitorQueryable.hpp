@@ -4,7 +4,7 @@
 #include "IMonitorIdentifiable.hpp"
 #include "../helpers/memory/Memory.hpp"
 
-namespace Aquamarine {
+namespace Abyssal {
     class IOutput;
 }
 
@@ -13,6 +13,6 @@ namespace Monitor {
       public:
         virtual bool                    enabled() const   = 0;
         virtual bool                    hasOutput() const = 0;
-        virtual SP<Aquamarine::IOutput> output() const    = 0;
+        virtual SP<Abyssal::IOutput> output() const    = 0;
     };
 }

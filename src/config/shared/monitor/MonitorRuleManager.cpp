@@ -12,7 +12,7 @@
 #include "../../../state/MonitorState.hpp"
 
 #include <ranges>
-#include <hyprutils/utils/ScopeGuard.hpp>
+#include <abyssutils/utils/ScopeGuard.hpp>
 
 using namespace Config;
 
@@ -134,7 +134,7 @@ void CMonitorRuleManager::scheduleReload() {
 void CMonitorRuleManager::ensureMonitorStatus() {
     std::vector<PHLMONITOR>       monsForRefresh;
 
-    Hyprutils::Utils::CScopeGuard x([this] { m_events.stateReloaded.emit(); });
+    Abyssutils::Utils::CScopeGuard x([this] { m_events.stateReloaded.emit(); });
 
     for (auto const& m : State::monitorState()->allMonitors()) {
         if (!m || !m->m_output || m->m_isUnsafeFallback)
@@ -198,7 +198,7 @@ void CMonitorRuleManager::ensureMonitorStatus() {
         if (!m->m_output)
             continue;
 
-        g_pHyprRenderer->arrangeLayersForMonitor(m->m_id);
+        g_pAbyssRenderer->arrangeLayersForMonitor(m->m_id);
     }
 
     Event::bus()->m_events.monitor.layoutChanged.emit();

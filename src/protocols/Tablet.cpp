@@ -44,7 +44,7 @@ bool CTabletPadGroupV2Resource::good() {
     return m_resource->resource();
 }
 
-void CTabletPadGroupV2Resource::sendData(SP<CTabletPad> pad, SP<Aquamarine::ITabletPad::STabletPadGroup> group) {
+void CTabletPadGroupV2Resource::sendData(SP<CTabletPad> pad, SP<Abyssal::ITabletPad::STabletPadGroup> group) {
     m_resource->sendModes(group->modes);
 
     wl_array buttonArr;
@@ -109,7 +109,7 @@ void CTabletPadV2Resource::sendData() {
     m_resource->sendDone();
 }
 
-void CTabletPadV2Resource::createGroup(SP<Aquamarine::ITabletPad::STabletPadGroup> group, size_t idx) {
+void CTabletPadV2Resource::createGroup(SP<Abyssal::ITabletPad::STabletPadGroup> group, size_t idx) {
     const auto RESOURCE =
         PROTO::tablet->m_groups.emplace_back(makeShared<CTabletPadGroupV2Resource>(makeShared<CZwpTabletPadGroupV2>(m_resource->client(), m_resource->version(), 0), idx));
 
@@ -172,21 +172,21 @@ bool CTabletToolV2Resource::good() {
 }
 
 void CTabletToolV2Resource::sendData() {
-    static auto AQ_TYPE_TO_PROTO = [](uint32_t aq) -> zwpTabletToolV2Type {
+    static auto ABYSSAL_TYPE_TO_PROTO = [](uint32_t aq) -> zwpTabletToolV2Type {
         switch (aq) {
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_PEN: return ZWP_TABLET_TOOL_V2_TYPE_PEN;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_ERASER: return ZWP_TABLET_TOOL_V2_TYPE_ERASER;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_BRUSH: return ZWP_TABLET_TOOL_V2_TYPE_BRUSH;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_PENCIL: return ZWP_TABLET_TOOL_V2_TYPE_PENCIL;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_AIRBRUSH: return ZWP_TABLET_TOOL_V2_TYPE_AIRBRUSH;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_MOUSE: return ZWP_TABLET_TOOL_V2_TYPE_MOUSE;
-            case Aquamarine::ITabletTool::AQ_TABLET_TOOL_TYPE_LENS: return ZWP_TABLET_TOOL_V2_TYPE_LENS;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_PEN: return ZWP_TABLET_TOOL_V2_TYPE_PEN;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_ERASER: return ZWP_TABLET_TOOL_V2_TYPE_ERASER;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_BRUSH: return ZWP_TABLET_TOOL_V2_TYPE_BRUSH;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_PENCIL: return ZWP_TABLET_TOOL_V2_TYPE_PENCIL;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_AIRBRUSH: return ZWP_TABLET_TOOL_V2_TYPE_AIRBRUSH;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_MOUSE: return ZWP_TABLET_TOOL_V2_TYPE_MOUSE;
+            case Abyssal::ITabletTool::ABYSSAL_TABLET_TOOL_TYPE_LENS: return ZWP_TABLET_TOOL_V2_TYPE_LENS;
             default: ASSERT(false);
         }
         UNREACHABLE();
     };
 
-    m_resource->sendType(AQ_TYPE_TO_PROTO(m_tool->aq()->type));
+    m_resource->sendType(ABYSSAL_TYPE_TO_PROTO(m_tool->aq()->type));
     m_resource->sendHardwareSerial(m_tool->aq()->serial >> 32, m_tool->aq()->serial & 0xFFFFFFFF);
     m_resource->sendHardwareIdWacom(m_tool->aq()->id >> 32, m_tool->aq()->id & 0xFFFFFFFF);
     if (m_tool->m_toolCapabilities & CTabletTool::eTabletToolCapabilities::HID_TABLET_TOOL_CAPABILITY_DISTANCE)

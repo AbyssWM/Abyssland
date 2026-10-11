@@ -5,7 +5,7 @@ file(READ "${CMAKE_SOURCE_DIR}/VERSION" VER_RAW)
 string(STRIP ${VER_RAW} VER)
 
 project(
-  Hyprland
+  Abyssland
   DESCRIPTION "A Modern C++ Wayland Compositor"
   VERSION ${VER})
 
@@ -13,7 +13,7 @@ include(CTest)
 include(CheckIncludeFile)
 include(GNUInstallDirs)
 
-set(HYPRLAND_VERSION ${VER})
+set(ABYSSLAND_VERSION ${VER})
 set(PREFIX ${CMAKE_INSTALL_PREFIX})
 set(INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR})
 set(BINDIR ${CMAKE_INSTALL_BINDIR})
@@ -25,11 +25,11 @@ message(STATUS "Gathering git info")
 # Make shader files includable
 execute_process(COMMAND ./scripts/generateShaderIncludes.sh
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                RESULT_VARIABLE HYPR_SHADER_GEN_RESULT)
-if(NOT HYPR_SHADER_GEN_RESULT EQUAL 0)
+                RESULT_VARIABLE ABYSS_SHADER_GEN_RESULT)
+if(NOT ABYSS_SHADER_GEN_RESULT EQUAL 0)
   message(
     FATAL_ERROR
-      "Failed to generate shader includes (scripts/generateShaderIncludes.sh), exit code: ${HYPR_SHADER_GEN_RESULT}"
+      "Failed to generate shader includes (scripts/generateShaderIncludes.sh), exit code: ${ABYSS_SHADER_GEN_RESULT}"
   )
 endif()
 
@@ -85,16 +85,16 @@ message(
   STATUS "Found wayland-scanner pkgdatadir at ${WAYLAND_SCANNER_PKGDATA_DIR}")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES DEBUG)
-  message(STATUS "Configuring Hyprland in Debug with CMake")
-  add_compile_definitions(HYPRLAND_DEBUG)
+  message(STATUS "Configuring Abyssland in Debug with CMake")
+  add_compile_definitions(ABYSSLAND_DEBUG)
   set(BUILD_TESTING ON)
 else()
   add_compile_options(-O3)
-  message(STATUS "Configuring Hyprland in Release with CMake")
+  message(STATUS "Configuring Abyssland in Release with CMake")
   set(BUILD_TESTING OFF)
 endif()
 
-add_compile_definitions(HYPRLAND_VERSION="${HYPRLAND_VERSION}")
+add_compile_definitions(ABYSSLAND_VERSION="${ABYSSLAND_VERSION}")
 
 include_directories(. "src/" "protocols/")
 
@@ -144,31 +144,31 @@ if(NOT glaze_FOUND)
   FetchContent_MakeAvailable(glaze)
 endif()
 
-set(AQUAMARINE_MINIMUM_VERSION 0.9.3)
-set(HYPRLANG_MINIMUM_VERSION 0.6.7)
-set(HYPRCURSOR_MINIMUM_VERSION 0.1.7)
-set(HYPRUTILS_MINIMUM_VERSION 0.14.0)
-set(HYPRGRAPHICS_MINIMUM_VERSION 0.5.1)
+set(ABYSSAL_MINIMUM_VERSION 0.9.3)
+set(ABYSSPARSE_MINIMUM_VERSION 0.6.7)
+set(ABYSSCURSOR_MINIMUM_VERSION 0.1.7)
+set(ABYSSUTILS_MINIMUM_VERSION 0.14.0)
+set(ABYSSGRAPHICS_MINIMUM_VERSION 0.5.1)
 
-pkg_check_modules(aquamarine_dep REQUIRED IMPORTED_TARGET aquamarine>=${AQUAMARINE_MINIMUM_VERSION})
-pkg_check_modules(hyprlang_dep REQUIRED IMPORTED_TARGET hyprlang>=${HYPRLANG_MINIMUM_VERSION})
-pkg_check_modules(hyprcursor_dep REQUIRED IMPORTED_TARGET hyprcursor>=${HYPRCURSOR_MINIMUM_VERSION})
-pkg_check_modules(hyprutils_dep REQUIRED IMPORTED_TARGET hyprutils>=${HYPRUTILS_MINIMUM_VERSION})
-pkg_check_modules(hyprgraphics_dep REQUIRED IMPORTED_TARGET hyprgraphics>=${HYPRGRAPHICS_MINIMUM_VERSION})
+pkg_check_modules(abyssal_dep REQUIRED IMPORTED_TARGET abyssal>=${ABYSSAL_MINIMUM_VERSION})
+pkg_check_modules(abyssparse_dep REQUIRED IMPORTED_TARGET abyssparse>=${ABYSSPARSE_MINIMUM_VERSION})
+pkg_check_modules(abysscursor_dep REQUIRED IMPORTED_TARGET abysscursor>=${ABYSSCURSOR_MINIMUM_VERSION})
+pkg_check_modules(abyssutils_dep REQUIRED IMPORTED_TARGET abyssutils>=${ABYSSUTILS_MINIMUM_VERSION})
+pkg_check_modules(abyssgraphics_dep REQUIRED IMPORTED_TARGET abyssgraphics>=${ABYSSGRAPHICS_MINIMUM_VERSION})
 
-string(REPLACE "." ";" AQ_VERSION_LIST ${aquamarine_dep_VERSION})
-list(GET AQ_VERSION_LIST 0 AQ_VERSION_MAJOR)
-list(GET AQ_VERSION_LIST 1 AQ_VERSION_MINOR)
-list(GET AQ_VERSION_LIST 2 AQ_VERSION_PATCH)
+string(REPLACE "." ";" ABYSSAL_VERSION_LIST ${abyssal_dep_VERSION})
+list(GET ABYSSAL_VERSION_LIST 0 ABYSSAL_VERSION_MAJOR)
+list(GET ABYSSAL_VERSION_LIST 1 ABYSSAL_VERSION_MINOR)
+list(GET ABYSSAL_VERSION_LIST 2 ABYSSAL_VERSION_PATCH)
 
-set(AQUAMARINE_VERSION "${aquamarine_dep_VERSION}")
-set(AQUAMARINE_VERSION_MAJOR "${AQ_VERSION_MAJOR}")
-set(AQUAMARINE_VERSION_MINOR "${AQ_VERSION_MINOR}")
-set(AQUAMARINE_VERSION_PATCH "${AQ_VERSION_PATCH}")
-set(HYPRLANG_VERSION "${hyprlang_dep_VERSION}")
-set(HYPRUTILS_VERSION "${hyprutils_dep_VERSION}")
-set(HYPRCURSOR_VERSION "${hyprcursor_dep_VERSION}")
-set(HYPRGRAPHICS_VERSION "${hyprgraphics_dep_VERSION}")
+set(ABYSSAL_VERSION "${abyssal_dep_VERSION}")
+set(ABYSSAL_VERSION_MAJOR "${ABYSSAL_VERSION_MAJOR}")
+set(ABYSSAL_VERSION_MINOR "${ABYSSAL_VERSION_MINOR}")
+set(ABYSSAL_VERSION_PATCH "${ABYSSAL_VERSION_PATCH}")
+set(ABYSSPARSE_VERSION "${abyssparse_dep_VERSION}")
+set(ABYSSUTILS_VERSION "${abyssutils_dep_VERSION}")
+set(ABYSSCURSOR_VERSION "${abysscursor_dep_VERSION}")
+set(ABYSSGRAPHICS_VERSION "${abyssgraphics_dep_VERSION}")
 
 
 find_package(Git QUIET)
@@ -290,7 +290,7 @@ pkg_check_modules(deps
 
 pkg_search_module(LUA REQUIRED IMPORTED_TARGET GLOBAL lua55 lua5.5 lua-55 lua-5.5 lua>=5.5 lua<5.6)
 
-find_package(hyprwayland-scanner 0.3.10 REQUIRED)
+find_package(abyss-scanner 0.3.10 REQUIRED)
 
 file(GLOB_RECURSE SRCFILES "src/*.cpp")
 get_filename_component(FULL_MAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ABSOLUTE)
@@ -302,13 +302,13 @@ if(USE_TRACY)
   message(STATUS "Tracy enabled, TRACY_CPP_FILES: " ${TRACY_CPP_FILES})
 endif()
 
-add_library(hyprland_lib STATIC ${SRCFILES})
-add_executable(Hyprland src/main.cpp ${TRACY_CPP_FILES})
-target_link_libraries(Hyprland hyprland_lib)
+add_library(abyssland_lib STATIC ${SRCFILES})
+add_executable(Abyssland src/main.cpp ${TRACY_CPP_FILES})
+target_link_libraries(Abyssland abyssland_lib)
 
-target_include_directories(hyprland_lib PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
-target_include_directories(Hyprland PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
-target_link_libraries(hyprland_lib PRIVATE glaze::glaze)
+target_include_directories(abyssland_lib PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+target_include_directories(Abyssland PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+target_link_libraries(abyssland_lib PRIVATE glaze::glaze)
 
 set(USE_GPROF OFF)
 
@@ -318,8 +318,8 @@ if(CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES DEBUG)
   if(WITH_ASAN)
     message(STATUS "Enabling ASan")
 
-    target_link_libraries(hyprland_lib PUBLIC asan)
-    target_compile_options(hyprland_lib PUBLIC -fsanitize=address)
+    target_link_libraries(abyssland_lib PUBLIC asan)
+    target_compile_options(abyssland_lib PUBLIC -fsanitize=address)
   endif()
 
   add_compile_options(-fno-pie -fno-builtin -fno-omit-frame-pointer)
@@ -339,7 +339,7 @@ if(USE_TRACY)
 
   add_compile_options(-fno-omit-frame-pointer)
 
-  target_link_libraries(hyprland_lib PUBLIC Tracy::TracyClient)
+  target_link_libraries(abyssland_lib PUBLIC Tracy::TracyClient)
 
   if(USE_TRACY_GPU)
     message(STATUS "Tracy GPU Profiling is turned on")
@@ -360,19 +360,19 @@ endif()
 include(CheckLibraryExists)
 check_library_exists(execinfo backtrace "" HAVE_LIBEXECINFO)
 if(HAVE_LIBEXECINFO)
-  target_link_libraries(hyprland_lib PUBLIC execinfo)
+  target_link_libraries(abyssland_lib PUBLIC execinfo)
 endif()
 
 check_include_file("sys/timerfd.h" HAS_TIMERFD)
 pkg_check_modules(epoll IMPORTED_TARGET epoll-shim)
 if(NOT HAS_TIMERFD AND epoll_FOUND)
-  target_link_libraries(hyprland_lib PUBLIC PkgConfig::epoll)
+  target_link_libraries(abyssland_lib PUBLIC PkgConfig::epoll)
 endif()
 
 check_include_file("sys/inotify.h" HAS_INOTIFY)
 pkg_check_modules(inotify IMPORTED_TARGET libinotify)
 if(NOT HAS_INOTIFY AND inotify_FOUND)
-  target_link_libraries(hyprland_lib PUBLIC PkgConfig::inotify)
+  target_link_libraries(abyssland_lib PUBLIC PkgConfig::inotify)
 endif()
 
 if(NO_XWAYLAND)
@@ -398,10 +398,10 @@ else()
   string(JOIN ", " PKGCONFIG_XWAYLAND_DEPENDENCIES ${XWAYLAND_DEPENDENCIES})
   string(PREPEND PKGCONFIG_XWAYLAND_DEPENDENCIES ", ")
 
-  target_link_libraries(hyprland_lib PUBLIC PkgConfig::xdeps)
+  target_link_libraries(abyssland_lib PUBLIC PkgConfig::xdeps)
 endif()
 
-configure_file(hyprland.pc.in hyprland.pc @ONLY)
+configure_file(abyssland.pc.in abyssland.pc @ONLY)
 
 if(NO_SYSTEMD)
   message(STATUS "SYSTEMD support is disabled...")
@@ -414,7 +414,7 @@ else()
     message(STATUS "UWSM support is disabled...")
   else()
     message(STATUS "UWSM support is enabled (NO_UWSM not defined)...")
-    install(FILES ${CMAKE_SOURCE_DIR}/systemd/hyprland-uwsm.desktop
+    install(FILES ${CMAKE_SOURCE_DIR}/systemd/abyssland-uwsm.desktop
             DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/wayland-sessions)
   endif()
 endif()
@@ -427,34 +427,34 @@ if(CMAKE_DISABLE_PRECOMPILE_HEADERS)
   message(STATUS "Not using precompiled headers")
 else()
   message(STATUS "Setting precompiled headers")
-  target_precompile_headers(hyprland_lib PRIVATE
+  target_precompile_headers(abyssland_lib PRIVATE
                             $<$<COMPILE_LANGUAGE:CXX>:src/pch/pch.hpp>)
 endif()
 
 message(STATUS "Setting link libraries")
 
 target_link_libraries(
-  hyprland_lib
+  abyssland_lib
   PUBLIC
-  PkgConfig::aquamarine_dep
-  PkgConfig::hyprlang_dep
-  PkgConfig::hyprutils_dep
-  PkgConfig::hyprcursor_dep
-  PkgConfig::hyprgraphics_dep
+  PkgConfig::abyssal_dep
+  PkgConfig::abyssparse_dep
+  PkgConfig::abyssutils_dep
+  PkgConfig::abysscursor_dep
+  PkgConfig::abyssgraphics_dep
   PkgConfig::deps
   PkgConfig::LUA
 )
 
 target_link_libraries(
-  Hyprland
+  Abyssland
   ${LIBRT}
-  hyprland_lib)
+  abyssland_lib)
 if(udis_dep_FOUND)
-  target_link_libraries(hyprland_lib PUBLIC PkgConfig::udis_dep)
+  target_link_libraries(abyssland_lib PUBLIC PkgConfig::udis_dep)
 elseif(NOT("${udis_nopc}" MATCHES "udis_nopc-NOTFOUND"))
-  target_link_libraries(hyprland_lib PUBLIC ${udis_nopc})
+  target_link_libraries(abyssland_lib PUBLIC ${udis_nopc})
 else()
-  target_link_libraries(hyprland_lib PUBLIC libudis86)
+  target_link_libraries(abyssland_lib PUBLIC libudis86)
 endif()
 
 # used by `make installheaders`, to ensure the headers are generated
@@ -468,8 +468,8 @@ if(Python3_Interpreter_FOUND)
     COMMENT "Generating Lua API stubs for LuaLS"
     VERBATIM)
 
-  add_dependencies(hyprland_lib generate-lua-stubs)
-  add_dependencies(Hyprland generate-lua-stubs)
+  add_dependencies(abyssland_lib generate-lua-stubs)
+  add_dependencies(Abyssland generate-lua-stubs)
 
   add_custom_target(
     check-lua-stubs
@@ -492,10 +492,10 @@ function(protocolnew protoPath protoName external)
   add_custom_command(
     OUTPUT ${CMAKE_SOURCE_DIR}/protocols/${protoName}.cpp
            ${CMAKE_SOURCE_DIR}/protocols/${protoName}.hpp
-    COMMAND hyprwayland-scanner ${path}/${protoName}.xml
+    COMMAND abyss-scanner ${path}/${protoName}.xml
             ${CMAKE_SOURCE_DIR}/protocols/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  target_sources(hyprland_lib PRIVATE protocols/${protoName}.cpp
+  target_sources(abyssland_lib PRIVATE protocols/${protoName}.cpp
                                   protocols/${protoName}.hpp)
   target_sources(generate-protocol-headers
                  PRIVATE ${CMAKE_SOURCE_DIR}/protocols/${protoName}.hpp)
@@ -510,10 +510,10 @@ function(protocolWayland)
     OUTPUT ${CMAKE_SOURCE_DIR}/protocols/wayland.cpp
            ${CMAKE_SOURCE_DIR}/protocols/wayland.hpp
     COMMAND
-      hyprwayland-scanner --wayland-enums
+      abyss-scanner --wayland-enums
       ${WAYLAND_SCANNER_PKGDATA_DIR}/wayland.xml ${CMAKE_SOURCE_DIR}/protocols/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  target_sources(hyprland_lib PRIVATE protocols/wayland.cpp protocols/wayland.hpp)
+  target_sources(abyssland_lib PRIVATE protocols/wayland.cpp protocols/wayland.hpp)
   target_sources(generate-protocol-headers
                  PRIVATE ${CMAKE_SOURCE_DIR}/protocols/wayland.hpp)
 
@@ -524,24 +524,24 @@ function(protocolWayland)
 endfunction()
 
 if(TARGET OpenGL::GL)
-  target_link_libraries(hyprland_lib PUBLIC OpenGL::EGL OpenGL::GL glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV Threads::Threads)
+  target_link_libraries(abyssland_lib PUBLIC OpenGL::EGL OpenGL::GL glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV Threads::Threads)
 else()
-  target_link_libraries(hyprland_lib PUBLIC OpenGL::EGL OpenGL::GLES3 glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV Threads::Threads)
+  target_link_libraries(abyssland_lib PUBLIC OpenGL::EGL OpenGL::GLES3 glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV Threads::Threads)
 endif()
 
-pkg_check_modules(hyprland_protocols_dep hyprland-protocols>=0.7.0)
-if(hyprland_protocols_dep_FOUND)
-  pkg_get_variable(HYPRLAND_PROTOCOLS hyprland-protocols pkgdatadir)
-  message(STATUS "hyprland-protocols dependency set to ${HYPRLAND_PROTOCOLS}")
+pkg_check_modules(abyssland_protocols_dep abyssland-protocols>=0.7.0)
+if(abyssland_protocols_dep_FOUND)
+  pkg_get_variable(ABYSSLAND_PROTOCOLS abyssland-protocols pkgdatadir)
+  message(STATUS "abyssland-protocols dependency set to ${ABYSSLAND_PROTOCOLS}")
 else()
-  set(HYPRLAND_PROTOCOLS "subprojects/hyprland-protocols")
-  message(STATUS "hyprland-protocols subproject set to ${HYPRLAND_PROTOCOLS}")
+  set(ABYSSLAND_PROTOCOLS "subprojects/abyssland-protocols")
+  message(STATUS "abyssland-protocols subproject set to ${ABYSSLAND_PROTOCOLS}")
 endif()
 
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-global-shortcuts-v1"
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-global-shortcuts-v1"
             true)
 protocolnew("unstable/text-input" "text-input-unstable-v1" false)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-toplevel-export-v1"
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-toplevel-export-v1"
             true)
 protocolnew("protocols" "wlr-screencopy-unstable-v1" true)
 protocolnew("protocols" "wlr-gamma-control-unstable-v1" true)
@@ -554,13 +554,13 @@ protocolnew("protocols" "wlr-output-management-unstable-v1" true)
 protocolnew("protocols" "kde-server-decoration" true)
 protocolnew("protocols" "vicinae-hotkey-v1" true)
 protocolnew("protocols" "wlr-data-control-unstable-v1" true)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-focus-grab-v1" true)
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-focus-grab-v1" true)
 protocolnew("protocols" "wlr-layer-shell-unstable-v1" true)
 protocolnew("protocols" "wayland-drm" true)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-ctm-control-v1" true)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-surface-v1" true)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-lock-notify-v1" true)
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-toplevel-mapping-v1"
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-ctm-control-v1" true)
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-surface-v1" true)
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-lock-notify-v1" true)
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-toplevel-mapping-v1"
             true)
 
 protocolnew("staging/tearing-control" "tearing-control-v1" false)
@@ -608,19 +608,19 @@ protocolnew("staging/ext-image-capture-source" "ext-image-capture-source-v1" fal
 protocolnew("staging/ext-image-copy-capture" "ext-image-copy-capture-v1" false)
 protocolnew("staging/ext-background-effect" "ext-background-effect-v1" false)
 
-protocolnew("${HYPRLAND_PROTOCOLS}/protocols" "hyprland-input-capture-v1"
+protocolnew("${ABYSSLAND_PROTOCOLS}/protocols" "abyssland-input-capture-v1"
             true)
 protocolwayland()
 
 # tools
-add_subdirectory(hyprctl)
+add_subdirectory(abyssctl)
 add_subdirectory(start)
 
-if(NO_HYPRPM)
-  message(STATUS "hyprpm is disabled")
+if(NO_ABYSSPM)
+  message(STATUS "abysspm is disabled")
 else()
-  add_subdirectory(hyprpm)
-  message(STATUS "hyprpm is enabled (NO_HYPRPM not defined)")
+  add_subdirectory(abysspm)
+  message(STATUS "abysspm is enabled (NO_ABYSSPM not defined)")
 endif()
 
 # Set proper permissions for directories, otherwise they could end up 700
@@ -630,41 +630,41 @@ set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
     WORLD_READ WORLD_EXECUTE)
 
 # binary and symlink
-install(TARGETS Hyprland)
+install(TARGETS Abyssland)
 
 install(
   CODE "execute_process( \
         COMMAND ${CMAKE_COMMAND} -E create_symlink \
-        ${CMAKE_INSTALL_FULL_BINDIR}/Hyprland \
-        \"\$ENV{DESTDIR}${CMAKE_INSTALL_FULL_BINDIR}/hyprland\" \
+        ${CMAKE_INSTALL_FULL_BINDIR}/Abyssland \
+        \"\$ENV{DESTDIR}${CMAKE_INSTALL_FULL_BINDIR}/abyssland\" \
         )")
 # session file
 configure_file(
-    ${CMAKE_SOURCE_DIR}/example/hyprland.desktop.in
-    ${CMAKE_SOURCE_DIR}/example/hyprland.desktop
+    ${CMAKE_SOURCE_DIR}/example/abyssland.desktop.in
+    ${CMAKE_SOURCE_DIR}/example/abyssland.desktop
     @ONLY
 )
-install(FILES ${CMAKE_SOURCE_DIR}/example/hyprland.desktop
+install(FILES ${CMAKE_SOURCE_DIR}/example/abyssland.desktop
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/wayland-sessions)
 
-# allow Hyprland to find assets
+# allow Abyssland to find assets
 add_compile_definitions(DATAROOTDIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}")
 
 # installable assets
 file(GLOB_RECURSE INSTALLABLE_ASSETS "assets/install/*")
 install(FILES ${INSTALLABLE_ASSETS}
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/hypr)
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss)
 
 # default lua config
-install(FILES ${CMAKE_SOURCE_DIR}/example/hyprland.lua
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/hypr)
+install(FILES ${CMAKE_SOURCE_DIR}/example/abyssland.lua
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss)
 
 # LuaLS stubs
 install(FILES ${CMAKE_SOURCE_DIR}/meta/hl.meta.lua
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/hypr/stubs)
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss/stubs)
 
 # portal config
-install(FILES ${CMAKE_SOURCE_DIR}/assets/hyprland-portals.conf
+install(FILES ${CMAKE_SOURCE_DIR}/assets/abyssland-portals.conf
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/xdg-desktop-portal)
 
 # man pages
@@ -672,22 +672,22 @@ file(GLOB_RECURSE MANPAGES "docs/*.1")
 install(FILES ${MANPAGES} DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
 # pkgconfig entry
-install(FILES ${CMAKE_BINARY_DIR}/hyprland.pc
+install(FILES ${CMAKE_BINARY_DIR}/abyssland.pc
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
 
 # protocol headers
 set(HEADERS_PROTO "${CMAKE_CURRENT_SOURCE_DIR}/protocols")
 install(
   DIRECTORY ${HEADERS_PROTO}
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyprland
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/abyssland
   FILES_MATCHING
   PATTERN "*.h*")
 
-# hyprland headers
+# abyssland headers
 set(HEADERS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 install(
   DIRECTORY ${HEADERS_SRC}
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyprland
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/abyssland
   FILES_MATCHING
   PATTERN "*.h"
   PATTERN "*.hpp"
@@ -696,34 +696,34 @@ install(
 if(BUILD_TESTING OR WITH_TESTS)
   message(STATUS "Building tests")
 
-  # hyprtester
-  add_subdirectory(hyprtester)
+  # abysstester
+  add_subdirectory(abysstester)
 
   # GTest
   find_package(GTest CONFIG REQUIRED)
   include(GoogleTest)
   file(GLOB_RECURSE TESTFILES "tests/*.cpp")
-  add_executable(hyprland_gtests ${TESTFILES})
-  target_compile_options(hyprland_gtests PRIVATE --coverage)
-  target_link_options(hyprland_gtests PRIVATE --coverage)
+  add_executable(abyssland_gtests ${TESTFILES})
+  target_compile_options(abyssland_gtests PRIVATE --coverage)
+  target_link_options(abyssland_gtests PRIVATE --coverage)
   target_include_directories(
-    hyprland_gtests
+    abyssland_gtests
     PUBLIC "./include"
     PRIVATE "./src" "./src/include" "./protocols" "${CMAKE_BINARY_DIR}")
 
-  target_link_libraries(hyprland_gtests hyprland_lib GTest::gtest_main)
+  target_link_libraries(abyssland_gtests abyssland_lib GTest::gtest_main)
 
-  gtest_discover_tests(hyprland_gtests)
+  gtest_discover_tests(abyssland_gtests)
 
-  # Enable coverage in main hyprland lib
-  target_compile_options(hyprland_lib PRIVATE --coverage)
-  target_link_options(hyprland_lib PRIVATE --coverage)
-  target_link_libraries(hyprland_lib PUBLIC gcov)
+  # Enable coverage in main abyssland lib
+  target_compile_options(abyssland_lib PRIVATE --coverage)
+  target_link_options(abyssland_lib PRIVATE --coverage)
+  target_link_libraries(abyssland_lib PUBLIC gcov)
 
-  # Enable coverage in hyprland exe
-  target_compile_options(Hyprland PRIVATE --coverage)
-  target_link_options(Hyprland PRIVATE --coverage)
-  target_link_libraries(Hyprland gcov)
+  # Enable coverage in abyssland exe
+  target_compile_options(Abyssland PRIVATE --coverage)
+  target_link_options(Abyssland PRIVATE --coverage)
+  target_link_libraries(Abyssland gcov)
 endif()
 
 if(BUILD_TESTING)
@@ -732,7 +732,7 @@ if(BUILD_TESTING)
   enable_testing()
   add_custom_target(tests)
 
-  add_dependencies(tests hyprland_gtests)
+  add_dependencies(tests abyssland_gtests)
 
 else()
   message(STATUS "Testing is disabled")

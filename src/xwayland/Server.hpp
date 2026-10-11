@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 #include "../helpers/signal/Signal.hpp"
 
 struct wl_event_source;
@@ -28,17 +28,17 @@ class CXWaylandServer {
 
   private:
     bool                                          tryOpenSockets();
-    void                                          runXWayland(Hyprutils::OS::CFileDescriptor& notifyFD);
+    void                                          runXWayland(Abyssutils::OS::CFileDescriptor& notifyFD);
 
     std::string                                   m_displayName;
     int                                           m_display = -1;
-    std::array<Hyprutils::OS::CFileDescriptor, 2> m_xFDs;
+    std::array<Abyssutils::OS::CFileDescriptor, 2> m_xFDs;
     std::array<wl_event_source*, 2>               m_xFDReadEvents = {nullptr, nullptr};
     wl_event_source*                              m_idleSource    = nullptr;
     wl_event_source*                              m_pipeSource    = nullptr;
-    Hyprutils::OS::CFileDescriptor                m_pipeFd;
-    std::array<Hyprutils::OS::CFileDescriptor, 2> m_xwmFDs;
-    std::array<Hyprutils::OS::CFileDescriptor, 2> m_waylandFDs;
+    Abyssutils::OS::CFileDescriptor                m_pipeFd;
+    std::array<Abyssutils::OS::CFileDescriptor, 2> m_xwmFDs;
+    std::array<Abyssutils::OS::CFileDescriptor, 2> m_waylandFDs;
 
     friend class CXWM;
 };

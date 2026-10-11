@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "../managers/SeatManager.hpp"
 #include "core/Seat.hpp"
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CExtDataOffer::CExtDataOffer(SP<CExtDataControlOfferV1> resource_, SP<IDataSource> source_) : m_source(source_), m_resource(resource_) {
     if UNLIKELY (!good())

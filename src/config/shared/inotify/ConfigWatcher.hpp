@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 namespace Config {
     class CConfigWatcher {
@@ -17,7 +17,7 @@ namespace Config {
 
         void                            update();
 
-        Hyprutils::OS::CFileDescriptor& getInotifyFD();
+        Abyssutils::OS::CFileDescriptor& getInotifyFD();
         void                            setWatchList(const std::vector<std::string>& paths);
         void                            setOnChange(const std::function<void(const SConfigWatchEvent&)>& fn);
         void                            onInotifyEvent();
@@ -30,7 +30,7 @@ namespace Config {
 
         std::function<void(const SConfigWatchEvent&)> m_watchCallback;
         std::vector<SInotifyWatch>                    m_watches;
-        Hyprutils::OS::CFileDescriptor                m_inotifyFd;
+        Abyssutils::OS::CFileDescriptor                m_inotifyFd;
     };
 
     UP<CConfigWatcher>& watcher();

@@ -26,13 +26,13 @@
 #ifdef HAS_EXECINFO
 #include <execinfo.h>
 #endif
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/string/VarList.hpp>
-#include <hyprutils/os/Process.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/string/VarList.hpp>
+#include <abyssutils/os/Process.hpp>
 #include "../version.h"
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::OS;
+using namespace Abyssutils::String;
+using namespace Abyssutils::OS;
 
 #if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #include <sys/sysctl.h>
@@ -818,11 +818,11 @@ std::string getSystemLibraryVersion(const std::string& name) {
 
 std::string getBuiltSystemLibraryNames() {
     std::string result = "Libraries:\n";
-    result += std::format("Hyprgraphics: built against {}, system has {}\n", HYPRGRAPHICS_VERSION, getSystemLibraryVersion("hyprgraphics"));
-    result += std::format("Hyprutils: built against {}, system has {}\n", HYPRUTILS_VERSION, getSystemLibraryVersion("hyprutils"));
-    result += std::format("Hyprcursor: built against {}, system has {}\n", HYPRCURSOR_VERSION, getSystemLibraryVersion("hyprcursor"));
-    result += std::format("Hyprlang: built against {}, system has {}\n", HYPRLANG_VERSION, getSystemLibraryVersion("hyprlang"));
-    result += std::format("Aquamarine: built against {}, system has {}\n", AQUAMARINE_VERSION, getSystemLibraryVersion("aquamarine"));
+    result += std::format("Abyssgraphics: built against {}, system has {}\n", ABYSSGRAPHICS_VERSION, getSystemLibraryVersion("abyssgraphics"));
+    result += std::format("Abyssutils: built against {}, system has {}\n", ABYSSUTILS_VERSION, getSystemLibraryVersion("abyssutils"));
+    result += std::format("Abysscursor: built against {}, system has {}\n", ABYSSCURSOR_VERSION, getSystemLibraryVersion("abysscursor"));
+    result += std::format("Abyssparse: built against {}, system has {}\n", ABYSSPARSE_VERSION, getSystemLibraryVersion("abyssparse"));
+    result += std::format("Abyssal: built against {}, system has {}\n", ABYSSAL_VERSION, getSystemLibraryVersion("abyssal"));
     return result;
 }
 

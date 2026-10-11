@@ -66,11 +66,11 @@ void CAnimationTreeController::reset() {
     m_animationTree.setConfigForNode("glowangle", 0, 1, "default");
 }
 
-const std::unordered_map<std::string, SP<Hyprutils::Animation::SAnimationPropertyConfig>>& CAnimationTreeController::getAnimationConfig() {
+const std::unordered_map<std::string, SP<Abyssutils::Animation::SAnimationPropertyConfig>>& CAnimationTreeController::getAnimationConfig() {
     return m_animationTree.getFullConfig();
 }
 
-SP<Hyprutils::Animation::SAnimationPropertyConfig> CAnimationTreeController::getAnimationPropertyConfig(const std::string& name) {
+SP<Abyssutils::Animation::SAnimationPropertyConfig> CAnimationTreeController::getAnimationPropertyConfig(const std::string& name) {
     return m_animationTree.getConfig(name);
 }
 

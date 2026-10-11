@@ -76,7 +76,7 @@ void CUnifiedWorkspaceSwipeGesture::update(double delta) {
         (m_delta > 0 && m_workspaceBegin->getWindowCount() == 0 && workspaceIDRight <= m_workspaceBegin->m_id) || (m_delta < 0 && m_workspaceBegin->m_id <= workspaceIDLeft)) {
 
         m_delta = 0;
-        g_pHyprRenderer->damageMonitor(m_monitor.lock());
+        g_pAbyssRenderer->damageMonitor(m_monitor.lock());
         m_workspaceBegin->m_renderOffset->setValueAndWarp(Vector2D(0.0, 0.0));
         return;
     }
@@ -93,7 +93,7 @@ void CUnifiedWorkspaceSwipeGesture::update(double delta) {
 
         if (workspaceIDLeft > m_workspaceBegin->m_id || !PWORKSPACE) {
             if (*PSWIPENEW) {
-                g_pHyprRenderer->damageMonitor(m_monitor.lock());
+                g_pAbyssRenderer->damageMonitor(m_monitor.lock());
 
                 if (VERTANIMS)
                     m_workspaceBegin->m_renderOffset->setValueAndWarp(Vector2D(0.0, ((-m_delta) / SWIPEDISTANCE) * YDISTANCE));
@@ -133,7 +133,7 @@ void CUnifiedWorkspaceSwipeGesture::update(double delta) {
 
         if (workspaceIDRight < m_workspaceBegin->m_id || !PWORKSPACE) {
             if (*PSWIPENEW) {
-                g_pHyprRenderer->damageMonitor(m_monitor.lock());
+                g_pAbyssRenderer->damageMonitor(m_monitor.lock());
 
                 if (VERTANIMS)
                     m_workspaceBegin->m_renderOffset->setValueAndWarp(Vector2D(0.0, ((-m_delta) / SWIPEDISTANCE) * YDISTANCE));
@@ -170,7 +170,7 @@ void CUnifiedWorkspaceSwipeGesture::update(double delta) {
         PWORKSPACE->updateWindowDecos();
     }
 
-    g_pHyprRenderer->damageMonitor(m_monitor.lock());
+    g_pAbyssRenderer->damageMonitor(m_monitor.lock());
 
     m_workspaceBegin->updateWindowDecos();
 
@@ -298,7 +298,7 @@ void CUnifiedWorkspaceSwipeGesture::end() {
         pSwitchedTo = PWORKSPACER;
     }
 
-    g_pHyprRenderer->damageMonitor(m_monitor.lock());
+    g_pAbyssRenderer->damageMonitor(m_monitor.lock());
 
     if (PWORKSPACEL)
         PWORKSPACEL->m_forceRendering = false;

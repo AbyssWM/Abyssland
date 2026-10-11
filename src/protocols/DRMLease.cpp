@@ -6,9 +6,9 @@
 #include "managers/eventLoop/EventLoopManager.hpp"
 #include "protocols/WaylandProtocol.hpp"
 #include <algorithm>
-#include <aquamarine/backend/DRM.hpp>
+#include <abyssal/backend/DRM.hpp>
 #include <fcntl.h>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 static SP<CDRMLeaseProtocol> leaseForParent(const WP<CDRMLeaseDeviceResource>& parent) {
     const auto PARENT = parent.lock();
@@ -53,7 +53,7 @@ CDRMLeaseResource::CDRMLeaseResource(SP<CWpDrmLeaseV1> resource_, SP<CDRMLeaseRe
         return roll;
     }());
 
-    std::vector<SP<Aquamarine::IOutput>> outputs;
+    std::vector<SP<Abyssal::IOutput>> outputs;
     // reserve to avoid reallocations
     outputs.reserve(m_requested.size());
 
@@ -61,7 +61,7 @@ CDRMLeaseResource::CDRMLeaseResource(SP<CWpDrmLeaseV1> resource_, SP<CDRMLeaseRe
         outputs.emplace_back(m->m_monitor->m_output);
     }
 
-    auto aqlease = Aquamarine::CDRMLease::create(outputs);
+    auto aqlease = Abyssal::CDRMLease::create(outputs);
     if (!aqlease) {
         LOGM(Log::ERR, "Rejecting lease: backend failed to alloc a lease");
         m_resource->sendFinished();
@@ -203,7 +203,7 @@ void CDRMLeaseConnectorResource::sendData() {
     m_resource->sendName(m_monitor->m_name.c_str());
     m_resource->sendDescription(m_monitor->m_description.c_str());
 
-    auto AQDRMOutput = sc<Aquamarine::CDRMOutput*>(m_monitor->m_output.get());
+    auto AQDRMOutput = sc<Abyssal::CDRMOutput*>(m_monitor->m_output.get());
     m_resource->sendConnectorId(AQDRMOutput->getConnectorID());
 
     m_resource->sendDone();
@@ -282,12 +282,12 @@ void CDRMLeaseDeviceResource::sendConnector(PHLMONITOR monitor) {
     RESOURCE->sendData();
 }
 
-CDRMLeaseProtocol::CDRMLeaseProtocol(const wl_interface* iface, const int& ver, const std::string& name, SP<Aquamarine::IBackendImplementation> backend_) :
+CDRMLeaseProtocol::CDRMLeaseProtocol(const wl_interface* iface, const int& ver, const std::string& name, SP<Abyssal::IBackendImplementation> backend_) :
     IWaylandProtocol(iface, ver, name) {
-    if (backend_->type() != Aquamarine::AQ_BACKEND_DRM)
+    if (backend_->type() != Abyssal::ABYSSAL_BACKEND_DRM)
         return;
 
-    m_backend    = sc<Aquamarine::CDRMBackend*>(backend_.get())->self.lock();
+    m_backend    = sc<Abyssal::CDRMBackend*>(backend_.get())->self.lock();
     m_deviceName = m_backend->gpuName;
 
     CFileDescriptor fd{m_backend->getNonMasterFD()};
@@ -336,7 +336,7 @@ void CDRMLeaseProtocol::offer(PHLMONITOR monitor) {
     if (std::ranges::find(m_offeredOutputs.begin(), m_offeredOutputs.end(), monitor) != m_offeredOutputs.end())
         return;
 
-    if (monitor->m_output->getBackend()->type() != Aquamarine::AQ_BACKEND_DRM)
+    if (monitor->m_output->getBackend()->type() != Abyssal::ABYSSAL_BACKEND_DRM)
         return;
 
     if (monitor->m_output->getBackend() != m_backend) {
@@ -356,7 +356,7 @@ std::string CDRMLeaseProtocol::getDeviceName() {
     return m_deviceName;
 }
 
-SP<Aquamarine::IBackendImplementation> CDRMLeaseProtocol::getBackend() {
+SP<Abyssal::IBackendImplementation> CDRMLeaseProtocol::getBackend() {
     return m_backend;
 }
 

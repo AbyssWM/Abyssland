@@ -54,8 +54,8 @@ class CImageCopyCaptureSession {
     bool                                 m_paintCursor = true;
 
     struct {
-        CHyprSignalListener constraintsChanged;
-        CHyprSignalListener stopped;
+        CAbyssSignalListener constraintsChanged;
+        CAbyssSignalListener stopped;
     } m_listeners;
 
     WP<CImageCopyCaptureSession> m_self;
@@ -95,9 +95,9 @@ class CImageCopyCaptureCursorSession {
     SP<IHLBuffer>                   m_buffer;
 
     struct {
-        CHyprSignalListener constraintsChanged;
-        CHyprSignalListener stopped;
-        CHyprSignalListener commit;
+        CAbyssSignalListener constraintsChanged;
+        CAbyssSignalListener stopped;
+        CAbyssSignalListener commit;
     } m_listeners;
 
     void sendCursorEvents();

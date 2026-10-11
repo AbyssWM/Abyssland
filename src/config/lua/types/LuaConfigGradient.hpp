@@ -6,7 +6,7 @@
 namespace Config::Lua {
     class CLuaConfigGradient : public ILuaConfigValue {
       public:
-        CLuaConfigGradient(CHyprColor def);
+        CLuaConfigGradient(CAbyssColor def);
         virtual ~CLuaConfigGradient() = default;
 
         virtual SParseError           parse(lua_State* s);
@@ -19,7 +19,7 @@ namespace Config::Lua {
         const CGradientValueData&     parsed();
 
       private:
-        CHyprColor         m_default;
+        CAbyssColor         m_default;
         CGradientValueData m_data;
     };
 };

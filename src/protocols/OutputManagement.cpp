@@ -7,7 +7,7 @@
 #include "../config/shared/monitor/MonitorRuleManager.hpp"
 #include "../state/MonitorState.hpp"
 
-using namespace Aquamarine;
+using namespace Abyssal;
 
 COutputManager::COutputManager(SP<CZwlrOutputManagerV1> resource_) : m_resource(resource_) {
     if UNLIKELY (!good())
@@ -211,7 +211,7 @@ void COutputHead::updateMode() {
     }
 }
 
-void COutputHead::makeAndSendNewMode(SP<Aquamarine::SOutputMode> mode) {
+void COutputHead::makeAndSendNewMode(SP<Abyssal::SOutputMode> mode) {
     const auto RESOURCE =
         PROTO::outputManagement->m_modes.emplace_back(makeShared<COutputMode>(makeShared<CZwlrOutputModeV1>(m_resource->client(), m_resource->version(), 0), mode));
 
@@ -230,7 +230,7 @@ PHLMONITOR COutputHead::monitor() {
     return m_monitor.lock();
 }
 
-COutputMode::COutputMode(SP<CZwlrOutputModeV1> resource_, SP<Aquamarine::SOutputMode> mode_) : m_resource(resource_), m_mode(mode_) {
+COutputMode::COutputMode(SP<CZwlrOutputModeV1> resource_, SP<Abyssal::SOutputMode> mode_) : m_resource(resource_), m_mode(mode_) {
     if UNLIKELY (!good())
         return;
 
@@ -255,7 +255,7 @@ bool COutputMode::good() {
     return m_resource->resource();
 }
 
-SP<Aquamarine::SOutputMode> COutputMode::getMode() {
+SP<Abyssal::SOutputMode> COutputMode::getMode() {
     return m_mode.lock();
 }
 

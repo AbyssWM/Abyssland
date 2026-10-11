@@ -77,10 +77,10 @@ namespace Desktop::View {
 
       private:
         struct {
-            CHyprSignalListener destroy;
-            CHyprSignalListener map;
-            CHyprSignalListener unmap;
-            CHyprSignalListener commit;
+            CAbyssSignalListener destroy;
+            CAbyssSignalListener map;
+            CAbyssSignalListener unmap;
+            CAbyssSignalListener commit;
         } m_listeners;
 
         void registerCallbacks();

@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <filesystem>
 
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 using namespace Config;
 
 UP<CConfigWatcher>& Config::watcher() {

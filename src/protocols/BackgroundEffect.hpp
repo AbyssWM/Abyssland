@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hyprutils/math/Region.hpp>
+#include <abyssutils/math/Region.hpp>
 #include <vector>
 #include <unordered_map>
 #include "WaylandProtocol.hpp"
@@ -25,8 +25,8 @@ class CBackgroundEffect {
     void                              destroy();
 
     struct {
-        CHyprSignalListener surfaceCommitted;
-        CHyprSignalListener surfaceDestroyed;
+        CAbyssSignalListener surfaceCommitted;
+        CAbyssSignalListener surfaceDestroyed;
     } m_listeners;
 
     friend class CBackgroundEffectProtocol;

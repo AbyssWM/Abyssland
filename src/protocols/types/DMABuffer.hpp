@@ -1,29 +1,29 @@
 #pragma once
 
 #include "Buffer.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CDMABuffer : public IHLBuffer {
   public:
-    CDMABuffer(uint32_t id, wl_client* client, Aquamarine::SDMABUFAttrs const& attrs_);
+    CDMABuffer(uint32_t id, wl_client* client, Abyssal::SDMABUFAttrs const& attrs_);
     virtual ~CDMABuffer();
 
-    virtual Aquamarine::eBufferCapability          caps();
-    virtual Aquamarine::eBufferType                type();
+    virtual Abyssal::eBufferCapability          caps();
+    virtual Abyssal::eBufferType                type();
     virtual bool                                   isSynchronous();
     virtual void                                   update(const CRegion& damage);
-    virtual Aquamarine::SDMABUFAttrs               dmabuf();
+    virtual Abyssal::SDMABUFAttrs               dmabuf();
     virtual std::tuple<uint8_t*, uint32_t, size_t> beginDataPtr(uint32_t flags);
     virtual void                                   endDataPtr();
     bool                                           good();
     void                                           closeFDs();
-    std::vector<Hyprutils::OS::CFileDescriptor>    exportSyncFiles();
+    std::vector<Abyssutils::OS::CFileDescriptor>    exportSyncFiles();
     bool                                           m_success = false;
 
   private:
-    Aquamarine::SDMABUFAttrs m_attrs;
+    Abyssal::SDMABUFAttrs m_attrs;
 
     struct {
-        CHyprSignalListener resourceDestroy;
+        CAbyssSignalListener resourceDestroy;
     } m_listeners;
 };

@@ -4,7 +4,7 @@
 #include "../output/Monitor.hpp"
 #include "../protocols/core/Output.hpp"
 #include "../render/Renderer.hpp"
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CGammaControl::CGammaControl(SP<CZwlrGammaControlV1> resource_, wl_resource* output) : m_resource(resource_) {
     if UNLIKELY (!resource_->resource())
@@ -156,7 +156,7 @@ void CGammaControl::applyToMonitor() {
         m_monitor->m_output->state->setGammaLut({});
     }
 
-    g_pHyprRenderer->damageMonitor(m_monitor.lock());
+    g_pAbyssRenderer->damageMonitor(m_monitor.lock());
 }
 
 PHLMONITOR CGammaControl::getMonitor() {

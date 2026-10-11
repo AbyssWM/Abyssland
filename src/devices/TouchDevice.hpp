@@ -4,22 +4,22 @@
 
 class CTouchDevice : public ITouch {
   public:
-    static SP<CTouchDevice>        create(SP<Aquamarine::ITouch> touch);
+    static SP<CTouchDevice>        create(SP<Abyssal::ITouch> touch);
 
     virtual bool                   isVirtual();
-    virtual SP<Aquamarine::ITouch> aq();
+    virtual SP<Abyssal::ITouch> aq();
 
   private:
-    CTouchDevice(SP<Aquamarine::ITouch> touch);
+    CTouchDevice(SP<Abyssal::ITouch> touch);
 
-    WP<Aquamarine::ITouch> m_touch;
+    WP<Abyssal::ITouch> m_touch;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener down;
-        CHyprSignalListener up;
-        CHyprSignalListener motion;
-        CHyprSignalListener cancel;
-        CHyprSignalListener frame;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener down;
+        CAbyssSignalListener up;
+        CAbyssSignalListener motion;
+        CAbyssSignalListener cancel;
+        CAbyssSignalListener frame;
     } m_listeners;
 };

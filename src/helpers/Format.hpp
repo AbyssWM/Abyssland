@@ -5,12 +5,12 @@
 #include <string>
 #include <GLES3/gl32.h>
 #include "math/Math.hpp"
-#include <aquamarine/backend/Misc.hpp>
+#include <abyssal/backend/Misc.hpp>
 
 using DRMFormat = uint32_t;
 using SHMFormat = uint32_t;
 
-using SDRMFormat = Aquamarine::SDRMFormat;
+using SDRMFormat = Abyssal::SDRMFormat;
 
 namespace NFormatUtils {
     SHMFormat   drmToShm(DRMFormat drm);

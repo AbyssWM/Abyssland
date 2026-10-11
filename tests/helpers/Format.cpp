@@ -4,10 +4,10 @@
 
 #include <drm_fourcc.h>
 #include <wayland-server-protocol.h>
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 #include <limits>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace NFormatUtils;
 
 TEST(Helpers, formatDrmToShm) {

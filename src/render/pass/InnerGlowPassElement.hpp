@@ -1,12 +1,12 @@
 #pragma once
 #include "PassElement.hpp"
 
-class CHyprInnerGlowDecoration;
+class CAbyssInnerGlowDecoration;
 
 class CInnerGlowPassElement : public IPassElement {
   public:
     struct SInnerGlowData {
-        CHyprInnerGlowDecoration* deco = nullptr;
+        CAbyssInnerGlowDecoration* deco = nullptr;
         float                     a    = 1.F;
     };
 

@@ -1,8 +1,8 @@
 #include "InputManager.hpp"
 #include "../../Compositor.hpp"
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 #include <cstdint>
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 #include <ranges>
 #include <algorithm>
 #include "../../config/ConfigValue.hpp"
@@ -57,11 +57,11 @@
 #include "trackpad/TrackpadGestures.hpp"
 #include "../../pointer/cursor/CursorShapeOverrideController.hpp"
 
-#include <aquamarine/input/Input.hpp>
-#include <hyprutils/string/VarList.hpp>
-#include <hyprutils/string/VarList2.hpp>
+#include <abyssal/input/Input.hpp>
+#include <abyssutils/string/VarList.hpp>
+#include <abyssutils/string/VarList2.hpp>
 
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 CInputManager::CInputManager() {
     m_listeners.setCursorShape = PROTO::cursorShape->m_events.setShape.listen([this](const CCursorShapeProtocol::SSetShapeEvent& event) {
@@ -81,7 +81,7 @@ CInputManager::CInputManager() {
         if (!cursorImageUnlocked())
             return;
 
-        g_pHyprRenderer->setCursorFromName(m_cursorSurfaceInfo.name);
+        g_pAbyssRenderer->setCursorFromName(m_cursorSurfaceInfo.name);
     });
 
     m_listeners.newIdleInhibitor = PROTO::idleInhibit->m_events.newIdleInhibitor.listen([this](const auto& data) { newIdleInhibitor(data); });
@@ -106,7 +106,7 @@ CInputManager::CInputManager() {
         }
 
         m_cursorImageOverridden = true;
-        g_pHyprRenderer->setCursorFromName(shape);
+        g_pAbyssRenderer->setCursorFromName(shape);
     });
 
     m_cursorSurfaceInfo.wlSurface = Desktop::View::CWLSurface::create();
@@ -275,20 +275,20 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
     // use mouseCoords specifically in case touch sent overridePos, otherwise touch doesn't work on non-focused monitor
     const auto PMONITOR = isLocked() && Desktop::focusState()->monitor() ? Desktop::focusState()->monitor() : State::monitorState()->query().vec(mouseCoords).run();
 
-    // this can happen if there are no displays hooked up to Hyprland
+    // this can happen if there are no displays hooked up to Abyssland
     if (PMONITOR == nullptr)
         return;
 
     if (PMONITOR->m_cursorZoom->value() != 1.f)
-        g_pHyprRenderer->damageMonitor(PMONITOR);
+        g_pAbyssRenderer->damageMonitor(PMONITOR);
 
     bool       skipFrameSchedule = PMONITOR->shouldSkipScheduleFrameOnMouseEvent();
 
     const auto solitary = PMONITOR->m_solitaryClient.lock();
     const auto self     = PMONITOR->m_self.lock();
 
-    if (!solitary && g_pHyprRenderer->shouldRenderCursor() && Pointer::mgr()->softwareLockedFor(self) && !skipFrameSchedule)
-        PMONITOR->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_CURSOR_MOVE);
+    if (!solitary && g_pAbyssRenderer->shouldRenderCursor() && Pointer::mgr()->softwareLockedFor(self) && !skipFrameSchedule)
+        PMONITOR->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_CURSOR_MOVE);
 
     // constraints
     auto confineToRegion = [&](const CRegion& rg, SP<Desktop::View::CWLSurface> surf) {
@@ -588,7 +588,7 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
 
     if (Pointer::mgr()->softwareLockedFor(self) > 0 && !skipFrameSchedule) {
         if (const auto PMONITOR = Desktop::focusState()->monitor())
-            PMONITOR->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_CURSOR_MOVE);
+            PMONITOR->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_CURSOR_MOVE);
     }
 
     // FIXME: This will be disabled during DnD operations because we do not exactly follow the spec
@@ -614,7 +614,7 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
 
     if (!foundSurface) {
         if (!m_emptyFocusCursorSet) {
-            g_pHyprRenderer->setCursorFromName("left_ptr");
+            g_pAbyssRenderer->setCursorFromName("left_ptr");
             m_emptyFocusCursorSet = true;
         }
 
@@ -657,7 +657,7 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
     if (pFoundWindow && foundSurface == pFoundWindow->wlSurface()->resource() && !m_cursorImageOverridden) {
         const auto BOX = pFoundWindow->getWindowMainSurfaceBox();
         if (VECNOTINRECT(mouseCoords, BOX.x, BOX.y, BOX.x + BOX.width, BOX.y + BOX.height))
-            g_pHyprRenderer->setCursorFromName("left_ptr");
+            g_pAbyssRenderer->setCursorFromName("left_ptr");
         else
             restoreCursorIconToApp();
     }
@@ -811,20 +811,20 @@ void CInputManager::processMouseRequest(const CSeatManager::SSetCursorEvent& eve
     if (!cursorImageUnlocked())
         return;
 
-    g_pHyprRenderer->setCursorSurface(m_cursorSurfaceInfo.wlSurface, event.hotspot.x, event.hotspot.y);
+    g_pAbyssRenderer->setCursorSurface(m_cursorSurfaceInfo.wlSurface, event.hotspot.x, event.hotspot.y);
 }
 
 void CInputManager::restoreCursorIconToApp() {
     if (m_cursorSurfaceInfo.hidden) {
-        g_pHyprRenderer->setCursorSurface(nullptr, 0, 0);
+        g_pAbyssRenderer->setCursorSurface(nullptr, 0, 0);
         return;
     }
 
     if (m_cursorSurfaceInfo.name.empty()) {
         if (m_cursorSurfaceInfo.wlSurface->exists())
-            g_pHyprRenderer->setCursorSurface(m_cursorSurfaceInfo.wlSurface, m_cursorSurfaceInfo.vHotspot.x, m_cursorSurfaceInfo.vHotspot.y);
+            g_pAbyssRenderer->setCursorSurface(m_cursorSurfaceInfo.wlSurface, m_cursorSurfaceInfo.vHotspot.x, m_cursorSurfaceInfo.vHotspot.y);
     } else
-        g_pHyprRenderer->setCursorFromName(m_cursorSurfaceInfo.name);
+        g_pAbyssRenderer->setCursorFromName(m_cursorSurfaceInfo.name);
 }
 
 bool CInputManager::cursorImageUnlocked() {
@@ -840,7 +840,7 @@ void CInputManager::setClickMode(eClickBehaviorMode mode) {
         case CLICKMODE_DEFAULT:
             Log::logger->log(Log::DEBUG, "SetClickMode: DEFAULT");
             m_clickBehavior = CLICKMODE_DEFAULT;
-            g_pHyprRenderer->setCursorFromName("left_ptr", true);
+            g_pAbyssRenderer->setCursorFromName("left_ptr", true);
             break;
 
         case CLICKMODE_KILL:
@@ -950,7 +950,7 @@ void CInputManager::processMouseDownKill(const IPointer::SButtonEvent& e) {
                 break;
             }
 
-            g_pEventManager->postEvent(SHyprIPCEvent({.event = "kill", .data = std::format("{:x}", rc<uintptr_t>(PWINDOW.m_data))}));
+            g_pEventManager->postEvent(SAbyssIPCEvent({.event = "kill", .data = std::format("{:x}", rc<uintptr_t>(PWINDOW.m_data))}));
             Event::bus()->m_events.window.kill.emit(PWINDOW);
 
             // kill the mf
@@ -1113,15 +1113,15 @@ void CInputManager::newKeyboard(SP<IKeyboard> keeb) {
 
     setupKeyboard(PNEWKEYBOARD);
 
-    Log::logger->log(Log::DEBUG, "New keyboard created, pointers Hypr: {:x}", rc<uintptr_t>(PNEWKEYBOARD.get()));
+    Log::logger->log(Log::DEBUG, "New keyboard created, pointers Abyss: {:x}", rc<uintptr_t>(PNEWKEYBOARD.get()));
 }
 
-void CInputManager::newKeyboard(SP<Aquamarine::IKeyboard> keyboard) {
+void CInputManager::newKeyboard(SP<Abyssal::IKeyboard> keyboard) {
     const auto PNEWKEYBOARD = m_keyboards.emplace_back(CKeyboard::create(keyboard));
 
     setupKeyboard(PNEWKEYBOARD);
 
-    Log::logger->log(Log::DEBUG, "New keyboard created, pointers Hypr: {:x} and AQ: {:x}", rc<uintptr_t>(PNEWKEYBOARD.get()), rc<uintptr_t>(keyboard.get()));
+    Log::logger->log(Log::DEBUG, "New keyboard created, pointers Abyss: {:x} and AQ: {:x}", rc<uintptr_t>(PNEWKEYBOARD.get()), rc<uintptr_t>(keyboard.get()));
 }
 
 void CInputManager::newVirtualKeyboard(SP<CVirtualKeyboardV1Resource> keyboard) {
@@ -1186,7 +1186,7 @@ void CInputManager::setupKeyboard(SP<IKeyboard> keeb) {
             g_pKeybindManager->m_keyToCodeCache.clear();
         }
 
-        g_pEventManager->postEvent(SHyprIPCEvent{"activelayout", PKEEB->m_hlName + "," + LAYOUT});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activelayout", PKEEB->m_hlName + "," + LAYOUT});
         Event::bus()->m_events.input.keyboard.layout.emit(PKEEB, LAYOUT);
     });
 
@@ -1287,7 +1287,7 @@ void CInputManager::applyConfigToKeyboard(SP<IKeyboard> pKeyboard) {
 
     const auto LAYOUTSTR = pKeyboard->getActiveLayout();
 
-    g_pEventManager->postEvent(SHyprIPCEvent{"activelayout", pKeyboard->m_hlName + "," + LAYOUTSTR});
+    g_pEventManager->postEvent(SAbyssIPCEvent{"activelayout", pKeyboard->m_hlName + "," + LAYOUTSTR});
     Event::bus()->m_events.input.keyboard.layout.emit(pKeyboard, LAYOUTSTR);
 
     Log::logger->log(Log::DEBUG, "Set the keyboard layout to {} and variant to {} for keyboard \"{}\"", pKeyboard->m_currentRules.layout, pKeyboard->m_currentRules.variant,
@@ -1307,10 +1307,10 @@ void CInputManager::newMouse(SP<IPointer> mouse) {
 
     setupMouse(mouse);
 
-    Log::logger->log(Log::DEBUG, "New mouse created, pointer Hypr: {:x}", rc<uintptr_t>(mouse.get()));
+    Log::logger->log(Log::DEBUG, "New mouse created, pointer Abyss: {:x}", rc<uintptr_t>(mouse.get()));
 }
 
-void CInputManager::newMouse(SP<Aquamarine::IPointer> mouse) {
+void CInputManager::newMouse(SP<Abyssal::IPointer> mouse) {
     const auto PMOUSE = m_pointers.emplace_back(CMouse::create(mouse));
 
     setupMouse(PMOUSE);
@@ -1683,7 +1683,7 @@ void CInputManager::onKeyboardKey(const IKeyboard::SKeyEvent& event, SP<IKeyboar
 }
 
 void CInputManager::onKeyboardMod(SP<IKeyboard> pKeyboard) {
-    static auto PSENDMOD = CConfigValue<Hyprlang::INT>("input-capture:capture_modifiers");
+    static auto PSENDMOD = CConfigValue<Abyssparse::INT>("input-capture:capture_modifiers");
     if (!pKeyboard->m_enabled)
         return;
 
@@ -1708,7 +1708,7 @@ void CInputManager::onKeyboardMod(SP<IKeyboard> pKeyboard) {
     if (USEIME || !HASIME) {
         const auto ALLMODS = shareModsFromAllKBs(MODS.depressed);
         MODS.depressed     = ALLMODS;
-        m_lastMods         = MODS.depressed; // for hyprland keybinds use; not for sending to seat
+        m_lastMods         = MODS.depressed; // for abyssland keybinds use; not for sending to seat
     }
 
     if (USEIME) {
@@ -1728,7 +1728,7 @@ void CInputManager::onKeyboardMod(SP<IKeyboard> pKeyboard) {
 
         Log::logger->log(Log::DEBUG, "LAYOUT CHANGED TO {} GROUP {}", LAYOUT, MODS.group);
 
-        g_pEventManager->postEvent(SHyprIPCEvent{"activelayout", pKeyboard->m_hlName + "," + LAYOUT});
+        g_pEventManager->postEvent(SAbyssIPCEvent{"activelayout", pKeyboard->m_hlName + "," + LAYOUT});
         Event::bus()->m_events.input.keyboard.layout.emit(pKeyboard, LAYOUT);
     }
 }
@@ -1941,7 +1941,7 @@ void CInputManager::disableAllKeyboards(bool virt) {
     }
 }
 
-void CInputManager::newTouchDevice(SP<Aquamarine::ITouch> pDevice) {
+void CInputManager::newTouchDevice(SP<Abyssal::ITouch> pDevice) {
     const auto PNEWDEV = m_touches.emplace_back(CTouchDevice::create(pDevice));
     m_hids.emplace_back(PNEWDEV);
 
@@ -2087,7 +2087,7 @@ void CInputManager::setTabletToolConfigs() {
     }
 }
 
-void CInputManager::newSwitch(SP<Aquamarine::ISwitch> pDevice) {
+void CInputManager::newSwitch(SP<Abyssal::ISwitch> pDevice) {
     const auto PNEWDEV = &m_switches.emplace_back();
     PNEWDEV->pDevice   = pDevice;
 
@@ -2095,7 +2095,7 @@ void CInputManager::newSwitch(SP<Aquamarine::ISwitch> pDevice) {
 
     PNEWDEV->listeners.destroy = pDevice->events.destroy.listen([this, PNEWDEV] { destroySwitch(PNEWDEV); });
 
-    PNEWDEV->listeners.fire = pDevice->events.fire.listen([PNEWDEV](const Aquamarine::ISwitch::SFireEvent& event) {
+    PNEWDEV->listeners.fire = pDevice->events.fire.listen([PNEWDEV](const Abyssal::ISwitch::SFireEvent& event) {
         const auto NAME = PNEWDEV->pDevice->getName();
 
         Log::logger->log(Log::DEBUG, "Switch {} fired, triggering binds.", NAME);

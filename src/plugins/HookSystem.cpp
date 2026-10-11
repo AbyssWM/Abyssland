@@ -14,9 +14,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <hyprutils/string/Numeric.hpp>
+#include <abyssutils/string/Numeric.hpp>
 
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 CFunctionHook::CFunctionHook(HANDLE owner, void* source, void* destination) : m_source(source), m_destination(destination), m_owner(owner) {
     ;
@@ -296,7 +296,7 @@ static uintptr_t seekNewPageAddr() {
 
     uint64_t       lastStart = 0, lastEnd = 0;
 
-    bool           anchoredToHyprland = false;
+    bool           anchoredToAbyssland = false;
 
     std::string    line;
     while (std::getline(MAPS, line)) {
@@ -326,12 +326,12 @@ static uintptr_t seekNewPageAddr() {
             continue;
         }
 
-        if (!anchoredToHyprland && line.contains("Hyprland")) {
-            Log::logger->log(Log::DEBUG, "seekNewPageAddr: Anchored to hyprland at 0x{:x}", start);
-            anchoredToHyprland = true;
+        if (!anchoredToAbyssland && line.contains("Abyssland")) {
+            Log::logger->log(Log::DEBUG, "seekNewPageAddr: Anchored to abyssland at 0x{:x}", start);
+            anchoredToAbyssland = true;
         } else if (start - lastEnd > PAGESIZE_VAR * 2) {
-            if (!anchoredToHyprland) {
-                Log::logger->log(Log::DEBUG, "seekNewPageAddr: skipping gap 0x{:x}-0x{:x}, not anchored to Hyprland code pages yet.", lastEnd, start);
+            if (!anchoredToAbyssland) {
+                Log::logger->log(Log::DEBUG, "seekNewPageAddr: skipping gap 0x{:x}-0x{:x}, not anchored to Abyssland code pages yet.", lastEnd, start);
                 lastStart = start;
                 lastEnd   = end;
                 continue;

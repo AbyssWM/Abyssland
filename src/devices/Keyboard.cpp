@@ -1,9 +1,9 @@
 #include "Keyboard.hpp"
 #include "../defines.hpp"
 
-#include <aquamarine/input/Input.hpp>
+#include <abyssal/input/Input.hpp>
 
-SP<CKeyboard> CKeyboard::create(SP<Aquamarine::IKeyboard> keeb) {
+SP<CKeyboard> CKeyboard::create(SP<Abyssal::IKeyboard> keeb) {
     SP<CKeyboard> pKeeb = SP<CKeyboard>(new CKeyboard(keeb));
 
     pKeeb->m_self = pKeeb;
@@ -15,11 +15,11 @@ bool CKeyboard::isVirtual() {
     return false;
 }
 
-SP<Aquamarine::IKeyboard> CKeyboard::aq() {
+SP<Abyssal::IKeyboard> CKeyboard::aq() {
     return m_keyboard.lock();
 }
 
-CKeyboard::CKeyboard(SP<Aquamarine::IKeyboard> keeb) : m_keyboard(keeb) {
+CKeyboard::CKeyboard(SP<Abyssal::IKeyboard> keeb) : m_keyboard(keeb) {
     if (!keeb)
         return;
 
@@ -28,7 +28,7 @@ CKeyboard::CKeyboard(SP<Aquamarine::IKeyboard> keeb) : m_keyboard(keeb) {
         m_events.destroy.emit();
     });
 
-    m_listeners.key = keeb->events.key.listen([this](const Aquamarine::IKeyboard::SKeyEvent& event) {
+    m_listeners.key = keeb->events.key.listen([this](const Abyssal::IKeyboard::SKeyEvent& event) {
         const auto UPDATED = updatePressed(event.key, event.pressed);
 
         m_keyboardEvents.key.emit(SKeyEvent{

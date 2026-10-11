@@ -58,7 +58,7 @@ void CCloseTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpdat
     if (!m_window)
         return;
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 
     m_lastDelta += distance(e);
 
@@ -70,7 +70,7 @@ void CCloseTrackpadGesture::update(const ITrackpadGesture::STrackpadGestureUpdat
 
     g_pDecorationPositioner->onWindowUpdate(m_window.lock());
 
-    g_pHyprRenderer->damageWindow(m_window.lock());
+    g_pAbyssRenderer->damageWindow(m_window.lock());
 }
 
 void CCloseTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) {
@@ -83,7 +83,7 @@ void CCloseTrackpadGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) 
 
     if (COMPLETION < 0.2F) {
         // revert the animation
-        g_pHyprRenderer->damageWindow(m_window.lock());
+        g_pAbyssRenderer->damageWindow(m_window.lock());
 
         // FIXME: this shouldn't be needed but it is because style is decided by the fuckin anim from this
         m_window->positionAnimation()->setConfig(Config::animationTree()->getAnimationPropertyConfig("windowsMove"));

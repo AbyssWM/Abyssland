@@ -4,21 +4,21 @@
 #include <vector>
 #include <unordered_map>
 #include "WaylandProtocol.hpp"
-#include "hyprland-lock-notify-v1.hpp"
+#include "abyssland-lock-notify-v1.hpp"
 
 class CEventLoopTimer;
 
-class CHyprlandLockNotification {
+class CAbysslandLockNotification {
   public:
-    CHyprlandLockNotification(SP<CHyprlandLockNotificationV1> resource_);
-    ~CHyprlandLockNotification() = default;
+    CAbysslandLockNotification(SP<CAbysslandLockNotificationV1> resource_);
+    ~CAbysslandLockNotification() = default;
 
     bool good();
     void onLocked();
     void onUnlocked();
 
   private:
-    SP<CHyprlandLockNotificationV1> m_resource;
+    SP<CAbysslandLockNotificationV1> m_resource;
     bool                            m_locked = false;
 };
 
@@ -33,16 +33,16 @@ class CLockNotifyProtocol : public IWaylandProtocol {
 
   private:
     void onManagerResourceDestroy(wl_resource* res);
-    void destroyNotification(CHyprlandLockNotification* notif);
-    void onGetNotification(CHyprlandLockNotifierV1* pMgr, uint32_t id);
+    void destroyNotification(CAbysslandLockNotification* notif);
+    void onGetNotification(CAbysslandLockNotifierV1* pMgr, uint32_t id);
 
     bool m_isLocked = false;
 
     //
-    std::vector<UP<CHyprlandLockNotifierV1>>   m_managers;
-    std::vector<SP<CHyprlandLockNotification>> m_notifications;
+    std::vector<UP<CAbysslandLockNotifierV1>>   m_managers;
+    std::vector<SP<CAbysslandLockNotification>> m_notifications;
 
-    friend class CHyprlandLockNotification;
+    friend class CAbysslandLockNotification;
 };
 
 namespace PROTO {

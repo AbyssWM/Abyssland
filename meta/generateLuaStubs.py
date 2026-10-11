@@ -836,7 +836,7 @@ def write_if_changed(path: Path, content: str) -> bool:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate LuaLS stubs for Hyprland Lua config API")
+    parser = argparse.ArgumentParser(description="Generate LuaLS stubs for Abyssland Lua config API")
     parser.add_argument(
         "--root",
         type=Path,

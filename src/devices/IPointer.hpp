@@ -4,7 +4,7 @@
 #include "../macros.hpp"
 #include "../helpers/math/Math.hpp"
 
-AQUAMARINE_FORWARD(IPointer);
+ABYSSAL_FORWARD(IPointer);
 
 /*
     Base class for a pointer.
@@ -14,7 +14,7 @@ class IPointer : public IHID {
     virtual uint32_t                 getCapabilities();
     virtual eHIDType                 getType();
     virtual bool                     isVirtual() = 0;
-    virtual SP<Aquamarine::IPointer> aq()        = 0;
+    virtual SP<Abyssal::IPointer> aq()        = 0;
 
     struct SMotionEvent {
         uint32_t     timeMs = 0;

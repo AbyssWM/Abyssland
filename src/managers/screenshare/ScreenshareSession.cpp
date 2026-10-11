@@ -137,15 +137,15 @@ void CScreenshareSession::calculateConstraints() {
 void CScreenshareSession::screenshareEvents(bool startSharing) {
     if (startSharing && !m_sharing) {
         m_sharing = true;
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "screencast", .data = std::format("1,{}", m_type)});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "screencastv2", .data = std::format("1,{},{}", m_type, m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "screencast", .data = std::format("1,{}", m_type)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "screencastv2", .data = std::format("1,{},{}", m_type, m_name)});
         LOGM(Log::INFO, "Started screenshare session for ({}): {}", m_type, m_name);
 
         Event::bus()->m_events.screenshare.state.emit(true, m_type, m_name);
     } else if (!startSharing && m_sharing) {
         m_sharing = false;
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "screencast", .data = std::format("0,{}", m_type)});
-        g_pEventManager->postEvent(SHyprIPCEvent{.event = "screencastv2", .data = std::format("0,{},{}", m_type, m_name)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "screencast", .data = std::format("0,{}", m_type)});
+        g_pEventManager->postEvent(SAbyssIPCEvent{.event = "screencastv2", .data = std::format("0,{},{}", m_type, m_name)});
         LOGM(Log::INFO, "Stopped screenshare session for ({}): {}", m_type, m_name);
 
         Event::bus()->m_events.screenshare.state.emit(false, m_type, m_name);
@@ -174,7 +174,7 @@ UP<CScreenshareFrame> CScreenshareSession::nextFrame(bool overlayCursor) {
     Screenshare::mgr()->m_pendingFrames.emplace_back(frame);
 
     // there is now a pending frame, so block ds
-    g_pHyprRenderer->m_directScanoutBlocked = true;
+    g_pAbyssRenderer->m_directScanoutBlocked = true;
 
     return frame;
 }

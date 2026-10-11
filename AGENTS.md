@@ -31,7 +31,7 @@
 
 - Stick to good code practices:
  - Avoid complex classes / functions, prefer SRP.
- - Consider using an observer pattern via hyprutils Signals where appropriate.
+ - Consider using an observer pattern via abyssutils Signals where appropriate.
  - Consider classic OOP patterns where appropriate: Strategy, Singleton, Proxy, etc.
  - Watch out for typical bad practices in code: feature envy, LSP, etc.
  - Use templating and inheritance to clean up code where appropriate.
@@ -42,9 +42,9 @@
 - Avoid, unless absolutely necessary:
  - the C standard library. Use the C++ STL.
  - `malloc` / `free` / etc
- - C-style pointers. Use SP<> WP<> and UP<> from hyprutils. These are Shared, Weak and Unique pointers respectively. C-style pointers may be used in select scenarios (e.g. destroying fns, where it's impossible to make a mistake) but everywhere else must not be used unless necessary.
- - C-style casts. Use rc<>, sc<>, or cc<> from hyprutils. These are shorthands to equivalent C++ casts.
+ - C-style pointers. Use SP<> WP<> and UP<> from abyssutils. These are Shared, Weak and Unique pointers respectively. C-style pointers may be used in select scenarios (e.g. destroying fns, where it's impossible to make a mistake) but everywhere else must not be used unless necessary.
+ - C-style casts. Use rc<>, sc<>, or cc<> from abyssutils. These are shorthands to equivalent C++ casts.
 - Avoid:
  - violating clang-tidy (`.clang-tidy`)
  - manual C-style cleanup: `some_c_thing_new()` and `some_c_thing_free()` can be wrapped.
-- Make sure to write tests for code which our Unit (`tests/`) or Integration (`hyprtester/`) tests can test.
+- Make sure to write tests for code which our Unit (`tests/`) or Integration (`abysstester/`) tests can test.

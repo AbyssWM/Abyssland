@@ -13,7 +13,7 @@ class CIdleInhibitor {
     CIdleInhibitor(SP<CIdleInhibitorResource> resource_, SP<CWLSurfaceResource> surf_);
 
     struct {
-        CHyprSignalListener destroy;
+        CAbyssSignalListener destroy;
     } m_listeners;
 
     WP<CIdleInhibitorResource> m_resource;
@@ -37,7 +37,7 @@ class CIdleInhibitorResource {
     bool                    m_destroySent = false;
 
     struct {
-        CHyprSignalListener destroySurface;
+        CAbyssSignalListener destroySurface;
     } m_listeners;
 };
 

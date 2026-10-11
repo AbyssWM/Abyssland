@@ -54,7 +54,7 @@ class CPositionTestMonitor : public Monitor::IMonitorArrangeable {
         return m_scale;
     }
 
-    virtual Hyprutils::Math::eTransform transform() const override {
+    virtual Abyssutils::Math::eTransform transform() const override {
         return m_transform;
     }
 
@@ -106,7 +106,7 @@ class CPositionTestMonitor : public Monitor::IMonitorArrangeable {
     Vector2D                    m_size;
     Vector2D                    m_transformedSize;
     float                       m_scale            = 1.F;
-    Hyprutils::Math::eTransform m_transform        = Hyprutils::Math::HYPRUTILS_TRANSFORM_NORMAL;
+    Abyssutils::Math::eTransform m_transform        = Abyssutils::Math::ABYSSUTILS_TRANSFORM_NORMAL;
     std::optional<Vector2D>     m_explicitPosition = {};
     Config::eAutoDirs           m_autoDirection    = Config::DIR_AUTO_RIGHT;
     Vector2D                    m_xwaylandPosition;

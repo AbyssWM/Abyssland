@@ -4,14 +4,14 @@
 #include "../macros.hpp"
 #include "../helpers/math/Math.hpp"
 
-AQUAMARINE_FORWARD(ITouch);
+ABYSSAL_FORWARD(ITouch);
 
 class ITouch : public IHID {
   public:
     virtual uint32_t               getCapabilities();
     virtual eHIDType               getType();
     virtual bool                   isVirtual() = 0;
-    virtual SP<Aquamarine::ITouch> aq()        = 0;
+    virtual SP<Abyssal::ITouch> aq()        = 0;
 
     struct SDownEvent {
         uint32_t   timeMs  = 0;

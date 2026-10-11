@@ -44,7 +44,7 @@ void CLayoutManager::changeFloatingMode(SP<ITarget> target) {
     if (pastFsMode != Fullscreen::FSMODE_NONE)
         Fullscreen::controller()->setFullscreenMode(target->window(), pastFsMode);
 
-    g_pEventManager->postEvent(SHyprIPCEvent({
+    g_pEventManager->postEvent(SAbyssIPCEvent({
         .event = "changefloatingmode",
         .data  = std::format("{:x},{}", rc<uintptr_t>(target->window().get()), sc<int>(target->floating())),
     }));

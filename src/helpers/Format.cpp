@@ -5,10 +5,10 @@
 #include "../macros.hpp"
 #include <xf86drm.h>
 #include <drm_fourcc.h>
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 #include <limits>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 
 SHMFormat NFormatUtils::drmToShm(DRMFormat drm) {
     switch (drm) {
@@ -63,7 +63,7 @@ bool NFormatUtils::isShmBufferLayoutValid(DRMFormat drmFormat, const Vector2D& s
 
     const auto width        = sc<uint32_t>(size.x);
     const auto height       = sc<size_t>(sc<uint32_t>(size.y));
-    const auto minStrideVal = sc<size_t>(Hyprgraphics::Egl::minStride(PFORMAT, width));
+    const auto minStrideVal = sc<size_t>(Abyssgraphics::Egl::minStride(PFORMAT, width));
 
     if (sc<size_t>(stride) < minStrideVal)
         return false;

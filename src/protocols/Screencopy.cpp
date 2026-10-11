@@ -5,9 +5,9 @@
 #include "types/Buffer.hpp"
 #include "../helpers/Format.hpp"
 #include "../helpers/time/Time.hpp"
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace Screenshare;
 
 CScreencopyClient::CScreencopyClient(SP<CZwlrScreencopyManagerV1> resource_) : m_resource(resource_) {
@@ -125,7 +125,7 @@ void CScreencopyFrame::shareFrame(CZwlrScreencopyFrameV1* pFrame, wl_resource* b
     const auto& PBUFFER = PBUFFERRES->m_buffer.lock();
 
     if (!withDamage)
-        g_pHyprRenderer->damageMonitor(m_session->monitor());
+        g_pAbyssRenderer->damageMonitor(m_session->monitor());
 
     auto error = m_frame->share(PBUFFER, {}, [this, withDamage, self = m_self](eScreenshareResult result) {
         if (self.expired() || !good())

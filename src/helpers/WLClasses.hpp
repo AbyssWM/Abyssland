@@ -13,14 +13,14 @@ class IPointer;
 class IKeyboard;
 class CWLSurfaceResource;
 
-AQUAMARINE_FORWARD(ISwitch);
+ABYSSAL_FORWARD(ISwitch);
 
 struct SSwitchDevice {
-    WP<Aquamarine::ISwitch> pDevice;
+    WP<Abyssal::ISwitch> pDevice;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener fire;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener fire;
     } listeners;
 
     bool operator==(const SSwitchDevice& other) const {

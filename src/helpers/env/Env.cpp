@@ -8,6 +8,6 @@ bool Env::envEnabled(const char* env) {
 }
 
 bool Env::isTrace() {
-    static bool TRACE = envEnabled("HYPRLAND_TRACE");
+    static bool TRACE = envEnabled("ABYSSLAND_TRACE");
     return TRACE;
 }

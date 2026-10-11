@@ -1,15 +1,15 @@
 #include <state/MonitorQueryCore.hpp>
 
-#include <aquamarine/output/Output.hpp>
+#include <abyssal/output/Output.hpp>
 #include <gtest/gtest.h>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 class CQueryTestMonitor : public Monitor::IMonitorQueryable {
   public:
@@ -65,8 +65,8 @@ class CQueryTestMonitor : public Monitor::IMonitorQueryable {
         return 1.F;
     }
 
-    virtual Hyprutils::Math::eTransform transform() const override {
-        return Hyprutils::Math::HYPRUTILS_TRANSFORM_NORMAL;
+    virtual Abyssutils::Math::eTransform transform() const override {
+        return Abyssutils::Math::ABYSSUTILS_TRANSFORM_NORMAL;
     }
 
     virtual CBox logicalBox() const override {
@@ -89,7 +89,7 @@ class CQueryTestMonitor : public Monitor::IMonitorQueryable {
         return m_hasOutput;
     }
 
-    virtual SP<Aquamarine::IOutput> output() const override {
+    virtual SP<Abyssal::IOutput> output() const override {
         return m_output;
     }
 
@@ -101,7 +101,7 @@ class CQueryTestMonitor : public Monitor::IMonitorQueryable {
     Vector2D                m_size;
     bool                    m_enabled   = true;
     bool                    m_hasOutput = true;
-    SP<Aquamarine::IOutput> m_output;
+    SP<Abyssal::IOutput> m_output;
     std::optional<bool>     m_selectorResult;
 };
 

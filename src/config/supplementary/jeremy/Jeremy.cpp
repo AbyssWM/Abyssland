@@ -2,7 +2,7 @@
 
 #include "../../../Compositor.hpp"
 
-#include <hyprutils/path/Path.hpp>
+#include <abyssutils/path/Path.hpp>
 #include <filesystem>
 
 using namespace Config;
@@ -29,18 +29,18 @@ std::expected<SConfigStateReply, std::string> Jeremy::getMainConfigPath() {
         if (!g_pCompositor->m_explicitConfigPath.empty())
             return SConfigStateReply{.path = g_pCompositor->m_explicitConfigPath, .type = CONFIG_TYPE_EXPLICIT};
 
-        if (const auto CFG_ENV = getenv("HYPRLAND_CONFIG"); CFG_ENV)
+        if (const auto CFG_ENV = getenv("ABYSSLAND_CONFIG"); CFG_ENV)
             return SConfigStateReply{.path = CFG_ENV, .type = CONFIG_TYPE_EXPLICIT};
 
-        const auto LUA_PATHS  = Hyprutils::Path::findConfig(ISDEBUG ? "hyprlandd" : "hyprland", "lua");
-        const auto CONF_PATHS = Hyprutils::Path::findConfig(ISDEBUG ? "hyprlandd" : "hyprland", "conf");
+        const auto LUA_PATHS  = Abyssutils::Path::findConfig(ISDEBUG ? "abysslandd" : "abyssland", "lua");
+        const auto CONF_PATHS = Abyssutils::Path::findConfig(ISDEBUG ? "abysslandd" : "abyssland", "conf");
 
         if (LUA_PATHS.first.has_value())
             return SConfigStateReply{.path = LUA_PATHS.first.value(), .type = CONFIG_TYPE_REGULAR};
         else if (CONF_PATHS.first.has_value())
             return SConfigStateReply{.path = CONF_PATHS.first.value(), .type = CONFIG_TYPE_REGULAR};
         else if (LUA_PATHS.second.has_value()) {
-            auto CONFIGPATH = Hyprutils::Path::fullConfigPath(LUA_PATHS.second.value(), ISDEBUG ? "hyprlandd" : "hyprland", "lua");
+            auto CONFIGPATH = Abyssutils::Path::fullConfigPath(LUA_PATHS.second.value(), ISDEBUG ? "abysslandd" : "abyssland", "lua");
             return SConfigStateReply{.path = CONFIGPATH, .type = CONFIG_TYPE_REGULAR};
         } else
             return std::unexpected("Neither HOME nor XDG_CONFIG_HOME are set in the environment. Could not find config in XDG_CONFIG_DIRS or /etc/xdg.");

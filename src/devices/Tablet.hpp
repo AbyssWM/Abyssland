@@ -4,9 +4,9 @@
 #include "../macros.hpp"
 #include "../helpers/math/Math.hpp"
 
-AQUAMARINE_FORWARD(ITablet);
-AQUAMARINE_FORWARD(ITabletTool);
-AQUAMARINE_FORWARD(ITabletPad);
+ABYSSAL_FORWARD(ITablet);
+ABYSSAL_FORWARD(ITabletTool);
+ABYSSAL_FORWARD(ITabletPad);
 
 class CTabletTool;
 class CTabletPad;
@@ -19,12 +19,12 @@ class CWLSurfaceResource;
 */
 class CTablet : public IHID {
   public:
-    static SP<CTablet> create(SP<Aquamarine::ITablet> tablet);
+    static SP<CTablet> create(SP<Abyssal::ITablet> tablet);
     ~CTablet();
 
     virtual uint32_t        getCapabilities();
     virtual eHIDType        getType();
-    SP<Aquamarine::ITablet> aq();
+    SP<Abyssal::ITablet> aq();
 
     enum eTabletToolAxes : uint16_t {
         HID_TABLET_TOOL_AXIS_X        = (1 << 0),
@@ -39,7 +39,7 @@ class CTablet : public IHID {
     };
 
     struct SAxisEvent {
-        SP<Aquamarine::ITabletTool> tool;
+        SP<Abyssal::ITabletTool> tool;
         SP<CTablet>                 tablet;
 
         uint32_t                    timeMs      = 0;
@@ -55,7 +55,7 @@ class CTablet : public IHID {
     };
 
     struct SProximityEvent {
-        SP<Aquamarine::ITabletTool> tool;
+        SP<Abyssal::ITabletTool> tool;
         SP<CTablet>                 tablet;
 
         uint32_t                    timeMs = 0;
@@ -64,7 +64,7 @@ class CTablet : public IHID {
     };
 
     struct STipEvent {
-        SP<Aquamarine::ITabletTool> tool;
+        SP<Abyssal::ITabletTool> tool;
         SP<CTablet>                 tablet;
 
         uint32_t                    timeMs = 0;
@@ -73,7 +73,7 @@ class CTablet : public IHID {
     };
 
     struct SButtonEvent {
-        SP<Aquamarine::ITabletTool> tool;
+        SP<Abyssal::ITabletTool> tool;
         SP<CTablet>                 tablet;
 
         uint32_t                    timeMs = 0;
@@ -97,27 +97,27 @@ class CTablet : public IHID {
     CBox        m_boundBox;
 
   private:
-    CTablet(SP<Aquamarine::ITablet> tablet);
+    CTablet(SP<Abyssal::ITablet> tablet);
 
-    WP<Aquamarine::ITablet> m_tablet;
+    WP<Abyssal::ITablet> m_tablet;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener axis;
-        CHyprSignalListener proximity;
-        CHyprSignalListener tip;
-        CHyprSignalListener button;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener axis;
+        CAbyssSignalListener proximity;
+        CAbyssSignalListener tip;
+        CAbyssSignalListener button;
     } m_listeners;
 };
 
 class CTabletPad : public IHID {
   public:
-    static SP<CTabletPad> create(SP<Aquamarine::ITabletPad> pad);
+    static SP<CTabletPad> create(SP<Abyssal::ITabletPad> pad);
     ~CTabletPad();
 
     virtual uint32_t           getCapabilities();
     virtual eHIDType           getType();
-    SP<Aquamarine::ITabletPad> aq();
+    SP<Abyssal::ITabletPad> aq();
 
     struct SButtonEvent {
         uint32_t timeMs = 0;
@@ -154,22 +154,22 @@ class CTabletPad : public IHID {
     WP<CTabletTool> m_parent;
 
   private:
-    CTabletPad(SP<Aquamarine::ITabletPad> pad);
+    CTabletPad(SP<Abyssal::ITabletPad> pad);
 
-    WP<Aquamarine::ITabletPad> m_pad;
+    WP<Abyssal::ITabletPad> m_pad;
 
     struct {
-        CHyprSignalListener destroy;
-        CHyprSignalListener ring;
-        CHyprSignalListener strip;
-        CHyprSignalListener button;
-        CHyprSignalListener attach;
+        CAbyssSignalListener destroy;
+        CAbyssSignalListener ring;
+        CAbyssSignalListener strip;
+        CAbyssSignalListener button;
+        CAbyssSignalListener attach;
     } m_listeners;
 };
 
 class CTabletTool : public IHID {
   public:
-    static SP<CTabletTool> create(SP<Aquamarine::ITabletTool> tool);
+    static SP<CTabletTool> create(SP<Abyssal::ITabletTool> tool);
     ~CTabletTool();
 
     enum eTabletToolType : uint8_t {
@@ -193,7 +193,7 @@ class CTabletTool : public IHID {
     };
 
     virtual uint32_t            getCapabilities();
-    SP<Aquamarine::ITabletTool> aq();
+    SP<Abyssal::ITabletTool> aq();
     virtual eHIDType            getType();
     SP<CWLSurfaceResource>      getSurface();
     void                        setSurface(SP<CWLSurfaceResource>);
@@ -208,13 +208,13 @@ class CTabletTool : public IHID {
     Vector2D                    m_absolutePos; // last known absolute position.
 
   private:
-    CTabletTool(SP<Aquamarine::ITabletTool> tool);
+    CTabletTool(SP<Abyssal::ITabletTool> tool);
 
     WP<CWLSurfaceResource>      m_surface;
-    WP<Aquamarine::ITabletTool> m_tool;
+    WP<Abyssal::ITabletTool> m_tool;
 
     struct {
-        CHyprSignalListener destroySurface;
-        CHyprSignalListener destroyTool;
+        CAbyssSignalListener destroySurface;
+        CAbyssSignalListener destroyTool;
     } m_listeners;
 };

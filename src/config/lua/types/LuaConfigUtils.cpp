@@ -45,7 +45,7 @@ UP<ILuaConfigValue> Lua::fromGenericValue(SP<Config::Values::IValue> v) {
     if (auto p = dc<Config::Values::CFontWeightValue*>(v.get()))
         return withRefresh(makeUnique<CLuaConfigFontWeight>(p->defaultVal().m_value));
     if (auto p = dc<Config::Values::CGradientValue*>(v.get()))
-        return withRefresh(makeUnique<CLuaConfigGradient>(p->defaultVal().m_colors.empty() ? CHyprColor{} : p->defaultVal().m_colors.front()));
+        return withRefresh(makeUnique<CLuaConfigGradient>(p->defaultVal().m_colors.empty() ? CAbyssColor{} : p->defaultVal().m_colors.front()));
 
     return nullptr;
 }

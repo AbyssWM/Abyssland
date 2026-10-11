@@ -21,7 +21,7 @@ static int cursorAnimTimer(SP<CEventLoopTimer> self, void* data) {
     return 1;
 }
 
-static void hcLogger(enum eHyprcursorLogLevel level, char* message) {
+static void hcLogger(enum eAbysscursorLogLevel level, char* message) {
     if (level == HC_LOG_TRACE)
         return;
 
@@ -40,15 +40,15 @@ CCursorBuffer::CCursorBuffer(const uint8_t* pixelData, const Vector2D& size_, co
     m_data = std::vector<uint8_t>(pixelData, pixelData + (sc<int>(size_.y) * m_stride));
 }
 
-Aquamarine::eBufferCapability CCursorBuffer::caps() {
-    return Aquamarine::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
+Abyssal::eBufferCapability CCursorBuffer::caps() {
+    return Abyssal::eBufferCapability::BUFFER_CAPABILITY_DATAPTR;
 }
 
-Aquamarine::eBufferType CCursorBuffer::type() {
-    return Aquamarine::eBufferType::BUFFER_TYPE_SHM;
+Abyssal::eBufferType CCursorBuffer::type() {
+    return Abyssal::eBufferType::BUFFER_TYPE_SHM;
 }
 
-void CCursorBuffer::update(const Hyprutils::Math::CRegion& damage) {
+void CCursorBuffer::update(const Abyssutils::Math::CRegion& damage) {
     ;
 }
 
@@ -60,8 +60,8 @@ bool CCursorBuffer::good() {
     return true;
 }
 
-Aquamarine::SSHMAttrs CCursorBuffer::shm() {
-    Aquamarine::SSHMAttrs attrs;
+Abyssal::SSHMAttrs CCursorBuffer::shm() {
+    Abyssal::SSHMAttrs attrs;
     attrs.success = true;
     attrs.format  = DRM_FORMAT_ARGB8888;
     attrs.size    = size;
@@ -78,25 +78,25 @@ void CCursorBuffer::endDataPtr() {
 }
 
 CCursorManager::CCursorManager() {
-    m_hyprcursor               = makeUnique<Hyprcursor::CHyprcursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), hcLogger);
+    m_abysscursor               = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), hcLogger);
     m_xcursor                  = makeUnique<CXCursorManager>();
-    static auto PUSEHYPRCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_hyprcursor");
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
 
-    if (m_hyprcursor->valid() && *PUSEHYPRCURSOR) {
-        // find default size. First, HYPRCURSOR_SIZE then default to 24
-        auto const* SIZE = getenv("HYPRCURSOR_SIZE");
+    if (m_abysscursor->valid() && *PUSEABYSSCURSOR) {
+        // find default size. First, ABYSSCURSOR_SIZE then default to 24
+        auto const* SIZE = getenv("ABYSSCURSOR_SIZE");
         if (SIZE) {
             try {
                 m_size = std::stoi(SIZE);
-            } catch (...) { Log::logger->log(Log::WARN, "Invalid HYPRCURSOR_SIZE value \"{}\"", SIZE); }
+            } catch (...) { Log::logger->log(Log::WARN, "Invalid ABYSSCURSOR_SIZE value \"{}\"", SIZE); }
         }
 
         if (m_size <= 0) {
-            Log::logger->log(Log::WARN, "HYPRCURSOR_SIZE size not set, defaulting to size 24");
+            Log::logger->log(Log::WARN, "ABYSSCURSOR_SIZE size not set, defaulting to size 24");
             m_size = 24;
         }
     } else {
-        Log::logger->log(Log::ERR, "Hyprcursor failed loading theme \"{}\", falling back to Xcursor.", m_theme);
+        Log::logger->log(Log::ERR, "Abysscursor failed loading theme \"{}\", falling back to Xcursor.", m_theme);
 
         auto const* SIZE = getenv("XCURSOR_SIZE");
         if (SIZE) {
@@ -111,7 +111,7 @@ CCursorManager::CCursorManager() {
         }
     }
 
-    // since we fallback to xcursor always load it on startup. otherwise we end up with a empty theme if hyprcursor is enabled in the config
+    // since we fallback to xcursor always load it on startup. otherwise we end up with a empty theme if abysscursor is enabled in the config
     // and then later is disabled.
     m_xcursor->loadTheme(getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default", m_size, m_cursorScale);
 
@@ -129,11 +129,11 @@ CCursorManager::~CCursorManager() {
         m_animationTimer.reset();
     }
 
-    if (m_hyprcursor->valid() && m_currentStyleInfo.size > 0)
-        m_hyprcursor->cursorSurfaceStyleDone(m_currentStyleInfo);
+    if (m_abysscursor->valid() && m_currentStyleInfo.size > 0)
+        m_abysscursor->cursorSurfaceStyleDone(m_currentStyleInfo);
 }
 
-SP<Aquamarine::IBuffer> CCursorManager::getCursorBuffer() {
+SP<Abyssal::IBuffer> CCursorManager::getCursorBuffer() {
     return !m_cursorBuffers.empty() ? m_cursorBuffers.back() : nullptr;
 }
 
@@ -169,7 +169,7 @@ void CCursorManager::setAnimationTimer(const int& frame, const int& delay) {
 
 void CCursorManager::setCursorFromName(const std::string& name) {
 
-    static auto PUSEHYPRCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_hyprcursor");
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
 
     auto        setXCursor = [this](auto const& name) {
         float scale = std::ceil(m_cursorScale);
@@ -189,15 +189,15 @@ void CCursorManager::setCursorFromName(const std::string& name) {
         setAnimationTimer(frame, delay);
     };
 
-    auto setHyprCursor = [this](auto const& name) {
-        m_currentCursorShapeData = m_hyprcursor->getShape(name.c_str(), m_currentStyleInfo);
+    auto setAbyssCursor = [this](auto const& name) {
+        m_currentCursorShapeData = m_abysscursor->getShape(name.c_str(), m_currentStyleInfo);
 
         if (m_currentCursorShapeData.images.empty()) {
             // try with '_' first (old hc, etc)
             std::string newName = name;
             std::ranges::replace(newName, '-', '_');
 
-            m_currentCursorShapeData = m_hyprcursor->getShape(newName.c_str(), m_currentStyleInfo);
+            m_currentCursorShapeData = m_abysscursor->getShape(newName.c_str(), m_currentStyleInfo);
         }
 
         if (m_currentCursorShapeData.images.empty()) {
@@ -205,7 +205,7 @@ void CCursorManager::setCursorFromName(const std::string& name) {
             constexpr const std::array<const char*, 3> fallbackShapes = {"default", "left_ptr", "left-ptr"};
 
             for (auto const& s : fallbackShapes) {
-                m_currentCursorShapeData = m_hyprcursor->getShape(s, m_currentStyleInfo);
+                m_currentCursorShapeData = m_abysscursor->getShape(s, m_currentStyleInfo);
 
                 if (!m_currentCursorShapeData.images.empty())
                     break;
@@ -231,7 +231,7 @@ void CCursorManager::setCursorFromName(const std::string& name) {
         return true;
     };
 
-    if (!m_hyprcursor->valid() || !*PUSEHYPRCURSOR || !setHyprCursor(name))
+    if (!m_abysscursor->valid() || !*PUSEABYSSCURSOR || !setAbyssCursor(name))
         setXCursor(name);
 }
 
@@ -239,7 +239,7 @@ void CCursorManager::tickAnimatedCursor() {
     if (!m_ourBufferConnected)
         return;
 
-    if (!m_hyprcursor->valid() && m_currentXcursor->images.size() > 1) {
+    if (!m_abysscursor->valid() && m_currentXcursor->images.size() > 1) {
         m_currentAnimationFrame++;
 
         if (sc<size_t>(m_currentAnimationFrame) >= m_currentXcursor->images.size())
@@ -269,10 +269,10 @@ void CCursorManager::tickAnimatedCursor() {
 
 SCursorImageData CCursorManager::dataFor(const std::string& name) {
 
-    if (!m_hyprcursor->valid())
+    if (!m_abysscursor->valid())
         return {};
 
-    const auto IMAGES = m_hyprcursor->getShape(name.c_str(), m_currentStyleInfo);
+    const auto IMAGES = m_abysscursor->getShape(name.c_str(), m_currentStyleInfo);
 
     if (IMAGES.images.empty())
         return {};
@@ -281,9 +281,9 @@ SCursorImageData CCursorManager::dataFor(const std::string& name) {
 }
 
 void CCursorManager::setXWaylandCursor() {
-    static auto PUSEHYPRCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_hyprcursor");
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
     const auto  CURSOR         = dataFor("left_ptr");
-    if (CURSOR.surface && *PUSEHYPRCURSOR)
+    if (CURSOR.surface && *PUSEABYSSCURSOR)
         g_pXWayland->setCursor(cairo_image_surface_get_data(CURSOR.surface), cairo_image_surface_get_stride(CURSOR.surface), {CURSOR.size, CURSOR.size},
                                {CURSOR.hotspotX, CURSOR.hotspotY});
     else {
@@ -295,7 +295,7 @@ void CCursorManager::setXWaylandCursor() {
 }
 
 void CCursorManager::updateTheme() {
-    static auto PUSEHYPRCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_hyprcursor");
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
     float       highestScale   = 1.0;
 
     for (auto const& m : State::monitorState()->monitors()) {
@@ -306,38 +306,38 @@ void CCursorManager::updateTheme() {
     m_cursorScale            = highestScale;
     m_currentCursorShapeData = {};
 
-    if (*PUSEHYPRCURSOR) {
-        if (m_currentStyleInfo.size > 0 && m_hyprcursor->valid())
-            m_hyprcursor->cursorSurfaceStyleDone(m_currentStyleInfo);
+    if (*PUSEABYSSCURSOR) {
+        if (m_currentStyleInfo.size > 0 && m_abysscursor->valid())
+            m_abysscursor->cursorSurfaceStyleDone(m_currentStyleInfo);
 
         m_currentStyleInfo.size = std::round(m_size * highestScale);
 
-        if (m_hyprcursor->valid())
-            m_hyprcursor->loadThemeStyle(m_currentStyleInfo);
+        if (m_abysscursor->valid())
+            m_abysscursor->loadThemeStyle(m_currentStyleInfo);
     }
 
     for (auto const& m : State::monitorState()->monitors()) {
         m->m_forceFullFrames = 5;
-        m->scheduleFrame(Aquamarine::IOutput::AQ_SCHEDULE_CURSOR_SHAPE);
+        m->scheduleFrame(Abyssal::IOutput::ABYSSAL_SCHEDULE_CURSOR_SHAPE);
     }
 }
 
 bool CCursorManager::changeTheme(const std::string& name, const int size) {
-    static auto PUSEHYPRCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_hyprcursor");
+    static auto PUSEABYSSCURSOR = CConfigValue<Config::INTEGER>("cursor:enable_abysscursor");
     m_theme                    = name.empty() ? "" : name;
     m_size                     = size <= 0 ? 24 : size;
     auto xcursor_theme         = getenv("XCURSOR_THEME") ? getenv("XCURSOR_THEME") : "default";
 
-    if (*PUSEHYPRCURSOR) {
-        auto options                 = Hyprcursor::SManagerOptions();
+    if (*PUSEABYSSCURSOR) {
+        auto options                 = Abysscursor::SManagerOptions();
         options.logFn                = hcLogger;
         options.allowDefaultFallback = false;
         m_theme                      = name.empty() ? "" : name;
         m_size                       = size;
 
-        m_hyprcursor = makeUnique<Hyprcursor::CHyprcursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), options);
-        if (!m_hyprcursor->valid()) {
-            Log::logger->log(Log::ERR, "Hyprcursor failed loading theme \"{}\", falling back to XCursor.", m_theme);
+        m_abysscursor = makeUnique<Abysscursor::CAbysscursorManager>(m_theme.empty() ? nullptr : m_theme.c_str(), options);
+        if (!m_abysscursor->valid()) {
+            Log::logger->log(Log::ERR, "Abysscursor failed loading theme \"{}\", falling back to XCursor.", m_theme);
             m_xcursor->loadTheme(m_theme.empty() ? xcursor_theme : m_theme, m_size, m_cursorScale);
         }
     } else

@@ -12,8 +12,8 @@ namespace ErrorOverlay {
     namespace Colors {
         constexpr const float                   ANGLE_30 = 0.52359877;
 
-        static const Config::CGradientValueData ERROR   = Config::CGradientValueData{std::vector<CHyprColor>{0xffff6666, 0xff800000}, ANGLE_30};
-        static const Config::CGradientValueData WARNING = Config::CGradientValueData{std::vector<CHyprColor>{0xffffdb4d, 0xff665200}, ANGLE_30};
+        static const Config::CGradientValueData ERROR   = Config::CGradientValueData{std::vector<CAbyssColor>{0xffff6666, 0xff800000}, ANGLE_30};
+        static const Config::CGradientValueData WARNING = Config::CGradientValueData{std::vector<CAbyssColor>{0xffffdb4d, 0xff665200}, ANGLE_30};
     };
 
     class COverlay {
@@ -21,7 +21,7 @@ namespace ErrorOverlay {
         COverlay();
         ~COverlay() = default;
 
-        void  queueCreate(std::string message, const CHyprColor& color);
+        void  queueCreate(std::string message, const CAbyssColor& color);
         void  queueCreate(std::string message, const Config::CGradientValueData& gradient);
         void  queueError(std::string err);
         void  draw();

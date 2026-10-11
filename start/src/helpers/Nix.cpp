@@ -5,17 +5,17 @@
 
 #include <filesystem>
 #include <algorithm>
-#include <hyprutils/string/VarList2.hpp>
-#include <hyprutils/string/String.hpp>
-#include <hyprutils/os/Process.hpp>
-#include <hyprutils/os/File.hpp>
+#include <abyssutils/string/VarList2.hpp>
+#include <abyssutils/string/String.hpp>
+#include <abyssutils/os/Process.hpp>
+#include <abyssutils/os/File.hpp>
 
 #include <glaze/glaze.hpp>
 
-using namespace Hyprutils::String;
-using namespace Hyprutils::OS;
+using namespace Abyssutils::String;
+using namespace Abyssutils::OS;
 
-using namespace Hyprutils::File;
+using namespace Abyssutils::File;
 
 static std::optional<std::string> getFromEtcOsRelease(const std::string_view& sv) {
     static std::string content = "";
@@ -75,7 +75,7 @@ std::expected<void, std::string> Nix::nixEnvironmentOk() {
 
     if (!executableExistsInPath("nixGL"))
         return std::unexpected(
-            "Hyprland was installed using Nix, but you're not on NixOS. This requires nixGL to be installed as well.\nYou can install nixGL by running \"nix profile install "
+            "Abyssland was installed using Nix, but you're not on NixOS. This requires nixGL to be installed as well.\nYou can install nixGL by running \"nix profile install "
             "github:guibou/nixGL --impure\" in your terminal.");
 
     return {};
@@ -88,16 +88,16 @@ bool Nix::shouldUseNixGL() {
     if (g_state->noNixGl)
         return false;
 
-    // check if installed hyprland is nix'd
-    CProcess proc("Hyprland", {"--version-json"});
+    // check if installed abyssland is nix'd
+    CProcess proc("Abyssland", {"--version-json"});
     if (!proc.runSync()) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "failed to obtain hyprland version string");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "failed to obtain abyssland version string");
         return false;
     }
 
     auto json = glz::read_json<glz::generic>(proc.stdOut());
     if (!json) {
-        g_logger->log(Hyprutils::CLI::LOG_ERR, "failed to obtain hyprland version string (bad json)");
+        g_logger->log(Abyssutils::CLI::LOG_ERR, "failed to obtain abyssland version string (bad json)");
         return false;
     }
 
@@ -107,7 +107,7 @@ bool Nix::shouldUseNixGL() {
     if (IS_NIX) {
         const auto NAME = getFromEtcOsRelease("NAME");
 
-        // Hyprland is nix: recommend nixGL iff !NIX && !NIX-OPENGL
+        // Abyssland is nix: recommend nixGL iff !NIX && !NIX-OPENGL
 
         if (*NAME == "NixOS")
             return false;

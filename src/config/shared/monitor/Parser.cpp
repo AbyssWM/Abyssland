@@ -2,14 +2,14 @@
 
 #include "../../../debug/log/Logger.hpp"
 
-#include <hyprutils/string/VarList2.hpp>
-#include <hyprutils/string/Numeric.hpp>
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/VarList2.hpp>
+#include <abyssutils/string/Numeric.hpp>
+#include <abyssutils/string/String.hpp>
 #include <string>
 #include <algorithm>
 
 using namespace Config;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 static bool parseModeLine(const std::string& modeline, drmModeModeInfo& mode) {
     auto args = CVarList2(std::string{modeline}, 0, 's');
@@ -27,12 +27,12 @@ static bool parseModeLine(const std::string& modeline, drmModeModeInfo& mode) {
 
     int  argno = 1;
 
-    auto huErrStr = [](Hyprutils::String::eNumericParseResult r) -> const char* {
+    auto huErrStr = [](Abyssutils::String::eNumericParseResult r) -> const char* {
         switch (r) {
-            case Hyprutils::String::NUMERIC_PARSE_BAD: return "bad input";
-            case Hyprutils::String::NUMERIC_PARSE_GARBAGE: return "garbage input";
-            case Hyprutils::String::NUMERIC_PARSE_OUT_OF_RANGE: return "out of range";
-            case Hyprutils::String::NUMERIC_PARSE_OK: return "ok";
+            case Abyssutils::String::NUMERIC_PARSE_BAD: return "bad input";
+            case Abyssutils::String::NUMERIC_PARSE_GARBAGE: return "garbage input";
+            case Abyssutils::String::NUMERIC_PARSE_OUT_OF_RANGE: return "out of range";
+            case Abyssutils::String::NUMERIC_PARSE_OK: return "ok";
             default: return "error";
         }
     };

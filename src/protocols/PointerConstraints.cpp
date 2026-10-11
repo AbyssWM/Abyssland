@@ -213,8 +213,8 @@ void CPointerConstraintsProtocol::onManagerResourceDestroy(wl_resource* res) {
     std::erase_if(m_managers, [&](const auto& other) { return other->resource() == res; });
 }
 
-void CPointerConstraintsProtocol::destroyPointerConstraint(CPointerConstraint* hyprlandEgg) {
-    std::erase_if(m_constraints, [&](const auto& other) { return other.get() == hyprlandEgg; });
+void CPointerConstraintsProtocol::destroyPointerConstraint(CPointerConstraint* abysslandEgg) {
+    std::erase_if(m_constraints, [&](const auto& other) { return other.get() == abysslandEgg; });
 }
 
 void CPointerConstraintsProtocol::onNewConstraint(SP<CPointerConstraint> constraint, CZwpPointerConstraintsV1* pMgr) {

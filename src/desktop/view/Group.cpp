@@ -1,7 +1,7 @@
 #include "Group.hpp"
 #include "Window.hpp"
 
-#include "../../render/decorations/CHyprGroupBarDecoration.hpp"
+#include "../../render/decorations/CAbyssGroupBarDecoration.hpp"
 #include "../../layout/target/WindowGroupTarget.hpp"
 #include "../../layout/target/WindowTarget.hpp"
 #include "../../layout/target/Target.hpp"
@@ -63,7 +63,7 @@ void CGroup::init() {
 
     updateWindowVisibility();
 
-    g_pEventManager->postEvent(SHyprIPCEvent({.event = "togglegroup", .data = std::format("1,{:x}", rc<uintptr_t>(m_windows.at(0).get()))}));
+    g_pEventManager->postEvent(SAbyssIPCEvent({.event = "togglegroup", .data = std::format("1,{:x}", rc<uintptr_t>(m_windows.at(0).get()))}));
 }
 
 void CGroup::destroy() {
@@ -79,7 +79,7 @@ void CGroup::destroy() {
     }
 
     if (POWNER)
-        g_pEventManager->postEvent(SHyprIPCEvent({.event = "togglegroup", .data = std::format("0,{:x}", rc<uintptr_t>(POWNER.get()))}));
+        g_pEventManager->postEvent(SAbyssIPCEvent({.event = "togglegroup", .data = std::format("0,{:x}", rc<uintptr_t>(POWNER.get()))}));
 }
 
 CGroup::~CGroup() {
@@ -309,7 +309,7 @@ const std::vector<PHLWINDOWREF>& CGroup::windows() const {
 }
 
 void CGroup::applyWindowDecosAndUpdates(PHLWINDOW x) {
-    x->addWindowDeco(makeUnique<CHyprGroupBarDecoration>(x));
+    x->addWindowDeco(makeUnique<CAbyssGroupBarDecoration>(x));
 
     x->m_ruleApplicator->propertiesChanged(Desktop::Rule::RULE_PROP_GROUP | Desktop::Rule::RULE_PROP_ON_WORKSPACE);
     x->updateWindowDecos();

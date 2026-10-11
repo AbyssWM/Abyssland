@@ -4,7 +4,7 @@
 #include "../helpers/Format.hpp"
 #include "../helpers/time/Timer.hpp"
 #include "../render/Framebuffer.hpp"
-#include <hyprutils/math/Vector2D.hpp>
+#include <abyssutils/math/Vector2D.hpp>
 #include <vector>
 
 namespace Monitor {

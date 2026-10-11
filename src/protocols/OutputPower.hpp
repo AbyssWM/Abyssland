@@ -18,9 +18,9 @@ class COutputPower {
     PHLMONITORREF          m_monitor;
 
     struct {
-        CHyprSignalListener monitorDestroy;
-        CHyprSignalListener monitorState;
-        CHyprSignalListener monitorDpms;
+        CAbyssSignalListener monitorDestroy;
+        CAbyssSignalListener monitorState;
+        CAbyssSignalListener monitorDpms;
     } m_listeners;
 };
 

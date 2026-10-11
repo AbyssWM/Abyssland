@@ -8,7 +8,7 @@
 namespace Notification {
     class CNotification {
       public:
-        CNotification(std::string&& text, float timeout, CHyprColor color, eIcons icon, float fontSize);
+        CNotification(std::string&& text, float timeout, CAbyssColor color, eIcons icon, float fontSize);
 
         struct SRenderCache {
             SP<Render::ITexture> textTex;
@@ -24,13 +24,13 @@ namespace Notification {
         } m_cache;
 
         void               setText(std::string&& text);
-        void               setColor(CHyprColor color);
+        void               setColor(CAbyssColor color);
         void               setIcon(eIcons icon);
         void               setFontSize(float fontSize);
         void               resetTimeout(float timeMs);
 
         const std::string& text() const;
-        const CHyprColor&  color() const;
+        const CAbyssColor&  color() const;
         eIcons             icon() const;
         float              fontSize() const;
         float              timeMs() const;
@@ -48,7 +48,7 @@ namespace Notification {
         const Time::steady_tp m_createdAt = Time::steadyNow();
 
         std::string           m_text = "";
-        CHyprColor            m_color;
+        CAbyssColor            m_color;
 
         eIcons                m_icon     = ICON_NONE;
         float                 m_fontSize = 13.F;

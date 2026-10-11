@@ -29,7 +29,7 @@ void CRenderPass::add(UP<IPassElement>&& el) {
 }
 
 void CRenderPass::simplify(bool willBlur, const CRegion& liveBlurRegion) {
-    const auto  pMonitor   = g_pHyprRenderer->m_renderData.pMonitor;
+    const auto  pMonitor   = g_pAbyssRenderer->m_renderData.pMonitor;
     static auto PDEBUGPASS = CConfigValue<Config::INTEGER>("debug:pass");
 
     // TODO: use precompute blur for instances where there is nothing in between
@@ -105,7 +105,7 @@ void CRenderPass::clear() {
 }
 
 CRegion CRenderPass::render(const CRegion& damage_) {
-    const auto  pMonitor   = g_pHyprRenderer->m_renderData.pMonitor;
+    const auto  pMonitor   = g_pAbyssRenderer->m_renderData.pMonitor;
     static auto PDEBUGPASS = CConfigValue<Config::INTEGER>("debug:pass");
 
     // single pass: cache blur results and gather aggregate info
@@ -136,8 +136,8 @@ CRegion CRenderPass::render(const CRegion& damage_) {
     }
 
     if (m_damage.empty()) {
-        g_pHyprRenderer->m_renderData.damage      = m_damage;
-        g_pHyprRenderer->m_renderData.finalDamage = m_damage;
+        g_pAbyssRenderer->m_renderData.damage      = m_damage;
+        g_pAbyssRenderer->m_renderData.finalDamage = m_damage;
         return m_damage;
     }
 
@@ -145,9 +145,9 @@ CRegion CRenderPass::render(const CRegion& damage_) {
         m_debugData = {false};
     else if (*PDEBUGPASS && !m_debugData.present) {
         m_debugData.present           = true;
-        m_debugData.keyboardFocusText = g_pHyprRenderer->renderText("keyboard", Colors::WHITE, 12);
-        m_debugData.pointerFocusText  = g_pHyprRenderer->renderText("pointer", Colors::WHITE, 12);
-        m_debugData.lastWindowText    = g_pHyprRenderer->renderText("lastWindow", Colors::WHITE, 12);
+        m_debugData.keyboardFocusText = g_pAbyssRenderer->renderText("keyboard", Colors::WHITE, 12);
+        m_debugData.pointerFocusText  = g_pAbyssRenderer->renderText("pointer", Colors::WHITE, 12);
+        m_debugData.lastWindowText    = g_pAbyssRenderer->renderText("lastWindow", Colors::WHITE, 12);
     }
 
     // precompute the expanded live blur region for simplify() to use
@@ -160,7 +160,7 @@ CRegion CRenderPass::render(const CRegion& damage_) {
 
         blurRegion.intersect(m_damage).expand(oneBlurRadius());
 
-        g_pHyprRenderer->m_renderData.finalDamage = blurRegion.copy().add(m_damage);
+        g_pAbyssRenderer->m_renderData.finalDamage = blurRegion.copy().add(m_damage);
 
         // FIXME: why does this break on * 1.F ?
         // used to work when we expand all the damage... I think? Well, before pass.
@@ -169,17 +169,17 @@ CRegion CRenderPass::render(const CRegion& damage_) {
 
         m_damage = blurRegion.copy().add(m_damage);
     } else
-        g_pHyprRenderer->m_renderData.finalDamage = m_damage;
+        g_pAbyssRenderer->m_renderData.finalDamage = m_damage;
 
-    if (g_pHyprRenderer->m_renderData.noSimplify || willDisableSimplification) {
+    if (g_pAbyssRenderer->m_renderData.noSimplify || willDisableSimplification) {
         for (auto& el : m_passElements) {
             el.elementDamage = m_damage;
         }
     } else
         simplify(willBlur, liveBlurRegion);
 
-    if (g_pHyprRenderer->m_renderData.pMonitor)
-        g_pHyprRenderer->m_renderData.pMonitor->m_blurFBShouldRender = willPrecomputeBlur;
+    if (g_pAbyssRenderer->m_renderData.pMonitor)
+        g_pAbyssRenderer->m_renderData.pMonitor->m_blurFBShouldRender = willPrecomputeBlur;
 
     if (m_passElements.empty())
         return {};
@@ -190,36 +190,36 @@ CRegion CRenderPass::render(const CRegion& damage_) {
             continue;
         }
 
-        g_pHyprRenderer->m_renderData.damage = el.elementDamage;
-        g_pHyprRenderer->draw(el.element, el.elementDamage);
+        g_pAbyssRenderer->m_renderData.damage = el.elementDamage;
+        g_pAbyssRenderer->draw(el.element, el.elementDamage);
     }
 
     if (*PDEBUGPASS) {
         renderDebugData();
         g_pEventLoopManager->doLater([] {
             for (auto& m : State::monitorState()->monitors()) {
-                g_pHyprRenderer->damageMonitor(m);
+                g_pAbyssRenderer->damageMonitor(m);
             }
         });
     }
 
-    g_pHyprRenderer->m_renderData.damage = m_damage;
+    g_pAbyssRenderer->m_renderData.damage = m_damage;
     return m_damage;
 }
 
 void CRenderPass::renderDebugData() {
-    const auto pMonitor = g_pHyprRenderer->m_renderData.pMonitor;
+    const auto pMonitor = g_pAbyssRenderer->m_renderData.pMonitor;
     CBox       box      = {{}, pMonitor->m_transformedSize};
     for (const auto& rg : m_occludedRegions) {
-        g_pHyprRenderer->draw(CRectPassElement::SRectData{.box = box, .color = Colors::RED.modifyA(0.1F)}, rg);
+        g_pAbyssRenderer->draw(CRectPassElement::SRectData{.box = box, .color = Colors::RED.modifyA(0.1F)}, rg);
     }
 
-    g_pHyprRenderer->draw(CRectPassElement::SRectData{.box = box, .color = Colors::GREEN.modifyA(0.1F)}, m_totalLiveBlurRegion);
+    g_pAbyssRenderer->draw(CRectPassElement::SRectData{.box = box, .color = Colors::GREEN.modifyA(0.1F)}, m_totalLiveBlurRegion);
 
     std::unordered_map<CWLSurfaceResource*, float> offsets;
 
     // render focus stuff
-    auto renderHLSurface = [&offsets, pMonitor, this](SP<ITexture> texture, SP<CWLSurfaceResource> surface, const CHyprColor& color) {
+    auto renderHLSurface = [&offsets, pMonitor, this](SP<ITexture> texture, SP<CWLSurfaceResource> surface, const CAbyssColor& color) {
         if (!surface || !texture)
             return;
 
@@ -237,7 +237,7 @@ void CRenderPass::renderDebugData() {
         if (box.intersection(CBox{{}, pMonitor->m_size}).empty())
             return;
 
-        g_pHyprRenderer->draw(CRectPassElement::SRectData{.box = box, .color = color}, m_damage);
+        g_pAbyssRenderer->draw(CRectPassElement::SRectData{.box = box, .color = color}, m_damage);
 
         if (offsets.contains(surface.get()))
             box.translate(Vector2D{0.F, offsets[surface.get()]});
@@ -246,7 +246,7 @@ void CRenderPass::renderDebugData() {
 
         box = {box.pos(), texture->m_size};
 
-        g_pHyprRenderer->draw(
+        g_pAbyssRenderer->draw(
             CRectPassElement::SRectData{
                 .box   = box,
                 .color = color,
@@ -254,7 +254,7 @@ void CRenderPass::renderDebugData() {
             },
             m_damage);
 
-        g_pHyprRenderer->draw(CTexPassElement::SRenderData{.tex = texture, .box = box}, m_damage);
+        g_pAbyssRenderer->draw(CTexPassElement::SRenderData{.tex = texture, .box = box}, m_damage);
 
         offsets[surface.get()] += texture->m_size.y;
     };
@@ -270,19 +270,19 @@ void CRenderPass::renderDebugData() {
             if (hlSurface) {
                 auto BOX = hlSurface->getSurfaceBoxGlobal();
                 if (BOX) {
-                    g_pHyprRenderer->draw(CRectPassElement::SRectData{.box = box, .color = CHyprColor{0.8F, 0.8F, 0.2F, 0.4F}}, m_damage);
+                    g_pAbyssRenderer->draw(CRectPassElement::SRectData{.box = box, .color = CAbyssColor{0.8F, 0.8F, 0.2F, 0.4F}}, m_damage);
                 }
             }
         }
     }
 
     const auto DISCARDED_ELEMENTS = std::ranges::count_if(m_passElements, [](const auto& e) { return e.discard; });
-    auto tex = g_pHyprRenderer->renderText(std::format("occlusion layers: {}\npass elements: {} ({} discarded)\nviewport: {:X0}", m_occludedRegions.size(), m_passElements.size(),
+    auto tex = g_pAbyssRenderer->renderText(std::format("occlusion layers: {}\npass elements: {} ({} discarded)\nviewport: {:X0}", m_occludedRegions.size(), m_passElements.size(),
                                                        DISCARDED_ELEMENTS, pMonitor->m_pixelSize),
                                            Colors::WHITE, 12);
 
     if (tex)
-        g_pHyprRenderer->draw(
+        g_pAbyssRenderer->draw(
             CTexPassElement::SRenderData{
                 .tex = tex,
                 .box = CBox{{0.F, pMonitor->m_size.y - tex->m_size.y}, tex->m_size}.scale(pMonitor->m_scale),
@@ -300,9 +300,9 @@ void CRenderPass::renderDebugData() {
     if (!passStructure.empty())
         passStructure.pop_back();
 
-    tex = g_pHyprRenderer->renderText(passStructure, Colors::WHITE, 12);
+    tex = g_pAbyssRenderer->renderText(passStructure, Colors::WHITE, 12);
     if (tex)
-        g_pHyprRenderer->draw(
+        g_pAbyssRenderer->draw(
             CTexPassElement::SRenderData{
                 .tex = tex,
                 .box = CBox{{pMonitor->m_size.x - tex->m_size.x, pMonitor->m_size.y - tex->m_size.y}, tex->m_size}.scale(pMonitor->m_scale),

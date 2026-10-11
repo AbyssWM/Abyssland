@@ -124,8 +124,8 @@ class CInputMethodPopupV2 {
     WP<CWLSurfaceResource>      m_surface;
 
     struct {
-        CHyprSignalListener destroySurface;
-        CHyprSignalListener commitSurface;
+        CAbyssSignalListener destroySurface;
+        CAbyssSignalListener commitSurface;
     } m_listeners;
 };
 

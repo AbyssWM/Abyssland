@@ -21,9 +21,9 @@
 #include "../layout/supplementary/WorkspaceAlgoMatcher.hpp"
 #include "../event/EventBus.hpp"
 
-#include <hyprutils/animation/AnimatedVariable.hpp>
-#include <hyprutils/string/String.hpp>
-using namespace Hyprutils::String;
+#include <abyssutils/animation/AnimatedVariable.hpp>
+#include <abyssutils/string/String.hpp>
+using namespace Abyssutils::String;
 using namespace Desktop::View;
 
 PHLWORKSPACE CWorkspace::create(WORKSPACEID id, PHLMONITOR monitor, std::string name, bool special, bool isEmpty) {

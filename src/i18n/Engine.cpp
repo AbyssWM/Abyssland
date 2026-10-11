@@ -1,12 +1,12 @@
 #include "Engine.hpp"
 
-#include <hyprutils/i18n/I18nEngine.hpp>
+#include <abyssutils/i18n/I18nEngine.hpp>
 #include "../config/ConfigValue.hpp"
 
 using namespace I18n;
-using namespace Hyprutils::I18n;
+using namespace Abyssutils::I18n;
 
-static SP<Hyprutils::I18n::CI18nEngine> huEngine;
+static SP<Abyssutils::I18n::CI18nEngine> huEngine;
 static std::string                      localeStr;
 
 //
@@ -20,12 +20,12 @@ SP<I18n::CI18nEngine> I18n::i18nEngine() {
     huEngine->registerEntry(locale, key, translation);
 }
 
-[[gnu::noinline]] static void registerEntry(const char* locale, eI18nKeys key, const char* (*translationFunc)(const Hyprutils::I18n::translationVarMap&)) {
+[[gnu::noinline]] static void registerEntry(const char* locale, eI18nKeys key, const char* (*translationFunc)(const Abyssutils::I18n::translationVarMap&)) {
     huEngine->registerEntry(locale, key, translationFunc);
 }
 
 I18n::CI18nEngine::CI18nEngine() {
-    huEngine = makeShared<Hyprutils::I18n::CI18nEngine>();
+    huEngine = makeShared<Abyssutils::I18n::CI18nEngine>();
     huEngine->setFallbackLocale("en_US");
     localeStr = huEngine->getSystemLocale().locale();
 
@@ -42,7 +42,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("be_BY", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Выяўленая новая клавіятура: <b>{keyboard}</b>.\n\nХочаце дазволіць яе выкарыстанне?");
     registerEntry("be_BY", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(невядома)");
     registerEntry("be_BY", TXT_KEY_PERMISSION_TITLE, "Запыт дазволу");
-    registerEntry("be_BY", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Падказка: вы можаце задаць пастаянныя правілы для гэтага ў файле канфігурацыі Hyprland.");
+    registerEntry("be_BY", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Падказка: вы можаце задаць пастаянныя правілы для гэтага ў файле канфігурацыі Abyssland.");
     registerEntry("be_BY", TXT_KEY_PERMISSION_ALLOW, "Дазволіць");
     registerEntry("be_BY", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Дазволіць і запомніць");
     registerEntry("be_BY", TXT_KEY_PERMISSION_ALLOW_ONCE, "Дазволіць аднойчы");
@@ -54,11 +54,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "гэта не зроблена наўмысна.");
     registerEntry("be_BY", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "У вашай сістэме не ўсталяваны hyprland-guiutils, што выкарыстоўваецца для некаторых дыялогавых вокнаў. Разгледзьце ўсталёўку пакета.");
-    registerEntry("be_BY", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("be_BY", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland не змог загрузіць {count} важны рэсурс, вінавацьце ў гэтым адказнага за зборку пакетаў для свайго дыстрыбутыва!";
-        return "Hyprland не змог загрузіць {count} важных рэсурсаў, вінавацьце ў гэтым адказнага за зборку пакетаў для свайго дыстрыбутыва!";
+            return "Abyssland не змог загрузіць {count} важны рэсурс, вінавацьце ў гэтым адказнага за зборку пакетаў для свайго дыстрыбутыва!";
+        return "Abyssland не змог загрузіць {count} важных рэсурсаў, вінавацьце ў гэтым адказнага за зборку пакетаў для свайго дыстрыбутыва!";
     });
     registerEntry("be_BY", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Макет манітораў наладжаны некарэктна. Манітор {name} накладаецца на іншы(я) манітор(ы).\nДля падрабязнасцей звярніцеся да Wiki (Старонка Monitors). "
@@ -82,7 +82,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("bn_BD", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "একটি নতুন কীবোর্ড সনাক্ত করা হয়েছে: <b>{keyboard}</b>।\n\nআপনি কি এটি কাজ করতে অনুমতি দিতে চান?");
     registerEntry("bn_BD", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(অজানা)");
     registerEntry("bn_BD", TXT_KEY_PERMISSION_TITLE, "অনুমতির অনুরোধ");
-    registerEntry("bn_BD", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "টিপ: আপনি Hyprland কনফিগারেশন ফাইলে এর জন্য স্থায়ী নিয়ম সেট করতে পারেন।");
+    registerEntry("bn_BD", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "টিপ: আপনি Abyssland কনফিগারেশন ফাইলে এর জন্য স্থায়ী নিয়ম সেট করতে পারেন।");
     registerEntry("bn_BD", TXT_KEY_PERMISSION_ALLOW, "অনুমতি দিন");
     registerEntry("bn_BD", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "অনুমতি দিন এবং মনে রাখুন");
     registerEntry("bn_BD", TXT_KEY_PERMISSION_ALLOW_ONCE, "একবার অনুমতি দিন");
@@ -92,11 +92,11 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("bn_BD", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "আপনার XDG_CURRENT_DESKTOP পরিবেশ পরিবর্তনশীল বাহ্যিকভাবে পরিচালিত হচ্ছে বলে মনে হচ্ছে, বর্তমান মান: {value}।\nএটি সমস্যা সৃষ্টি করতে পারে যদি না এটি ইচ্ছাকৃত হয়।");
     registerEntry("bn_BD", TXT_KEY_NOTIF_NO_GUIUTILS, "আপনার সিস্টেমে hyprland-guiutils ইনস্টল নেই যা কিছু ডায়ালগের জন্য ব্যবহৃত হয়। এটি ইনস্টল করার কথা বিবেচনা করুন।");
-    registerEntry("bn_BD", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("bn_BD", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland {count}টি প্রয়োজনীয় সম্পদ লোড করতে ব্যর্থ হয়েছে, খারাপ প্যাকেজিং কাজের জন্য আপনার ডিস্ট্রো প্যাকেজারদের দোষ দিন!";
-        return "Hyprland {count}টি প্রয়োজনীয় সম্পদ লোড করতে ব্যর্থ হয়েছে, খারাপ প্যাকেজিং কাজের জন্য আপনার ডিস্ট্রো প্যাকেজারদের দোষ দিন!";
+            return "Abyssland {count}টি প্রয়োজনীয় সম্পদ লোড করতে ব্যর্থ হয়েছে, খারাপ প্যাকেজিং কাজের জন্য আপনার ডিস্ট্রো প্যাকেজারদের দোষ দিন!";
+        return "Abyssland {count}টি প্রয়োজনীয় সম্পদ লোড করতে ব্যর্থ হয়েছে, খারাপ প্যাকেজিং কাজের জন্য আপনার ডিস্ট্রো প্যাকেজারদের দোষ দিন!";
     });
     registerEntry("bn_BD", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "আপনার মনিটর লেআউট ভুলভাবে কনফিগার করা হয়েছে। মনিটর {name} লেআউটে অন্য মনিটর(গুলি) এর সাথে ওভারল্যাপ করছে।\nবিস্তারিত জানতে wiki (Monitors page) দেখুন। "
@@ -106,13 +106,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("bn_BD", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "প্লাগইন {name} লোড করতে ব্যর্থ: {error}");
     registerEntry("bn_BD", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM শেডার পুনরায় লোড করতে ব্যর্থ, rgba/rgbx এ ফিরে যাচ্ছে।");
     registerEntry("bn_BD", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "মনিটর {name}: ওয়াইড কালার গ্যামুট সক্রিয় কিন্তু স্ক্রিন 10-বিট মোডে নেই।");
-    registerEntry("bn_BD", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland start-hyprland ছাড়া চালু করা হয়েছে। এটি অত্যন্ত সুপারিশকৃত নয় যদি না আপনি ডিবাগিং পরিবেশে থাকেন।");
+    registerEntry("bn_BD", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland start-abyssland ছাড়া চালু করা হয়েছে। এটি অত্যন্ত সুপারিশকৃত নয় যদি না আপনি ডিবাগিং পরিবেশে থাকেন।");
 
     registerEntry("bn_BD", TXT_KEY_SAFE_MODE_TITLE, "নিরাপদ মোড");
     registerEntry("bn_BD", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland নিরাপদ মোডে চালু করা হয়েছে, যার মানে আপনার শেষ সেশন ক্র্যাশ হয়েছিল।\nনিরাপদ মোড আপনার কনফিগ লোড হওয়া থেকে প্রতিরোধ করে। আপনি "
+                  "Abyssland নিরাপদ মোডে চালু করা হয়েছে, যার মানে আপনার শেষ সেশন ক্র্যাশ হয়েছিল।\nনিরাপদ মোড আপনার কনফিগ লোড হওয়া থেকে প্রতিরোধ করে। আপনি "
                   "এই পরিবেশে সমস্যা সমাধান করতে পারেন, অথবা নিচের বাটন দিয়ে আপনার কনফিগ লোড করতে পারেন।\nডিফল্ট কীবাইন্ড প্রযোজ্য: kitty এর জন্য SUPER+Q, মৌলিক রানারের জন্য SUPER+R, "
-                  "প্রস্থান করতে SUPER+M।\nHyprland পুনরায় চালু করলে আবার স্বাভাবিক মোডে চালু হবে।");
+                  "প্রস্থান করতে SUPER+M।\nAbyssland পুনরায় চালু করলে আবার স্বাভাবিক মোডে চালু হবে।");
     registerEntry("bn_BD", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "কনফিগ লোড করুন");
     registerEntry("bn_BD", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "ক্র্যাশ রিপোর্ট ডিরেক্টরি খুলুন");
     registerEntry("bn_BD", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "ঠিক আছে, এটি বন্ধ করুন");
@@ -130,7 +130,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("da_DK", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Et nyt tastatur er fundet: <b>{keyboard}</b>.\n\nVil du tillade den at fungere?");
     registerEntry("da_DK", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(ukendt)");
     registerEntry("da_DK", TXT_KEY_PERMISSION_TITLE, "Anmodning om tilladelse");
-    registerEntry("da_DK", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Du kan indstille vedvarende regler for disse i Hyprland-konfigurationsfilen.");
+    registerEntry("da_DK", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Du kan indstille vedvarende regler for disse i Abyssland-konfigurationsfilen.");
     registerEntry("da_DK", TXT_KEY_PERMISSION_ALLOW, "Tillad");
     registerEntry("da_DK", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Tillad og husk");
     registerEntry("da_DK", TXT_KEY_PERMISSION_ALLOW_ONCE, "Tillad én gang");
@@ -142,11 +142,11 @@ I18n::CI18nEngine::CI18nEngine() {
         "Dit XDG_CURRENT_DESKTOP miljø ser ud til at være administreret externt, og den nuværende værdi er {value}.\nDette kan forårsage problemer, medmindre det er bevidst.");
     registerEntry("da_DK", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Dit system har ikke hyprland-guiutils installeret. Dette er en runtime-afhængighed for nogle dialoger. Overvej at installere den.");
-    registerEntry("da_DK", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("da_DK", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland kunne ikke indlæse {count} essentiale aktiver, skyd skylden på din distributions pakker for et dårligt stykke arbejde af pakningen!";
-        return "Hyprland kunne ikke indlæse {count} essentiale aktiver, skyd skylden på din distributions pakker for et dårligt stykke arbejde af pakningen!";
+            return "Abyssland kunne ikke indlæse {count} essentiale aktiver, skyd skylden på din distributions pakker for et dårligt stykke arbejde af pakningen!";
+        return "Abyssland kunne ikke indlæse {count} essentiale aktiver, skyd skylden på din distributions pakker for et dårligt stykke arbejde af pakningen!";
     });
     registerEntry("da_DK", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Dit skærmlayout har en ukorrekt opsætning. Skærm {name} overlapper med andre skærm(e) i layoutet.\nLæs venligst wiki'en (Monitors page) for "
@@ -171,7 +171,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("el_GR", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Εντοπίστηκε νέο πληκτρολόγιο: <b>{keyboard}</b>.\n\nΘέλετε να επιτρέψετε τη λειτουργία του;");
     registerEntry("el_GR", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(άγνωστο)");
     registerEntry("el_GR", TXT_KEY_PERMISSION_TITLE, "Αίτημα άδειας");
-    registerEntry("el_GR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Συμβουλή: μπορείτε να ορίσετε μόνιμους κανόνες γι' αυτά στο αρχείο ρυθμίσεων του Hyprland.");
+    registerEntry("el_GR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Συμβουλή: μπορείτε να ορίσετε μόνιμους κανόνες γι' αυτά στο αρχείο ρυθμίσεων του Abyssland.");
     registerEntry("el_GR", TXT_KEY_PERMISSION_ALLOW, "Αποδοχή");
     registerEntry("el_GR", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Αποδοχή και απομνημόνευση");
     registerEntry("el_GR", TXT_KEY_PERMISSION_ALLOW_ONCE, "Αποδοχή μία φορά");
@@ -183,11 +183,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "αν δεν είναι σκόπιμο.");
     registerEntry("el_GR", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Το σύστημά σας δεν έχει εγκατεστημένο το hyprland-guiutils, το οποίο χρησιμοποιείται για ορισμένα παράθυρα διαλόγου. Σκεφτείτε να το εγκαταστήσετε.");
-    registerEntry("el_GR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("el_GR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Το Hyprland απέτυχε να φορτώσει {count} απαραίτητο πόρο, φταίει ο συντηρητής πακέτων της διανομής σας!";
-        return "Το Hyprland απέτυχε να φορτώσει {count} απαραίτητους πόρους, φταίει ο συντηρητής πακέτων της διανομής σας!";
+            return "Το Abyssland απέτυχε να φορτώσει {count} απαραίτητο πόρο, φταίει ο συντηρητής πακέτων της διανομής σας!";
+        return "Το Abyssland απέτυχε να φορτώσει {count} απαραίτητους πόρους, φταίει ο συντηρητής πακέτων της διανομής σας!";
     });
     registerEntry("el_GR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Η διάταξη των οθονών σας είναι εσφαλμένη. Η οθόνη {name} επικαλύπτεται με άλλη(ες) οθόνη(ες) στη διάταξη.\nΔείτε το wiki (σελίδα Monitors) για "
@@ -197,13 +197,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("el_GR", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "Αποτυχία φόρτωσης πρόσθετου {name}: {error}");
     registerEntry("el_GR", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Η επαναφόρτωση του CM shader απέτυχε, επιστροφή σε rgba/rgbx.");
     registerEntry("el_GR", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Οθόνη {name}: η ευρεία γκάμα χρωμάτων είναι ενεργοποιημένη αλλά η οθόνη δεν βρίσκεται σε λειτουργία 10-bit.");
-    registerEntry("el_GR", TXT_KEY_NOTIF_NO_WATCHDOG, "Το Hyprland εκκινήθηκε χωρίς το start-hyprland. Αυτό δεν συνιστάται εκτός αν βρίσκεστε σε περιβάλλον αποσφαλμάτωσης.");
+    registerEntry("el_GR", TXT_KEY_NOTIF_NO_WATCHDOG, "Το Abyssland εκκινήθηκε χωρίς το start-abyssland. Αυτό δεν συνιστάται εκτός αν βρίσκεστε σε περιβάλλον αποσφαλμάτωσης.");
 
     registerEntry("el_GR", TXT_KEY_SAFE_MODE_TITLE, "Ασφαλής λειτουργία");
     registerEntry("el_GR", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Το Hyprland εκκινήθηκε σε ασφαλή λειτουργία, που σημαίνει ότι η τελευταία σας συνεδρία κατέρρευσε.\nΗ ασφαλής λειτουργία αποτρέπει τη φόρτωση "
+                  "Το Abyssland εκκινήθηκε σε ασφαλή λειτουργία, που σημαίνει ότι η τελευταία σας συνεδρία κατέρρευσε.\nΗ ασφαλής λειτουργία αποτρέπει τη φόρτωση "
                   "των ρυθμίσεών σας. Μπορείτε να αντιμετωπίσετε προβλήματα σε αυτό το περιβάλλον ή να φορτώσετε τις ρυθμίσεις σας με το παρακάτω κουμπί.\nΙσχύουν "
-                  "οι προεπιλεγμένες συντομεύσεις: SUPER+Q για kitty, SUPER+R για βασικό εκκινητή, SUPER+M για έξοδο.\nΗ επανεκκίνηση του Hyprland θα γίνει σε "
+                  "οι προεπιλεγμένες συντομεύσεις: SUPER+Q για kitty, SUPER+R για βασικό εκκινητή, SUPER+M για έξοδο.\nΗ επανεκκίνηση του Abyssland θα γίνει σε "
                   "κανονική λειτουργία.");
     registerEntry("el_GR", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Φόρτωση ρυθμίσεων");
     registerEntry("el_GR", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Άνοιγμα φακέλου αναφορών κατάρρευσης");
@@ -225,7 +225,7 @@ I18n::CI18nEngine::CI18nEngine() {
                             "An application <b>{app}</b> is trying to capture your inputs.\n\nDo you want to allow it to do so?");
     registerEntry("en_US", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(unknown)");
     registerEntry("en_US", TXT_KEY_PERMISSION_TITLE, "Permission request");
-    registerEntry("en_US", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Hint: you can set persistent rules for these in the Hyprland config file.");
+    registerEntry("en_US", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Hint: you can set persistent rules for these in the Abyssland config file.");
     registerEntry("en_US", TXT_KEY_PERMISSION_ALLOW, "Allow");
     registerEntry("en_US", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Allow and remember");
     registerEntry("en_US", TXT_KEY_PERMISSION_ALLOW_ONCE, "Allow once");
@@ -236,11 +236,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Your XDG_CURRENT_DESKTOP environment seems to be managed externally, and the current value is {value}.\nThis might cause issues unless it's intentional.");
     registerEntry("en_US", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Your system does not have hyprland-guiutils installed. This is a runtime dependency for some dialogs. Consider installing it.");
-    registerEntry("en_US", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("en_US", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland failed to load {count} essential asset, blame your distro's packager for doing a bad job at packaging!";
-        return "Hyprland failed to load {count} essential assets, blame your distro's packager for doing a bad job at packaging!";
+            return "Abyssland failed to load {count} essential asset, blame your distro's packager for doing a bad job at packaging!";
+        return "Abyssland failed to load {count} essential assets, blame your distro's packager for doing a bad job at packaging!";
     });
     registerEntry("en_US", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Your monitor layout is set up incorrectly. Monitor {name} overlaps with other monitor(s) in the layout.\nPlease see the wiki (Monitors page) for "
@@ -250,15 +250,15 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("en_US", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "Failed to load plugin {name}: {error}");
     registerEntry("en_US", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM shader reload failed, falling back to rgba/rgbx.");
     registerEntry("en_US", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Monitor {name}: wide color gamut is enabled but the display is not in 10-bit mode.");
-    registerEntry("en_US", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland was started without start-hyprland. This is strongly discouraged unless you are in a debugging environment.");
-    registerEntry("en_US", TXT_KEY_NOTIF_OUTDATED_CONFIG, "You are using the .conf config format, support for which will be removed in Hyprland 0.57.");
+    registerEntry("en_US", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland was started without start-abyssland. This is strongly discouraged unless you are in a debugging environment.");
+    registerEntry("en_US", TXT_KEY_NOTIF_OUTDATED_CONFIG, "You are using the .conf config format, support for which will be removed in Abyssland 0.57.");
 
     registerEntry("en_US", TXT_KEY_SAFE_MODE_TITLE, "Safe Mode");
     registerEntry("en_US", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland has been launched in safe mode, which means your last session crashed.\nSafe mode prevents your config from being loaded. You can "
+                  "Abyssland has been launched in safe mode, which means your last session crashed.\nSafe mode prevents your config from being loaded. You can "
                   "troubleshoot in this environment, or load your config with the button below.\nDefault keybinds apply: SUPER+Q for kitty, SUPER+R for a basic runner, "
                   "SUPER+M to exit.\nRestarting "
-                  "Hyprland will launch in normal mode again.");
+                  "Abyssland will launch in normal mode again.");
     registerEntry("en_US", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Load config");
     registerEntry("en_US", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Open crash report directory");
     registerEntry("en_US", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Ok, close this");
@@ -310,7 +310,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("de_DE", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Eine neue Tastatur wurde erkannt: <b>{keyboard}</b>.\n\nMöchten Sie diese in Betrieb nehmen?");
     registerEntry("de_DE", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(unbekannt)");
     registerEntry("de_DE", TXT_KEY_PERMISSION_TITLE, "Berechtigungsanfrage");
-    registerEntry("de_DE", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Sie können dafür permanente Regeln in der Hyprland-Konfigurationsdatei festlegen.");
+    registerEntry("de_DE", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Sie können dafür permanente Regeln in der Abyssland-Konfigurationsdatei festlegen.");
     registerEntry("de_DE", TXT_KEY_PERMISSION_ALLOW, "Erlauben");
     registerEntry("de_DE", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Erlauben und merken");
     registerEntry("de_DE", TXT_KEY_PERMISSION_ALLOW_ONCE, "Einmal erlauben");
@@ -322,11 +322,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "nicht absichtlich so ist.");
     registerEntry("de_DE", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Ihr System hat hyprland-guiutils nicht installiert. Dies ist eine Laufzeitabhängigkeit für einige Dialoge. Es ist empfohlen diese zu installieren.");
-    registerEntry("de_DE", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("de_DE", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland konnte {count} essentielle Ressource nicht laden, geben Sie dem Packager ihrer Distribution die Schuld für ein schlechtes Package!";
-        return "Hyprland konnte {count} essentielle Ressroucen nicht laden, geben Sie dem Packager ihrer Distribution die Schuld für ein schlechtes Package!";
+            return "Abyssland konnte {count} essentielle Ressource nicht laden, geben Sie dem Packager ihrer Distribution die Schuld für ein schlechtes Package!";
+        return "Abyssland konnte {count} essentielle Ressroucen nicht laden, geben Sie dem Packager ihrer Distribution die Schuld für ein schlechtes Package!";
     });
     registerEntry("de_DE", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Ihr Bildschirmlayout ist fehlerhaft aufgesetzt. Der Bildschirm {name} überlappt mit anderen Bildschirm(en) im Layout.\nBitte siehe im Wiki (Monitors Seite) für "
@@ -350,7 +350,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("de_CH", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "En neui Tastatur esch erkönne worde: <b>{keyboard}</b>.\n\nWend sie die in Betreb nä?");
     registerEntry("de_CH", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(onbekannt)");
     registerEntry("de_CH", TXT_KEY_PERMISSION_TITLE, "Berächtigongsaafrog");
-    registerEntry("de_CH", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Sie chönd permanenti Regle deför i ehrere Hyprland-Konfigurationsdatei festlegge.");
+    registerEntry("de_CH", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: Sie chönd permanenti Regle deför i ehrere Abyssland-Konfigurationsdatei festlegge.");
     registerEntry("de_CH", TXT_KEY_PERMISSION_ALLOW, "Erlaube");
     registerEntry("de_CH", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Erlaube ond merke");
     registerEntry("de_CH", TXT_KEY_PERMISSION_ALLOW_ONCE, "Einisch erlaube");
@@ -363,7 +363,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("de_CH", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Ehres System hed hyprland-guiutils ned installiert. Das esch en Laufziitabhängigkeit för es paar Dialog. Es werd empfohle sie z'installiere.");
     registerEntry("de_CH", TXT_KEY_NOTIF_FAILED_ASSETS,
-                  "Hyprland hed {count} essentielli Ressource ned chönne lade, gäbed Sie im Packager vo ehrere Distribution schold för es schlächts Package!");
+                  "Abyssland hed {count} essentielli Ressource ned chönne lade, gäbed Sie im Packager vo ehrere Distribution schold för es schlächts Package!");
     registerEntry("de_CH", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Ehres Beldschermlayout esch fählerhaft uufgsetzt. De Beldscherm {name} öberlappt met andere Beldscherm(e) im Layout.\nBitte lueged sie im Wiki "
                   "(Monitors Siite) för meh Informatione. Das <b>werd</b> zo Problem füehre.");
@@ -387,7 +387,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pt_BR", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Um novo teclado foi detectado: <b>{keyboard}</b>.\n\nVocê deseja permitir seu uso?");
     registerEntry("pt_BR", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(Desconhecido)");
     registerEntry("pt_BR", TXT_KEY_PERMISSION_TITLE, "Solicitação de permissão");
-    registerEntry("pt_BR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Dica: você pode definir regras persistentes para essas permissões no arquivo de configuração do Hyprland");
+    registerEntry("pt_BR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Dica: você pode definir regras persistentes para essas permissões no arquivo de configuração do Abyssland");
     registerEntry("pt_BR", TXT_KEY_PERMISSION_ALLOW, "Permitir");
     registerEntry("pt_BR", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Permitir e lembrar");
     registerEntry("pt_BR", TXT_KEY_PERMISSION_ALLOW_ONCE, "Permitir uma vez");
@@ -398,11 +398,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Seu XDG_CURRENT_DESKTOP parece estar sendo gerenciado externamente, e atualmente é {value}.\nIsso pode causar problemas caso não seja intencional.");
     registerEntry("pt_BR", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Seu sistema não possui hyprland-guiutils instalado. Essa é uma dependência de execução para alguns diálogos. Considere instalá-lo.");
-    registerEntry("pt_BR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("pt_BR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "O Hyprland falhou ao carregar {count} recurso essencial, culpe o empacotador da sua distro por fazer um péssimo trabalho!";
-        return "O Hyprland falhou ao carregar {count} recursos essenciais, culpe o empacotador da sua distro por fazer um péssimo trabalho!";
+            return "O Abyssland falhou ao carregar {count} recurso essencial, culpe o empacotador da sua distro por fazer um péssimo trabalho!";
+        return "O Abyssland falhou ao carregar {count} recursos essenciais, culpe o empacotador da sua distro por fazer um péssimo trabalho!";
     });
     registerEntry("pt_BR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Sua disposição de monitores está configurada incorretamente. O monitor {name} se sobrepõe a outro(s) monitor(es) na disposição.\nPor favor consulte "
@@ -414,13 +414,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pt_BR", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Falha ao carregar o shader CM, voltando para rgba/rgbx.");
     registerEntry("pt_BR", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Monitor {name}: o modo de gama de cores amplo está ativado, mas a tela não está configurada para 10 bits.");
     registerEntry("pt_BR", TXT_KEY_NOTIF_NO_WATCHDOG,
-                  "Hyprland foi iniciado sem o comando start-hyprland. Isso é altamente desaconselhável a menos que você esteja em um ambiente de depuração.");
+                  "Abyssland foi iniciado sem o comando start-abyssland. Isso é altamente desaconselhável a menos que você esteja em um ambiente de depuração.");
     registerEntry("pt_BR", TXT_KEY_SAFE_MODE_TITLE, "Modo seguro");
     registerEntry("pt_BR", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland foi iniciado em modo seguro, o que significa que a sua última sessão falhou.\nO modo seguro impede que suas configurações sejam carregadas. Você pode "
+                  "Abyssland foi iniciado em modo seguro, o que significa que a sua última sessão falhou.\nO modo seguro impede que suas configurações sejam carregadas. Você pode "
                   "solucionar esse problema neste ambiente ou carregar suas configurações com o botão abaixo. \nEsse ambiente usa os atalhos padrão: SUPER+Q para abrir kitty, "
-                  "SUPER+R para abrir o inicializador básico e SUPER+M para sair do Hyprland. \nReiniciar "
-                  "o Hyprland fará com que ele seja iniciado no modo normal novamente.");
+                  "SUPER+R para abrir o inicializador básico e SUPER+M para sair do Abyssland. \nReiniciar "
+                  "o Abyssland fará com que ele seja iniciado no modo normal novamente.");
     registerEntry("pt_BR", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Carregar configurações");
     registerEntry("pt_BR", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Abrir diretório de relatórios de falhas");
     registerEntry("pt_BR", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Entendi, fechar");
@@ -438,7 +438,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("es", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Se ha detectado un nuevo teclado: <b>{keyboard}</b>.\n\n¿Deseas permitir su uso?");
     registerEntry("es", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(desconocido)");
     registerEntry("es", TXT_KEY_PERMISSION_TITLE, "Solicitud de permiso");
-    registerEntry("es", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Sugerencia: puedes establecer reglas persistentes para estos permisos en el archivo de configuración de Hyprland.");
+    registerEntry("es", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Sugerencia: puedes establecer reglas persistentes para estos permisos en el archivo de configuración de Abyssland.");
     registerEntry("es", TXT_KEY_PERMISSION_ALLOW, "Permitir");
     registerEntry("es", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Permitir y recordar");
     registerEntry("es", TXT_KEY_PERMISSION_ALLOW_ONCE, "Permitir una vez");
@@ -450,7 +450,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "La variable de entorno XDG_CURRENT_DESKTOP parece gestionarse externamente; su valor actual es {value}.\nEsto podría causar problemas a menos que sea intencional.");
     registerEntry("es", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Tu sistema no tiene instalado 'hyprland-guiutils'. Es una dependencia en tiempo de ejecución para algunos diálogos. Considera instalarlo.");
-    registerEntry("es", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("es", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
             return "No se pudo cargar {count} recurso esencial. Contacta al empaquetador de tu distribución.";
@@ -509,7 +509,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "پیشنهاد "
         "می‌شود.");
 
-    registerEntry("fa_IR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("fa_IR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
             return "هایپرلند نتوانست یک فایل ضروری را بارگذاری کند؛ ممکن است بسته‌بندی توزیع مشکل داشته "
@@ -547,7 +547,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("fi_FI", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Uusi näppäimistö havaittu: <b>{keyboard}</b>.\n\nHaluatko sallia sen toiminnan?");
     registerEntry("fi_FI", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(tuntematon)");
     registerEntry("fi_FI", TXT_KEY_PERMISSION_TITLE, "Käyttöoikeuspyyntö");
-    registerEntry("fi_FI", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Vihje: voit asettaa nämä säännöt pysyvästi Hyprland konfiguraatio tiedostossa.");
+    registerEntry("fi_FI", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Vihje: voit asettaa nämä säännöt pysyvästi Abyssland konfiguraatio tiedostossa.");
     registerEntry("fi_FI", TXT_KEY_PERMISSION_ALLOW, "Salli");
     registerEntry("fi_FI", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Salli ja muista");
     registerEntry("fi_FI", TXT_KEY_PERMISSION_ALLOW_ONCE, "Salli kerran");
@@ -558,11 +558,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "XDG_CURRENT_DESKTOP ympäristösi näyttäisi olevan ulkoisesti hallittu, ja sen nykyinen arvo on {value}.\nTämä voi aiheuttaa ongelmia, jos sitä ei ole "
                   "tehty tarkoituksella.");
     registerEntry("fi_FI", TXT_KEY_NOTIF_NO_GUIUTILS, "Paketti hyprland-guiutils ei ole asennettuna järjestelmääsi. Jotkin dialogit tarvitsevat sitä. Harkitse sen asentamista.");
-    registerEntry("fi_FI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("fi_FI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland epäonnistui olennaisen resurssin ({count}) latauksessa. Tämä johtuu todennäköisesti jakelusi virheellisestä pakkauksesta.";
-        return "Hyprland epäonnistui olennaisten resurssien ({count}) latauksessa. Tämä johtuu todennäköisesti jakelusi virheellisestä pakkauksesta.";
+            return "Abyssland epäonnistui olennaisen resurssin ({count}) latauksessa. Tämä johtuu todennäköisesti jakelusi virheellisestä pakkauksesta.";
+        return "Abyssland epäonnistui olennaisten resurssien ({count}) latauksessa. Tämä johtuu todennäköisesti jakelusi virheellisestä pakkauksesta.";
     });
     registerEntry(
         "fi_FI", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -586,7 +586,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("fr_FR", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Un nouveau clavier a été détecté : <b>{keyboard}</b>.\n\nVoulez-vous l'autoriser à fonctionner?");
     registerEntry("fr_FR", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(inconnu)");
     registerEntry("fr_FR", TXT_KEY_PERMISSION_TITLE, "Demande d'autorisation");
-    registerEntry("fr_FR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Astuce: vous pouvez définir des règles persistantes dans le fichier de configuration de Hyprland.");
+    registerEntry("fr_FR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Astuce: vous pouvez définir des règles persistantes dans le fichier de configuration de Abyssland.");
     registerEntry("fr_FR", TXT_KEY_PERMISSION_ALLOW, "Autoriser");
     registerEntry("fr_FR", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Autoriser et mémoriser");
     registerEntry("fr_FR", TXT_KEY_PERMISSION_ALLOW_ONCE, "Autoriser une fois");
@@ -598,11 +598,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "problèmes si ce n'est pas intentionnel.");
     registerEntry("fr_FR", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Votre système n'a pas hyprland-guiutils installé. C'est une dépendance d'éxécution pour certains dialogues. Envisagez de l'installer.");
-    registerEntry("fr_FR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("fr_FR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland n'a pas pu charger {count} ressource essentielle, cela indique très probablement un problème dans le paquet de votre distribution.";
-        return "Hyprland n'a pas pu charger {count} ressources essentielles, cela indique très probablement un problème dans le paquet de votre distribution.";
+            return "Abyssland n'a pas pu charger {count} ressource essentielle, cela indique très probablement un problème dans le paquet de votre distribution.";
+        return "Abyssland n'a pas pu charger {count} ressources essentielles, cela indique très probablement un problème dans le paquet de votre distribution.";
     });
     registerEntry("fr_FR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Votre disposition d'écrans est incorrecte. Le moniteur {name} chevauche un ou plusieurs autres.\nVeuillez consulter le wiki (page Moniteurs) pour"
@@ -634,7 +634,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "इसे काम करने की अनुमति देना चाहते हैं?");
     registerEntry("hi_IN", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(अज्ञात)");
     registerEntry("hi_IN", TXT_KEY_PERMISSION_TITLE, "अनुमति अनुरोध");
-    registerEntry("hi_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "संकेत: आप Hyprland कॉन्फ़िग फ़ाइल में इनके लिए स्थायी नियम सेट कर सकते हैं।");
+    registerEntry("hi_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "संकेत: आप Abyssland कॉन्फ़िग फ़ाइल में इनके लिए स्थायी नियम सेट कर सकते हैं।");
     registerEntry("hi_IN", TXT_KEY_PERMISSION_ALLOW, "अनुमति दें");
     registerEntry("hi_IN", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "अनुमति दें और याद रखें");
     registerEntry("hi_IN", TXT_KEY_PERMISSION_ALLOW_ONCE, "एक बार अनुमति दें");
@@ -648,12 +648,12 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("hi_IN", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "आपके सिस्टम में hyprland-guiutils इंस्टॉल नहीं है। यह कुछ संवादों के लिए एक रनटाइम "
                   "निर्भरता है। इसे इंस्टॉल करने पर विचार करें।");
-    registerEntry("hi_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("hi_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland {count} आवश्यक संसाधन लोड करने में विफल रहा, अपने डिस्ट्रो "
+            return "Abyssland {count} आवश्यक संसाधन लोड करने में विफल रहा, अपने डिस्ट्रो "
                    "के पैकेजर को पैकेजिंग में खराब काम करने का दोष दें!";
-        return "Hyprland {count} आवश्यक संसाधनों को लोड करने में विफल रहा, अपने "
+        return "Abyssland {count} आवश्यक संसाधनों को लोड करने में विफल रहा, अपने "
                "डिस्ट्रो के पैकेजर को पैकेजिंग में खराब काम करने का दोष दें!";
     });
     registerEntry("hi_IN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -683,7 +683,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("id_ID", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Keyboard baru terdeteksi: <b>{keyboard}</b>.\n\nApakah Anda mengizinkannya beroperasi?");
     registerEntry("id_ID", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(tidak diketahui)");
     registerEntry("id_ID", TXT_KEY_PERMISSION_TITLE, "Permintaan Izin");
-    registerEntry("id_ID", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Petunjuk: Anda dapat mengatur <i>rule</i> ini secara permanen di <i>file</i> konfigurasi Hyprland.");
+    registerEntry("id_ID", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Petunjuk: Anda dapat mengatur <i>rule</i> ini secara permanen di <i>file</i> konfigurasi Abyssland.");
     registerEntry("id_ID", TXT_KEY_PERMISSION_ALLOW, "Izinkan");
     registerEntry("id_ID", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Izinkan dan Ingat");
     registerEntry("id_ID", TXT_KEY_PERMISSION_ALLOW_ONCE, "Izinkan Sekali");
@@ -695,11 +695,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "masalah, kecuali jika disengaja.");
     registerEntry("id_ID", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "hyprland-guiutils belum terpasang di Sistem Anda. Paket tersebut merupakan dependensi <i>runtime</i> untuk beberapa dialog. Mohon untuk menginstalnya.");
-    registerEntry("id_ID", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("id_ID", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland gagal memuat {count} aset penting. Salahkan pengelola paket distro Anda karena pengemasannya buruk!";
-        return "Hyprland gagal memuat {count} aset penting. Salahkan pengelola paket distro Anda karena pengemasannya buruk!";
+            return "Abyssland gagal memuat {count} aset penting. Salahkan pengelola paket distro Anda karena pengemasannya buruk!";
+        return "Abyssland gagal memuat {count} aset penting. Salahkan pengelola paket distro Anda karena pengemasannya buruk!";
     });
     registerEntry("id_ID", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Susunan monitor Anda tidak benar. Monitor {name} tertumpuk dengan monitor lain.\nSilakan lihat wiki (halaman <i>Monitors</i>) untuk "
@@ -723,7 +723,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("hr_HR", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Otkrivena je nova tipkovnica: <b>{keyboard}</b>.\n\nŽeliš li omogućiti njen rad?");
     registerEntry("hr_HR", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(nepoznato)");
     registerEntry("hr_HR", TXT_KEY_PERMISSION_TITLE, "Zahtjev za dozvolu");
-    registerEntry("hr_HR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Savjet: za ovo možeš postaviti trajna pravila u Hyprland konfiguracijskoj datoteci.");
+    registerEntry("hr_HR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Savjet: za ovo možeš postaviti trajna pravila u Abyssland konfiguracijskoj datoteci.");
     registerEntry("hr_HR", TXT_KEY_PERMISSION_ALLOW, "Dozvoli");
     registerEntry("hr_HR", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Dozvoli i zapamti");
     registerEntry("hr_HR", TXT_KEY_PERMISSION_ALLOW_ONCE, "Dozvoli samo ovaj put");
@@ -734,13 +734,13 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Izgleda da je tvoja XDG_CURRENT_DESKTOP okolina vanjski upravljana te je trenutna vrijednost {value}.\nOvo može izazvati problem, osim ako je namjerno.");
     registerEntry("hr_HR", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Na tvojem sustavu nije instaliran hyprland-guiutils. Ovo je ovisnost tijekom pokretanja nekih dijaloga. Preporučeno je da je instaliraš.");
-    registerEntry("hr_HR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("hr_HR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo % 10 <= 1 && assetsNo % 100 != 11)
-            return "Hyprland nije uspio učitati {count} neophodnu komponentu, krivi pakera svoje distribucije za loš posao pakiranja!";
+            return "Abyssland nije uspio učitati {count} neophodnu komponentu, krivi pakera svoje distribucije za loš posao pakiranja!";
         else if (assetsNo % 10 <= 4 && assetsNo % 100 > 14)
-            return "Hyprland nije uspio učitati {count} neophodne komponente, krivi pakera svoje distribucije za loš posao pakiranja!";
-        return "Hyprland nije uspio učitati {count} neophodnih komponenata, krivi pakera svoje distribucije za loš posao pakiranja!";
+            return "Abyssland nije uspio učitati {count} neophodne komponente, krivi pakera svoje distribucije za loš posao pakiranja!";
+        return "Abyssland nije uspio učitati {count} neophodnih komponenata, krivi pakera svoje distribucije za loš posao pakiranja!";
     });
     registerEntry("hr_HR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Raspored tvojih monitora je krivo postavljen. Monitor {name} preklapa se s ostalim monitorom/ima u rasporedu.\nProvjeri wiki (Monitors stranicu) za "
@@ -765,7 +765,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("it_IT", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "È stata rilevata una nuova tastiera: <b>{keyboard}</b>.\n\nVuoi autorizzarla a operare?");
     registerEntry("it_IT", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(sconosciuto)");
     registerEntry("it_IT", TXT_KEY_PERMISSION_TITLE, "Richiesta di autorizzazione");
-    registerEntry("it_IT", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Suggerimento: puoi impostare una regola persistente nel tuo file di configurazione di Hyprland.");
+    registerEntry("it_IT", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Suggerimento: puoi impostare una regola persistente nel tuo file di configurazione di Abyssland.");
     registerEntry("it_IT", TXT_KEY_PERMISSION_ALLOW, "Consenti");
     registerEntry("it_IT", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Consenti e ricorda");
     registerEntry("it_IT", TXT_KEY_PERMISSION_ALLOW_ONCE, "Consenti una volta");
@@ -777,7 +777,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("it_IT", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Sembra che hyprland-guiutils non sia installato. È una dipendenza richiesta per alcuni dialoghi che potresti voler installare.");
     registerEntry("it_IT", TXT_KEY_NOTIF_FAILED_ASSETS,
-                  "Hyprland non ha potuto caricare {count} asset, dai la colpa al packager della tua distribuzione per il suo cattivo lavoro!");
+                  "Abyssland non ha potuto caricare {count} asset, dai la colpa al packager della tua distribuzione per il suo cattivo lavoro!");
     registerEntry("it_IT", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "I tuoi schermi sono configurati incorrettamente. Lo schermo {name} si sovrappone con altri nel layout.\nConsulta la wiki (voce Schermi) per "
                   "altre informazioni. Questo <b>causerà</b> problemi.");
@@ -787,16 +787,16 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("it_IT", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Impossibile ricaricare gli shader CM, verrà usato rgba/rgbx.");
     registerEntry("it_IT", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Schermo {name}: la gamma di colori ampia è abilitata ma lo schermo non è in modalità 10-bit.");
     registerEntry("it_IT", TXT_KEY_NOTIF_NO_WATCHDOG,
-                  "Hyprland è stato avviato senza start-hyprland. Ciò è assolutamente sconsigliato a meno che tu non sia in un ambiente di debug.");
+                  "Abyssland è stato avviato senza start-abyssland. Ciò è assolutamente sconsigliato a meno che tu non sia in un ambiente di debug.");
 
     registerEntry("it_IT", TXT_KEY_SAFE_MODE_TITLE, "Modalità sicura");
     registerEntry(
         "it_IT", TXT_KEY_SAFE_MODE_DESCRIPTION,
-        "Hyprland è stato avviato in modalità sicura, dato che l'ultima sessione è crashata.\nLa modalità sicura impedisce alla tua configurazione di essere caricata. Puoi "
+        "Abyssland è stato avviato in modalità sicura, dato che l'ultima sessione è crashata.\nLa modalità sicura impedisce alla tua configurazione di essere caricata. Puoi "
         "risolvere i problemi in questo ambiente, o caricare la tua configurazione con il pulsante sottostante.\nVerranno usate le scorciatoie predefinite: SUPER+Q per kitty, "
         "SUPER+R per un runner di base, "
         "SUPER+M per uscire.\nAl riavvio "
-        "Hyprland verrà avviato in modalità normale.");
+        "Abyssland verrà avviato in modalità normale.");
     registerEntry("it_IT", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Carica la configurazione");
     registerEntry("it_IT", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Apri la cartella delle segnalazioni di crash");
     registerEntry("it_IT", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Va bene, chiudi");
@@ -814,7 +814,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ja_JP", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "新しいキーボード <b>{keyboard}</b> が接続されました。\n\n使用を許可しますか？");
     registerEntry("ja_JP", TXT_KEY_PERMISSION_UNKNOWN_NAME, "（不明）");
     registerEntry("ja_JP", TXT_KEY_PERMISSION_TITLE, "権限の要求");
-    registerEntry("ja_JP", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "ヒント：永続的なルールを Hyprland の設定ファイルに記述できます。");
+    registerEntry("ja_JP", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "ヒント：永続的なルールを Abyssland の設定ファイルに記述できます。");
     registerEntry("ja_JP", TXT_KEY_PERMISSION_ALLOW, "許可");
     registerEntry("ja_JP", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "許可して保存");
     registerEntry("ja_JP", TXT_KEY_PERMISSION_ALLOW_ONCE, "今回だけ許可");
@@ -833,15 +833,15 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ja_JP", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "プラグイン {name} のロードで、エラー {error} が発生しました。");
     registerEntry("ja_JP", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM シェーダのリロードに失敗したため、rgba/rgbx を使用します。");
     registerEntry("ja_JP", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "広色域が有効なモニタ {name} を使用していますが、画面表示の設定は 10 ビットになっていません。");
-    registerEntry("ja_JP", TXT_KEY_NOTIF_NO_WATCHDOG, "start-hyprland なしで Hyprland を実行しています。これは、デバッグ目的以外ではおすすめしません。");
-    registerEntry("ja_JP", TXT_KEY_NOTIF_OUTDATED_CONFIG, ".confのコンフィグレーションフォーマットは、Hyprland 0.57からサポートが失います。");
+    registerEntry("ja_JP", TXT_KEY_NOTIF_NO_WATCHDOG, "start-abyssland なしで Abyssland を実行しています。これは、デバッグ目的以外ではおすすめしません。");
+    registerEntry("ja_JP", TXT_KEY_NOTIF_OUTDATED_CONFIG, ".confのコンフィグレーションフォーマットは、Abyssland 0.57からサポートが失います。");
 
     registerEntry("ja_JP", TXT_KEY_SAFE_MODE_TITLE, "セーフモード");
     registerEntry("ja_JP", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "前回のセッションがクラッシュしました。Hyprland "
+                  "前回のセッションがクラッシュしました。Abyssland "
                   "は設定ファイルをロードしない、セーフモードで動作しています。\n問題を解決するか、もしくは下のボタンで設定ファイルをロードしてください。"
-                  "\nデフォルトのキーバインドは、SUPER+Q が kitty、SUPER+R が簡素なランチャー、SUPER+M が Hyprland の終了です。"
-                  "\nHyprland を再起動することで、ノーマルモードで動作します。");
+                  "\nデフォルトのキーバインドは、SUPER+Q が kitty、SUPER+R が簡素なランチャー、SUPER+M が Abyssland の終了です。"
+                  "\nAbyssland を再起動することで、ノーマルモードで動作します。");
     registerEntry("ja_JP", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "設定ファイルをロード");
     registerEntry("ja_JP", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "クラッシュレポートフォルダを開く");
     registerEntry("ja_JP", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "了解（このウィンドウを閉じる）");
@@ -859,7 +859,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("lv_LV", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Ir atrasta jauna tastatūra: <b>{keyboard}</b>.\n\nVai vēlaties atļaut tās darbību?");
     registerEntry("lv_LV", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(nezināms)");
     registerEntry("lv_LV", TXT_KEY_PERMISSION_TITLE, "Atļaujas pieprasījums");
-    registerEntry("lv_LV", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Padoms: Hyprland konfigurācijas failā varat arī iestatīt atļaujas.");
+    registerEntry("lv_LV", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Padoms: Abyssland konfigurācijas failā varat arī iestatīt atļaujas.");
     registerEntry("lv_LV", TXT_KEY_PERMISSION_ALLOW, "Atļaut");
     registerEntry("lv_LV", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Atļaut un atcerēties");
     registerEntry("lv_LV", TXT_KEY_PERMISSION_ALLOW_ONCE, "Atļaut vienreiz");
@@ -868,11 +868,11 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("lv_LV", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "Jūsu XDG_CURRENT_DESKTOP tiek ārēji pārvaldīts, tās vērtība ir {value}.\nTas var neapzināti izraisīt problēmas.");
     registerEntry("lv_LV", TXT_KEY_NOTIF_NO_GUIUTILS, "Jums nav instalēts hyprland-guiutils. Šī pakotne ir nepieciešama dažiem dialogiem. Apsveriet tās instalēšanu.");
-    registerEntry("lv_LV", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("lv_LV", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland nevarēja ielādēt {count} būtisku resursu, vainojiet sava distro iepakotāju par sliktu iepakošanu!";
-        return "Hyprland nevarēja ielādēt {count} būtiskus resursus, vainojiet sava distro iepakotāju par sliktu iepakošanu!";
+            return "Abyssland nevarēja ielādēt {count} būtisku resursu, vainojiet sava distro iepakotāju par sliktu iepakošanu!";
+        return "Abyssland nevarēja ielādēt {count} būtiskus resursus, vainojiet sava distro iepakotāju par sliktu iepakošanu!";
     });
     registerEntry("lv_LV", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Jūsu monitora izkārtojums ir nepareizi iestatīts. Monitors {name} pārklājas ar citiem izkārtojumā iestatītajiem monitoriem.\nLūdzu apskatieties (Monitoru lapā),"
@@ -896,7 +896,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("hu_HU", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Új billentyűzetet észleltünk: <b>{keyboard}</b>.\n\nEngedélyezi a használatát?");
     registerEntry("hu_HU", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(ismeretlen)");
     registerEntry("hu_HU", TXT_KEY_PERMISSION_TITLE, "Engedélykérés");
-    registerEntry("hu_HU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tipp: Állandó szabályokat állíthat be a Hyprland konfigurációs fájlban.");
+    registerEntry("hu_HU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tipp: Állandó szabályokat állíthat be a Abyssland konfigurációs fájlban.");
     registerEntry("hu_HU", TXT_KEY_PERMISSION_ALLOW, "Engedélyezés");
     registerEntry("hu_HU", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Mindig engedélyez");
     registerEntry("hu_HU", TXT_KEY_PERMISSION_ALLOW_ONCE, "Egyszeri engedélyezés");
@@ -907,11 +907,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Úgy tűnik, hogy az XDG_CURRENT_DESKTOP környezetet külsőleg kezelik, és a jelenlegi érték {value}.\nEz problémákat okozhat, hacsak nem szándékos.");
     registerEntry("hu_HU", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "A rendszerében nincs telepítve a hyprland-guiutils. Ez egy futásidejű függőség néhány párbeszédablakhoz. Fontolja meg a telepítését.");
-    registerEntry("hu_HU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("hu_HU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "A Hyprland nem tudta betölteni az 1 szükséges erőforrást. Kérjük, jelezze a hibát a disztribúció csomagolójának.";
-        return "A Hyprland nem tudott betölteni {count} szükséges erőforrást. Kérjük, jelezze a hibát a disztribúció csomagolójának.";
+            return "A Abyssland nem tudta betölteni az 1 szükséges erőforrást. Kérjük, jelezze a hibát a disztribúció csomagolójának.";
+        return "A Abyssland nem tudott betölteni {count} szükséges erőforrást. Kérjük, jelezze a hibát a disztribúció csomagolójának.";
     });
     registerEntry(
         "hu_HU", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -936,7 +936,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ml_IN", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "പുതിയ കീബോർഡ് കണ്ടെത്തി: <b>{keyboard}</b>.\n\nഇത് പ്രവർത്തിക്കാൻ അനുവദിക്കണോ?");
     registerEntry("ml_IN", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(അജ്ഞാതം)");
     registerEntry("ml_IN", TXT_KEY_PERMISSION_TITLE, "അനുമതി അഭ്യർത്ഥന");
-    registerEntry("ml_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "സൂചന: Hyprland കോൺഫിഗ് ഫയലിൽ സ്ഥിരനിയമങ്ങൾ സജ്ജമാക്കാം.");
+    registerEntry("ml_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "സൂചന: Abyssland കോൺഫിഗ് ഫയലിൽ സ്ഥിരനിയമങ്ങൾ സജ്ജമാക്കാം.");
     registerEntry("ml_IN", TXT_KEY_PERMISSION_ALLOW, "അനുവദിക്കുക");
     registerEntry("ml_IN", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "അനുവദിച്ച് ഓർക്കുക");
     registerEntry("ml_IN", TXT_KEY_PERMISSION_ALLOW_ONCE, "ഒന്നുതവണ അനുവദിക്കുക");
@@ -949,13 +949,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ml_IN", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "നിങ്ങളുടെ സിസ്റ്റത്തിൽ hyprland-guiutils ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല. ഇത് ചില ഡയലോഗുകൾക്ക് ആവശ്യമായ "
                   "റൺടൈം ആശ്രയമാണ്. ഇൻസ്റ്റാൾ ചെയ്യുക.");
-    registerEntry("ml_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("ml_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland {count} പ്രധാന അസറ്റ് ലോഡുചെയ്യാൻ പരാജയപ്പെട്ടു, നിങ്ങളുടെ "
+            return "Abyssland {count} പ്രധാന അസറ്റ് ലോഡുചെയ്യാൻ പരാജയപ്പെട്ടു, നിങ്ങളുടെ "
                    "ഡിസ്‌ട്രോ "
                    "പാക്കേജർ പിശക് ചെയ്തിരിക്കുന്നു!";
-        return "Hyprland {count} പ്രധാന അസറ്റുകൾ ലോഡുചെയ്യാൻ പരാജയപ്പെട്ടു, നിങ്ങളുടെ "
+        return "Abyssland {count} പ്രധാന അസറ്റുകൾ ലോഡുചെയ്യാൻ പരാജയപ്പെട്ടു, നിങ്ങളുടെ "
                "ഡിസ്‌ട്രോ "
                "പാക്കേജർ പിശക് ചെയ്തിരിക്കുന്നു!";
     });
@@ -981,7 +981,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("nb_NO", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Et nytt tastatur er oppdaget: <b>{keyboard}</b>.\n\nVil du tillate at det opererer?");
     registerEntry("nb_NO", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(ukjent)");
     registerEntry("nb_NO", TXT_KEY_PERMISSION_TITLE, "Tillatelsesforespørsel");
-    registerEntry("nb_NO", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Hint: du kan angi vedvarende regler for disse i Hyprland konfigurasjonsfilen.");
+    registerEntry("nb_NO", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Hint: du kan angi vedvarende regler for disse i Abyssland konfigurasjonsfilen.");
     registerEntry("nb_NO", TXT_KEY_PERMISSION_ALLOW, "Tillat");
     registerEntry("nb_NO", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Tillat og husk");
     registerEntry("nb_NO", TXT_KEY_PERMISSION_ALLOW_ONCE, "Tillat en gang");
@@ -993,11 +993,11 @@ I18n::CI18nEngine::CI18nEngine() {
         "Ditt XDG_CURRENT_DESKTOP miljø ser ut til å være eksternt administrert, og den nåværende verdien er {value}.\nDette kan forårsake problemer med mindre det er bevisst.");
     registerEntry("nb_NO", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Ditt system har ikke hyprland-guiutils installert. Dette er en kjøretidsavhengighet for noen dialoger. Vurder å installere den.");
-    registerEntry("nb_NO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("nb_NO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland kunne ikke laste {count} essensiell ressurs, skyld på distroens pakkeansvarlig for å ha gjort en dårlig jobb med pakkingen!";
-        return "Hyprland kunne ikke laste {count} essensielle ressurser, skyld på distroens pakkeansvarlig for å ha gjort en dårlig jobb med pakkingen!";
+            return "Abyssland kunne ikke laste {count} essensiell ressurs, skyld på distroens pakkeansvarlig for å ha gjort en dårlig jobb med pakkingen!";
+        return "Abyssland kunne ikke laste {count} essensielle ressurser, skyld på distroens pakkeansvarlig for å ha gjort en dårlig jobb med pakkingen!";
     });
     registerEntry("nb_NO", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Skjermoppsettet ditt er satt opp feil. Skjerm {name} overlapper med skjerm(er) i oppsettet.\nSjekk wiki (Skjerm oppsett siden) for "
@@ -1031,7 +1031,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ne_NP", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "तपाईँको XDG_CURRENT_DESKTOP वातावरण बाहिरबाट व्यवस्थापन भइरहेको जस्तो देखिएको छ, अहिले {value} देखाइरहेको छ।\nजानीजानी नगरीएको भएमा यसले समस्याहरु निम्त्याउन सक्छ।");
     registerEntry("ne_NP", TXT_KEY_NOTIF_NO_GUIUTILS, "तपाइँको सिस्टममा hyprland-guiutils इन्सटल गरिएको छैन। केहि डायलगहरुका लागि यो रनटाइम डिपेन्डेन्सी हो। कृपया इन्सटल गर्नुहोला।");
-    registerEntry("ne_NP", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("ne_NP", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
             return "हाइपरल्यान्डले एउटा अत्यावश्यक एसेट लोड गर्न सकेन, तपाइँको डिस्ट्रोको प्याकेजरको प्याकेजिङ गतिलो छैन!";
@@ -1059,7 +1059,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("nl_NL", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Een nieuw toetsenbord is gedetecteerd: <b>{keyboard}</b>.\n\nWilt u toestemming geven dat het wordt gebruikt?");
     registerEntry("nl_NL", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(onbekend)");
     registerEntry("nl_NL", TXT_KEY_PERMISSION_TITLE, "Toestemmingsverzoek");
-    registerEntry("nl_NL", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: U kunt hiervoor vaste regels instellen in het Hyprland-configuratiebestand.");
+    registerEntry("nl_NL", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: U kunt hiervoor vaste regels instellen in het Abyssland-configuratiebestand.");
     registerEntry("nl_NL", TXT_KEY_PERMISSION_ALLOW, "Toestaan");
     registerEntry("nl_NL", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Toestaan en onthouden");
     registerEntry("nl_NL", TXT_KEY_PERMISSION_ALLOW_ONCE, "Één keer toestaan");
@@ -1071,11 +1071,11 @@ I18n::CI18nEngine::CI18nEngine() {
         "De XDG_CURRENT_DESKTOP omgevingsvariabele lijkt extern beheerd te worden en de huidige waarde is {value}.\nDit kan problemen veroorzaken, tenzij dit opzettelijk is.");
     registerEntry("nl_NL", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Hyprland-guiutils is niet op uw systeem geïnstalleerd. Dit is een runtime-afhankelijkheid voor sommige dialogen. Overweeg het te installeren.");
-    registerEntry("nl_NL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("nl_NL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland kon {count} essentieel bestand niet laden, geef de pakketbeheerder van uw distro de schuld voor slecht verpakkingswerk!";
-        return "Hyprland kon {count} essentiële bestanden niet laden, geef de pakketbeheerder van uw distro de schuld voor slecht verpakkingswerk!";
+            return "Abyssland kon {count} essentieel bestand niet laden, geef de pakketbeheerder van uw distro de schuld voor slecht verpakkingswerk!";
+        return "Abyssland kon {count} essentiële bestanden niet laden, geef de pakketbeheerder van uw distro de schuld voor slecht verpakkingswerk!";
     });
     registerEntry("nl_NL", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Uw monitorindeling is onjuist ingesteld. Monitor {name} overlapt met één of meerdere andere monitoren in de indeling.\n"
@@ -1100,7 +1100,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pa_IN", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "ਇੱਕ ਨਵਾਂ ਕੀਬੋਰਡ ਲੱਭਿਆ ਗਿਆ ਹੈ: <b>{keyboard}</b>।\n\nਕੀ ਤੁਸੀਂ ਇਸਨੂੰ ਕੰਮ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਦੇਣਾ ਚਾਹੁੰਦੇ ਹੋ?");
     registerEntry("pa_IN", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(ਅਗਿਆਤ)");
     registerEntry("pa_IN", TXT_KEY_PERMISSION_TITLE, "ਇਜਾਜ਼ਤ ਦੀ ਬੇਨਤੀ");
-    registerEntry("pa_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "ਸੁਝਾਅ: ਤੁਸੀਂ ਆਪਣੀ Hyprland ਕੌਂਫਿਗਰੇਸ਼ਨ ਫਾਈਲ ਵਿੱਚ ਇਹਨਾਂ ਲਈ ਪੱਕੇ ਨਿਯਮ ਸੈੱਟ ਕਰ ਸਕਦੇ ਹੋ।");
+    registerEntry("pa_IN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "ਸੁਝਾਅ: ਤੁਸੀਂ ਆਪਣੀ Abyssland ਕੌਂਫਿਗਰੇਸ਼ਨ ਫਾਈਲ ਵਿੱਚ ਇਹਨਾਂ ਲਈ ਪੱਕੇ ਨਿਯਮ ਸੈੱਟ ਕਰ ਸਕਦੇ ਹੋ।");
     registerEntry("pa_IN", TXT_KEY_PERMISSION_ALLOW, "ਇਜਾਜ਼ਤ ਦਿਓ");
     registerEntry("pa_IN", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "ਇਜਾਜ਼ਤ ਦਿਓ ਅਤੇ ਯਾਦ ਰੱਖੋ");
     registerEntry("pa_IN", TXT_KEY_PERMISSION_ALLOW_ONCE, "ਇੱਕ ਵਾਰ ਇਜਾਜ਼ਤ ਦਿਓ");
@@ -1111,11 +1111,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "ਤੁਹਾਡਾ XDG_CURRENT_DESKTOP ਵਾਤਾਵਰਣ ਵੇਰੀਏਬਲ ਬਾਹਰੀ ਤੌਰ 'ਤੇ ਪ੍ਰਬੰਧਿਤ ਜਾਪਦਾ ਹੈ, ਮੌਜੂਦਾ ਮੁੱਲ: {value}।\nਜਦੋਂ ਤੱਕ ਇਹ ਜਾਣਬੁੱਝ ਕੇ ਨਾ "
                   "ਕੀਤਾ ਗਿਆ ਹੋਵੇ, ਇਹ ਸਮੱਸਿਆਵਾਂ ਪੈਦਾ ਕਰ ਸਕਦਾ ਹੈ।");
     registerEntry("pa_IN", TXT_KEY_NOTIF_NO_GUIUTILS, "ਤੁਹਾਡੇ ਸਿਸਟਮ ਵਿੱਚ hyprland-guiutils ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ। ਇਹ ਕੁਝ ਡਾਇਲਾਗਸ ਲਈ ਜ਼ਰੂਰੀ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਸਨੂੰ ਇੰਸਟਾਲ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।");
-    registerEntry("pa_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("pa_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland {count} ਜ਼ਰੂਰੀ ਸੰਪਤੀ ਨੂੰ ਲੋਡ ਨਹੀਂ ਕਰ ਸਕਿਆ, ਖਰਾਬ ਪੈਕੇਜਿੰਗ ਲਈ ਆਪਣੇ ਡਿਸਟ੍ਰੋ ਪੈਕੇਜਰਾਂ ਨੂੰ ਦੋਸ਼ੀ ਠਹਿਰਾਓ!";
-        return "Hyprland {count} ਜ਼ਰੂਰੀ ਸੰਪਤੀਆਂ ਨੂੰ ਲੋਡ ਨਹੀਂ ਕਰ ਸਕਿਆ, ਖਰਾਬ ਪੈਕੇਜਿੰਗ ਲਈ ਆਪਣੇ ਡਿਸਟ੍ਰੋ ਪੈਕੇਜਰਾਂ ਨੂੰ ਦੋਸ਼ੀ ਠਹਿਰਾਓ!";
+            return "Abyssland {count} ਜ਼ਰੂਰੀ ਸੰਪਤੀ ਨੂੰ ਲੋਡ ਨਹੀਂ ਕਰ ਸਕਿਆ, ਖਰਾਬ ਪੈਕੇਜਿੰਗ ਲਈ ਆਪਣੇ ਡਿਸਟ੍ਰੋ ਪੈਕੇਜਰਾਂ ਨੂੰ ਦੋਸ਼ੀ ਠਹਿਰਾਓ!";
+        return "Abyssland {count} ਜ਼ਰੂਰੀ ਸੰਪਤੀਆਂ ਨੂੰ ਲੋਡ ਨਹੀਂ ਕਰ ਸਕਿਆ, ਖਰਾਬ ਪੈਕੇਜਿੰਗ ਲਈ ਆਪਣੇ ਡਿਸਟ੍ਰੋ ਪੈਕੇਜਰਾਂ ਨੂੰ ਦੋਸ਼ੀ ਠਹਿਰਾਓ!";
     });
     registerEntry("pa_IN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "ਤੁਹਾਡਾ ਮਾਨੀਟਰ ਲੇਆਉਟ ਗਲਤ ਤਰੀਕੇ ਨਾਲ ਕੌਂਫਿਗਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਮਾਨੀਟਰ {name} ਲੇਆਉਟ ਵਿੱਚ ਦੂਜੇ ਮਾਨੀਟਰਾਂ ਨਾਲ ਓਵਰਲੈਪ ਕਰ ਰਿਹਾ ਹੈ।\nਹੋਰ "
@@ -1125,14 +1125,14 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pa_IN", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "ਪਲੱਗਇਨ {name} ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ: {error}");
     registerEntry("pa_IN", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM ਸ਼ੇਡਰ ਮੁੜ-ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ, rgba/rgbx 'ਤੇ ਵਾਪਸ ਜਾ ਰਿਹਾ ਹੈ।");
     registerEntry("pa_IN", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "ਮਾਨੀਟਰ {name}: ਵਾਈਡ ਕਲਰ ਗੇਮਟ ਚਾਲੂ ਹੈ ਪਰ ਡਿਸਪਲੇ 10-ਬਿੱਟ ਮੋਡ ਵਿੱਚ ਨਹੀਂ ਹੈ।");
-    registerEntry("pa_IN", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland ਨੂੰ start-hyprland ਤੋਂ ਬਿਨਾਂ ਸ਼ੁਰੂ ਕੀਤਾ ਗਿਆ ਸੀ। ਜਦੋਂ ਤੱਕ ਤੁਸੀਂ ਡੀਬੱਗਿੰਗ ਵਾਤਾਵਰਣ ਵਿੱਚ ਨਹੀਂ ਹੋ, ਇਸਦੀ ਸਿਫਾਰਸ਼ ਨਹੀਂ ਕੀਤੀ ਜਾਂਦੀ।");
+    registerEntry("pa_IN", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland ਨੂੰ start-abyssland ਤੋਂ ਬਿਨਾਂ ਸ਼ੁਰੂ ਕੀਤਾ ਗਿਆ ਸੀ। ਜਦੋਂ ਤੱਕ ਤੁਸੀਂ ਡੀਬੱਗਿੰਗ ਵਾਤਾਵਰਣ ਵਿੱਚ ਨਹੀਂ ਹੋ, ਇਸਦੀ ਸਿਫਾਰਸ਼ ਨਹੀਂ ਕੀਤੀ ਜਾਂਦੀ।");
 
     registerEntry("pa_IN", TXT_KEY_SAFE_MODE_TITLE, "ਸੁਰੱਖਿਅਤ ਮੋਡ (Safe Mode)");
     registerEntry("pa_IN", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland ਸੁਰੱਖਿਅਤ ਮੋਡ ਵਿੱਚ ਸ਼ੁਰੂ ਕੀਤਾ ਗਿਆ ਹੈ, ਜਿਸਦਾ ਮਤਲਬ ਹੈ ਕਿ ਤੁਹਾਡਾ ਪਿਛਲਾ ਸੈਸ਼ਨ ਕ੍ਰੈਸ਼ ਹੋ ਗਿਆ ਸੀ।\nਸੁਰੱਖਿਅਤ ਮੋਡ ਤੁਹਾਡੀ "
+                  "Abyssland ਸੁਰੱਖਿਅਤ ਮੋਡ ਵਿੱਚ ਸ਼ੁਰੂ ਕੀਤਾ ਗਿਆ ਹੈ, ਜਿਸਦਾ ਮਤਲਬ ਹੈ ਕਿ ਤੁਹਾਡਾ ਪਿਛਲਾ ਸੈਸ਼ਨ ਕ੍ਰੈਸ਼ ਹੋ ਗਿਆ ਸੀ।\nਸੁਰੱਖਿਅਤ ਮੋਡ ਤੁਹਾਡੀ "
                   "ਕੌਂਫਿਗਰੇਸ਼ਨ ਨੂੰ ਲੋਡ ਹੋਣ ਤੋਂ ਰੋਕਦਾ ਹੈ। ਤੁਸੀਂ ਇਸ ਵਾਤਾਵਰਣ ਵਿੱਚ ਸਮੱਸਿਆ ਦਾ ਨਿਪਟਾਰਾ ਕਰ ਸਕਦੇ ਹੋ, ਜਾਂ ਹੇਠਾਂ ਦਿੱਤੇ ਬਟਨ ਨਾਲ ਆਪਣੀ "
                   "ਕੌਂਫਿਗਰੇਸ਼ਨ ਲੋਡ ਕਰ ਸਕਦੇ ਹੋ।\nਡਿਫੌਲਟ ਕੀਬਾਈਂਡ ਲਾਗੂ ਹੁੰਦੇ ਹਨ: kitty ਲਈ SUPER+Q, ਬੇਸਿਕ ਰਨਰ ਲਈ SUPER+R, ਬਾਹਰ ਨਿਕਲਣ ਲਈ SUPER+M।\n"
-                  "Hyprland ਨੂੰ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰਨ ਨਾਲ ਇਹ ਮੁੜ ਆਮ ਮੋਡ ਵਿੱਚ ਚੱਲੇਗਾ।");
+                  "Abyssland ਨੂੰ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰਨ ਨਾਲ ਇਹ ਮੁੜ ਆਮ ਮੋਡ ਵਿੱਚ ਚੱਲੇਗਾ।");
     registerEntry("pa_IN", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "ਕੌਂਫਿਗ ਲੋਡ ਕਰੋ");
     registerEntry("pa_IN", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "ਕ੍ਰੈਸ਼ ਰਿਪੋਰਟ ਡਾਇਰੈਕਟਰੀ ਖੋਲ੍ਹੋ");
     registerEntry("pa_IN", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "ਸਮਝ ਆ ਗਿਆ, ਇਸਨੂੰ ਬੰਦ ਕਰੋ");
@@ -1150,7 +1150,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pl_PL", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Wykryto nową klawiaturę: <b>{keyboard}</b>.\n\nCzy chcesz jej pozwolić operować?");
     registerEntry("pl_PL", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(nieznane)");
     registerEntry("pl_PL", TXT_KEY_PERMISSION_TITLE, "Prośba o pozwolenie");
-    registerEntry("pl_PL", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Podpowiedź: możesz ustawić stałe zasady w konfiguracji Hyprland'a.");
+    registerEntry("pl_PL", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Podpowiedź: możesz ustawić stałe zasady w konfiguracji Abyssland'a.");
     registerEntry("pl_PL", TXT_KEY_PERMISSION_ALLOW, "Zezwól");
     registerEntry("pl_PL", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Zezwól i zapamiętaj");
     registerEntry("pl_PL", TXT_KEY_PERMISSION_ALLOW_ONCE, "Zezwól raz");
@@ -1160,7 +1160,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pl_PL", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Zmienna środowiska XDG_CURRENT_DESKTOP została ustawiona zewnętrznie na {value}.\nTo może sprawić problemy, chyba, że jest celowe.");
     registerEntry("pl_PL", TXT_KEY_NOTIF_NO_GUIUTILS, "Twój system nie ma hyprland-guiutils zainstalowanych, co może sprawić problemy. Zainstaluj pakiet.");
-    registerEntry("pl_PL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("pl_PL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo == 1)
             return "Nie udało się załadować {count} kluczowego zasobu, wiń swojego packager'a za robienie słabej roboty!";
@@ -1175,15 +1175,15 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pl_PL", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "Nie udało się załadować plugin'a {name}: {error}");
     registerEntry("pl_PL", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Nie udało się przeładować shader'a CM, użyto rgba/rgbx.");
     registerEntry("pl_PL", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Monitor {name}: skonfigurowano szeroką głębię barw, ale monitor nie jest w trybie 10-bit.");
-    registerEntry("pl_PL", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland został uruchomiony bez start-hyprland. Nie jest to zalecane, chyba, że jest to środowisko do debugowania.");
-    registerEntry("pl_PL", TXT_KEY_NOTIF_OUTDATED_CONFIG, "Format konfiguracji .conf, który jest obecnie w użyciu, utraci wsparcie wraz z Hyprland 0.57.");
+    registerEntry("pl_PL", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland został uruchomiony bez start-abyssland. Nie jest to zalecane, chyba, że jest to środowisko do debugowania.");
+    registerEntry("pl_PL", TXT_KEY_NOTIF_OUTDATED_CONFIG, "Format konfiguracji .conf, który jest obecnie w użyciu, utraci wsparcie wraz z Abyssland 0.57.");
 
     registerEntry("pl_PL", TXT_KEY_SAFE_MODE_TITLE, "Tryb Bezpieczny");
     registerEntry("pl_PL", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland został uruchomiony w trybie bezpiecznym, co oznacza, że twoja ostatnia sesja uległa awarii.\nTryb bezpieczny zapobiega ładowaniu twojej "
+                  "Abyssland został uruchomiony w trybie bezpiecznym, co oznacza, że twoja ostatnia sesja uległa awarii.\nTryb bezpieczny zapobiega ładowaniu twojej "
                   "konfiguracji. Możesz próbować rozwiązać"
                   "problem w tym środowisku, lub załadować swoją konfigurację przyciskiem poniżej.\nDomyślne skróty klawiszowe są dostępne: SUPER+Q uruchamia kitty, "
-                  "SUPER+R otwiera podstawowy launcher, SUPER+M zamyka Hyprland.\nUruchomienie ponowne Hyprland'a uruchomi go w trybie normalnym.");
+                  "SUPER+R otwiera podstawowy launcher, SUPER+M zamyka Abyssland.\nUruchomienie ponowne Abyssland'a uruchomi go w trybie normalnym.");
     registerEntry("pl_PL", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Załaduj konfigurację");
     registerEntry("pl_PL", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Otwórz folder z raportami awarii");
     registerEntry("pl_PL", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Ok, zamknij to okno");
@@ -1201,7 +1201,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pt_PT", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Um novo teclado foi detectado: <b>{keyboard}</b>.\n\nQueres permitir a sua operação?");
     registerEntry("pt_PT", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(desconhecido)");
     registerEntry("pt_PT", TXT_KEY_PERMISSION_TITLE, "Pedido de permissão");
-    registerEntry("pt_PT", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Dica: podes definir regras persistentes para estes no ficheiro de configuração do Hyprland.");
+    registerEntry("pt_PT", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Dica: podes definir regras persistentes para estes no ficheiro de configuração do Abyssland.");
     registerEntry("pt_PT", TXT_KEY_PERMISSION_ALLOW, "Permitir");
     registerEntry("pt_PT", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Permitir sempre");
     registerEntry("pt_PT", TXT_KEY_PERMISSION_ALLOW_ONCE, "Permitir esta vez");
@@ -1213,11 +1213,11 @@ I18n::CI18nEngine::CI18nEngine() {
         "O teu ambiente XDG_CURRENT_DESKTOP parece estar a ser gerido externamente, e o valor actual é {value}.\nIsto pode causar problemas a não ser que seja intencional.");
     registerEntry("pt_PT", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "O teu sistema não tem o hyprland-guiutils instalado. Esta dependência de runtime é necessária para algumas caixas de diálogo, deverias instalá-la.");
-    registerEntry("pt_PT", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("pt_PT", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland não conseguiu carregar {count} asset essencial, podes culpar o gestor de dependências da tua distro por fazer um mau trabalho!";
-        return "Hyprland não conseguiu carregar {count} assets essenciais, podes culpar o gestor de dependências da tua distro por fazer um mau trabalho!";
+            return "Abyssland não conseguiu carregar {count} asset essencial, podes culpar o gestor de dependências da tua distro por fazer um mau trabalho!";
+        return "Abyssland não conseguiu carregar {count} assets essenciais, podes culpar o gestor de dependências da tua distro por fazer um mau trabalho!";
     });
     registerEntry(
         "pt_PT", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -1242,7 +1242,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_CN", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "检测到新的键盘 <b>{keyboard}</b> 接入了。\n\n允许这个键盘操作你的系统吗？");
     registerEntry("zh_CN", TXT_KEY_PERMISSION_UNKNOWN_NAME, "（未知）");
     registerEntry("zh_CN", TXT_KEY_PERMISSION_TITLE, "权限请求");
-    registerEntry("zh_CN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "提示：你可以在Hyprland配置中为他们创建永久性的规则。");
+    registerEntry("zh_CN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "提示：你可以在Abyssland配置中为他们创建永久性的规则。");
     registerEntry("zh_CN", TXT_KEY_PERMISSION_ALLOW, "允许");
     registerEntry("zh_CN", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "总是允许");
     registerEntry("zh_CN", TXT_KEY_PERMISSION_ALLOW_ONCE, "允许一次");
@@ -1251,7 +1251,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("zh_CN", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "你的环境变量XDG_CURRENT_DESKTOP似乎被外部管理，且当前的值为{value}。如果你不是有意这么做，这可能会导致问题。");
     registerEntry("zh_CN", TXT_KEY_NOTIF_NO_GUIUTILS, "你的系统似乎没有安装hyprland-guiutils。这是一个用于部分对话框的运行时依赖。请考虑安装。");
-    registerEntry("zh_CN", TXT_KEY_NOTIF_FAILED_ASSETS, "Hyprland无法加载{count}个重要资产，问问你发行版的打包者在打包个什么玩意！？");
+    registerEntry("zh_CN", TXT_KEY_NOTIF_FAILED_ASSETS, "Abyssland无法加载{count}个重要资产，问问你发行版的打包者在打包个什么玩意！？");
     registerEntry("zh_CN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "你的显示器没有被正确设置。显示器 {name} 和其他显示器的布局重叠了。请看wiki中的“显示器”一章获取更多信息。这<b>会</b>导致问题。");
     registerEntry("zh_CN", TXT_KEY_NOTIF_MONITOR_MODE_FAIL, "显示器 {name} 无法被设置为任何请求的模式，将使用 {mode} 兜底。");
@@ -1259,14 +1259,14 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_CN", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "无法加载插件 {name}：{error}");
     registerEntry("zh_CN", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "无法重新加载CM着色器，将使用rgba/rgbx兜底。");
     registerEntry("zh_CN", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "显示器 {name}：宽色域被启用了，但是显示器并不在10-bit模式。");
-    registerEntry("zh_CN", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland 启动时未使用 start-hyprland。除非你处于调试环境，否则极度不推荐这样做。");
+    registerEntry("zh_CN", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland 启动时未使用 start-abyssland。除非你处于调试环境，否则极度不推荐这样做。");
 
     registerEntry("zh_CN", TXT_KEY_SAFE_MODE_TITLE, "安全模式");
     registerEntry("zh_CN", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland "
+                  "Abyssland "
                   "已在安全模式下启动，这意味着你上次会话崩溃了。\n安全模式会阻止加载你的配置。你可以在此环境中进行故障排除，或者使用下方按钮加载你的配置。\n默认快"
                   "捷键适用：SUPER+Q 打开 Kitty，SUPER+R 打开简易启动器，SUPER+M 退出。\n重新启动 "
-                  "Hyprland 将再次进入正常模式。");
+                  "Abyssland 将再次进入正常模式。");
     registerEntry("zh_CN", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "加载配置");
     registerEntry("zh_CN", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "打开崩溃报告目录");
     registerEntry("zh_CN", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "好的，关闭窗口");
@@ -1284,7 +1284,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_TW", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "偵測到新鍵盤：<b>{keyboard}</b>。\n\n您是否允許它進行操作？");
     registerEntry("zh_TW", TXT_KEY_PERMISSION_UNKNOWN_NAME, "（未知）");
     registerEntry("zh_TW", TXT_KEY_PERMISSION_TITLE, "權限請求");
-    registerEntry("zh_TW", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "提示：您可以在 Hyprland 設定檔中為此建立永久規則。");
+    registerEntry("zh_TW", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "提示：您可以在 Abyssland 設定檔中為此建立永久規則。");
     registerEntry("zh_TW", TXT_KEY_PERMISSION_ALLOW, "允許");
     registerEntry("zh_TW", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "總是允許");
     registerEntry("zh_TW", TXT_KEY_PERMISSION_ALLOW_ONCE, "僅允許一次");
@@ -1293,11 +1293,11 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("zh_TW", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "您的 XDG_CURRENT_DESKTOP 環境變數似乎由外部管理，目前的值為 {value}。\n除非您有意為之，否則這可能會導致問題。");
     registerEntry("zh_TW", TXT_KEY_NOTIF_NO_GUIUTILS, "您的系統未安裝 hyprland-guiutils。這是部分對話視窗的執行期依賴元件。建議您安裝它。");
-    registerEntry("zh_TW", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("zh_TW", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland 無法載入 {count} 個必要資源，去怪那個把發行版打包成這副德性的維護者！";
-        return "Hyprland 無法載入 {count} 個必要資源，去怪那個把發行版打包成這副德性的維護者！";
+            return "Abyssland 無法載入 {count} 個必要資源，去怪那個把發行版打包成這副德性的維護者！";
+        return "Abyssland 無法載入 {count} 個必要資源，去怪那個把發行版打包成這副德性的維護者！";
     });
     registerEntry("zh_TW", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "您的螢幕配置設定不正確。螢幕 {name} 與配置中的其他螢幕重疊了。\n請參閱 Wiki（螢幕頁面）以了解詳情。這<b>絕對會</b>導致問題。");
@@ -1306,14 +1306,14 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_TW", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "無法載入外掛 {name}：{error}");
     registerEntry("zh_TW", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM 著色器重新載入失敗，將退回使用 rgba/rgbx。");
     registerEntry("zh_TW", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "螢幕 {name}：已啟用廣色域，但顯示器並非處於 10-bit 模式。");
-    registerEntry("zh_TW", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland 啟動時未使用 start-hyprland wrapper。除非您處於除錯環境，否則極度不建議這麼做。");
+    registerEntry("zh_TW", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland 啟動時未使用 start-abyssland wrapper。除非您處於除錯環境，否則極度不建議這麼做。");
 
     registerEntry("zh_TW", TXT_KEY_SAFE_MODE_TITLE, "安全模式");
     registerEntry("zh_TW", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland "
+                  "Abyssland "
                   "已在安全模式下啟動，這代表您的上個工作階段當機。\n安全模式會阻止載入您的設定檔。您可以在此環境中進行故障排除，或使用下方按鈕載入您的設定。\n預設快"
                   "捷鍵適用：SUPER+Q 開啟 Kitty，SUPER+R 開啟簡易啟動器，SUPER+M 退出。\n重新啟動 "
-                  "Hyprland 將再次進入正常模式。");
+                  "Abyssland 將再次進入正常模式。");
     registerEntry("zh_TW", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "載入設定檔");
     registerEntry("zh_TW", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "開啟當機報告目錄");
     registerEntry("zh_TW", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "好，關閉視窗");
@@ -1331,7 +1331,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ar", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "تم اكتشاف لوحة مفاتيح جديدة: <b>{keyboard}</b>.\n\nهل تريد السماح لها بالعمل؟");
     registerEntry("ar", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(غير معروف)");
     registerEntry("ar", TXT_KEY_PERMISSION_TITLE, "طلب الإذن");
-    registerEntry("ar", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "تلميح: يمكنك تعيين قواعد دائمة لهذه الطلبات في ملف إعدادات Hyprland.");
+    registerEntry("ar", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "تلميح: يمكنك تعيين قواعد دائمة لهذه الطلبات في ملف إعدادات Abyssland.");
     registerEntry("ar", TXT_KEY_PERMISSION_ALLOW, "السماح");
     registerEntry("ar", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "السماح مع تذكّر الاختيار");
     registerEntry("ar", TXT_KEY_PERMISSION_ALLOW_ONCE, "السماح لمرة واحدة");
@@ -1342,11 +1342,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "يبدو أنّ متغيّر البيئة XDG_CURRENT_DESKTOP يُدار من خارج النظام، والقيمة الحالية هي {value}.\n"
                   "قد يؤدي ذلك إلى مشكلات ما لم يكن مقصودًا.");
     registerEntry("ar", TXT_KEY_NOTIF_NO_GUIUTILS, "لا يحتوي نظامك على الحزمة hyprland-guiutils مثبتة. هذه حزمة مطلوبة أثناء التشغيل لبعض مربعات الحوار. يُنصَح بتثبيتها.");
-    registerEntry("ar", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("ar", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "فشل Hyprland في تحميل مورد أساسي ({count}). قد يكون السبب سوء تغليف الحزم في التوزيعة.";
-        return "فشل Hyprland في تحميل {count} من الموارد الأساسية. قد يكون السبب سوء تغليف الحزم في التوزيعة.";
+            return "فشل Abyssland في تحميل مورد أساسي ({count}). قد يكون السبب سوء تغليف الحزم في التوزيعة.";
+        return "فشل Abyssland في تحميل {count} من الموارد الأساسية. قد يكون السبب سوء تغليف الحزم في التوزيعة.";
     });
     registerEntry("ar", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "تم إعداد مخطط الشاشات لديك بشكل غير صحيح. الشاشة {name} تتداخل مع شاشة أو أكثر في المخطط.\n"
@@ -1359,10 +1359,10 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("ar", TXT_KEY_SAFE_MODE_TITLE, "الوضع الآمن");
     registerEntry("ar", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "شُغل Hyprland في الوضع الآمن، هذا يعني أن جلستك الأخيرة قد انهارت.\nالوضع الآمن يمنع تحميل إعداداتك، "
+                  "شُغل Abyssland في الوضع الآمن، هذا يعني أن جلستك الأخيرة قد انهارت.\nالوضع الآمن يمنع تحميل إعداداتك، "
                   "يمكنك البحث عن وحل المشاكل في هذه البيئة، أو تحميل إعداداتك باستخدام الزر أدناه.\n اختصارات المفاتيح الافتراضية: الطرفية (Kitty) - SUPER+Q، مشغّل "
                   "الأوامر البسيط - SUPER+R، الخروج - SUPER+M.\n"
-                  "إعادة تشغيل Hyprland سيشغله في الوضع العادي");
+                  "إعادة تشغيل Abyssland سيشغله في الوضع العادي");
     registerEntry("ar", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "حمل ملف الإعدادات");
     registerEntry("ar", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "افتح مجلد تقرير الانهيار");
     registerEntry("ar", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "حسنًا، أغلق هذا");
@@ -1380,7 +1380,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ro_RO", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "A fost detectată o tastatură nouă: <b>{keyboard}</b>.\n\nDorești să îi permiți să funcționeze?");
     registerEntry("ro_RO", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(necunoscut)");
     registerEntry("ro_RO", TXT_KEY_PERMISSION_TITLE, "Cerere de permisiune");
-    registerEntry("ro_RO", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Indiciu: poți seta reguli persistente pentru acestea în fișierul de configurare Hyprland.");
+    registerEntry("ro_RO", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Indiciu: poți seta reguli persistente pentru acestea în fișierul de configurare Abyssland.");
     registerEntry("ro_RO", TXT_KEY_PERMISSION_ALLOW, "Permite");
     registerEntry("ro_RO", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Permite și reține");
     registerEntry("ro_RO", TXT_KEY_PERMISSION_ALLOW_ONCE, "Permite o dată");
@@ -1392,11 +1392,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "cazului în care este intenționat.");
     registerEntry("ro_RO", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Sistemul tău nu are instalat hyprland-guiutils. Aceasta este o dependență de execuție pentru anumite dialoguri. Ia în considerare instalarea acesteia.");
-    registerEntry("ro_RO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("ro_RO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo == 1)
-            return "Hyprland nu a reușit să încarce un element esențial. Dă vina pe packager-ul distro-ului tău că a făcut o treabă proastă la ambalare!";
-        return "Hyprland nu a reușit să încarce {count} elemente esențiale. Dă vina pe packager-ul distro-ului tău că a făcut o treabă proastă la ambalare!";
+            return "Abyssland nu a reușit să încarce un element esențial. Dă vina pe packager-ul distro-ului tău că a făcut o treabă proastă la ambalare!";
+        return "Abyssland nu a reușit să încarce {count} elemente esențiale. Dă vina pe packager-ul distro-ului tău că a făcut o treabă proastă la ambalare!";
     });
     registerEntry("ro_RO", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Configurația monitorului este incorectă. Monitorul {name} se suprapune cu alte monitoare.\nConsultați wiki-ul (pagina Monitoare) pentru "
@@ -1406,16 +1406,16 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ro_RO", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "Nu s-a putut încărca pluginul {name}: {error}");
     registerEntry("ro_RO", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Reîncărcarea shaderului CM a eșuat, revenind la rgba/rgbx.");
     registerEntry("ro_RO", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Monitor {name}: gama largă de culori este activată, dar afișajul nu este în modul pe 10 biți.");
-    registerEntry("ro_RO", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland a fost pornit fără start-hyprland. Acest lucru nu este recomandat decât dacă te afli într-un mediu de depanare.");
+    registerEntry("ro_RO", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland a fost pornit fără start-abyssland. Acest lucru nu este recomandat decât dacă te afli într-un mediu de depanare.");
 
     registerEntry("ro_RO", TXT_KEY_SAFE_MODE_TITLE, "Modul de Siguranță");
     registerEntry(
         "ro_RO", TXT_KEY_SAFE_MODE_DESCRIPTION,
-        "Hyprland a fost lansat în modul de siguranță, ceea ce înseamnă că ultima sesiune s-a blocat.\nModul de siguranță împiedică încărcarea configurației. Poți "
+        "Abyssland a fost lansat în modul de siguranță, ceea ce înseamnă că ultima sesiune s-a blocat.\nModul de siguranță împiedică încărcarea configurației. Poți "
         "depana în acest mediu sau să încarci configurația cu butonul de mai jos.\nSe aplică combinațiile de taste implicite: SUPER+Q pentru kitty, SUPER+R pentru un runner de "
         "bază."
         "SUPER+M pentru ieșire.\nLa repornire "
-        "Hyprland se va lansa din nou în modul normal.");
+        "Abyssland se va lansa din nou în modul normal.");
     registerEntry("ro_RO", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Încarcă configurația");
     registerEntry("ro_RO", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Deschide locația rapoartelor de crash-uri");
     registerEntry("ro_RO", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Ok, închide");
@@ -1433,7 +1433,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ru_RU", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Обнаружена новая клавиатура: <b>{keyboard}</b>.\n\nРазрешить ей работать?");
     registerEntry("ru_RU", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(неизвестно)");
     registerEntry("ru_RU", TXT_KEY_PERMISSION_TITLE, "Запрос разрешения");
-    registerEntry("ru_RU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Подсказка: вы можете настроить постоянные правила для этого в конфигурационном файле Hyprland.");
+    registerEntry("ru_RU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Подсказка: вы можете настроить постоянные правила для этого в конфигурационном файле Abyssland.");
     registerEntry("ru_RU", TXT_KEY_PERMISSION_ALLOW, "Разрешить");
     registerEntry("ru_RU", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Разрешить и запомнить");
     registerEntry("ru_RU", TXT_KEY_PERMISSION_ALLOW_ONCE, "Разрешить в этот раз");
@@ -1443,7 +1443,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ru_RU", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Переменная окружения XDG_CURRENT_DESKTOP установлена извне, текущее значение: {value}.\nЭто может вызвать проблемы, если только это не сделано намеренно.");
     registerEntry("ru_RU", TXT_KEY_NOTIF_NO_GUIUTILS, "Пакет hyprland-guiutils не установлен. Он необходим для некоторых диалогов. Рекомендуется установить его.");
-    registerEntry("ru_RU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("ru_RU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
             return "Не удалось загрузить {count} критически важный ресурс, пожалуйтесь мейнтейнеру вашего дистрибутива за кривую сборку пакета!";
@@ -1457,13 +1457,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ru_RU", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "Не удалось загрузить плагин {name}: {error}");
     registerEntry("ru_RU", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Не удалось перезагрузить CM shader, используется rgba/rgbx.");
     registerEntry("ru_RU", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Монитор {name}: расширенный цветовой охват включён, но дисплей не в 10-bit режиме.");
-    registerEntry("ru_RU", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland был запущен без start-hyprland. Это крайне не рекомендуется, если только вы не в отладочной среде.");
+    registerEntry("ru_RU", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland был запущен без start-abyssland. Это крайне не рекомендуется, если только вы не в отладочной среде.");
 
     registerEntry("ru_RU", TXT_KEY_SAFE_MODE_TITLE, "Безопасный режим");
     registerEntry("ru_RU", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland запущен в безопасном режиме, это значит, что ваш прошлый сеанс завершился сбоем.\nБезопасный режим не загружает ваш конфиг. Вы можете "
+                  "Abyssland запущен в безопасном режиме, это значит, что ваш прошлый сеанс завершился сбоем.\nБезопасный режим не загружает ваш конфиг. Вы можете "
                   "исправить проблему в этом окружении или загрузить конфиг кнопкой ниже.\nДействуют стандартные бинды: SUPER+Q запускает kitty, SUPER+R открывает лаунчер, "
-                  "SUPER+M для выхода.\nПосле перезапуска Hyprland снова запустится в обычном режиме.");
+                  "SUPER+M для выхода.\nПосле перезапуска Abyssland снова запустится в обычном режиме.");
     registerEntry("ru_RU", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Загрузить конфиг");
     registerEntry("ru_RU", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Открыть каталог отчётов о сбоях");
     registerEntry("ru_RU", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Ок, закрыть");
@@ -1481,7 +1481,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sl_SI", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Nova tipkovnica je bila zaznana: <b>{keyboard}</b>.\n\nAli ji želite dovoliti delovanje?");
     registerEntry("sl_SI", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(neznano)");
     registerEntry("sl_SI", TXT_KEY_PERMISSION_TITLE, "Zahteva za dovoljenje");
-    registerEntry("sl_SI", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Namig: v Hyprlandovi konfiguracijski datoteki lahko nastavite stalna pravila za dovoljenja.");
+    registerEntry("sl_SI", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Namig: v Abysslandovi konfiguracijski datoteki lahko nastavite stalna pravila za dovoljenja.");
     registerEntry("sl_SI", TXT_KEY_PERMISSION_ALLOW, "Dovoli");
     registerEntry("sl_SI", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Dovoli in si zapomni");
     registerEntry("sl_SI", TXT_KEY_PERMISSION_ALLOW_ONCE, "Dovoli enkrat");
@@ -1491,11 +1491,11 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Zdi se, da je Vaše okolje XDG_CURRENT_DESKTOP upravljano od zunaj, trenutna vrednost je {value}.\nTo lahko povzroči težave, če ni namerno.");
     registerEntry("sl_SI", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "hyprland-guiutils ni nameščen na vaši napravi. To je odvisnost od izvajalnega okolja za nekatera pogovorna okna. Razmislite o namestitvi.");
-    registerEntry("sl_SI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("sl_SI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assertNo = std::stoi(vars.at("count"));
         if (assertNo <= 1)
-            return "Hyprlandu ni uspelo naložiti {count} bistvenega sredstva, krivite upravitelja paketov vaše distribucije za slabo opravljeno pakiranje!";
-        return "Hyprlandu ni uspelo naložiti {count} bistvenih sredstev, krivite upravitelja paketov vaše distribucije za slabo opravljeno pakiranje!";
+            return "Abysslandu ni uspelo naložiti {count} bistvenega sredstva, krivite upravitelja paketov vaše distribucije za slabo opravljeno pakiranje!";
+        return "Abysslandu ni uspelo naložiti {count} bistvenih sredstev, krivite upravitelja paketov vaše distribucije za slabo opravljeno pakiranje!";
     });
     registerEntry("sl_SI", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Vaša zaslonska razporeditev je napačno nastavljena. Zaslon {monitor} se prekriva z drugimi zasloni v razporeditvi.\n"
@@ -1519,7 +1519,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sr_RS", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Нова тастатура је детектована: <b>{keyboard}</b>.\n\nДа ли желиш да дозволиш њен рад?");
     registerEntry("sr_RS", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(непознато)");
     registerEntry("sr_RS", TXT_KEY_PERMISSION_TITLE, "Захтев за дозволу");
-    registerEntry("sr_RS", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Савет: можеш направити трајна правила за ово у Hyprland конфигурационој датотеци.");
+    registerEntry("sr_RS", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Савет: можеш направити трајна правила за ово у Abyssland конфигурационој датотеци.");
     registerEntry("sr_RS", TXT_KEY_PERMISSION_ALLOW, "Дозволи");
     registerEntry("sr_RS", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Дозволи и запамти");
     registerEntry("sr_RS", TXT_KEY_PERMISSION_ALLOW_ONCE, "Дозволи једном");
@@ -1529,13 +1529,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sr_RS", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Изгледа да се твојим XDG_CURRENT_DESKTOP окружењем управља споља, и тренутна вредност је {value}.\nОво може правити проблеме осим ако је намерно.");
     registerEntry("sr_RS", TXT_KEY_NOTIF_NO_GUIUTILS, "Твој систем нема инсталиран hyprland-guiutils. Ово је зависност при покретању за неке дијалоге. Размотри инсталацију.");
-    registerEntry("sr_RS", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("sr_RS", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland није успео да учита {count} кључни ресурс, криви пакера твоје дистрибуције за лоше одрађен посао!";
+            return "Abyssland није успео да учита {count} кључни ресурс, криви пакера твоје дистрибуције за лоше одрађен посао!";
         if (assetsNo <= 4)
-            return "Hyprland није успео да учита {count} кључна ресурса, криви пакера твоје дистрибуције за лоше одрађен посао!";
-        return "Hyprland није успео да учита {count} кључних ресурса, криви пакера твоје дистрибуције за лоше одрађен посао!";
+            return "Abyssland није успео да учита {count} кључна ресурса, криви пакера твоје дистрибуције за лоше одрађен посао!";
+        return "Abyssland није успео да учита {count} кључних ресурса, криви пакера твоје дистрибуције за лоше одрађен посао!";
     });
     registerEntry(
         "sr_RS", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -1560,7 +1560,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Nova tastatura je detektovana: <b>{keyboard}</b>.\n\nDa li želiš da dozvoliš njen rad?");
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(nepoznato)");
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_TITLE, "Zahtev za dozvolu");
-    registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Savet: možeš napraviti trajna pravila za ovo u Hyprland konfiguracionoj datoteci.");
+    registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Savet: možeš napraviti trajna pravila za ovo u Abyssland konfiguracionoj datoteci.");
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_ALLOW, "Dozvoli");
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Dozvoli i zapamti");
     registerEntry("sr_RS@latin", TXT_KEY_PERMISSION_ALLOW_ONCE, "Dozvoli jednom");
@@ -1571,13 +1571,13 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Izgleda da se tvojim XDG_CURRENT_DESKTOP okruženjem upravlja spolja, i trenutna vrednost je {value}.\nOvo može praviti probleme osim ako je namerno.");
     registerEntry("sr_RS@latin", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Tvoj sistem nema instaliran hyprland-guiutils. Ovo je zavisnost pri pokretanju za neke dijaloge. Razmotri instalaciju.");
-    registerEntry("sr_RS@latin", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("sr_RS@latin", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprland nije uspeo da učita {count} ključni resurs, krivi pakera tvoje distribucije za loše odrađen posao!";
+            return "Abyssland nije uspeo da učita {count} ključni resurs, krivi pakera tvoje distribucije za loše odrađen posao!";
         if (assetsNo <= 4)
-            return "Hyprland nije uspeo da učita {count} ključna resursa, krivi pakera tvoje distribucije za loše odrađen posao!";
-        return "Hyprland nije uspeo da učita {count} ključnih resursa, krivi pakera tvoje distribucije za loše odrađen posao!";
+            return "Abyssland nije uspeo da učita {count} ključna resursa, krivi pakera tvoje distribucije za loše odrađen posao!";
+        return "Abyssland nije uspeo da učita {count} ključnih resursa, krivi pakera tvoje distribucije za loše odrađen posao!";
     });
     registerEntry(
         "sr_RS@latin", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -1602,7 +1602,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("tr_TR", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Yeni bir klavye algılandı: <b>{keyboard}</b>.\n\nÇalışmasına izin vermek istiyor musun?");
     registerEntry("tr_TR", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(bilinmiyor)");
     registerEntry("tr_TR", TXT_KEY_PERMISSION_TITLE, "İzin isteği");
-    registerEntry("tr_TR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "İpucu: Hyprland config dosyasında bunlar için kalıcı kurallar atayabilirsin.");
+    registerEntry("tr_TR", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "İpucu: Abyssland config dosyasında bunlar için kalıcı kurallar atayabilirsin.");
     registerEntry("tr_TR", TXT_KEY_PERMISSION_ALLOW, "İzin ver");
     registerEntry("tr_TR", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "İzin ver ve seçimimi hatırla");
     registerEntry("tr_TR", TXT_KEY_PERMISSION_ALLOW_ONCE, "Yalnızca bir defa izin ver");
@@ -1614,7 +1614,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("tr_TR", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Sisteminde hyprland-guiutils yüklü değil. Bu bazı diyaloglar için bir çalışma zamanı bağımlılığı. İndirmeyi göz önünde bulundurabilirsin.");
     registerEntry("tr_TR", TXT_KEY_NOTIF_FAILED_ASSETS,
-                  "Hyprland {count} gerekli dosyayı yüklemekte başarısız oldu, kötü bir iş çıkardığı için kullandığın distronun paketleyicisini suçla!");
+                  "Abyssland {count} gerekli dosyayı yüklemekte başarısız oldu, kötü bir iş çıkardığı için kullandığın distronun paketleyicisini suçla!");
     registerEntry("tr_TR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Monitör düzenin yanlış ayarlanmış. Monitör {name} düzenindeki başka monitörlerle çakışıyor.\nLütfen daha fazla bilgi için wiki'ye (Monitörler sayfası) göz at. "
                   "Bu <b>sorunlara yol açacak</b>.");
@@ -1638,7 +1638,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("tt_RU", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Яңа клавиатура табылды: <b>{keyboard}</b>.\n\nАның эшләргә рөхсәт бирәсезме?");
     registerEntry("tt_RU", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(билгесез)");
     registerEntry("tt_RU", TXT_KEY_PERMISSION_TITLE, "Рөхсәт сорау");
-    registerEntry("tt_RU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Киңәш: сез Hyprland көйләү файлында даими кагыйдәләр куя аласыз.");
+    registerEntry("tt_RU", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Киңәш: сез Abyssland көйләү файлында даими кагыйдәләр куя аласыз.");
     registerEntry("tt_RU", TXT_KEY_PERMISSION_ALLOW, "Рөхсәт бирү");
     registerEntry("tt_RU", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Рөхсәт бирү һәм истә калдыру");
     registerEntry("tt_RU", TXT_KEY_PERMISSION_ALLOW_ONCE, "Бер тапкыр рөхсәт бирү");
@@ -1650,7 +1650,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Бу теләгән булмаса, проблемалар китереп чыгарырга мөмкин.");
     registerEntry("tt_RU", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "Сезнең системада hyprland-guiutils урнаштырылмаган. Бу кайбер диалоглар өчен кирәкле вакыт бәйлелеге. Урнаштыруны карап чыгыгыз.");
-    registerEntry("tt_RU", TXT_KEY_NOTIF_FAILED_ASSETS, "Hyprland {count} мөһим ресурсны йөкли алмады. Ул дистрибутивыгыз пакетлаучысының хатасы!");
+    registerEntry("tt_RU", TXT_KEY_NOTIF_FAILED_ASSETS, "Abyssland {count} мөһим ресурсны йөкли алмады. Ул дистрибутивыгыз пакетлаучысының хатасы!");
     registerEntry("tt_RU", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Сезнең мониторлар урнашуы дөрес түгел. {name} мониторы башка монитор белән өстәлә.\n"
                   "Зинһар, өстәмә мәгълүмат өчен викидагы (Monitors бит) мөрәҗәгать итегез. Бу <b>һичшиксез</b> проблемалар тудырачак.");
@@ -1659,14 +1659,14 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("tt_RU", TXT_KEY_NOTIF_FAILED_TO_LOAD_PLUGIN, "{name} плагинны йөкләүдә хата: {error}");
     registerEntry("tt_RU", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "CM шейдерын яңадан йөкләү уңышсыз булды, rgba/rgbx режимына кайтыла.");
     registerEntry("tt_RU", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Монитор {name}: киң төсләр диапазоны кушылган, ләкин дисплей 10-бит режимында түгел.");
-    registerEntry("tt_RU", TXT_KEY_NOTIF_NO_WATCHDOG, "Hyprland start-hyprland ярдәмендә эшләтелмәгән. Бу, төзәтү мохитеннән тыш, бик тәкъдим ителми.");
+    registerEntry("tt_RU", TXT_KEY_NOTIF_NO_WATCHDOG, "Abyssland start-abyssland ярдәмендә эшләтелмәгән. Бу, төзәтү мохитеннән тыш, бик тәкъдим ителми.");
 
     registerEntry("tt_RU", TXT_KEY_SAFE_MODE_TITLE, "Куркынычсыз режим");
     registerEntry("tt_RU", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Hyprland куркынычсыз режимда эшләтелде, димәк сезнең соңгы сессия авария белән тәмамланган.\n"
+                  "Abyssland куркынычсыз режимда эшләтелде, димәк сезнең соңгы сессия авария белән тәмамланган.\n"
                   "Куркынычсыз режим сезнең конфигурацияне йөкләүне тыя. Сез бу мохиттә проблемаларны тикшерә аласыз, яки түбәндәге төймә аша конфигурацияне йөкли аласыз.\n"
                   "Килешенгән төймә бәйләнешләре кулланыла: SUPER+Q kitty ачу, SUPER+R лаунчер ачу, SUPER+M чыгу.\n"
-                  "Hyprland-ны яңадан эшләтү аны гадәти режимда ачачак.");
+                  "Abyssland-ны яңадан эшләтү аны гадәти режимда ачачак.");
     registerEntry("tt_RU", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Конфигурацияне йөкләү");
     registerEntry("tt_RU", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Авария хисаплары папкасын ачу");
     registerEntry("tt_RU", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "Аңлашылды, ябу");
@@ -1684,7 +1684,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("uk_UA", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Виявлено нову клавіатуру: <b>{keyboard}</b>.\n\nДозволити її використання?");
     registerEntry("uk_UA", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(невідомо)");
     registerEntry("uk_UA", TXT_KEY_PERMISSION_TITLE, "Запит дозволу");
-    registerEntry("uk_UA", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Підказка: ви можете встановити постійні правила для дозволів у файлі конфігурації Hyprland.");
+    registerEntry("uk_UA", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Підказка: ви можете встановити постійні правила для дозволів у файлі конфігурації Abyssland.");
     registerEntry("uk_UA", TXT_KEY_PERMISSION_ALLOW, "Дозволити");
     registerEntry("uk_UA", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Дозволити та запам'ятати");
     registerEntry("uk_UA", TXT_KEY_PERMISSION_ALLOW_ONCE, "Дозволити один раз");
@@ -1696,7 +1696,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "Ваше середовище XDG_CURRENT_DESKTOP, схоже, керується ззовні, і поточне значення становить {value}.\nЦе може спричинити проблеми, якщо це не зроблено навмисно.");
     registerEntry("uk_UA", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "У вашій системі не встановлено hyprland-guiutils. Це залежність, потрібна для роботи деяких діалогових вікон. Розгляньте можливість його встановлення.");
-    registerEntry("uk_UA", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("uk_UA", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
             return "Не вдалося завантажити {count} необхідний ресурс, звинувачуйте пакувальника свого дистрибутива у недобросовісній роботі!";
@@ -1725,7 +1725,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("vi_VN", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Phát hiện bàn phím mới: <b>{keyboard}</b>.\n\nBạn muốn cho phép bàn phím này hoạt động không?");
     registerEntry("vi_VN", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(không xác định)");
     registerEntry("vi_VN", TXT_KEY_PERMISSION_TITLE, "Yêu cầu cấp quyền");
-    registerEntry("vi_VN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Gợi ý: bạn có thể thiết lập các quyền này trong tệp cấu hình Hyprland.");
+    registerEntry("vi_VN", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Gợi ý: bạn có thể thiết lập các quyền này trong tệp cấu hình Abyssland.");
     registerEntry("vi_VN", TXT_KEY_PERMISSION_ALLOW, "Cho phép");
     registerEntry("vi_VN", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Cho phép và ghi nhớ");
     registerEntry("vi_VN", TXT_KEY_PERMISSION_ALLOW_ONCE, "Chỉ một lần");
@@ -1737,7 +1737,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "Biến môi trường XDG_CURRENT_DESKTOP dường như đang được thiết lập từ bên ngoài với giá trị là {value}.\nViệc này có thể gây ra lỗi trừ khi đó là chủ ý của bạn.");
     registerEntry("vi_VN", TXT_KEY_NOTIF_NO_GUIUTILS, "Hệ thống chưa cài hyprland-guiutils. Một số hộp thoại sẽ không hiển thị nếu thiếu nó.");
     registerEntry("vi_VN", TXT_KEY_NOTIF_FAILED_ASSETS,
-                  "Hyprland không thể tải {count} tài nguyên quan trọng. Vui lòng báo lỗi cho người đóng gói (packager) của bản phân phối (distro) mà bạn dùng!");
+                  "Abyssland không thể tải {count} tài nguyên quan trọng. Vui lòng báo lỗi cho người đóng gói (packager) của bản phân phối (distro) mà bạn dùng!");
     registerEntry("vi_VN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Bố cục màn hình không hợp lệ. Màn hình {name} đang bị đè lên các màn hình khác.\nVui lòng xem trang Monitors trên wiki để "
                   "khắc phục, nếu không <b>chắc chắn</b> sẽ có lỗi xảy ra.");
@@ -1747,13 +1747,13 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("vi_VN", TXT_KEY_NOTIF_CM_RELOAD_FAILED, "Tải lại CM shader thất bại, đang dùng tạm rgba/rgbx.");
     registerEntry("vi_VN", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Màn hình {name}: dải màu rộng (wide color gamut) khả dụng nhưng màn hình không ở chế độ 10-bit.");
     registerEntry("vi_VN", TXT_KEY_NOTIF_NO_WATCHDOG,
-                  "Hyprland đã được khởi động mà không thông qua start-hyprland. Việc này không được khuyến khích trừ khi dùng cho mục đích gỡ lỗi.");
+                  "Abyssland đã được khởi động mà không thông qua start-abyssland. Việc này không được khuyến khích trừ khi dùng cho mục đích gỡ lỗi.");
 
     registerEntry("vi_VN", TXT_KEY_SAFE_MODE_TITLE, "Chế độ An toàn (Safe Mode)");
     registerEntry("vi_VN", TXT_KEY_SAFE_MODE_DESCRIPTION,
-                  "Phiên hoạt động trước đó đã bị sập (crash).\nHyprland hiện đang chạy ở chế độ an toàn và không tải tệp cấu hình của bạn. Bạn có thể "
+                  "Phiên hoạt động trước đó đã bị sập (crash).\nAbyssland hiện đang chạy ở chế độ an toàn và không tải tệp cấu hình của bạn. Bạn có thể "
                   "khắc phục sự cố trong môi trường này, hoặc bấm nút bên dưới để thử tải lại cấu hình.\nCác phím tắt mặc định: SUPER+Q (kitty), SUPER+R (runner), "
-                  "SUPER+M (exit).\nHyprland sẽ về chế độ bình thường sau khi khởi động lại.");
+                  "SUPER+M (exit).\nAbyssland sẽ về chế độ bình thường sau khi khởi động lại.");
     registerEntry("vi_VN", TXT_KEY_SAFE_MODE_BUTTON_LOAD_CONFIG, "Tải cấu hình");
     registerEntry("vi_VN", TXT_KEY_SAFE_MODE_BUTTON_OPEN_CRASH_REPORT_DIR, "Mở thư mục báo cáo lỗi (crash report)");
     registerEntry("vi_VN", TXT_KEY_SAFE_MODE_BUTTON_UNDERSTOOD, "OK, đã hiểu");
@@ -1771,7 +1771,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_REQUEST_KEYBOARD, "Byla detekována nová klávesnice: <b>{keyboard}</b>.\n\nChcete jí povolit?");
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_UNKNOWN_NAME, "(neznámé)");
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_TITLE, "Žádost o oprávnění");
-    registerEntry("cs_CZ", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: pro tyto případy můžete nastavit trvalá pravidla v konfiguračním souboru Hyprland.");
+    registerEntry("cs_CZ", TXT_KEY_PERMISSION_PERSISTENCE_HINT, "Tip: pro tyto případy můžete nastavit trvalá pravidla v konfiguračním souboru Abyssland.");
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_ALLOW, "Povolit");
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_ALLOW_AND_REMEMBER, "Povolit a zapamatovat");
     registerEntry("cs_CZ", TXT_KEY_PERMISSION_ALLOW_ONCE, "Povolit jednou");
@@ -1782,13 +1782,13 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Proměnná prostředí XDG_CURRENT_DESKTOP se zdá být spravována externě a její aktuální hodnota je {value}.\nPokud to není záměr, může to způsobit problémy.");
     registerEntry("cs_CZ", TXT_KEY_NOTIF_NO_GUIUTILS,
                   "V systému není nainstalován balíček hyprland-guiutils. Jedná se o závislost pro běh některých dialogových oken. Zvažte jeho instalaci.");
-    registerEntry("cs_CZ", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Hyprutils::I18n::translationVarMap& vars) {
+    registerEntry("cs_CZ", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
-            return "Hyprlandu se nepodařilo načíst {count} nezbytnou součást. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
+            return "Abysslandu se nepodařilo načíst {count} nezbytnou součást. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
         if (assetsNo <= 4)
-            return "Hyprlandu se nepodařilo načíst {count} nezbytné součásti. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
-        return "Hyprlandu se nepodařilo načíst {count} nezbytných součástí. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
+            return "Abysslandu se nepodařilo načíst {count} nezbytné součásti. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
+        return "Abysslandu se nepodařilo načíst {count} nezbytných součástí. Za špatně odvedenou práci viňte tvůrce balíčku vaší distribuce!";
     });
     registerEntry("cs_CZ", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Rozložení vašich monitorů je nastaveno nesprávně. Monitor {name} se překrývá s ostatními monitory.\nVíce informací naleznete na wiki "
@@ -1800,7 +1800,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("cs_CZ", TXT_KEY_NOTIF_WIDE_COLOR_NOT_10B, "Monitor {name}: široký barevný gamut je povolen, ale displej není v 10bitovém režimu.");
 }
 
-std::string I18n::CI18nEngine::localize(eI18nKeys key, const Hyprutils::I18n::translationVarMap& vars) {
+std::string I18n::CI18nEngine::localize(eI18nKeys key, const Abyssutils::I18n::translationVarMap& vars) {
     static auto CONFIG_LOCALE = CConfigValue<std::string>("general:locale");
     std::string locale        = *CONFIG_LOCALE != "" ? *CONFIG_LOCALE : localeStr;
     return huEngine->localizeEntry(locale, key, vars);

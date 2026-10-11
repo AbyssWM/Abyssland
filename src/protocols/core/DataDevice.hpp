@@ -18,7 +18,7 @@
 #include "../../helpers/math/Math.hpp"
 #include "../../helpers/time/Time.hpp"
 #include "../types/DataDevice.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 class CWLDataDeviceResource;
 class CWLDataDeviceManagerResource;
@@ -62,7 +62,7 @@ class CWLDataSourceResource : public IDataSource {
     bool                             good();
 
     virtual std::vector<std::string> mimes();
-    virtual void                     send(const std::string& mime, Hyprutils::OS::CFileDescriptor fd);
+    virtual void                     send(const std::string& mime, Abyssutils::OS::CFileDescriptor fd);
     virtual void                     accepted(const std::string& mime);
     virtual void                     cancelled();
     virtual bool                     hasDnd();
@@ -175,15 +175,15 @@ class CWLDataDeviceProtocol : public IWaylandProtocol {
         WP<CWLSurfaceResource>  originSurface;
         std::optional<Vector2D> touchPos;
         bool                    overriddenCursor = false;
-        CHyprSignalListener     dndSurfaceDestroy;
-        CHyprSignalListener     dndSurfaceCommit;
+        CAbyssSignalListener     dndSurfaceDestroy;
+        CAbyssSignalListener     dndSurfaceCommit;
 
         // for ending a dnd
-        CHyprSignalListener mouseMove;
-        CHyprSignalListener mouseButton;
-        CHyprSignalListener touchUp;
-        CHyprSignalListener touchMove;
-        CHyprSignalListener tabletTip;
+        CAbyssSignalListener mouseMove;
+        CAbyssSignalListener mouseButton;
+        CAbyssSignalListener touchUp;
+        CAbyssSignalListener touchMove;
+        CAbyssSignalListener tabletTip;
     } m_dnd;
 
     void abortDrag();
@@ -204,8 +204,8 @@ class CWLDataDeviceProtocol : public IWaylandProtocol {
     friend class CWLDataOfferResource;
 
     struct {
-        CHyprSignalListener onKeyboardFocusChange;
-        CHyprSignalListener onDndPointerFocusChange;
+        CAbyssSignalListener onKeyboardFocusChange;
+        CAbyssSignalListener onDndPointerFocusChange;
     } m_listeners;
 };
 

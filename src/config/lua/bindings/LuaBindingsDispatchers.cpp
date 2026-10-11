@@ -1,6 +1,6 @@
 #include "LuaBindingsInternal.hpp"
 
-#include <hyprutils/string/String.hpp>
+#include <abyssutils/string/String.hpp>
 #include <lua.h>
 
 #include "Check.hpp"
@@ -18,7 +18,7 @@
 using namespace Config;
 using namespace Config::Lua;
 using namespace Config::Lua::Bindings;
-using namespace Hyprutils::String;
+using namespace Abyssutils::String;
 
 namespace CA = Config::Actions;
 

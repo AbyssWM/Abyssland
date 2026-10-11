@@ -49,7 +49,7 @@ class CPointerConstraint {
     void                            onSetRegion(wl_resource* region);
 
     struct {
-        CHyprSignalListener destroySurface;
+        CAbyssSignalListener destroySurface;
     } m_listeners;
 };
 

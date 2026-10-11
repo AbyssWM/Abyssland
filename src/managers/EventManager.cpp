@@ -9,11 +9,11 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <cstring>
-using namespace Hyprutils::OS;
+using namespace Abyssutils::OS;
 
 CEventManager::CEventManager() : m_socketFD(socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0)) {
     if (!m_socketFD.isValid()) {
-        Log::logger->log(Log::ERR, "Couldn't start the Hyprland Socket 2. (1) IPC will not work.");
+        Log::logger->log(Log::ERR, "Couldn't start the Abyssland Socket 2. (1) IPC will not work.");
         return;
     }
 
@@ -27,13 +27,13 @@ CEventManager::CEventManager() : m_socketFD(socket(AF_UNIX, SOCK_STREAM | SOCK_C
     strncpy(SERVERADDRESS.sun_path, PATH.c_str(), sizeof(SERVERADDRESS.sun_path) - 1);
 
     if (bind(m_socketFD.get(), rc<sockaddr*>(&SERVERADDRESS), SUN_LEN(&SERVERADDRESS)) < 0) {
-        Log::logger->log(Log::ERR, "Couldn't bind the Hyprland Socket 2. (3) IPC will not work.");
+        Log::logger->log(Log::ERR, "Couldn't bind the Abyssland Socket 2. (3) IPC will not work.");
         return;
     }
 
     // 10 max queued.
     if (listen(m_socketFD.get(), 10) < 0) {
-        Log::logger->log(Log::ERR, "Couldn't listen on the Hyprland Socket 2. (4) IPC will not work.");
+        Log::logger->log(Log::ERR, "Couldn't listen on the Abyssland Socket 2. (4) IPC will not work.");
         return;
     }
 
@@ -123,7 +123,7 @@ std::vector<CEventManager::SClient>::iterator CEventManager::removeClientByFD(in
     return m_clients.erase(CLIENTIT);
 }
 
-std::string CEventManager::formatEvent(const SHyprIPCEvent& event) const {
+std::string CEventManager::formatEvent(const SAbyssIPCEvent& event) const {
     std::string_view data        = event.data;
     auto             eventString = std::format("{}>>{}\n", event.event, data.substr(0, 1024));
     std::replace(eventString.begin() + event.event.length() + 2, eventString.end() - 1, '\n', ' ');
@@ -160,7 +160,7 @@ bool CEventManager::flushClient(SClient& client) {
     return true;
 }
 
-void CEventManager::postEvent(const SHyprIPCEvent& event) {
+void CEventManager::postEvent(const SAbyssIPCEvent& event) {
     if (g_pCompositor->m_isShuttingDown) {
         Log::logger->log(Log::WARN, "Suppressed (shutting down) event of type {}, content: {}", event.event, event.data);
         return;

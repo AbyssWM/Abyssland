@@ -5,9 +5,9 @@
 #include "../../render/Renderer.hpp"
 #include "../../render/pass/ClearPassElement.hpp"
 #include "../../render/pass/TexPassElement.hpp"
-#include <hyprgraphics/egl/Egl.hpp>
+#include <abyssgraphics/egl/Egl.hpp>
 
-using namespace Hyprgraphics::Egl;
+using namespace Abyssgraphics::Egl;
 using namespace Screenshare;
 
 CCursorshareSession::CCursorshareSession(wl_client* client, WP<CWLPointerResource> pointer) : m_client(client), m_pointer(pointer) {
@@ -117,27 +117,27 @@ void CCursorshareSession::render() {
 
     const auto& cursorImage = Pointer::mgr()->currentCursorImage();
 
-    // TODO: implement a monitor independent render mode to buffer that does this in CHyprRenderer::begin() or something like that
-    g_pHyprRenderer->m_renderData.transformDamage = false;
-    g_pHyprRenderer->setViewport(0, 0, m_bufferSize.x, m_bufferSize.y);
+    // TODO: implement a monitor independent render mode to buffer that does this in CAbyssRenderer::begin() or something like that
+    g_pAbyssRenderer->m_renderData.transformDamage = false;
+    g_pAbyssRenderer->setViewport(0, 0, m_bufferSize.x, m_bufferSize.y);
 
     bool overlaps = Pointer::mgr()->getCursorBoxGlobal().overlaps(m_pendingFrame.sourceBoxCallback());
-    g_pHyprRenderer->startRenderPass();
+    g_pAbyssRenderer->startRenderPass();
     if (PERM != PERMISSION_RULE_ALLOW_MODE_ALLOW || !overlaps) {
         // render black when not allowed
-        g_pHyprRenderer->draw(CClearPassElement::SClearData{Colors::BLACK});
+        g_pAbyssRenderer->draw(CClearPassElement::SClearData{Colors::BLACK});
     } else if (!cursorImage.pBuffer || !cursorImage.surface || !cursorImage.bufferTex) {
         // render clear when cursor is probably hidden
-        g_pHyprRenderer->draw(CClearPassElement::SClearData{{0, 0, 0, 0}});
+        g_pAbyssRenderer->draw(CClearPassElement::SClearData{{0, 0, 0, 0}});
     } else {
         // render cursor
-        g_pHyprRenderer->draw(CTexPassElement::SRenderData{
+        g_pAbyssRenderer->draw(CTexPassElement::SRenderData{
             .tex = cursorImage.bufferTex,
             .box = {{}, cursorImage.bufferTex->m_size},
         });
     }
 
-    g_pHyprRenderer->m_renderData.blockScreenShader = true;
+    g_pAbyssRenderer->m_renderData.blockScreenShader = true;
 }
 
 bool CCursorshareSession::copy() {
@@ -154,14 +154,14 @@ bool CCursorshareSession::copy() {
             return false;
         }
 
-        if (!g_pHyprRenderer->beginRenderToBuffer(m_pendingFrame.monitor, fakeDamage, m_pendingFrame.buffer, true)) {
+        if (!g_pAbyssRenderer->beginRenderToBuffer(m_pendingFrame.monitor, fakeDamage, m_pendingFrame.buffer, true)) {
             LOGM(Log::ERR, "Can't copy: failed to begin rendering to dmabuf");
             return false;
         }
 
         render();
 
-        g_pHyprRenderer->endRender([callback = m_pendingFrame.callback]() {
+        g_pAbyssRenderer->endRender([callback = m_pendingFrame.callback]() {
             if (callback)
                 callback(RESULT_COPIED);
         });
@@ -173,17 +173,17 @@ bool CCursorshareSession::copy() {
             return false;
         }
 
-        auto outFB = g_pHyprRenderer->createFB();
+        auto outFB = g_pAbyssRenderer->createFB();
         outFB->alloc(m_bufferSize.x, m_bufferSize.y, m_format);
 
-        if (!g_pHyprRenderer->beginFullFakeRender(m_pendingFrame.monitor, fakeDamage, outFB)) {
+        if (!g_pAbyssRenderer->beginFullFakeRender(m_pendingFrame.monitor, fakeDamage, outFB)) {
             LOGM(Log::ERR, "Can't copy: failed to begin rendering to shm");
             return false;
         }
 
         render();
 
-        g_pHyprRenderer->endRender();
+        g_pAbyssRenderer->endRender();
 
         int glFormat = PFORMAT->glFormat;
 
@@ -204,12 +204,12 @@ bool CCursorshareSession::copy() {
         }
 
         if (!outFB->readPixels(m_pendingFrame.buffer, 0, 0, m_bufferSize.x, m_bufferSize.y)) {
-            g_pHyprRenderer->m_renderData.pMonitor.reset();
+            g_pAbyssRenderer->m_renderData.pMonitor.reset();
             LOGM(Log::ERR, "Can't copy: failed to read cursor pixels to shm");
             return false;
         }
 
-        g_pHyprRenderer->m_renderData.pMonitor.reset();
+        g_pAbyssRenderer->m_renderData.pMonitor.reset();
 
         m_pendingFrame.callback(RESULT_COPIED);
     } else {

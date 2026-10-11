@@ -5,7 +5,7 @@
 #include "debug/log/Logger.hpp"
 #include "devices/IKeyboard.hpp"
 #include "event/EventBus.hpp"
-#include "hyprland-input-capture-v1.hpp"
+#include "abyssland-input-capture-v1.hpp"
 #include "pointer/PointerManager.hpp"
 #include "managers/SeatManager.hpp"
 #include "managers/eventLoop/EventLoopManager.hpp"
@@ -19,27 +19,27 @@
 #include <fcntl.h>
 #include <glaze/core/context.hpp>
 #include <glaze/util/parse.hpp>
-#include <hyprlang.hpp>
-#include <hyprutils/memory/SharedPtr.hpp>
+#include <abyssparse.hpp>
+#include <abyssutils/memory/SharedPtr.hpp>
 #include <libeis.h>
 #include <optional>
 #include <string>
 
 static int eisCounter = 0;
 
-CInputCaptureResource::CInputCaptureResource(SP<CHyprlandInputCaptureV1> resource_, std::string handle) : m_sessionId(handle), m_resource(resource_) {
+CInputCaptureResource::CInputCaptureResource(SP<CAbysslandInputCaptureV1> resource_, std::string handle) : m_sessionId(handle), m_resource(resource_) {
     if UNLIKELY (!good())
         return;
     Log::logger->log(Log::INFO, "[input-capture]({}) new session", m_sessionId.c_str());
 
-    m_resource->setOnDestroy([this](CHyprlandInputCaptureV1* r) { PROTO::inputCapture->destroyResource(this); }); //Remove & free this session
+    m_resource->setOnDestroy([this](CAbysslandInputCaptureV1* r) { PROTO::inputCapture->destroyResource(this); }); //Remove & free this session
 
-    m_resource->setEnable([this](CHyprlandInputCaptureV1* r) { onEnable(); });
+    m_resource->setEnable([this](CAbysslandInputCaptureV1* r) { onEnable(); });
     m_resource->setAddBarrier(
-        [this](CHyprlandInputCaptureV1* r, uint32_t zoneSet, uint32_t id, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) { onAddBarrier(zoneSet, id, x1, y1, x2, y2); });
-    m_resource->setDisable([this](CHyprlandInputCaptureV1* r) { disable(); });
-    m_resource->setRelease([this](CHyprlandInputCaptureV1* r, uint32_t activationId, double x, double y) { onRelease(activationId, x, y); });
-    m_resource->setClearBarriers([this](CHyprlandInputCaptureV1* r) { onClearBarriers(); });
+        [this](CAbysslandInputCaptureV1* r, uint32_t zoneSet, uint32_t id, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) { onAddBarrier(zoneSet, id, x1, y1, x2, y2); });
+    m_resource->setDisable([this](CAbysslandInputCaptureV1* r) { disable(); });
+    m_resource->setRelease([this](CAbysslandInputCaptureV1* r, uint32_t activationId, double x, double y) { onRelease(activationId, x, y); });
+    m_resource->setClearBarriers([this](CAbysslandInputCaptureV1* r) { onClearBarriers(); });
 
     m_eis = makeUnique<CEis>("eis-" + std::to_string(eisCounter++));
 
@@ -167,7 +167,7 @@ static bool isBarrierValid(int x1, int y1, int x2, int y2) {
 }
 
 void CInputCaptureResource::onAddBarrier(uint32_t zoneSet, uint32_t id, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
-    static auto PENFORCEBARRIERS = CConfigValue<Hyprlang::INT>("input-capture:enforce_barriers");
+    static auto PENFORCEBARRIERS = CConfigValue<Abyssparse::INT>("input-capture:enforce_barriers");
     // Protocol coordinates are transported as uint32_t. Negative global-space
     // coordinates are encoded via two's complement and must be reinterpreted.
     const int32_t sx1 = static_cast<int32_t>(x1);
@@ -181,7 +181,7 @@ void CInputCaptureResource::onAddBarrier(uint32_t zoneSet, uint32_t id, uint32_t
         Log::logger->log(Log::INFO, "[input-capture]({}) Barrier {} is invalid [{}, {}], [{}, {}]", m_sessionId.c_str(), id, sx1, sy1, sx2, sy2);
 
         if (*PENFORCEBARRIERS) {
-            m_resource->error(HYPRLAND_INPUT_CAPTURE_V1_ERROR_INVALID_BARRIER, "The barrier id " + std::to_string(id) + " is invalid");
+            m_resource->error(ABYSSLAND_INPUT_CAPTURE_V1_ERROR_INVALID_BARRIER, "The barrier id " + std::to_string(id) + " is invalid");
             return;
         }
     }
@@ -204,7 +204,7 @@ void CInputCaptureResource::onRelease(uint32_t activationId_, double x, double y
 
     if (x != -1 && y != -1)
         Pointer::mgr()->warpTo({x, y});
-    g_pHyprRenderer->ensureCursorRenderingMode();
+    g_pAbyssRenderer->ensureCursorRenderingMode();
 }
 
 void CInputCaptureResource::onClearBarriers() {
@@ -223,7 +223,7 @@ bool CInputCaptureResource::activate(double x, double y, uint32_t borderId) {
     m_status = CLIENT_STATUS_ACTIVATED;
     Log::logger->log(Log::INFO, "[input-capture]({}) Input captured, activationId: {}, borderId: {}, x: {}, y: {}", m_sessionId.c_str(), m_activationId, borderId, x, y);
     m_eis->startEmulating(m_activationId);
-    g_pHyprRenderer->ensureCursorRenderingMode();
+    g_pAbyssRenderer->ensureCursorRenderingMode();
     m_resource->sendActivated(m_activationId, x, y, borderId);
 
     return true;
@@ -338,15 +338,15 @@ CInputCaptureProtocol::CInputCaptureProtocol(const wl_interface* iface, const in
 }
 
 void CInputCaptureProtocol::bindManager(wl_client* client, void* data, uint32_t ver, uint32_t id) {
-    const auto& RESOURCE = m_vManagers.emplace_back(makeUnique<CHyprlandInputCaptureManagerV1>(client, ver, id));
+    const auto& RESOURCE = m_vManagers.emplace_back(makeUnique<CAbysslandInputCaptureManagerV1>(client, ver, id));
 
-    RESOURCE->setOnDestroy([this](CHyprlandInputCaptureManagerV1* p) { std::erase_if(m_vManagers, [&](const auto& other) { return other->resource() == p->resource(); }); });
+    RESOURCE->setOnDestroy([this](CAbysslandInputCaptureManagerV1* p) { std::erase_if(m_vManagers, [&](const auto& other) { return other->resource() == p->resource(); }); });
 
-    RESOURCE->setCreateSession([this](CHyprlandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle) { onCreateSession(pMgr, id, handle); });
+    RESOURCE->setCreateSession([this](CAbysslandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle) { onCreateSession(pMgr, id, handle); });
 }
 
-void CInputCaptureProtocol::onCreateSession(CHyprlandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle) {
-    const auto RESOURCE = m_Sessions.emplace_back(makeShared<CInputCaptureResource>(makeShared<CHyprlandInputCaptureV1>(pMgr->client(), pMgr->version(), id), handle));
+void CInputCaptureProtocol::onCreateSession(CAbysslandInputCaptureManagerV1* pMgr, uint32_t id, std::string handle) {
+    const auto RESOURCE = m_Sessions.emplace_back(makeShared<CInputCaptureResource>(makeShared<CAbysslandInputCaptureV1>(pMgr->client(), pMgr->version(), id), handle));
 
     if UNLIKELY (!RESOURCE->good()) {
         pMgr->noMemory();

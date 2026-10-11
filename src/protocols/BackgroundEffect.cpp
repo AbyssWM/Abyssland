@@ -3,7 +3,7 @@
 #include "../render/Renderer.hpp"
 #include "core/Compositor.hpp"
 #include "ext-background-effect-v1.hpp"
-#include <hyprutils/math/Region.hpp>
+#include <abyssutils/math/Region.hpp>
 #include <wayland-server.h>
 
 CBackgroundEffect::CBackgroundEffect(SP<CExtBackgroundEffectSurfaceV1> resource, SP<CWLSurfaceResource> surface) : m_surface(surface) {
@@ -49,7 +49,7 @@ void CBackgroundEffect::setResource(SP<CExtBackgroundEffectSurfaceV1> resource) 
             hlSurface->m_blurRegion.clear();
             auto box = hlSurface->getSurfaceBoxGlobal();
             if (box.has_value())
-                g_pHyprRenderer->damageBox(*box);
+                g_pAbyssRenderer->damageBox(*box);
             PROTO::backgroundEffect->destroyEffect(this);
             return;
         }
@@ -59,7 +59,7 @@ void CBackgroundEffect::setResource(SP<CExtBackgroundEffectSurfaceV1> resource) 
         auto box                         = hlSurface->getSurfaceBoxGlobal();
 
         if (box.has_value())
-            g_pHyprRenderer->damageBox(*box);
+            g_pAbyssRenderer->damageBox(*box);
     });
 
     m_listeners.surfaceDestroyed = m_surface->m_events.destroy.listen([this] {

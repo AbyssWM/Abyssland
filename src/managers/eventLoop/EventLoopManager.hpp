@@ -6,11 +6,11 @@
 #include <thread>
 #include <wayland-server.h>
 #include "../../helpers/signal/Signal.hpp"
-#include <hyprutils/os/FileDescriptor.hpp>
+#include <abyssutils/os/FileDescriptor.hpp>
 
 #include "EventLoopTimer.hpp"
 
-namespace Aquamarine {
+namespace Abyssal {
     struct SPollFD;
 };
 
@@ -51,10 +51,10 @@ class CEventLoopManager {
 
     struct SReadableWaiter {
         wl_event_source*               source;
-        Hyprutils::OS::CFileDescriptor fd;
+        Abyssutils::OS::CFileDescriptor fd;
         std::function<void()>          fn;
 
-        SReadableWaiter(wl_event_source* src, Hyprutils::OS::CFileDescriptor f, std::function<void()> func) : source(src), fd(std::move(f)), fn(std::move(func)) {}
+        SReadableWaiter(wl_event_source* src, Abyssutils::OS::CFileDescriptor f, std::function<void()> func) : source(src), fd(std::move(f)), fn(std::move(func)) {}
 
         ~SReadableWaiter() {
             if (source) {
@@ -74,7 +74,7 @@ class CEventLoopManager {
 
     // schedule function to when fd is readable (WL_EVENT_READABLE / POLLIN),
     // takes ownership of fd
-    void doOnReadable(Hyprutils::OS::CFileDescriptor fd, std::function<void()>&& fn);
+    void doOnReadable(Abyssutils::OS::CFileDescriptor fd, std::function<void()>&& fn);
     void onFdReadable(SReadableWaiter* waiter);
     void onFdReadableFail(SReadableWaiter* waiter);
 
@@ -84,7 +84,7 @@ class CEventLoopManager {
     void nudgeTimers();
 
     struct SEventSourceData {
-        SP<Aquamarine::SPollFD> pollFD;
+        SP<Abyssal::SPollFD> pollFD;
         wl_event_source*        eventSource = nullptr;
     };
 
@@ -96,7 +96,7 @@ class CEventLoopManager {
 
     struct {
         std::vector<SP<CEventLoopTimer>> timers;
-        Hyprutils::OS::CFileDescriptor   timerfd;
+        Abyssutils::OS::CFileDescriptor   timerfd;
         bool                             recalcScheduled = false;
     } m_timers;
 
@@ -105,7 +105,7 @@ class CEventLoopManager {
     std::vector<UP<SReadableWaiter>> m_readableWaiters;
 
     struct {
-        CHyprSignalListener pollFDsChanged;
+        CAbyssSignalListener pollFDsChanged;
     } m_listeners;
 
     wl_event_source* m_configWatcherInotifySource = nullptr;

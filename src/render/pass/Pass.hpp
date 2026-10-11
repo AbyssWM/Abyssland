@@ -41,6 +41,6 @@ namespace Render {
             SP<ITexture> keyboardFocusText, pointerFocusText, lastWindowText;
         } m_debugData;
 
-        friend class CHyprOpenGLImpl;
+        friend class CAbyssOpenGLImpl;
     };
 }

@@ -5,22 +5,22 @@
 
 using namespace Math;
 
-// wlTransformToHyprutils
+// wlTransformToAbyssutils
 
-TEST(Helpers, mathWlTransformToHyprutils) {
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_NORMAL), eTransform::HYPRUTILS_TRANSFORM_NORMAL);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_90), eTransform::HYPRUTILS_TRANSFORM_90);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_180), eTransform::HYPRUTILS_TRANSFORM_180);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_270), eTransform::HYPRUTILS_TRANSFORM_270);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_FLIPPED), eTransform::HYPRUTILS_TRANSFORM_FLIPPED);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_FLIPPED_90), eTransform::HYPRUTILS_TRANSFORM_FLIPPED_90);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_FLIPPED_180), eTransform::HYPRUTILS_TRANSFORM_FLIPPED_180);
-    EXPECT_EQ(wlTransformToHyprutils(WL_OUTPUT_TRANSFORM_FLIPPED_270), eTransform::HYPRUTILS_TRANSFORM_FLIPPED_270);
+TEST(Helpers, mathWlTransformToAbyssutils) {
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_NORMAL), eTransform::ABYSSUTILS_TRANSFORM_NORMAL);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_90), eTransform::ABYSSUTILS_TRANSFORM_90);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_180), eTransform::ABYSSUTILS_TRANSFORM_180);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_270), eTransform::ABYSSUTILS_TRANSFORM_270);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_FLIPPED), eTransform::ABYSSUTILS_TRANSFORM_FLIPPED);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_FLIPPED_90), eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_90);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_FLIPPED_180), eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_180);
+    EXPECT_EQ(wlTransformToAbyssutils(WL_OUTPUT_TRANSFORM_FLIPPED_270), eTransform::ABYSSUTILS_TRANSFORM_FLIPPED_270);
 }
 
-TEST(Helpers, mathWlTransformToHyprutilsInvalid) {
+TEST(Helpers, mathWlTransformToAbyssutilsInvalid) {
     // Invalid value falls back to NORMAL
-    EXPECT_EQ(wlTransformToHyprutils(sc<wl_output_transform>(99)), eTransform::HYPRUTILS_TRANSFORM_NORMAL);
+    EXPECT_EQ(wlTransformToAbyssutils(sc<wl_output_transform>(99)), eTransform::ABYSSUTILS_TRANSFORM_NORMAL);
 }
 
 // invertTransform
@@ -59,16 +59,16 @@ TEST(Helpers, mathComposeTransformIdentity) {
     // Composing with NORMAL is identity
     for (int i = 0; i <= 7; i++) {
         auto t = sc<eTransform>(i);
-        EXPECT_EQ(composeTransform(t, eTransform::HYPRUTILS_TRANSFORM_NORMAL), t);
-        EXPECT_EQ(composeTransform(eTransform::HYPRUTILS_TRANSFORM_NORMAL, t), t);
+        EXPECT_EQ(composeTransform(t, eTransform::ABYSSUTILS_TRANSFORM_NORMAL), t);
+        EXPECT_EQ(composeTransform(eTransform::ABYSSUTILS_TRANSFORM_NORMAL, t), t);
     }
 }
 
 TEST(Helpers, mathComposeTransformRotation) {
     // 90 + 90 = 180
-    EXPECT_EQ(composeTransform(eTransform::HYPRUTILS_TRANSFORM_90, eTransform::HYPRUTILS_TRANSFORM_90), eTransform::HYPRUTILS_TRANSFORM_180);
+    EXPECT_EQ(composeTransform(eTransform::ABYSSUTILS_TRANSFORM_90, eTransform::ABYSSUTILS_TRANSFORM_90), eTransform::ABYSSUTILS_TRANSFORM_180);
     // 90 + 180 = 270
-    EXPECT_EQ(composeTransform(eTransform::HYPRUTILS_TRANSFORM_90, eTransform::HYPRUTILS_TRANSFORM_180), eTransform::HYPRUTILS_TRANSFORM_270);
+    EXPECT_EQ(composeTransform(eTransform::ABYSSUTILS_TRANSFORM_90, eTransform::ABYSSUTILS_TRANSFORM_180), eTransform::ABYSSUTILS_TRANSFORM_270);
     // 180 + 180 = NORMAL (360)
-    EXPECT_EQ(composeTransform(eTransform::HYPRUTILS_TRANSFORM_180, eTransform::HYPRUTILS_TRANSFORM_180), eTransform::HYPRUTILS_TRANSFORM_NORMAL);
+    EXPECT_EQ(composeTransform(eTransform::ABYSSUTILS_TRANSFORM_180, eTransform::ABYSSUTILS_TRANSFORM_180), eTransform::ABYSSUTILS_TRANSFORM_NORMAL);
 }

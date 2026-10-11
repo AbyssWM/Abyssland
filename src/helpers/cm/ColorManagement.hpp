@@ -2,7 +2,7 @@
 
 #include "color-management-v1.hpp"
 #include <format>
-#include <hyprgraphics/color/Color.hpp>
+#include <abyssgraphics/color/Color.hpp>
 #include "../memory/Memory.hpp"
 #include "../math/Math.hpp"
 #include "../Color.hpp"
@@ -108,7 +108,7 @@ namespace NColorManagement {
         }
     }
 
-    using SPCPRimaries = Hyprgraphics::SPCPRimaries;
+    using SPCPRimaries = Abyssgraphics::SPCPRimaries;
 
     namespace NColorPrimaries {
 
@@ -194,7 +194,7 @@ namespace NColorManagement {
 
     const SPCPRimaries&   getPrimaries(ePrimaries name);
     std::optional<Mat3x3> rgbToXYZFromPrimaries(SPCPRimaries pr);
-    Mat3x3                adaptBradford(Hyprgraphics::CColor::xy srcW, Hyprgraphics::CColor::xy dstW);
+    Mat3x3                adaptBradford(Abyssgraphics::CColor::xy srcW, Abyssgraphics::CColor::xy dstW);
 
     class CPrimaries {
       public:
@@ -205,15 +205,15 @@ namespace NColorManagement {
         const SPCPRimaries&           value() const;
         uint                          id() const;
 
-        const Hyprgraphics::CMatrix3& toXYZ() const;                                       // toXYZ() * rgb -> xyz
-        const Hyprgraphics::CMatrix3& convertMatrix(const WP<const CPrimaries> dst) const; // convertMatrix(dst) * rgb with "this" primaries -> rgb with dst primaries
+        const Abyssgraphics::CMatrix3& toXYZ() const;                                       // toXYZ() * rgb -> xyz
+        const Abyssgraphics::CMatrix3& convertMatrix(const WP<const CPrimaries> dst) const; // convertMatrix(dst) * rgb with "this" primaries -> rgb with dst primaries
 
       private:
         CPrimaries(const SPCPRimaries& primaries, const uint primariesId);
         uint                   m_id;
         SPCPRimaries           m_primaries;
 
-        Hyprgraphics::CMatrix3 m_primaries2XYZ;
+        Abyssgraphics::CMatrix3 m_primaries2XYZ;
     };
 
     struct SImageDescription {
@@ -382,7 +382,7 @@ namespace NColorManagement {
     using PImageDescription = WP<const CImageDescription>;
 
     RGBAColor         convertColor(RGBAColor color, PImageDescription srcDesc, PImageDescription dstDesc);
-    CHyprColor        convertColor(const CHyprColor& color, PImageDescription srcDesc, PImageDescription dstDesc);
+    CAbyssColor        convertColor(const CAbyssColor& color, PImageDescription srcDesc, PImageDescription dstDesc);
 
     PImageDescription getDefaultImageDescription();
 
@@ -449,9 +449,9 @@ namespace NColorManagement {
 }
 
 template <typename CharT>
-struct std::formatter<Hyprgraphics::SPCPRimaries, CharT> : std::formatter<CharT> {
+struct std::formatter<Abyssgraphics::SPCPRimaries, CharT> : std::formatter<CharT> {
     template <typename FormatContext>
-    auto format(const Hyprgraphics::SPCPRimaries& primaries, FormatContext& ctx) const {
+    auto format(const Abyssgraphics::SPCPRimaries& primaries, FormatContext& ctx) const {
         return std::format_to(ctx.out(), "[r={},{} g={},{} b={},{} w={},{}]", primaries.red.x, primaries.red.y, primaries.green.x, primaries.green.y, primaries.blue.x,
                               primaries.blue.y, primaries.white.x, primaries.white.y);
     }
