@@ -18,10 +18,9 @@ void configure(Config& c) {
     c.monitor("", "preferred", "auto", 1.0); // every other monitor: automatic
 
     // ---- environment ----
-    c.env("XCURSOR_SIZE", "24");
+    c.cursor.size = 24;
 
     // ---- autostart ----
-    // c.execOnce("waybar");
     // c.onStart([] { exec("quickshell"); });
 
     // ---- look and feel ----
@@ -93,13 +92,13 @@ void configure(Config& c) {
     // per-device settings: c.device("logitech-mx-master", {.sensitivity = -0.5});
 
     // ---- keybinds ----
-    // Actions (spawn, killActive, workspace, ...) are values: pass them to bind(), or run(...) them from your own code.
-    c.bind(SUPER, "Q", spawn(terminal));
+    // Actions (killActive, workspace, ...) are deferred values. exec runs inside a callback.
+    c.bind(SUPER, "Q", [terminal] { return exec(terminal); });
     c.bind(SUPER, "C", killActive());
     c.bind(SUPER, "M", exit());
-    c.bind(SUPER, "E", spawn(fileManager));
+    c.bind(SUPER, "E", [fileManager] { return exec(fileManager); });
     c.bind(SUPER, "V", toggleFloating());
-    c.bind(SUPER, "R", spawn(menu));
+    c.bind(SUPER, "R", [menu] { return exec(menu); });
     c.bind(SUPER, "P", pseudo());
     c.bind(SUPER, "J", toggleSplit());
 
@@ -129,16 +128,16 @@ void configure(Config& c) {
     c.bind(SUPER, "mouse:273", mouseResize(), {.mouse = true});
 
     // multimedia keys (work on the lock screen, repeat while held)
-    c.bind(NONE, "XF86AudioRaiseVolume", spawn("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86AudioLowerVolume", spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86AudioMute", spawn("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86AudioMicMute", spawn("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86MonBrightnessUp", spawn("brightnessctl -e4 -n2 set 5%+"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86MonBrightnessDown", spawn("brightnessctl -e4 -n2 set 5%-"), {.locked = true, .repeat = true});
-    c.bind(NONE, "XF86AudioNext", spawn("playerctl next"), {.locked = true});
-    c.bind(NONE, "XF86AudioPause", spawn("playerctl play-pause"), {.locked = true});
-    c.bind(NONE, "XF86AudioPlay", spawn("playerctl play-pause"), {.locked = true});
-    c.bind(NONE, "XF86AudioPrev", spawn("playerctl previous"), {.locked = true});
+    c.bind(NONE, "XF86AudioRaiseVolume", [] { return exec("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86AudioLowerVolume", [] { return exec("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86AudioMute", [] { return exec("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86AudioMicMute", [] { return exec("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86MonBrightnessUp", [] { return exec("brightnessctl -e4 -n2 set 5%+"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86MonBrightnessDown", [] { return exec("brightnessctl -e4 -n2 set 5%-"); }, {.locked = true, .repeat = true});
+    c.bind(NONE, "XF86AudioNext", [] { return exec("playerctl next"); }, {.locked = true});
+    c.bind(NONE, "XF86AudioPause", [] { return exec("playerctl play-pause"); }, {.locked = true});
+    c.bind(NONE, "XF86AudioPlay", [] { return exec("playerctl play-pause"); }, {.locked = true});
+    c.bind(NONE, "XF86AudioPrev", [] { return exec("playerctl previous"); }, {.locked = true});
 
     // a submap: SUPER+X enters "resize", arrow keys resize, escape leaves
     c.bind(SUPER, "X", submap("resize"));

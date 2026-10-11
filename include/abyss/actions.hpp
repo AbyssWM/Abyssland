@@ -76,11 +76,8 @@ namespace abyss {
 
     // any dispatcher by name, same arguments as `abyssctl dispatch <name> <arg>`
     Action          dispatch(std::string name, std::string arg = "");
-    // spawn a process (supports "[float; size 800 600] kitty" exec rules)
-    Action          spawn(std::string cmd);
-    // spawn without exec-rule parsing and without the compositor launch environment tweaks
-    Action          spawnRaw(std::string cmd);
-    // runs immediately
+    // runs immediately through /bin/sh -c; supports "[float; size 800 600] kitty" exec rules
+    // use a callback to defer execution: c.bind(SUPER, "Q", [] { return exec("kitty"); });
     SDispatchResult exec(const std::string& cmd);
 
     // ---- windows (selector: "" = active window, otherwise a window selector like "class:^(kitty)$", "address:0x...", "title:...") ----

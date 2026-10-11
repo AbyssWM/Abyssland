@@ -4,7 +4,7 @@
 //   using namespace abyss;
 //   void configure(Config& c) {
 //       c.general.gaps_in = 5;
-//       c.bind(SUPER, "Return", spawn("kitty"));
+//       c.bind(SUPER, "Return", [] { return exec("kitty"); });
 //   }
 //
 // configure() runs on every config load (start and abyssctl reload). Everything it registers (binds, rules, listeners,
@@ -189,7 +189,7 @@ namespace abyss {
         // starts a command when the compositor shuts down (registered on the first load only)
         void execShutdown(std::string cmd);
         // runs fn once per compositor process, when the compositor has started (so e.g. exec("quickshell") inside it starts quickshell only
-        // once). An in-process reload (`abyssctl reload --no-build`) does NOT run it again. Use exec() for "on every config load".
+        // once). An in-process reload (`abyssctl reload --no-build`) does NOT run it again. Use exec() inside a callback for immediate execution.
         void onStart(std::function<void()> fn);
         void onShutdown(std::function<void()> fn);
 

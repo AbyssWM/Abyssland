@@ -58,12 +58,6 @@ SDispatchResult abyss::Action::operator()() const {
 Action abyss::dispatch(std::string name, std::string arg) {
     return Action{std::move(name), std::move(arg)};
 }
-Action abyss::spawn(std::string cmd) {
-    return Action{"exec", std::move(cmd)};
-}
-Action abyss::spawnRaw(std::string cmd) {
-    return Action{"execr", std::move(cmd)};
-}
 SDispatchResult abyss::exec(const std::string& cmd) {
     return ::Config::Dispatch::translator()->run("exec", cmd);
 }
