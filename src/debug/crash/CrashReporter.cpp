@@ -204,7 +204,7 @@ void CrashReporter::createAndSaveCrash(int sig) {
     const auto FPATH = std::filesystem::canonical(exe);
 #elif defined(__OpenBSD__)
     // Neither KERN_PROC_PATHNAME nor /proc are supported
-    const auto FPATH = std::filesystem::canonical("/usr/local/bin/Abyssland");
+    const auto FPATH = std::filesystem::canonical(ABYSSLAND_BINARY);
 #else
     const auto FPATH = std::filesystem::canonical("/proc/self/exe");
 #endif

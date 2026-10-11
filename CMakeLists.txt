@@ -13,6 +13,9 @@ include(CTest)
 include(CheckIncludeFile)
 include(GNUInstallDirs)
 
+# absolute path of the compositor binary, so start-abyssland works without PATH
+add_compile_definitions(ABYSSLAND_BINARY="${CMAKE_INSTALL_FULL_BINDIR}/Abyssland")
+
 set(ABYSSLAND_VERSION ${VER})
 set(PREFIX ${CMAKE_INSTALL_PREFIX})
 set(INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR})

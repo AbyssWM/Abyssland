@@ -89,7 +89,7 @@ bool Nix::shouldUseNixGL() {
         return false;
 
     // check if installed abyssland is nix'd
-    CProcess proc("Abyssland", {"--version-json"});
+    CProcess proc(ABYSSLAND_BINARY, {"--version-json"});
     if (!proc.runSync()) {
         g_logger->log(Abyssutils::CLI::LOG_ERR, "failed to obtain abyssland version string");
         return false;

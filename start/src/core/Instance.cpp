@@ -42,7 +42,7 @@ void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
     // spawn a process manually. Abyssutils' Async is detached, while Sync redirects stdout
     // TODO: make Sync respect fds?
 
-    std::vector<char*> args = {strdup(g_state->customPath.value_or("Abyssland").c_str())};
+    std::vector<char*> args = {strdup(g_state->customPath.value_or(ABYSSLAND_BINARY).c_str())};
     for (const auto& a : argsStd) {
         args.emplace_back(strdup(a.c_str()));
     }
@@ -59,11 +59,11 @@ void CAbysslandInstance::runAbysslandThread(bool safeMode, bool lockedCrash) {
 #endif
 
         if (Nix::shouldUseNixGL()) {
-            argsStd.insert(argsStd.begin(), g_state->customPath.value_or("Abyssland"));
+            argsStd.insert(argsStd.begin(), g_state->customPath.value_or(ABYSSLAND_BINARY));
             args.insert(args.begin(), strdup(argsStd.front().c_str()));
             execvp("nixGL", args.data());
         } else
-            execvp(g_state->customPath.value_or("Abyssland").c_str(), args.data());
+            execvp(g_state->customPath.value_or(ABYSSLAND_BINARY).c_str(), args.data());
 
         g_logger->log(Abyssutils::CLI::LOG_ERR, "fork(): execvp failed: {}", strerror(errno));
         std::fflush(stdout);
