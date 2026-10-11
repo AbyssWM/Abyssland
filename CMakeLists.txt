@@ -654,7 +654,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/example/abyssland.desktop
 add_compile_definitions(DATAROOTDIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}")
 
 # installable assets
-file(GLOB_RECURSE INSTALLABLE_ASSETS "assets/install/*")
+file(GLOB_RECURSE INSTALLABLE_ASSETS CONFIGURE_DEPENDS "assets/install/*")
 install(FILES ${INSTALLABLE_ASSETS}
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss)
 
