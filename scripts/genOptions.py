@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Generates the typed Abysslang option structs from the central option table.
+
+Input : src/config/values/ConfigValues.cpp  (MS<Type>("section:key.sub", "desc", default, {options}) entries)
+Output: <outdir>/abyss/Options.hpp       public header: nested structs of Opt<T> leaves (included by <abyss/config.hpp>)
+        <outdir>/OptionsApply.cpp         abyss::applyOptions(): pushes every set leaf into the native config manager
+
+usage: genOptions.py <ConfigValues.cpp> <outdir>
+"""
+import re
+import sys
+import os
+
+EXPECTED_MIN = 300  # sanity check, the table has 353 entries at the time of writing
+
+CPP_KEYWORDS = set("""alignas alignof and and_eq asm auto bitand bitor bool break case catch char char8_t char16_t char32_t
+class compl concept const consteval constexpr constinit const_cast continue co_await co_return co_yield decltype default delete
+do double dynamic_cast else enum explicit export extern false float for friend goto if inline int long mutable namespace new
+noexcept not not_eq nullptr operator or or_eq private protected public register reinterpret_cast requires return short signed
+sizeof static static_assert static_cast struct switch template this thread_local throw true try typedef typeid typename union
+unsigned using virtual void volatile wchar_t while xor xor_eq""".split())
+
+LEAF_TYPES = {
+    "Bool": "bool",
+    "Int": "int64_t",
+    "Float": "double",
+    "String": "std::string",
+    "Color": "Color",
+    "Gradient": "Gradient",
+    "Vec2": "Vec2",
+    "CssGap": "Gap",
+    "FontWeight": "FontWeight",
+}
+
+
+def ident(part):
+    p = part.replace("-", "_")
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", p):
+        if re.fullmatch(r"[0-9][A-Za-z0-9_]*", p):
+            p = "_" + p
+        else:
+            raise SystemExit(f"genOptions: cannot make an identifier out of '{part}'")
+    if p in CPP_KEYWORDS:
+        p += "_"
+    return p
+
+
+def skip_string(s, i):
+    q = s[i]
+    i += 1
+    while i < len(s) and s[i] != q:
+        if s[i] == "\\":
+            i += 1
+        i += 1
+    return i + 1
+
+
+def call_text(s, open_idx):
+    """text of a call starting at the '(' at open_idx, up to the matching ')'."""
+    depth = 0
+    i = open_idx
+    while i < len(s):
+        c = s[i]
+        if c in "\"'":
+            i = skip_string(s, i)
+            continue
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return s[open_idx:i + 1]
+        i += 1
+    raise SystemExit("genOptions: unbalanced parentheses in the option table")
+
+
+def parse(path):
+    s = open(path).read()
+    out = []
+    for m in re.finditer(r"\bMS<(\w+)>\(", s):
+        typ = m.group(1)
+        if typ not in LEAF_TYPES:
+            raise SystemExit(f"genOptions: unsupported option type {typ}")
+        txt = call_text(s, m.end() - 1)
+        nm = re.match(r'\(\s*"([^"]+)"', txt)
+        if not nm:
+            raise SystemExit(f"genOptions: cannot read the name of an MS<{typ}> entry")
+        has_map = typ == "Int" and re.search(r"\.map\s*=", txt) is not None
+        out.append((typ, nm.group(1), has_map))
+    return out
+
+
+class Node:
+    def __init__(self):
+        self.children = {}   # ident -> Node
+        self.leaf = None     # (cpp type, original name)
+
+
+def build(entries):
+    root = Node()
+    seen = set()
+    for typ, name, has_map in entries:
+        if name in seen:
+            raise SystemExit(f"genOptions: duplicate option {name}")
+        seen.add(name)
+        parts = [p for seg in name.split(":") for p in seg.split(".")]
+        node = root
+        for p in parts[:-1]:
+            ip = ident(p)
+            node = node.children.setdefault(ip, Node())
+            if node.leaf:
+                raise SystemExit(f"genOptions: {name}: '{p}' is both an option and a section")
+        last = ident(parts[-1])
+        if last in node.children or last in node.children and node.children[last].leaf:
+            raise SystemExit(f"genOptions: {name} collides with a section of the same name")
+        if last in node.children:
+            raise SystemExit(f"genOptions: {name} collides")
+        leaf = Node()
+        cpp = "IntChoice" if has_map else LEAF_TYPES[typ]
+        leaf.leaf = (cpp, name)
+        node.children[last] = leaf
+    return root
+
+
+def emit_struct(node, indent, lines):
+    pad = "    " * indent
+    for name, child in node.children.items():
+        if child.leaf:
+            lines.append(f"{pad}Opt<{child.leaf[0]}> {name};")
+        else:
+            lines.append(f"{pad}struct {name}_t {{")
+            emit_struct(child, indent + 1, lines)
+            lines.append(f"{pad}}} {name};")
+
+
+def emit_apply(node, path, lines):
+    for name, child in node.children.items():
+        if child.leaf:
+            lines.append(f'    detail::applyOpt("{child.leaf[1]}", o.{path}{name});')
+        else:
+            emit_apply(child, path + name + ".", lines)
+
+
+HEADER = """// GENERATED by scripts/genOptions.py from src/config/values/ConfigValues.cpp -- DO NOT EDIT.
+//
+// Option name -> field mapping:
+//   "section:key"            ->  c.section.key
+//   "section:sub:key"        ->  c.section.sub.key
+//   "section:col.key"        ->  c.section.col.key        ('.' and ':' both start a nested struct)
+//   '-' in a name            ->  '_'                       (input:touchpad:tap-to-click -> c.input.touchpad.tap_to_click)
+//   C++ keyword as a name    ->  trailing '_'              (e.g. 'default' -> 'default_')
+//   name starting with digit ->  leading '_'
+//
+// Leaf type mapping (every leaf is an abyss::Opt<T>: it remembers whether it was assigned, unassigned leaves keep their default):
+//   Bool       -> bool                 only assignable from bool (no pointer / int accidents)
+//   Int        -> int64_t              any integral type; options with named values (e.g. resize_corner) take abyss::IntChoice (int or "name")
+//   Float      -> double               any arithmetic type
+//   String     -> std::string          const char*, std::string, std::string_view
+//   Color      -> abyss::Color         rgb(0xRRGGBB), rgba(0xRRGGBB, alpha), argb(0xAARRGGBB)
+//   Gradient   -> abyss::Gradient      gradient({rgb(..), rgb(..)}, angleDeg) or a single Color
+//   Vec2       -> abyss::Vec2          {x, y}
+//   CssGap     -> abyss::Gap           5 | Gap(vertical, horizontal) | Gap(top, right, bottom, left)
+//   FontWeight -> abyss::FontWeight    700 | "bold"
+//
+// A typo like c.general.gapz_in is a compile error. Range / value errors are reported at config load (error overlay).
+#pragma once
+
+#include <abyss/types.hpp>
+
+namespace abyss {
+
+struct Options {
+"""
+
+
+def main():
+    src, outdir = sys.argv[1], sys.argv[2]
+    entries = parse(src)
+    if len(entries) < EXPECTED_MIN:
+        raise SystemExit(f"genOptions: only {len(entries)} options parsed from {src}, expected >= {EXPECTED_MIN}")
+    root = build(entries)
+
+    hdr = [HEADER.rstrip("\n")]
+    emit_struct(root, 1, hdr)
+    hdr.append("};")
+    hdr.append("")
+    hdr.append("// pushes every assigned leaf into the native config manager (reports errors through the config error overlay)")
+    hdr.append("void applyOptions(const Options& o);")
+    hdr.append("")
+    hdr.append("} // namespace abyss")
+    hdr.append("")
+
+    app = [
+        "// GENERATED by scripts/genOptions.py -- DO NOT EDIT.",
+        '#include <abyss/Options.hpp>',
+        '#include "config/native/AbyssConvert.hpp"',
+        "",
+        "void abyss::applyOptions(const Options& o) {",
+    ]
+    emit_apply(root, "", app)
+    app.append("}")
+    app.append("")
+
+    os.makedirs(os.path.join(outdir, "abyss"), exist_ok=True)
+    for rel, text in (("abyss/Options.hpp", "\n".join(hdr)), ("OptionsApply.cpp", "\n".join(app))):
+        p = os.path.join(outdir, rel)
+        old = open(p).read() if os.path.exists(p) else None
+        if old != text:  # keep timestamps stable so nothing rebuilds needlessly
+            open(p, "w").write(text)
+    print(f"genOptions: {len(entries)} options")
+
+
+main()

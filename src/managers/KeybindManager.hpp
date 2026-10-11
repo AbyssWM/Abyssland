@@ -39,6 +39,8 @@ struct SKeybind {
     std::vector<KeybindKey>         sMkMods           = {};
     std::string                     handler           = "";
     std::string                     arg               = "";
+    // set for binds created from compiled-in C++ config code (handler is "native" then). Takes precedence over handler/arg.
+    std::function<SDispatchResult()> nativeFn         = nullptr;
     bool                            locked            = false;
     SSubmap                         submap            = {};
     std::string                     description       = "";
@@ -128,6 +130,8 @@ class CKeybindManager {
     void                                                                         clearKeybinds();
     void                                                                         shadowKeybinds(const xkb_keysym_t& doesntHave = 0, const uint32_t doesntHaveCode = 0);
     SSubmap                                                                      getCurrentSubmap();
+    // runs a keybind's action: nativeFn if set, otherwise the string dispatcher. argPrefix is prepended to the arg (used for the "mouse" dispatcher).
+    SDispatchResult                                                              runKeybindAction(const SP<SKeybind>& k, const std::string& argPrefix = "");
 
     std::unordered_map<std::string, std::function<SDispatchResult(std::string)>> m_dispatchers;
 

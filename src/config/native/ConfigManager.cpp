@@ -15,6 +15,7 @@
 #include "../../desktop/state/WindowState.hpp"
 #include "../../event/EventBus.hpp"
 #include "../../Compositor.hpp"
+#include "../../managers/eventLoop/EventLoopManager.hpp"
 #include "../../managers/KeybindManager.hpp"
 #include "../../managers/EventManager.hpp"
 #include "../../managers/input/trackpad/TrackpadGestures.hpp"
@@ -33,6 +34,10 @@ WP<CConfigManager> Native::mgr() {
     if (!g_native || !Config::mgr())
         return {};
     return dynamicPointerCast<CConfigManager>(WP<Config::IConfigManager>(Config::mgr()));
+}
+
+CConfigManager* Native::self() {
+    return g_native;
 }
 
 std::string CConfigManager::normalizeName(std::string_view s) {
@@ -75,6 +80,72 @@ CConfigManager::CConfigManager() {
     }
 
     g_native = this;
+
+    // persistent: tells onStart() callbacks whether the compositor is already running
+    m_life.startListener = Event::bus()->m_events.start.listen([this] {
+        m_life.started = true;
+        // callbacks may register more callbacks (-> run immediately, as started is set), or trigger a reload
+        auto cbs = std::move(m_life.startCallbacks);
+        m_life.startCallbacks.clear();
+        for (const auto& cb : cbs)
+            cb();
+    });
+}
+
+void CConfigManager::clearUserLifecycle() {
+    m_life.listeners.clear();
+    for (const auto& [id, t] : m_life.timers) {
+        t->cancel();
+        if (g_pEventLoopManager)
+            g_pEventLoopManager->removeTimer(t);
+    }
+    m_life.timers.clear();
+    m_life.startCallbacks.clear();
+}
+
+uint64_t CConfigManager::addListener(CAbyssSignalListener&& l) {
+    const auto ID        = m_life.nextId++;
+    m_life.listeners[ID] = std::move(l);
+    return ID;
+}
+
+void CConfigManager::cancelListener(uint64_t id) {
+    m_life.listeners.erase(id);
+}
+
+uint64_t CConfigManager::addTimer(SP<CEventLoopTimer> t) {
+    const auto ID    = m_life.nextId++;
+    m_life.timers[ID] = t;
+    if (g_pEventLoopManager)
+        g_pEventLoopManager->addTimer(t);
+    return ID;
+}
+
+SP<CEventLoopTimer> CConfigManager::timerById(uint64_t id) {
+    const auto IT = m_life.timers.find(id);
+    return IT == m_life.timers.end() ? nullptr : IT->second;
+}
+
+void CConfigManager::cancelTimer(uint64_t id) {
+    const auto IT = m_life.timers.find(id);
+    if (IT == m_life.timers.end())
+        return;
+    IT->second->cancel();
+    if (g_pEventLoopManager)
+        g_pEventLoopManager->removeTimer(IT->second);
+    m_life.timers.erase(IT);
+}
+
+void CConfigManager::onStart(std::function<void()> fn) {
+    if (m_life.started) {
+        fn();
+        return;
+    }
+    m_life.startCallbacks.emplace_back(std::move(fn));
+}
+
+bool CConfigManager::hasStarted() const {
+    return m_life.started;
 }
 
 void CConfigManager::init() {
@@ -102,6 +173,7 @@ void CConfigManager::reload() {
 
     m_errors.clear();
     m_deviceConfigs.clear();
+    clearUserLifecycle();
 
     for (const auto& [name, cell] : m_configValues) {
         cell->reset();

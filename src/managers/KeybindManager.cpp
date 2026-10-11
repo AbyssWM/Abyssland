@@ -125,10 +125,9 @@ CKeybindManager::CKeybindManager() {
             if (!PACTIVEKEEB->m_allowBinds)
                 return;
 
-            const auto DISPATCHER = g_pKeybindManager->m_dispatchers.find(m_lastLongPressKeybind->handler);
-
             Log::logger->log(Log::DEBUG, "Long press timeout passed, calling dispatcher.");
-            DISPATCHER->second(m_lastLongPressKeybind->arg);
+            if (const auto K = m_lastLongPressKeybind.lock(); K)
+                g_pKeybindManager->runKeybindAction(K);
         },
         nullptr);
 
@@ -148,10 +147,9 @@ CKeybindManager::CKeybindManager() {
                 if (!k || !k->enabled)
                     continue;
 
-                const auto DISPATCHER = g_pKeybindManager->m_dispatchers.find(k->handler);
-
                 Log::logger->log(Log::DEBUG, "Keybind repeat triggered, calling dispatcher.");
-                DISPATCHER->second(k->arg);
+                if (const auto K = k.lock(); K)
+                    g_pKeybindManager->runKeybindAction(K);
             }
 
             self->updateTimeout(std::chrono::milliseconds(1000 / m_repeatKeyRate));
@@ -782,7 +780,8 @@ SDispatchResult CKeybindManager::handleKeybinds(const uint32_t modmask, const SP
         const bool SPECIALDISPATCHER = k->handler == "global" || k->handler == "pass" || k->handler == "sendshortcut" || k->handler == "mouse" || k->releasePending;
         const bool SPECIALTRIGGERED  = std::ranges::find_if(m_pressedSpecialBinds, [&](const auto& other) { return other == k; }) != m_pressedSpecialBinds.end();
 
-        const auto DISPATCHER = m_dispatchers.find(k->mouse ? "mouse" : k->handler);
+        const bool NATIVE     = !!k->nativeFn;
+        const auto DISPATCHER = NATIVE ? m_dispatchers.end() : m_dispatchers.find(k->mouse ? "mouse" : k->handler);
 
         k->releasePending = false; // reset this flag if it's set
         m_currentKeybind  = k;
@@ -795,18 +794,20 @@ SDispatchResult CKeybindManager::handleKeybinds(const uint32_t modmask, const SP
             m_pressedSpecialBinds.emplace_back(k);
 
         // Should never happen, as we check in the ConfigManager, but oh well
-        if (DISPATCHER == m_dispatchers.end()) {
+        if (!NATIVE && DISPATCHER == m_dispatchers.end()) {
             Log::logger->log(Log::ERR, "Invalid handler in a keybind! (handler {} does not exist)", k->handler);
         } else {
             // call the dispatcher
-            Log::logger->log(Log::DEBUG, "Keybind triggered, calling dispatcher ({}, {}, {}, {})", modmask, key.keyName, key.keysym, DISPATCHER->first);
+            Log::logger->log(Log::DEBUG, "Keybind triggered, calling dispatcher ({}, {}, {}, {})", modmask, key.keyName, key.keysym, NATIVE ? k->handler : DISPATCHER->first);
 
             Config::Actions::state()->m_passPressed = sc<int>(pressed);
 
             auto submapBefore = Config::Actions::state()->m_currentSubmap;
 
             // if the dispatchers says to pass event then we will
-            if (k->handler == "mouse")
+            if (NATIVE)
+                res = runKeybindAction(k);
+            else if (k->handler == "mouse")
                 res = DISPATCHER->second((pressed ? "1" : "0") + k->arg);
             else
                 res = DISPATCHER->second(k->arg);
@@ -850,6 +851,22 @@ SDispatchResult CKeybindManager::handleKeybinds(const uint32_t modmask, const SP
     }
 
     return res;
+}
+
+SDispatchResult CKeybindManager::runKeybindAction(const SP<SKeybind>& k, const std::string& argPrefix) {
+    if (k->nativeFn) {
+        // copy: the callback may trigger a config reload that destroys the keybind (and with it the std::function) while it runs
+        const auto FN = k->nativeFn;
+        return FN();
+    }
+
+    const auto DISPATCHER = m_dispatchers.find(k->handler);
+    if (DISPATCHER == m_dispatchers.end()) {
+        Log::logger->log(Log::ERR, "Invalid handler in a keybind! (handler {} does not exist)", k->handler);
+        return {.success = false, .error = "invalid handler " + k->handler};
+    }
+
+    return DISPATCHER->second(argPrefix + k->arg);
 }
 
 void CKeybindManager::shadowKeybinds(const xkb_keysym_t& doesntHave, const uint32_t doesntHaveCode) {

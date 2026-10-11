@@ -300,7 +300,40 @@ if(USE_TRACY)
   message(STATUS "Tracy enabled, TRACY_CPP_FILES: " ${TRACY_CPP_FILES})
 endif()
 
+# ---- Abysslang: the compiled-in user config ----
+# ABYSS_CONFIG: path of the user's config.hpp. If it does not exist yet, config.def.hpp is copied there (like dwm's config.def.h).
+set(ABYSS_CONFIG "$ENV{HOME}/.config/abyss/config.hpp" CACHE FILEPATH "Abysslang user config that is compiled into Abyssland")
+if(NOT EXISTS "${ABYSS_CONFIG}")
+  get_filename_component(ABYSS_CONFIG_DIR "${ABYSS_CONFIG}" DIRECTORY)
+  file(MAKE_DIRECTORY "${ABYSS_CONFIG_DIR}")
+  file(COPY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/config.def.hpp" "${ABYSS_CONFIG}")
+  message(STATUS "Abysslang: no config found, copied config.def.hpp to ${ABYSS_CONFIG}")
+endif()
+message(STATUS "Abysslang: user config is ${ABYSS_CONFIG}")
+
+# typed option structs, generated from the option table
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(ABYSS_GENERATED_DIR "${CMAKE_BINARY_DIR}/generated")
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/genOptions.py ${CMAKE_CURRENT_SOURCE_DIR}/src/config/values/ConfigValues.cpp ${ABYSS_GENERATED_DIR}
+  RESULT_VARIABLE ABYSS_GENOPTIONS_RESULT
+  OUTPUT_VARIABLE ABYSS_GENOPTIONS_OUT
+  ERROR_VARIABLE ABYSS_GENOPTIONS_ERR)
+if(NOT ABYSS_GENOPTIONS_RESULT EQUAL 0)
+  message(FATAL_ERROR "scripts/genOptions.py failed: ${ABYSS_GENOPTIONS_ERR}")
+endif()
+message(STATUS "${ABYSS_GENOPTIONS_OUT}")
+# regenerate when the option table or the generator changes
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/config/values/ConfigValues.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/genOptions.py")
+
+list(APPEND SRCFILES "${ABYSS_GENERATED_DIR}/OptionsApply.cpp")
+# only UserConfig.cpp knows the path of the user's config (it also tracks the file as a dependency through the compiler's depfile),
+# so editing the config or changing its path recompiles just this one file.
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/config/native/UserConfig.cpp" PROPERTIES COMPILE_DEFINITIONS "ABYSS_USER_CONFIG=\"${ABYSS_CONFIG}\"")
+
 add_library(abyssland_lib STATIC ${SRCFILES})
+target_include_directories(abyssland_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${ABYSS_GENERATED_DIR}")
 add_executable(Abyssland src/main.cpp ${TRACY_CPP_FILES})
 target_link_libraries(Abyssland abyssland_lib)
 

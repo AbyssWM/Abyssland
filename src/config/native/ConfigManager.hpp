@@ -6,8 +6,12 @@
 #include <unordered_map>
 #include <type_traits>
 
+#include <functional>
+
 #include "../ConfigManager.hpp"
 #include "ConfigCells.hpp"
+#include "../../helpers/signal/Signal.hpp"
+#include "../../managers/eventLoop/EventLoopTimer.hpp"
 
 namespace Config::Native {
 
@@ -64,6 +68,20 @@ namespace Config::Native {
 
         static std::string normalizeName(std::string_view s);
 
+        // ---- lifecycle of everything the user config registers that outlives configure() ----
+        // All of it is dropped at the beginning of reload(), so a reload never leaves duplicates behind.
+
+        // keeps a signal listener alive until reload / cancelListener; returns a handle id
+        uint64_t            addListener(CAbyssSignalListener&& l);
+        void                cancelListener(uint64_t id);
+        // arms and registers a timer with the event loop; returns a handle id
+        uint64_t            addTimer(SP<CEventLoopTimer> t);
+        SP<CEventLoopTimer> timerById(uint64_t id);
+        void                cancelTimer(uint64_t id);
+        // runs fn when the compositor has started (immediately if it already did)
+        void                onStart(std::function<void()> fn);
+        bool                hasStarted() const;
+
       private:
         template <typename T>
         static ConfigInput toInput(T&& v) {
@@ -90,6 +108,17 @@ namespace Config::Native {
         ICell* findDeviceValue(const std::string& dev, const std::string& field);
         ICell* findValue(std::string_view name);
 
+        void   clearUserLifecycle();
+
+        struct {
+            std::unordered_map<uint64_t, CAbyssSignalListener> listeners;
+            std::unordered_map<uint64_t, SP<CEventLoopTimer>>  timers;
+            std::vector<std::function<void()>>                 startCallbacks;
+            uint64_t                                           nextId = 1;
+            bool                                               started = false;
+            CAbyssSignalListener                               startListener; // persistent: survives reloads
+        } m_life;
+
         std::unordered_map<std::string, UP<ICell>>   m_configValues;
         std::unordered_map<std::string, SDeviceConfig> m_deviceConfigs;
         std::vector<std::string>                     m_errors, m_configPaths;
@@ -101,6 +130,8 @@ namespace Config::Native {
     };
 
     WP<CConfigManager> mgr();
+    // raw access to the native manager (nullptr before it was created); mgr() cannot be lock()ed because the manager is owned by a unique pointer
+    CConfigManager*    self();
 
     // Implemented in UserConfig.cpp: the compiled-in user config. Called from reload() after all state was reset to defaults.
     void applyUserConfig();
