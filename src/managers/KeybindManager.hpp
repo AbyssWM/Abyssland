@@ -12,7 +12,6 @@
 #include "../helpers/time/Timer.hpp"
 
 class CInputManager;
-class CPluginSystem;
 class IKeyboard;
 
 namespace Pointer {
@@ -103,11 +102,7 @@ enum eMultiKeyCase : uint8_t {
     MK_FULL_MATCH
 };
 
-namespace Config::Legacy {
-    class CConfigManager;
-}
-
-namespace Config::Lua {
+namespace Config::Native {
     class CConfigManager;
 }
 
@@ -182,8 +177,7 @@ class CKeybindManager {
 
     friend class CCompositor;
     friend class CInputManager;
-    friend class Config::Legacy::CConfigManager;
-    friend class Config::Lua::CConfigManager;
+    friend class Config::Native::CConfigManager;
     friend class CWorkspace;
     friend class Pointer::CPointerManager;
 };

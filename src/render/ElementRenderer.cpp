@@ -55,7 +55,7 @@ void IElementRenderer::calculateUVForSurface(PHLWINDOW pWindow, SP<CWLSurfaceRes
     auto& m_renderData = g_pAbyssRenderer->m_renderData;
 
     if (!pWindow || !pWindow->m_isX11) {
-        static auto PEXPANDEDGES = CConfigValue<Abyssparse::INT>("render:expand_undersized_textures");
+        static auto PEXPANDEDGES = CConfigValue<Config::INTEGER>("render:expand_undersized_textures");
 
         Vector2D    uvTL;
         Vector2D    uvBR = Vector2D(1, 1);

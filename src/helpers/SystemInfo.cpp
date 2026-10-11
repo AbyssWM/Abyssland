@@ -2,8 +2,6 @@
 
 #include "../Compositor.hpp"
 #include "../version.h"
-#include "../plugins/PluginAPI.hpp"
-#include "../plugins/PluginSystem.hpp"
 #include "../render/OpenGL.hpp"
 #include "../config/ConfigManager.hpp"
 #include "../state/MonitorState.hpp"
@@ -53,14 +51,14 @@ std::string SystemInfo::getStatus(eAbyssCtlOutputFormat fmt) {
     "backend": "{}"
 }}
 )#",
-                           Config::typeToString(Config::mgr()->type()), backendStr);
+                           "native", backendStr);
     }
 
     return std::format(R"#(
 configProvider: {}
 backend: {}
 )#",
-                       Config::typeToString(Config::mgr()->type()), backendStr);
+                       "native", backendStr);
 }
 
 std::string SystemInfo::getVersion(eAbyssCtlOutputFormat fmt) {
@@ -78,7 +76,7 @@ std::string SystemInfo::getVersion(eAbyssCtlOutputFormat fmt) {
         result += getBuiltSystemLibraryNames();
         result += "\n";
         result += "Version ABI string: ";
-        result += __abyssland_api_get_hash();
+        result += GIT_COMMIT_HASH;
         result += "\n";
 
 #if (!ISDEBUG && !defined(NO_XWAYLAND) && !defined(BUILT_WITH_NIX))
@@ -108,21 +106,19 @@ std::string SystemInfo::getVersion(eAbyssCtlOutputFormat fmt) {
     "tag": "{}",
     "commits": "{}",
     "buildAbyssal": "{}",
-    "buildAbyssparse": "{}",
     "buildAbyssutils": "{}",
     "buildAbysscursor": "{}",
     "buildAbyssgraphics": "{}",
     "systemAbyssal": "{}",
-    "systemAbyssparse": "{}",
     "systemAbyssutils": "{}",
     "systemAbysscursor": "{}",
     "systemAbyssgraphics": "{}",
     "abiHash": "{}",
     "flags": [)#",
             GIT_BRANCH, GIT_COMMIT_HASH, ABYSSLAND_VERSION, (GIT_DIRTY == std::string_view{"dirty"} ? "true" : "false"), escapeJSONStrings(commitMsg), GIT_COMMIT_DATE, GIT_TAG,
-            GIT_COMMITS, ABYSSAL_VERSION, ABYSSPARSE_VERSION, ABYSSUTILS_VERSION, ABYSSCURSOR_VERSION, ABYSSGRAPHICS_VERSION, getSystemLibraryVersion("abyssal"),
-            getSystemLibraryVersion("abyssparse"), getSystemLibraryVersion("abyssutils"), getSystemLibraryVersion("abysscursor"), getSystemLibraryVersion("abyssgraphics"),
-            __abyssland_api_get_hash());
+            GIT_COMMITS, ABYSSAL_VERSION, ABYSSUTILS_VERSION, ABYSSCURSOR_VERSION, ABYSSGRAPHICS_VERSION, getSystemLibraryVersion("abyssal"),
+            getSystemLibraryVersion("abyssutils"), getSystemLibraryVersion("abysscursor"), getSystemLibraryVersion("abyssgraphics"),
+            GIT_COMMIT_HASH);
 
 #if ISDEBUG
         result += "\"debug\",";
@@ -220,14 +216,6 @@ std::string SystemInfo::getSystemInfo() {
         result += "os-release: " + buffer.str() + "\n\n";
     } else
         result += "os-release: error\n\n";
-
-    result += "plugins:\n";
-    if (g_pPluginSystem) {
-        for (auto const& pl : g_pPluginSystem->getAllPlugins()) {
-            result += std::format("  {} by {} ver {}\n", pl->m_name, pl->m_author, pl->m_version);
-        }
-    } else
-        result += "\tunknown: not runtime\n";
 
     if (g_pAbyssOpenGL) {
         result += std::format("\nExplicit sync: {}", g_pAbyssOpenGL->m_exts.EGL_ANDROID_native_fence_sync_ext ? "supported" : "missing");

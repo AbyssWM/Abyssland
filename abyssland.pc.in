@@ -4,5 +4,5 @@ Name: Abyssland
 URL: https://github.com/AbyssWM/Abyssland
 Description: Abyssland header files
 Version: @ABYSSLAND_VERSION@
-Requires: abyssal >= @ABYSSAL_MINIMUM_VERSION@, abysscursor >= @ABYSSCURSOR_MINIMUM_VERSION@, abyssgraphics >= @ABYSSGRAPHICS_MINIMUM_VERSION@, abyssparse >= @ABYSSPARSE_MINIMUM_VERSION@, abyssutils >= @ABYSSUTILS_MINIMUM_VERSION@, libdrm, egl, cairo, xkbcommon >= @XKBCOMMON_MINIMUM_VERSION@, libinput >= @LIBINPUT_MINIMUM_VERSION@, wayland-server >= @WAYLAND_SERVER_MINIMUM_VERSION@@PKGCONFIG_XWAYLAND_DEPENDENCIES@
+Requires: abyssal >= @ABYSSAL_MINIMUM_VERSION@, abysscursor >= @ABYSSCURSOR_MINIMUM_VERSION@, abyssgraphics >= @ABYSSGRAPHICS_MINIMUM_VERSION@, abyssutils >= @ABYSSUTILS_MINIMUM_VERSION@, libdrm, egl, cairo, xkbcommon >= @XKBCOMMON_MINIMUM_VERSION@, libinput >= @LIBINPUT_MINIMUM_VERSION@, wayland-server >= @WAYLAND_SERVER_MINIMUM_VERSION@@PKGCONFIG_XWAYLAND_DEPENDENCIES@
 Cflags: -I${prefix} -I${prefix}/abyssland/protocols -I${prefix}/abyssland -I${prefix}/abyssland/src

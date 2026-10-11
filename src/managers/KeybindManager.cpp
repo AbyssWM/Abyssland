@@ -1,6 +1,6 @@
 #include "../config/ConfigValue.hpp"
 #include "../config/ConfigManager.hpp"
-#include "../config/legacy/DispatcherTranslator.hpp"
+#include "../config/shared/dispatch/DispatcherTranslator.hpp"
 #include "../config/shared/actions/ConfigActions.hpp"
 #include "../devices/IKeyboard.hpp"
 #include "../managers/SeatManager.hpp"
@@ -110,7 +110,7 @@ CKeybindManager::CKeybindManager() {
                              "setprop",
                              "forceidle",
                              "releaseinputcapture"}) {
-        m_dispatchers[name] = [n = std::string(name)](std::string args) -> SDispatchResult { return Config::Legacy::translator()->run(n, args); };
+        m_dispatchers[name] = [n = std::string(name)](std::string args) -> SDispatchResult { return Config::Dispatch::translator()->run(n, args); };
     }
 
     m_scrollTimer.reset();
@@ -627,7 +627,7 @@ SDispatchResult CKeybindManager::handleKeybinds(const uint32_t modmask, const SP
     }
 
     // store a bindsHit vec first, then run all the callbacks.
-    // this is because since lua fns can arbitrarily bind/unbind, we don't want to
+    // this is because since bind callbacks can arbitrarily bind/unbind, we don't want to
     // invalidate the vec while iterating
     std::vector<SP<SKeybind>> bindsHit;
 

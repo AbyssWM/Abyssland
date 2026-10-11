@@ -7,7 +7,7 @@
 namespace Config {
     class ICustomConfigValueData;
 
-    // LEGACY: remove when abyssparse gone
+    // 2D float vector used by vec2 options
     struct SVec2 {
         float x = 0, y = 0;
     };

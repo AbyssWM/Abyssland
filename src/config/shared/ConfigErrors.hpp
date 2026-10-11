@@ -21,7 +21,6 @@ namespace Config {
         INVALID_STATE,
         UNAVAILABLE,
         EXECUTION_FAILED,
-        LUA_ERROR,
         INTERNAL,
     };
 
@@ -56,7 +55,6 @@ namespace Config {
             case eConfigErrorCode::INVALID_STATE: return "invalid_state";
             case eConfigErrorCode::UNAVAILABLE: return "unavailable";
             case eConfigErrorCode::EXECUTION_FAILED: return "execution_failed";
-            case eConfigErrorCode::LUA_ERROR: return "lua_error";
             case eConfigErrorCode::INTERNAL: return "internal";
         }
         return "unknown";

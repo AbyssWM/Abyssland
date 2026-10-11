@@ -446,8 +446,6 @@ int main(int argc, char** argv) {
                     std::println("{}", NOTIFY_HELP);
                 } else if (cmd == "output") {
                     std::println("{}", OUTPUT_HELP);
-                } else if (cmd == "plugin") {
-                    std::println("{}", PLUGIN_HELP);
                 } else if (cmd == "setprop") {
                     std::println("{}", SETPROP_HELP);
                 } else if (cmd == "getprop") {
@@ -536,8 +534,6 @@ int main(int argc, char** argv) {
         exitStatus = request(fullRequest, 1);
     else if (fullRequest.contains("/setprop"))
         exitStatus = request(fullRequest, 3);
-    else if (fullRequest.contains("/plugin"))
-        exitStatus = request(fullRequest, 1);
     else if (fullRequest.contains("/dismissnotify"))
         exitStatus = request(fullRequest, 0);
     else if (fullRequest.contains("/notify"))
@@ -548,33 +544,13 @@ int main(int argc, char** argv) {
         exitStatus = request(fullRequest, 1);
     else if (fullRequest.contains("/dispatch"))
         exitStatus = request(fullRequest, 1);
-    else if (fullRequest.contains("/keyword"))
-        exitStatus = request(fullRequest, 2);
     else if (fullRequest.contains("/decorations"))
-        exitStatus = request(fullRequest, 1);
-    else if (fullRequest.contains("/eval"))
         exitStatus = request(fullRequest, 1);
     else if (fullRequest.contains("/--help"))
         std::println("{}", USAGE);
     else if (fullRequest.contains("/rollinglog") && needRoll)
         exitStatus = request(fullRequest, 0, true);
-    else if (fullRequest.contains("/repl")) {
-        if (ARGS.size() > 1) {
-            // single command with output
-            exitStatus = request(fullRequest, 1);
-        } else {
-            // interactive REPL mode
-            char* input = nullptr;
-            while ((input = readline("> ")) != nullptr) {
-                std::string line(input);
-                if (!line.empty()) {
-                    exitStatus = request("/repl " + line);
-                    add_history(input);
-                }
-                free(input);
-            }
-        }
-    } else {
+    else {
         exitStatus = request(fullRequest);
     }
 

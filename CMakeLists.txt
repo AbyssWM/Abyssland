@@ -148,13 +148,11 @@ if(NOT glaze_FOUND)
 endif()
 
 set(ABYSSAL_MINIMUM_VERSION 0.9.3)
-set(ABYSSPARSE_MINIMUM_VERSION 0.6.7)
 set(ABYSSCURSOR_MINIMUM_VERSION 0.1.7)
 set(ABYSSUTILS_MINIMUM_VERSION 0.14.0)
 set(ABYSSGRAPHICS_MINIMUM_VERSION 0.5.1)
 
 pkg_check_modules(abyssal_dep REQUIRED IMPORTED_TARGET abyssal>=${ABYSSAL_MINIMUM_VERSION})
-pkg_check_modules(abyssparse_dep REQUIRED IMPORTED_TARGET abyssparse>=${ABYSSPARSE_MINIMUM_VERSION})
 pkg_check_modules(abysscursor_dep REQUIRED IMPORTED_TARGET abysscursor>=${ABYSSCURSOR_MINIMUM_VERSION})
 pkg_check_modules(abyssutils_dep REQUIRED IMPORTED_TARGET abyssutils>=${ABYSSUTILS_MINIMUM_VERSION})
 pkg_check_modules(abyssgraphics_dep REQUIRED IMPORTED_TARGET abyssgraphics>=${ABYSSGRAPHICS_MINIMUM_VERSION})
@@ -168,7 +166,6 @@ set(ABYSSAL_VERSION "${abyssal_dep_VERSION}")
 set(ABYSSAL_VERSION_MAJOR "${ABYSSAL_VERSION_MAJOR}")
 set(ABYSSAL_VERSION_MINOR "${ABYSSAL_VERSION_MINOR}")
 set(ABYSSAL_VERSION_PATCH "${ABYSSAL_VERSION_PATCH}")
-set(ABYSSPARSE_VERSION "${abyssparse_dep_VERSION}")
 set(ABYSSUTILS_VERSION "${abyssutils_dep_VERSION}")
 set(ABYSSCURSOR_VERSION "${abysscursor_dep_VERSION}")
 set(ABYSSGRAPHICS_VERSION "${abyssgraphics_dep_VERSION}")
@@ -291,8 +288,6 @@ pkg_check_modules(deps
   lcms2
 )
 
-pkg_search_module(LUA REQUIRED IMPORTED_TARGET GLOBAL lua55 lua5.5 lua-55 lua-5.5 lua>=5.5 lua<5.6)
-
 find_package(abyss-scanner 0.3.10 REQUIRED)
 
 file(GLOB_RECURSE SRCFILES "src/*.cpp")
@@ -309,16 +304,9 @@ add_library(abyssland_lib STATIC ${SRCFILES})
 add_executable(Abyssland src/main.cpp ${TRACY_CPP_FILES})
 target_link_libraries(Abyssland abyssland_lib)
 
-target_include_directories(abyssland_lib PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+target_include_directories(abyssland_lib PUBLIC ${deps_INCLUDE_DIRS})
 
-# GCC 14 has no #embed: turn the example config into a byte list at configure time
-set(EXAMPLE_LUA "${CMAKE_SOURCE_DIR}/example/abyssland.lua")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${EXAMPLE_LUA}")
-file(READ "${EXAMPLE_LUA}" EXAMPLE_LUA_HEX HEX)
-string(REGEX REPLACE "([0-9a-f][0-9a-f])" "(char)0x\\1," EXAMPLE_LUA_BYTES "${EXAMPLE_LUA_HEX}")
-file(WRITE "${CMAKE_BINARY_DIR}/generated/exampleConfigLua.inc" "${EXAMPLE_LUA_BYTES}\n")
-target_include_directories(abyssland_lib PRIVATE "${CMAKE_BINARY_DIR}/generated")
-target_include_directories(Abyssland PUBLIC ${deps_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+target_include_directories(Abyssland PUBLIC ${deps_INCLUDE_DIRS})
 target_link_libraries(abyssland_lib PRIVATE glaze::glaze)
 
 set(USE_GPROF OFF)
@@ -448,12 +436,10 @@ target_link_libraries(
   abyssland_lib
   PUBLIC
   PkgConfig::abyssal_dep
-  PkgConfig::abyssparse_dep
   PkgConfig::abyssutils_dep
   PkgConfig::abysscursor_dep
   PkgConfig::abyssgraphics_dep
   PkgConfig::deps
-  PkgConfig::LUA
 )
 
 target_link_libraries(
@@ -471,26 +457,6 @@ endif()
 # used by `make installheaders`, to ensure the headers are generated
 add_custom_target(generate-protocol-headers)
 
-if(Python3_Interpreter_FOUND)
-  add_custom_target(
-    generate-lua-stubs ALL
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/meta/generateLuaStubs.py --root ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Generating Lua API stubs for LuaLS"
-    VERBATIM)
-
-  add_dependencies(abyssland_lib generate-lua-stubs)
-  add_dependencies(Abyssland generate-lua-stubs)
-
-  add_custom_target(
-    check-lua-stubs
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/meta/generateLuaStubs.py --root ${CMAKE_SOURCE_DIR} --check
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Checking Lua API stubs are up to date"
-    VERBATIM)
-else()
-  message(FATAL_ERROR "Python3 interpreter not found, which is required for the build")
-endif()
 
 set(PROTOCOL_SOURCES "")
 
@@ -627,13 +593,6 @@ protocolwayland()
 add_subdirectory(abyssctl)
 add_subdirectory(start)
 
-if(NO_ABYSSPM)
-  message(STATUS "abysspm is disabled")
-else()
-  add_subdirectory(abysspm)
-  message(STATUS "abysspm is enabled (NO_ABYSSPM not defined)")
-endif()
-
 # Set proper permissions for directories, otherwise they could end up 700
 set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
     OWNER_READ OWNER_WRITE OWNER_EXECUTE
@@ -665,14 +624,6 @@ add_compile_definitions(DATAROOTDIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}")
 file(GLOB_RECURSE INSTALLABLE_ASSETS "assets/install/*")
 install(FILES ${INSTALLABLE_ASSETS}
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss)
-
-# default lua config
-install(FILES ${CMAKE_SOURCE_DIR}/example/abyssland.lua
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss)
-
-# LuaLS stubs
-install(FILES ${CMAKE_SOURCE_DIR}/meta/hl.meta.lua
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/abyss/stubs)
 
 # portal config
 install(FILES ${CMAKE_SOURCE_DIR}/assets/abyssland-portals.conf

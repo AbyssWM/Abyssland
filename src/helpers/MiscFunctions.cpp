@@ -821,7 +821,6 @@ std::string getBuiltSystemLibraryNames() {
     result += std::format("Abyssgraphics: built against {}, system has {}\n", ABYSSGRAPHICS_VERSION, getSystemLibraryVersion("abyssgraphics"));
     result += std::format("Abyssutils: built against {}, system has {}\n", ABYSSUTILS_VERSION, getSystemLibraryVersion("abyssutils"));
     result += std::format("Abysscursor: built against {}, system has {}\n", ABYSSCURSOR_VERSION, getSystemLibraryVersion("abysscursor"));
-    result += std::format("Abyssparse: built against {}, system has {}\n", ABYSSPARSE_VERSION, getSystemLibraryVersion("abyssparse"));
     result += std::format("Abyssal: built against {}, system has {}\n", ABYSSAL_VERSION, getSystemLibraryVersion("abyssal"));
     return result;
 }

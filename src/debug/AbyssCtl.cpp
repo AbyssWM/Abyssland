@@ -33,8 +33,7 @@ using namespace Abyssutils::OS;
 #include <abyssal/input/Input.hpp>
 
 #include "../config/shared/complex/ComplexDataTypes.hpp"
-#include "../config/legacy/ConfigManager.hpp"
-#include "../config/lua/ConfigManager.hpp"
+#include "../config/ConfigManager.hpp"
 #include "../config/ConfigValue.hpp"
 #include "../config/shared/parserUtils/ParserUtils.hpp"
 #include "../config/shared/complex/ComplexDataTypes.hpp"
@@ -42,7 +41,6 @@ using namespace Abyssutils::OS;
 #include "../config/shared/workspace/WorkspaceRuleManager.hpp"
 #include "../config/shared/monitor/MonitorRuleManager.hpp"
 #include "../config/shared/animation/AnimationTree.hpp"
-#include "../config/supplementary/jeremy/Jeremy.hpp"
 #include "../config/values/ConfigValues.hpp"
 #include "../pointer/cursor/CursorManager.hpp"
 #include "../errorOverlay/Overlay.hpp"
@@ -69,7 +67,6 @@ using namespace Abyssutils::OS;
 #include "../managers/input/InputManager.hpp"
 #include "../managers/XWaylandManager.hpp"
 #include "../managers/fullscreen/FullscreenController.hpp"
-#include "../plugins/PluginSystem.hpp"
 #include "../animation/AnimationManager.hpp"
 #include "../notification/NotificationOverlay.hpp"
 #include "../render/Renderer.hpp"
@@ -1107,38 +1104,9 @@ std::string systemInfoRequest(eAbyssCtlOutputFormat format, std::string request)
     return result;
 }
 
-static std::string evalRequest(eAbyssCtlOutputFormat format, std::string request) {
-    if (Config::mgr()->type() != Config::CONFIG_LUA)
-        return "eval is only supported with the lua config manager";
-
-    auto luaMgr = dynamicPointerCast<Config::Lua::CConfigManager>(WP<Config::IConfigManager>(Config::mgr()));
-
-    // strip the command name ("eval ") from the request
-    auto code = request.substr(request.find_first_of(' ') + 1);
-
-    auto err = luaMgr->eval(code, request.starts_with("repl "));
-    if (err)
-        return *err;
-
-    return "ok";
-}
-
 static std::string dispatchRequest(eAbyssCtlOutputFormat format, std::string in) {
     // get rid of the dispatch keyword
     in = in.substr(in.find_first_of(' ') + 1);
-
-    if (Config::mgr()->type() == Config::CONFIG_LUA) {
-        // For lua, this is just a wrapper for `eval("hl.dispatch(in)")
-        std::string evalStr = std::format("return hl.dispatch({})", in);
-        auto        luaMgr  = dynamicPointerCast<Config::Lua::CConfigManager>(WP<Config::IConfigManager>(Config::mgr()));
-        auto        ret     = luaMgr->eval(evalStr).value_or("ok");
-
-        if (ret.starts_with("ok") || in.contains("(") /* this likely means the user is passing a valid lua dispatch string */)
-            return ret;
-
-        // the user likely is trying to dispatch old abyssparse stuff via lua, let them know
-        return ret + "\n\n → Note: dispatch in lua is a shorthand for hl.dispatch(...), your syntax might need to be updated.";
-    }
 
     const auto DISPATCHSTR = in.substr(0, in.find_first_of(' '));
 
@@ -1157,106 +1125,6 @@ static std::string dispatchRequest(eAbyssCtlOutputFormat format, std::string in)
     return res.success ? "ok" : res.error;
 }
 
-static std::string dispatchKeyword(eAbyssCtlOutputFormat format, std::string in) {
-
-    if (Config::mgr()->type() != Config::CONFIG_LEGACY)
-        return "keyword can't work with non-legacy parsers. Use eval.";
-
-    WP<Config::Legacy::CConfigManager> mgr = dynamicPointerCast<Config::Legacy::CConfigManager>(WP<Config::IConfigManager>(Config::mgr()));
-
-    // Find the first space to strip the keyword keyword
-    auto const firstSpacePos = in.find_first_of(' ');
-    if (firstSpacePos == std::string::npos) // Handle the case where there's no space found (invalid input)
-        return "Invalid input: no space found";
-
-    // Strip the keyword
-    in = in.substr(firstSpacePos + 1);
-
-    // Find the next space for the COMMAND and VALUE
-    auto const secondSpacePos = in.find_first_of(' ');
-    if (secondSpacePos == std::string::npos) // Handle the case where there's no second space (invalid input)
-        return "Invalid input: command and value not properly formatted";
-
-    // Extract COMMAND and VALUE
-    const auto COMMAND = in.substr(0, secondSpacePos);
-    const auto VALUE   = in.substr(secondSpacePos + 1);
-
-    // If COMMAND is empty, handle accordingly
-    if (COMMAND.empty())
-        return "Invalid input: command is empty";
-
-    g_pAbyssCtl->m_currentRequestParams.isDynamicKeyword = true;
-
-    std::string retval = mgr->parseKeyword(COMMAND, VALUE);
-
-    g_pAbyssCtl->m_currentRequestParams.isDynamicKeyword = false;
-
-    if (COMMAND == "source") {
-        Config::monitorRuleMgr()->scheduleReload();
-        g_pEventLoopManager->doLater([mgr] { mgr->reloadRules(); });
-    }
-
-    // if we are executing a dynamic source we have to reload everything, so every if will have a check for source.
-    if (COMMAND.contains("monitor"))
-        g_pEventLoopManager->doLater([] { Config::monitorRuleMgr()->scheduleReload(); });
-
-    if (COMMAND.contains("input") || COMMAND.contains("device") || COMMAND == "source") {
-        g_pInputManager->setKeyboardLayout();     // update kb layout
-        g_pInputManager->setPointerConfigs();     // update mouse cfgs
-        g_pInputManager->setTouchDeviceConfigs(); // update touch device cfgs
-        g_pInputManager->setTabletConfigs();      // update tablets
-    }
-
-    if (COMMAND.contains("general:layout") || (COMMAND.contains("workspace") && VALUE.contains("layout:")))
-        Layout::Supplementary::algoMatcher()->updateWorkspaceLayouts();
-
-    if (COMMAND.contains("decoration:screen_shader") || COMMAND == "source")
-        g_pAbyssRenderer->m_reloadScreenShader = true;
-
-    if (COMMAND.contains("blur") || COMMAND == "source") {
-        for (auto const& m : State::monitorState()->monitors()) {
-            if (m)
-                m->m_blurFBDirty = true;
-        }
-    }
-
-    if (COMMAND.contains("misc:disable_autoreload"))
-        Config::watcher()->update();
-
-    // decorations will probably need a repaint
-    if (COMMAND.contains("decoration:") || COMMAND.contains("border") || COMMAND == "workspace" || COMMAND.contains("zoom_factor") || COMMAND == "source") {
-        static auto PZOOMFACTOR = CConfigValue<Config::FLOAT>("cursor:zoom_factor");
-        for (auto const& m : State::monitorState()->monitors()) {
-            *(m->m_cursorZoom) = *PZOOMFACTOR;
-            g_pAbyssRenderer->damageMonitor(m);
-            if (m->m_activeWorkspace)
-                m->m_activeWorkspace->m_space->recalculate();
-        }
-    }
-
-    if (COMMAND.contains("windowrule ") || COMMAND.contains("windowrule["))
-        mgr->reloadRules();
-
-    if (COMMAND.contains("layerrule") || COMMAND.contains("layerrule[")) {
-        mgr->reloadRules();
-        // Damage all monitors to redraw static layers.
-        for (auto const& m : State::monitorState()->monitors()) {
-            g_pAbyssRenderer->damageMonitor(m);
-        }
-    }
-
-    if (COMMAND.contains("workspace"))
-        State::workspacePlacementController()->ensurePersistentWorkspacesPresent(
-            nullptr, [](PHLWORKSPACE ws, PHLMONITOR mon, bool noWarp) { State::workspacePlacementController()->moveWorkspaceToMonitor(ws, mon, noWarp); });
-
-    Log::logger->log(Log::DEBUG, "Abyssctl: keyword {} : {}", COMMAND, VALUE);
-
-    if (retval.empty())
-        return "ok";
-
-    return retval;
-}
-
 static std::string reloadRequest(eAbyssCtlOutputFormat format, std::string request) {
 
     if (request.ends_with("full-reset")) {
@@ -1264,7 +1132,6 @@ static std::string reloadRequest(eAbyssCtlOutputFormat format, std::string reque
         // flush all config value caches. This will momentarily degrade performance
         // but a config load will be slow enough for this not to matter probably
         Config::mgr().reset();
-        Config::Supplementary::Jeremy::flushCachedCfgPath();
         Config::initConfigManager();
         CConfigValueBase::flushCaches();
         Config::mgr()->init();
@@ -1681,14 +1548,8 @@ static std::string dispatchGetOption(eAbyssCtlOutputFormat format, std::string r
             return std::format("float: {:2f}\nset: {}", **rc<Config::FLOAT* const*>(VAL), VAR.setByUser);
         else if (TYPE == typeid(Config::VEC2))
             return std::format("vec2: [{}, {}]\nset: {}", (*rc<Config::VEC2* const*>(VAL))->x, (*rc<Config::VEC2* const*>(VAL))->y, VAR.setByUser);
-        else if (TYPE == typeid(Abyssparse::VEC2))
-            return std::format("vec2: [{}, {}]\nset: {}", (*rc<Config::VEC2* const*>(VAL))->x, (*rc<Config::VEC2* const*>(VAL))->y, VAR.setByUser);
-        else if (TYPE == typeid(Abyssparse::STRING))
-            return std::format("str: {}\nset: {}", *rc<Abyssparse::STRING const*>(VAL), VAR.setByUser);
         else if (TYPE == typeid(Config::STRING))
             return std::format("str: {}\nset: {}", **rc<Config::STRING* const*>(VAL), VAR.setByUser);
-        else if (TYPE == typeid(void*))
-            return std::format("custom type: {}\nset: {}", rc<Config::IComplexConfigValue*>((*rc<Abyssparse::CUSTOMTYPE* const*>(VAL))->getData())->toString(), VAR.setByUser);
         else if (TYPE == typeid(Config::IComplexConfigValue))
             return std::format("custom type: {}\nset: {}", (*rc<Config::IComplexConfigValue* const*>(VAL))->toString(), VAR.setByUser);
         else if (TYPE == typeid(Config::CCssGapData))
@@ -1707,16 +1568,8 @@ static std::string dispatchGetOption(eAbyssCtlOutputFormat format, std::string r
         else if (TYPE == typeid(Config::VEC2))
             return std::format(R"({{"option": "{}", "vec2": [{},{}], "set": {} }})", curitem, (*rc<Config::VEC2* const*>(VAL))->x, (*rc<Config::VEC2* const*>(VAL))->y,
                                VAR.setByUser);
-        else if (TYPE == typeid(Abyssparse::VEC2))
-            return std::format(R"({{"option": "{}", "vec2": [{},{}], "set": {} }})", curitem, (*rc<Config::VEC2* const*>(VAL))->x, (*rc<Config::VEC2* const*>(VAL))->y,
-                               VAR.setByUser);
-        else if (TYPE == typeid(Abyssparse::STRING))
-            return std::format(R"({{"option": "{}", "str": "{}", "set": {} }})", curitem, escapeJSONStrings(*rc<Abyssparse::STRING const*>(VAL)), VAR.setByUser);
         else if (TYPE == typeid(Config::STRING))
-            return std::format(R"({{"option": "{}", "str": "{}", "set": {} }})", curitem, **rc<Config::STRING* const*>(VAL), VAR.setByUser);
-        else if (TYPE == typeid(void*))
-            return std::format(R"({{"option": "{}", "custom": "{}", "set": {} }})", curitem,
-                               rc<Config::IComplexConfigValue*>((*rc<Abyssparse::CUSTOMTYPE* const*>(VAL))->getData())->toString(), VAR.setByUser);
+            return std::format(R"({{"option": "{}", "str": "{}", "set": {} }})", curitem, escapeJSONStrings(**rc<Config::STRING* const*>(VAL)), VAR.setByUser);
         else if (TYPE == typeid(Config::IComplexConfigValue))
             return std::format(R"({{"option": "{}", "custom": "{}", "set": {} }})", curitem, (*rc<Config::IComplexConfigValue* const*>(VAL))->toString(), VAR.setByUser);
         else if (TYPE == typeid(Config::CCssGapData))
@@ -1812,82 +1665,6 @@ static std::string dispatchOutput(eAbyssCtlOutputFormat format, std::string requ
     return "ok";
 }
 
-static std::string dispatchPlugin(eAbyssCtlOutputFormat format, std::string request) {
-    CVarList vars(request, 0, ' ');
-
-    if (vars.size() < 2)
-        return "not enough args";
-
-    const auto OPERATION = vars[1];
-    const auto PATH      = vars[2];
-
-    if (OPERATION == "load") {
-        if (vars.size() < 3)
-            return "not enough args";
-
-        g_pAbyssCtl->m_currentRequestParams.pendingPromise = CPromise<std::string>::make([PATH](SP<CPromiseResolver<std::string>> resolver) {
-            g_pPluginSystem->loadPlugin(PATH)->then([resolver, PATH](SP<CPromiseResult<CPlugin*>> result) {
-                if (result->hasError()) {
-                    resolver->reject(result->error());
-                    return;
-                }
-
-                resolver->resolve("ok");
-            });
-        });
-
-        return "ok";
-    } else if (OPERATION == "unload") {
-        if (vars.size() < 3)
-            return "not enough args";
-
-        const auto PLUGIN = g_pPluginSystem->getPluginByPath(PATH);
-
-        if (!PLUGIN)
-            return "plugin not loaded";
-
-        g_pPluginSystem->unloadPlugin(PLUGIN);
-    } else if (OPERATION == "list") {
-        const auto  PLUGINS = g_pPluginSystem->getAllPlugins();
-        std::string result  = "";
-
-        if (format == eAbyssCtlOutputFormat::FORMAT_JSON) {
-            result += "[";
-
-            if (PLUGINS.empty())
-                return "[]";
-
-            for (auto const& p : PLUGINS) {
-                result += std::format(
-                    R"#(
-{{
-    "name": "{}",
-    "author": "{}",
-    "handle": "{:x}",
-    "version": "{}",
-    "description": "{}"
-}},)#",
-                    escapeJSONStrings(p->m_name), escapeJSONStrings(p->m_author), rc<uintptr_t>(p->m_handle), escapeJSONStrings(p->m_version), escapeJSONStrings(p->m_description));
-            }
-            trimTrailingComma(result);
-            result += "]";
-        } else {
-            if (PLUGINS.empty())
-                return "no plugins loaded";
-
-            for (auto const& p : PLUGINS) {
-                result += std::format("\nPlugin {} by {}:\n\tHandle: {:x}\n\tVersion: {}\n\tDescription: {}\n", p->m_name, p->m_author, rc<uintptr_t>(p->m_handle), p->m_version,
-                                      p->m_description);
-            }
-        }
-
-        return result;
-    } else {
-        return "unknown opt";
-    }
-
-    return "ok";
-}
 
 static std::string dispatchNotify(eAbyssCtlOutputFormat format, std::string request) {
     CVarList vars(request, 0, ' ');
@@ -2026,7 +1803,6 @@ CAbyssCtl::CAbyssCtl() {
     registerCommand(SAbyssCtlCommand{.name = "reloadshaders", .exact = false, .fn = reloadShaders});
     registerCommand(SAbyssCtlCommand{"monitors", false, monitorsRequest});
     registerCommand(SAbyssCtlCommand{"reload", false, reloadRequest});
-    registerCommand(SAbyssCtlCommand{"plugin", false, dispatchPlugin});
     registerCommand(SAbyssCtlCommand{"notify", false, dispatchNotify});
     registerCommand(SAbyssCtlCommand{"dismissnotify", false, dispatchDismissNotify});
     registerCommand(SAbyssCtlCommand{"getprop", false, dispatchGetProp});
@@ -2034,13 +1810,10 @@ CAbyssCtl::CAbyssCtl() {
     registerCommand(SAbyssCtlCommand{"switchxkblayout", false, switchXKBLayoutRequest});
     registerCommand(SAbyssCtlCommand{"output", false, dispatchOutput});
     registerCommand(SAbyssCtlCommand{"dispatch", false, dispatchRequest});
-    registerCommand(SAbyssCtlCommand{"keyword", false, dispatchKeyword});
     registerCommand(SAbyssCtlCommand{"setcursor", false, dispatchSetCursor});
     registerCommand(SAbyssCtlCommand{"getoption", false, dispatchGetOption});
     registerCommand(SAbyssCtlCommand{"decorations", false, decorationRequest});
     registerCommand(SAbyssCtlCommand{"[[BATCH]]", false, dispatchBatch});
-    registerCommand(SAbyssCtlCommand{"eval", false, evalRequest});
-    registerCommand(SAbyssCtlCommand{"repl", false, evalRequest});
     startAbyssCtlSocket();
 }
 

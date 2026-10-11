@@ -3,7 +3,6 @@
 #include "../event/EventBus.hpp"
 #include <string>
 #include <unordered_map>
-#include <abyssparse.hpp>
 
 using namespace NTransferFunction;
 

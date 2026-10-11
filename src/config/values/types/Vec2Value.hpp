@@ -25,6 +25,10 @@ namespace Config::Values {
         Config::VEC2                  value() const;
         Config::VEC2                  defaultVal() const;
 
+        const std::function<std::expected<void, std::string>(const Config::VEC2&)>& validator() const {
+            return m_validator;
+        }
+
       private:
         CConfigValue<Config::VEC2>                                           m_val;
         std::function<std::expected<void, std::string>(const Config::VEC2&)> m_validator;

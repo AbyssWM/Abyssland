@@ -1,6 +1,5 @@
 #include "MonitorZoomController.hpp"
 
-#include <abyssparse.hpp>
 #include "../config/ConfigValue.hpp"
 #include "../managers/input/InputManager.hpp"
 #include "../render/OpenGL.hpp"

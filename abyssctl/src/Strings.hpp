@@ -19,31 +19,25 @@ commands:
     dismissnotify [amount] → Dismisses all or up to AMOUNT notifications
     dispatch <dispatcher> [args] → Issue a dispatch to call a keybind
                           dispatcher with arguments
-    eval <code>         → Issue a Lua string to execute
     getoption <option>  → Gets the config option status (values)
     globalshortcuts     → Lists all global shortcuts
     abysspaper ...       → Issue a abysspaper request
     abysssunset ...      → Issue a abysssunset request
     instances           → Lists all running instances of Abyssland with
                           their info
-    keyword <name> <value> → Issue a keyword to call a config keyword
-                          dynamically
     kill                → Issue a kill to get into a kill mode, where you can
                           kill an app by clicking on it. You can exit it
                           with ESCAPE
     layers              → Lists all the surface layers
-    layouts             → Lists all layouts available (including plugin'd ones)
+    layouts             → Lists all layouts available 
     monitors            → Lists active outputs with their properties,
                           'monitors all' lists active and inactive outputs
     notify ...          → Sends a notification using the built-in Abyssland
                           notification system
     output ...          → Allows you to add and remove fake outputs to your
                           preferred backend
-    plugin ...          → Issue a plugin request
     reload [config-only] → Issue a reload to force reload the config. Pass
                           'config-only' to disable monitor reload
-    repl [code]         → Enter interactive Lua REPL mode (^D to exit)
-                          or issue a Lua string and print the result
     rollinglog          → Prints tail of the log. Also supports -f/--follow
                           option
     setcursor <theme> <size> → Sets the cursor theme and reloads the cursor
@@ -110,7 +104,7 @@ time_ms:
     Time to display notification in milliseconds
 
 color:
-    Notification color. Format is the same as for colors in abyssland.lua. Use
+    Notification color.  Use
     0 for default color for icon
 
 message:
@@ -128,16 +122,6 @@ create <backend>:
 remove <name>:
     Removes virtual output. Pass the output's name, as found in
     'abyssctl monitors'
-
-flags:
-    See 'abyssctl --help')#";
-
-const std::string_view PLUGIN_HELP = R"#(usage: abyssctl [flags] plugin <request>
-
-requests:
-    load <path>     → Loads a plugin. Path must be absolute
-    unload <path>   → Unloads a plugin. Path must be absolute
-    list            → Lists all loaded plugins
 
 flags:
     See 'abyssctl --help')#";

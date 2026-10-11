@@ -25,6 +25,10 @@ namespace Config::Values {
         Config::STRING                value() const;
         Config::STRING                defaultVal() const;
 
+        const std::function<std::expected<void, std::string>(const std::string&)>& validator() const {
+            return m_validator;
+        }
+
       private:
         CConfigValue<Config::STRING>                                        m_val;
         std::function<std::expected<void, std::string>(const std::string&)> m_validator;

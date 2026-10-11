@@ -62,7 +62,6 @@ namespace NSplashes {
         "Beauty will save the world", // 4th ricing comp winner - zacoons' choice
         "Get good", // 5th ricing comp winner - zacoons' choice
         "Configration",
-        "RIP abyssparse",
         "better call vaxry",
         "i abyss therefore i land",
         "five. hundred. config errors.",
@@ -73,7 +72,7 @@ namespace NSplashes {
         "You should try quickshell!",
         "He was an X11 boy, she was a Wayland girl...",
         "How do I exit vim????",
-        "Now with lua, it might as well be awesome.",
+        "Now with a compiled-in config, it might as well be awesome.",
         "Have you ran your daily fastfetch yet?"
         // clang-format on
     };
