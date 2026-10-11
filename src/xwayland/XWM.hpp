@@ -119,6 +119,7 @@ class CXWM {
     SP<CX11DataDevice> getDataDevice();
     SP<IDataOffer>     createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSource> source);
     void               updateWorkArea(int x, int y, int w, int h);
+    void               setCursorTheme(const std::string& theme, int size);
 
   private:
     void                 setCursor(unsigned char* pixData, uint32_t stride, const Vector2D& size, const Vector2D& hotspot);

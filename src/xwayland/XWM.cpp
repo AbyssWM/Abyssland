@@ -10,9 +10,11 @@
 #include <cstring>
 #include <algorithm>
 #include <unordered_map>
+#include <limits>
 #include <xcb/xcb_icccm.h>
 
 #include "XWayland.hpp"
+#include "CursorResources.hpp"
 #include "../Compositor.hpp"
 #include "../protocols/core/Seat.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
@@ -1386,6 +1388,56 @@ void CXWM::getTransferData(SXSelection& sel) {
         return;
 
     updatedTransfer->eventSource = wl_event_loop_add_fd(g_pCompositor->m_wlEventLoop, updatedTransfer->wlFD.get(), WL_EVENT_WRITABLE, ::writeDataSource, &sel);
+}
+
+void CXWM::setCursorTheme(const std::string& theme, int size) {
+    const auto CONNECTION = getConnection();
+    if (!CONNECTION || !m_screen || m_connection->hasError())
+        return;
+
+    // The limit is expressed in four-byte units; leave room for the request
+    // header and the extra length word used by the BIG-REQUESTS extension.
+    const uint64_t MAX_REQUEST_BYTES = uint64_t{xcb_get_maximum_request_length(CONNECTION)} * 4;
+    const uint64_t HEADER_BYTES      = sizeof(xcb_change_property_request_t) + 4;
+    if (MAX_REQUEST_BYTES <= HEADER_BYTES)
+        return;
+
+    xcb_generic_error_t* error = nullptr;
+    // xcb_get_property_value_length returns an int, so also bound the reply.
+    const auto                            READ_LENGTH = std::min(xcb_get_maximum_request_length(CONNECTION), sc<uint32_t>(std::numeric_limits<int>::max() / 4));
+    const auto                            COOKIE      = xcb_get_property(CONNECTION, 0, m_screen->root, XCB_ATOM_RESOURCE_MANAGER, XCB_GET_PROPERTY_TYPE_ANY, 0, READ_LENGTH);
+    XCBReplyPtr<xcb_get_property_reply_t> reply(xcb_get_property_reply(CONNECTION, COOKIE, &error));
+    XCBReplyPtr<xcb_generic_error_t>      readError(error);
+    if (readError || !reply) {
+        Log::logger->log(Log::ERR, "[xwm] Can't read cursor resources: X11 error {}", readError ? readError->error_code : 0);
+        return;
+    }
+
+    if (reply->bytes_after || (reply->type != XCB_ATOM_NONE && (reply->type != XCB_ATOM_STRING || reply->format != 8))) {
+        Log::logger->log(Log::ERR, "[xwm] Can't update cursor resources: unsupported or oversized RESOURCE_MANAGER property");
+        return;
+    }
+
+    const auto LENGTH = xcb_get_property_value_length(reply.get());
+    if (LENGTH < 0)
+        return;
+    const auto RESOURCES = LENGTH ? std::string_view{sc<const char*>(xcb_get_property_value(reply.get())), sc<size_t>(LENGTH)} : std::string_view{};
+    const auto MERGED    = CursorResources::merge(RESOURCES, theme, size);
+    if (!MERGED || MERGED->size() > MAX_REQUEST_BYTES - HEADER_BYTES || MERGED->size() > std::numeric_limits<uint32_t>::max()) {
+        Log::logger->log(Log::ERR, "[xwm] Can't update cursor resources: invalid cursor theme, size, or resource data");
+        return;
+    }
+
+    if (*MERGED == RESOURCES)
+        return;
+
+    const auto WRITE_COOKIE =
+        xcb_change_property_checked(CONNECTION, XCB_PROP_MODE_REPLACE, m_screen->root, XCB_ATOM_RESOURCE_MANAGER, XCB_ATOM_STRING, 8, sc<uint32_t>(MERGED->size()), MERGED->data());
+    XCBReplyPtr<xcb_generic_error_t> writeError(xcb_request_check(CONNECTION, WRITE_COOKIE));
+    if (writeError)
+        Log::logger->log(Log::ERR, "[xwm] Can't write cursor resources: X11 error {}", writeError->error_code);
+    else if (xcb_flush(CONNECTION) <= 0)
+        Log::logger->log(Log::ERR, "[xwm] Can't flush cursor resources to XWayland");
 }
 
 void CXWM::setCursor(unsigned char* pixData, uint32_t stride, const Vector2D& size, const Vector2D& hotspot) {
