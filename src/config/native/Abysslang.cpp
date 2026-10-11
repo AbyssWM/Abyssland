@@ -159,7 +159,8 @@ void abyss::Config::execShutdown(std::string cmd) {
 }
 
 void abyss::Config::onStart(std::function<void()> fn) {
-    if (auto* m = M())
+    // once per process: an in-process reload must not run it again
+    if (auto* m = M(); m && !m->hasStarted())
         m->onStart([fn = std::move(fn)] { guarded("onStart callback", fn); });
 }
 
@@ -221,11 +222,7 @@ static bool applyMonitorOpts(::Config::CMonitorRuleParser& p, const abyss::Monit
 }
 
 void abyss::Config::monitor(std::string name, std::string mode, std::string position, std::string scale, const MonitorOpts& opts) {
-    if (name.empty()) {
-        err("monitor: name must not be empty");
-        return;
-    }
-
+    // an empty name is the catch-all rule for every monitor without a rule of its own (Hyprland: `monitor=,preferred,auto,1`)
     ::Config::CMonitorRuleParser parser(name);
 
     // merge into an existing rule of the same output

@@ -54,7 +54,8 @@ bool CWorkspaceAlgoMatcher::registerTiledAlgo(const std::string& name, const std
     m_tiledAlgos.emplace(name, std::move(factory));
     m_algoNames.emplace(typeInfo, name);
 
-    updateWorkspaceLayouts();
+    if (!m_batch)
+        updateWorkspaceLayouts();
 
     return true;
 }
@@ -66,7 +67,8 @@ bool CWorkspaceAlgoMatcher::registerFloatingAlgo(const std::string& name, const 
     m_floatingAlgos.emplace(name, std::move(factory));
     m_algoNames.emplace(typeInfo, name);
 
-    updateWorkspaceLayouts();
+    if (!m_batch)
+        updateWorkspaceLayouts();
 
     return true;
 }
@@ -84,9 +86,23 @@ bool CWorkspaceAlgoMatcher::unregisterAlgo(const std::string& name) {
 
     // this is needed here to avoid situations where a plugin unloads and we still have a UP
     // to a plugin layout
-    updateWorkspaceLayouts();
+    if (!m_batch)
+        updateWorkspaceLayouts();
 
     return true;
+}
+
+bool CWorkspaceAlgoMatcher::hasTiledAlgo(const std::string& name) const {
+    return m_tiledAlgos.contains(name);
+}
+
+void CWorkspaceAlgoMatcher::beginBatch() {
+    m_batch++;
+}
+
+void CWorkspaceAlgoMatcher::endBatch() {
+    if (m_batch > 0 && --m_batch == 0)
+        updateWorkspaceLayouts();
 }
 
 UP<ITiledAlgorithm> CWorkspaceAlgoMatcher::algoForNameTiled(const std::string& s) {

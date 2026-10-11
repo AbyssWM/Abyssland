@@ -86,6 +86,7 @@ CKeybindManager::CKeybindManager() {
                              "sendshortcut",
                              "sendkeystate",
                              "layoutmsg",
+                             "setlayout",
                              "dpms",
                              "movewindowpixel",
                              "resizewindowpixel",

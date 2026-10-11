@@ -29,6 +29,7 @@
 #include <abyss/actions.hpp>
 #include <abyss/effects.hpp>
 #include <abyss/events.hpp>
+#include <abyss/layout.hpp>
 
 namespace abyss {
 
@@ -187,12 +188,13 @@ namespace abyss {
         void execOnce(std::string cmd);
         // starts a command when the compositor shuts down (registered on the first load only)
         void execShutdown(std::string cmd);
-        // runs fn when the compositor has started; if it already started (config reload) it runs right away
+        // runs fn once per compositor process, when the compositor has started (so e.g. exec("quickshell") inside it starts quickshell only
+        // once). An in-process reload (`abyssctl reload --no-build`) does NOT run it again. Use exec() for "on every config load".
         void onStart(std::function<void()> fn);
         void onShutdown(std::function<void()> fn);
 
         // --- monitors / workspaces ---
-        // mode: "preferred" | "highres" | "highrr" | "WxH" | "WxH@Hz"; position: "auto" | "auto-left" | "XxY" ...; scale: factor or "auto"
+        // name: output name (e.g. "DP-1"), "desc:..." or "" for every monitor without a rule of its own. mode: "preferred" | "highres" | "highrr" | "WxH" | "WxH@Hz"; position: "auto" | "auto-left" | "XxY" ...; scale: factor or "auto"
         void monitor(std::string name, std::string mode = "preferred", std::string position = "auto", double scale = 1.0, const MonitorOpts& opts = {});
         void monitor(std::string name, std::string mode, std::string position, std::string scale, const MonitorOpts& opts = {});
         void disableMonitor(std::string name);
@@ -236,6 +238,16 @@ namespace abyss {
         }
         // calls fn after `ms` milliseconds (and every `ms` milliseconds when repeat is set)
         TimerHandle timer(int ms, std::function<void()> fn, bool repeat = false);
+
+        // --- layouts (see abyss/layout.hpp) ---
+        // simple layout: fn places the windows. Selected by name: c.general.layout = "grid", a workspace rule, or `abyssctl dispatch setlayout grid`
+        void addLayout(std::string name, LayoutFn fn, LayoutHooks hooks = {});
+        // full-power layout: A derives from abyss::TiledLayout and is default-constructible; one instance per workspace
+        template <typename A>
+        void addLayout(std::string name) {
+            static_assert(std::is_base_of_v<TiledLayout, A>, "custom layouts must derive from abyss::TiledLayout");
+            detail::registerLayout(std::move(name), [] { return UP<TiledLayout>(new A()); });
+        }
 
         // --- misc ---
         // permission rule, e.g. permission("/usr/bin/grim", "screencopy", "allow"); type: screencopy | cursorpos | keyboard | input-capture; mode: allow | ask | deny

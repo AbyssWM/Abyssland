@@ -75,6 +75,13 @@ void configure(Config& c) {
     c.animation("workspacesOut", true, 1.94, "almostLinear", "fade");
 
     // ---- layouts ----
+    // your own layout, any C++: put every window into a grid (select it with c.general.layout = "grid" or a workspace rule).
+    // Full-power layouts (state, resize, swap, messages) derive from abyss::TiledLayout: see abyss/layout.hpp and examples/centered-master.hpp
+    c.addLayout("grid", [](LayoutCtx& l) {
+        const auto cells = l.grid(l.count());
+        for (size_t i = 0; i < l.count(); ++i)
+            l.place(i, cells[i]);
+    });
     c.dwindle.preserve_split = true;
     c.master.new_status      = "master";
 

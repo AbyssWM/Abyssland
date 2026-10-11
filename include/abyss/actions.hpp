@@ -159,6 +159,8 @@ namespace abyss {
     // ---- layout ----
 
     Action layoutMsg(std::string msg);
+    // switch the tiling layout of every workspace that has no layout in a workspace rule (same as `abyssctl dispatch setlayout <name>`)
+    Action setLayout(std::string name);
     Action toggleSplit();
     Action swapSplit();
 

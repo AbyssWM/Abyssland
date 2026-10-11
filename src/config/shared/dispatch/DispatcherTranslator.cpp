@@ -630,6 +630,18 @@ static SDispatchResult layoutmsg(const std::string& msg) {
     return wrap(Actions::layoutMessage(msg));
 }
 
+// defined in config/native/AbyssLayout.cpp
+namespace abyss::detail {
+    std::string switchLayout(const std::string& name);
+}
+
+static SDispatchResult setlayout(const std::string& name) {
+    const auto ERR = abyss::detail::switchLayout(name);
+    if (!ERR.empty())
+        return {.success = false, .error = ERR};
+    return {};
+}
+
 static SDispatchResult dpmsDispatcher(const std::string& arg) {
     eTogglableAction action;
     if (arg.starts_with("on"))
@@ -841,6 +853,7 @@ CDispatcherTranslator::CDispatcherTranslator() {
     m_dispMap["sendshortcut"]                   = ::sendshortcut;
     m_dispMap["sendkeystate"]                   = ::sendkeystate;
     m_dispMap["layoutmsg"]                      = ::layoutmsg;
+    m_dispMap["setlayout"]                      = ::setlayout;
     m_dispMap["dpms"]                           = ::dpmsDispatcher;
     m_dispMap["movewindowpixel"]                = ::movewindowpixel;
     m_dispMap["resizewindowpixel"]              = ::resizewindowpixel;

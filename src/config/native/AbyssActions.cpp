@@ -265,6 +265,9 @@ Action abyss::moveCursor(int x, int y) {
 Action abyss::layoutMsg(std::string msg) {
     return {"layoutmsg", std::move(msg)};
 }
+Action abyss::setLayout(std::string name) {
+    return {"setlayout", std::move(name)};
+}
 Action abyss::toggleSplit() {
     return {"layoutmsg", "togglesplit"};
 }

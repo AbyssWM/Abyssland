@@ -1,4 +1,5 @@
 #include "ConfigManager.hpp"
+#include "../../layout/supplementary/WorkspaceAlgoMatcher.hpp"
 
 #include <algorithm>
 
@@ -101,6 +102,13 @@ void CConfigManager::clearUserLifecycle() {
     }
     m_life.timers.clear();
     m_life.startCallbacks.clear();
+    for (const auto& l : m_life.layouts)
+        Layout::Supplementary::algoMatcher()->unregisterAlgo(l);
+    m_life.layouts.clear();
+}
+
+void CConfigManager::addLayoutName(std::string name) {
+    m_life.layouts.emplace_back(std::move(name));
 }
 
 uint64_t CConfigManager::addListener(CAbyssSignalListener&& l) {
@@ -171,6 +179,9 @@ void CConfigManager::reload() {
     if (g_pKeybindManager)
         g_pKeybindManager->clearKeybinds();
 
+    // layouts are dropped and registered again: touch the workspaces only once, after the user config ran
+    Layout::Supplementary::algoMatcher()->beginBatch();
+
     m_errors.clear();
     m_deviceConfigs.clear();
     clearUserLifecycle();
@@ -181,6 +192,8 @@ void CConfigManager::reload() {
     }
 
     applyUserConfig();
+
+    Layout::Supplementary::algoMatcher()->endBatch();
 
     m_lastConfigVerificationWasSuccessful = m_errors.empty();
 

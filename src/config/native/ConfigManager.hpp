@@ -81,6 +81,8 @@ namespace Config::Native {
         // runs fn when the compositor has started (immediately if it already did)
         void                onStart(std::function<void()> fn);
         bool                hasStarted() const;
+        // layouts registered by the user config (dropped on reload)
+        void                addLayoutName(std::string name);
 
       private:
         template <typename T>
@@ -114,6 +116,7 @@ namespace Config::Native {
             std::unordered_map<uint64_t, CAbyssSignalListener> listeners;
             std::unordered_map<uint64_t, SP<CEventLoopTimer>>  timers;
             std::vector<std::function<void()>>                 startCallbacks;
+            std::vector<std::string>                           layouts;
             uint64_t                                           nextId = 1;
             bool                                               started = false;
             CAbyssSignalListener                               startListener; // persistent: survives reloads

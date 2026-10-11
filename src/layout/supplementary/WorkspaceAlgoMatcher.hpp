@@ -31,6 +31,13 @@ namespace Layout::Supplementary {
         // this fn fails if the algo isn't registered
         bool unregisterAlgo(const std::string& name);
 
+        bool hasTiledAlgo(const std::string& name) const;
+
+        // while a batch is open, (un)registering does not touch the workspaces; endBatch() updates them once.
+        // Used by config reloads, where layouts are dropped and registered again.
+        void beginBatch();
+        void endBatch();
+
       private:
         UP<ITiledAlgorithm>                                            algoForNameTiled(const std::string& s);
         UP<IFloatingAlgorithm>                                         algoForNameFloat(const std::string& s);
@@ -41,6 +48,7 @@ namespace Layout::Supplementary {
         std::map<std::string, std::function<UP<IFloatingAlgorithm>()>> m_floatingAlgos;
 
         std::map<const std::type_info*, std::string>                   m_algoNames;
+        int                                                            m_batch = 0;
     };
 
     const UP<CWorkspaceAlgoMatcher>& algoMatcher();
