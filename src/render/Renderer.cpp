@@ -1427,7 +1427,21 @@ void IAbyssRenderer::requestBackgroundResource() {
     static auto PNOWALLPAPER    = CConfigValue<Config::INTEGER>("misc:disable_abyssland_logo");
     static auto PFORCEWALLPAPER = CConfigValue<Config::INTEGER>("misc:force_default_wallpaper");
 
-    const auto  FORCEWALLPAPER = std::clamp(*PFORCEWALLPAPER, sc<int64_t>(-1), sc<int64_t>(2));
+    // number of bundled wallpapers: wall0.png, wall1.png, ... (stops at the first missing file)
+    static const int64_t WALLPAPERCOUNT = [] {
+        const auto exists = [](const std::string& f) {
+            std::error_code ec;
+            for (auto& e : ASSET_PATHS)
+                if (std::filesystem::exists(std::string{e} + "/abyss/" + f, ec))
+                    return true;
+            return false;
+        };
+        int64_t n = 0;
+        while (n < 64 && exists("wall" + std::to_string(n) + ".png"))
+            ++n;
+        return std::max<int64_t>(n, 1);
+    }();
+    const auto  FORCEWALLPAPER = std::clamp(*PFORCEWALLPAPER, sc<int64_t>(-1), WALLPAPERCOUNT - 1);
 
     if (*PNOWALLPAPER)
         return;
@@ -1439,11 +1453,11 @@ void IAbyssRenderer::requestBackgroundResource() {
         // get the adequate tex
         if (FORCEWALLPAPER == -1) {
             std::mt19937_64                 engine(time(nullptr));
-            std::uniform_int_distribution<> distribution(0, 2);
+            std::uniform_int_distribution<int64_t> distribution(0, WALLPAPERCOUNT - 1);
 
             texPath += std::to_string(distribution(engine));
         } else
-            texPath += std::to_string(std::clamp(*PFORCEWALLPAPER, sc<int64_t>(0), sc<int64_t>(2)));
+            texPath += std::to_string(std::clamp(*PFORCEWALLPAPER, sc<int64_t>(0), WALLPAPERCOUNT - 1));
 
         texPath += ".png";
 
