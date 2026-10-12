@@ -8,6 +8,7 @@
 #include <any>
 #include <cmath>
 #include <limits>
+#include <filesystem>
 #include <format>
 #include <unordered_map>
 
@@ -16,6 +17,7 @@
 #include "ConfigManager.hpp"
 #include "AbyssProtocols.hpp"
 #include "../../saver/Saver.hpp"
+#include "../../notification/NotificationOverlay.hpp"
 
 #include "../supplementary/executor/Executor.hpp"
 #include "../supplementary/propRefresher/PropRefresher.hpp"
@@ -1238,6 +1240,61 @@ bool abyss::optionSetByUser(std::string_view name) {
     return VAR.dataptr && VAR.setByUser;
 }
 
+namespace {
+    // c.gpu -> environment. First launch: set before the backend is created. Reload: only report what would change.
+    void applyGpu(const abyss::Config::GpuOpts& g) {
+        auto*                                            m = M();
+        const bool                                       FIRST = !m || m->isFirstLaunch();
+        std::vector<std::pair<std::string, std::string>> want;
+
+        if (!g.devices.empty()) {
+            std::string list;
+            for (const auto& d : g.devices) {
+                if (d.empty())
+                    continue;
+                if (d.contains(':') && !d.starts_with("/dev/dri/by-path/")) {
+                    err(std::format("gpu.devices: \"{}\" contains ':' (the list separator); use one entry per device", d));
+                    continue;
+                }
+                if (!std::filesystem::exists(d)) {
+                    Log::logger->log(Log::WARN, "[abyss] gpu.devices: {} does not exist on this machine, skipped", d);
+                    continue;
+                }
+                list += (list.empty() ? "" : ":") + d;
+            }
+            if (!list.empty())
+                want.emplace_back("ABYSSAL_DRM_DEVICES", list);
+            else
+                Log::logger->log(Log::WARN, "[abyss] gpu.devices: none of the listed devices exists, the backend picks automatically");
+        }
+        if (g.noModifiers)
+            want.emplace_back("ABYSSAL_NO_MODIFIERS", "1");
+        if (g.noExplicitMgpu)
+            want.emplace_back("ABYSSAL_MGPU_NO_EXPLICIT", "1");
+        if (g.noAtomic)
+            want.emplace_back("ABYSSAL_NO_ATOMIC", "1");
+        if (g.eglNoModifiers)
+            want.emplace_back("ABYSSLAND_EGL_NO_MODIFIERS", "1");
+
+        std::string changed;
+        for (const auto& [k, v] : want) {
+            const char* cur = getenv(k.c_str());
+            if (cur && v == cur)
+                continue;
+            if (FIRST) {
+                setenv(k.c_str(), v.c_str(), 1);
+                Log::logger->log(Log::DEBUG, "[abyss] gpu: {}={}", k, v);
+            } else
+                changed += std::format("\n  {}={}", k, v);
+        }
+        if (!changed.empty()) {
+            Log::logger->log(Log::WARN, "[abyss] gpu settings changed, takes effect after a restart:{}", changed);
+            if (Notification::overlay())
+                Notification::overlay()->addNotification(std::format("GPU settings changed: takes effect after a restart:{}", changed), CAbyssColor(0), 7000, ICON_WARNING);
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------ entry point
 
 void Config::Native::applyUserConfig() {
@@ -1261,4 +1318,5 @@ void Config::Native::applyUserConfig() {
 
     abyss::applyOptions(cfg);
     Config::Native::applyProtocols(cfg.protocols);
+    applyGpu(cfg.gpu);
 }

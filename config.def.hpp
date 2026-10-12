@@ -36,6 +36,11 @@ void configure(Config& c) {
     //     g.text(f.width / 2, f.height / 2, "hello", {.size = 64, .color = 0xc8a25a, .align = Align::Center});
     // }, {.fps = 30}));
 
+    // ---- GPU (read at start; see https://abysswm.github.io/wiki/nvidia) ----
+    // render on one card only (paths that do not exist are skipped, so the same config works on other machines):
+    // c.gpu.devices = {"/dev/dri/by-path/pci-0000:0b:00.0-card"};
+    // c.gpu.noExplicitMgpu = true;   // ABYSSAL_MGPU_NO_EXPLICIT, multi-GPU set-ups with sync problems
+
     // ---- protocols (everything is offered by default; `abyssctl protocols` lists the names, see abyss/protocols.hpp) ----
     // only wlr screencopy (grim, wf-recorder, xdg-desktop-portal-wlr), none of ours / the ext ones:
     // c.protocols.disable({"abyssland_toplevel_export_manager_v1", "ext_image_copy_capture_manager_v1",

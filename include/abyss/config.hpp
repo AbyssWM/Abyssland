@@ -326,6 +326,20 @@ namespace abyss {
             abyss::set(name, std::forward<T>(v));
         }
 
+        // --- GPU / backend (typed form of the ABYSSAL_* variables, see https://abysswm.github.io/wiki/nvidia) ---
+        // Read once at start, before the backend exists; a reload that changes them only warns ("takes effect after a restart").
+        // Nothing set = nothing touched (variables from the login environment stay as they are).
+        struct GpuOpts {
+            // DRM devices to use, first = primary (ABYSSAL_DRM_DEVICES). Paths that do not exist are skipped, so a list written for
+            // one machine does not break another; if none exists the variable is left alone and the backend picks automatically.
+            // Example for "render on the AMD card, NVIDIA only for CUDA": {"/dev/dri/by-path/pci-0000:0b:00.0-card"}.
+            std::vector<std::string> devices;
+            bool                     noModifiers    = false; // ABYSSAL_NO_MODIFIERS: no explicit buffer modifiers (old drivers)
+            bool                     noExplicitMgpu = false; // ABYSSAL_MGPU_NO_EXPLICIT: no explicit sync between GPUs
+            bool                     noAtomic       = false; // ABYSSAL_NO_ATOMIC: legacy KMS instead of atomic modesetting
+            bool                     eglNoModifiers = false; // ABYSSLAND_EGL_NO_MODIFIERS: renderer ignores modifiers
+        } gpu;
+
         // --- protocols (see abyss/protocols.hpp): everything is offered by default ---
         Protocols protocols;
         void      protocol(std::string name, bool enabled) { protocols.set(std::move(name), enabled); }
