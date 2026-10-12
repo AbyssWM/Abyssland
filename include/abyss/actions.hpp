@@ -25,6 +25,10 @@
 
 #include <abyss/types.hpp>
 
+namespace Notification {
+    class CNotification;
+}
+
 namespace abyss {
 
     inline SDispatchResult ok() {
@@ -129,6 +133,17 @@ namespace abyss {
     Action mouseMove();                                // for bind(SUPER, "mouse:272", mouseMove())
     Action mouseResize(bool keepAspectRatio = false);  // for bind(SUPER, "mouse:273", mouseResize())
 
+    // A string literal converts to bool before std::string, so moveWindow(Dir::Left, "class:x") would silently mean silent = true.
+    // These overloads turn that mistake into a compile error; pass the bool explicitly: moveWindow(Dir::Left, false, "class:x").
+    Action moveWindow(Dir, const char*)                  = delete;
+    Action moveWindowToMonitor(std::string, const char*) = delete;
+    Action swapNext(const char*)                         = delete;
+    Action cycleNext(bool, const char*)                  = delete;
+    Action cycleNext(const char*)                        = delete;
+    Action moveToWorkspace(int, const char*)             = delete;
+    Action moveToWorkspace(std::string, const char*)     = delete;
+    Action fullscreen(int, const char*, const char*)     = delete;
+
     // ---- groups ----
 
     Action toggleGroup(std::string selector = "");
@@ -136,6 +151,7 @@ namespace abyss {
     // makes the index-th window of the group active (1-based, 0 = last)
     Action setGroupActive(int index, std::string selector = "");
     Action moveGroupWindow(bool forward = true);
+    Action changeGroupActive(const char*) = delete; // see above
     Action moveIntoGroup(Dir d, std::string selector = "");
     Action moveIntoOrCreateGroup(Dir d, std::string selector = "");
     Action moveOutOfGroup(std::string selector = "");
@@ -224,8 +240,44 @@ namespace abyss {
     int                    workspaceWindowCount(const PHLWORKSPACE& w);
     std::string            monitorName(const PHLMONITOR& m);
 
-    // desktop notification overlay
-    void                   notify(const std::string& text, int ms = 5000, std::optional<Color> color = std::nullopt, const std::string& icon = "info" /* info|warning|error|hint|ok|confused|none */);
+    // ---- desktop notification overlay ----
+
+    struct NotifyOpts {
+        int                  ms       = 5000;
+        std::optional<Color> color    = std::nullopt; // default: the icon's colour
+        std::string          icon     = "info";       // info | warning | error | hint | ok | confused | none
+        float                fontSize = 13.f;
+    };
+
+    // a shown notification. Copyable; every call does nothing once the notification is gone (timed out or dismissed).
+    class NotificationHandle {
+      public:
+        NotificationHandle() = default;
+        explicit NotificationHandle(WP<Notification::CNotification> n) : m_n(std::move(n)) {}
+
+        bool        alive() const;
+        std::string text() const;
+        void        setText(std::string text);
+        void        setColor(Color c);
+        void        setIcon(const std::string& icon);
+        void        setFontSize(float size);
+        // restarts the countdown with a new duration
+        void        setTimeout(int ms);
+        // stops / restarts the countdown (calls must be balanced)
+        void        pause();
+        void        resume();
+        void        dismiss();
+
+      private:
+        WP<Notification::CNotification> m_n;
+    };
+
+    NotificationHandle              notify(const std::string& text, int ms = 5000, std::optional<Color> color = std::nullopt, const std::string& icon = "info" /* info|warning|error|hint|ok|confused|none */);
+    NotificationHandle              notify(const std::string& text, const NotifyOpts& opts);
+    // every notification currently shown, oldest first
+    std::vector<NotificationHandle> notifications();
+    // dismisses the oldest `amount` notifications, -1 = all
+    void                            dismissNotifications(int amount = -1);
 
     // changes an option at runtime, e.g. set("general:gaps_in", 3); returns false (and notifies) on unknown option / bad value
     bool                   setOption(std::string_view name, std::variant<bool, int64_t, double, std::string, Color, Gradient, Vec2, Gap> value);

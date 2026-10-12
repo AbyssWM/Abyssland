@@ -16,6 +16,8 @@ namespace Notification {
         SP<CNotification> addNotification(const std::string& text, const CAbyssColor& color, const float timeMs, const eIcons icon = ICON_NONE, const float fontSize = 13.f);
         void              dismissNotifications(const int amount);
         void              dismissNotification(const SP<CNotification>& notification);
+        // redraw after a notification was changed from outside (text, colour, font size ...)
+        void              scheduleFrames() const;
 
         std::vector<SP<CNotification>> getNotifications() const;
 
@@ -26,7 +28,6 @@ namespace Notification {
         eIconBackend                   iconBackendForFont(const std::string& fontFamily);
         CBox                           notificationDamageForMonitor(PHLMONITOR pMonitor);
         CBox                           drawNotifications(PHLMONITOR pMonitor);
-        void                           scheduleFrames() const;
         CBox                           m_lastDamage;
 
         std::vector<SP<CNotification>> m_notifications;

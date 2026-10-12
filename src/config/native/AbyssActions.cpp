@@ -495,25 +495,105 @@ std::string abyss::monitorName(const PHLMONITOR& m) {
     return m ? m->m_name : "";
 }
 
-void abyss::notify(const std::string& text, int ms, std::optional<Color> color, const std::string& icon) {
+namespace {
+    eIcons parseIcon(const std::string& icon) {
+        std::string lc = icon;
+        std::ranges::transform(lc, lc.begin(), ::tolower);
+        if (lc == "warning" || lc == "warn")
+            return ICON_WARNING;
+        if (lc == "error" || lc == "err")
+            return ICON_ERROR;
+        if (lc == "hint")
+            return ICON_HINT;
+        if (lc == "confused" || lc == "question")
+            return ICON_CONFUSED;
+        if (lc == "ok")
+            return ICON_OK;
+        if (lc == "none")
+            return ICON_NONE;
+        return ICON_INFO;
+    }
+
+    void redrawNotifications() {
+        if (Notification::overlay())
+            Notification::overlay()->scheduleFrames();
+    }
+}
+
+abyss::NotificationHandle abyss::notify(const std::string& text, const NotifyOpts& o) {
     if (!Notification::overlay())
-        return;
+        return {};
+    const float SIZE = std::clamp(o.fontSize, 4.f, 200.f);
+    auto n = Notification::overlay()->addNotification(text, o.color ? CAbyssColor(sc<uint64_t>(o.color->argb)) : CAbyssColor(0), sc<float>(std::max(o.ms, 1)), parseIcon(o.icon), SIZE);
+    return NotificationHandle{n};
+}
 
-    std::string lc = icon;
-    std::ranges::transform(lc, lc.begin(), ::tolower);
-    eIcons ic = ICON_INFO;
-    if (lc == "warning" || lc == "warn")
-        ic = ICON_WARNING;
-    else if (lc == "error" || lc == "err")
-        ic = ICON_ERROR;
-    else if (lc == "hint")
-        ic = ICON_HINT;
-    else if (lc == "confused" || lc == "question")
-        ic = ICON_CONFUSED;
-    else if (lc == "ok")
-        ic = ICON_OK;
-    else if (lc == "none")
-        ic = ICON_NONE;
+abyss::NotificationHandle abyss::notify(const std::string& text, int ms, std::optional<Color> color, const std::string& icon) {
+    return notify(text, NotifyOpts{.ms = ms, .color = color, .icon = icon});
+}
 
-    Notification::overlay()->addNotification(text, color ? CAbyssColor(sc<uint64_t>(color->argb)) : CAbyssColor(0), sc<float>(ms), ic);
+std::vector<abyss::NotificationHandle> abyss::notifications() {
+    std::vector<NotificationHandle> out;
+    if (!Notification::overlay())
+        return out;
+    for (const auto& n : Notification::overlay()->getNotifications())
+        if (n && !n->gone())
+            out.emplace_back(WP<Notification::CNotification>{n});
+    return out;
+}
+
+void abyss::dismissNotifications(int amount) {
+    if (Notification::overlay())
+        Notification::overlay()->dismissNotifications(amount < 0 ? -1 : amount);
+}
+
+bool abyss::NotificationHandle::alive() const {
+    const auto n = m_n.lock();
+    return n && !n->gone();
+}
+std::string abyss::NotificationHandle::text() const {
+    const auto n = m_n.lock();
+    return n ? n->text() : std::string{};
+}
+void abyss::NotificationHandle::setText(std::string text) {
+    if (const auto n = m_n.lock()) {
+        n->setText(std::move(text));
+        redrawNotifications();
+    }
+}
+void abyss::NotificationHandle::setColor(Color c) {
+    if (const auto n = m_n.lock()) {
+        n->setColor(CAbyssColor(sc<uint64_t>(c.argb)));
+        redrawNotifications();
+    }
+}
+void abyss::NotificationHandle::setIcon(const std::string& icon) {
+    if (const auto n = m_n.lock()) {
+        n->setIcon(parseIcon(icon));
+        redrawNotifications();
+    }
+}
+void abyss::NotificationHandle::setFontSize(float size) {
+    if (const auto n = m_n.lock()) {
+        n->setFontSize(std::clamp(size, 4.f, 200.f));
+        redrawNotifications();
+    }
+}
+void abyss::NotificationHandle::setTimeout(int ms) {
+    if (const auto n = m_n.lock()) {
+        n->resetTimeout(sc<float>(std::max(ms, 1)));
+        redrawNotifications();
+    }
+}
+void abyss::NotificationHandle::pause() {
+    if (const auto n = m_n.lock())
+        n->lock();
+}
+void abyss::NotificationHandle::resume() {
+    if (const auto n = m_n.lock(); n && n->isLocked())
+        n->unlock();
+}
+void abyss::NotificationHandle::dismiss() {
+    if (const auto n = m_n.lock(); n && Notification::overlay())
+        Notification::overlay()->dismissNotification(n);
 }
