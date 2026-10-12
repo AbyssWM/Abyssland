@@ -12,6 +12,7 @@
 // the classic string binds (release handling, mouse binds, submap switching, global shortcuts ...).
 #pragma once
 
+#include <format>
 #include <functional>
 #include <optional>
 #include <string>
@@ -206,6 +207,28 @@ namespace abyss {
     Action exit();
     // does nothing (a bind that only swallows the key, like hl.dsp.no_op)
     Action noop();
+
+    // ---- small helpers ----
+
+    enum class LogLevel {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error
+    };
+    // writes "[abyss] text" into the compositor log (`abyssctl rollinglog`), like Lua's print(). Nothing is written while
+    // debug:disable_logs is on (the default): set c.debug.disable_logs = false to see it.
+    void log(LogLevel level, std::string_view text);
+    template <typename... A>
+    void print(std::format_string<A...> fmt, A&&... args) {
+        log(LogLevel::Info, std::format(fmt, std::forward<A>(args)...));
+    }
+    // unlocks the session when the lock screen client crashed (the session stays locked behind a red screen otherwise). Refuses while a
+    // working lock screen holds the lock. Runs immediately; deliberately no dispatcher, so other local processes cannot call it.
+    SDispatchResult clearCrashedLockscreen();
+    // window rule / property changes from set() are applied on the next loop iteration; this applies them now. false = nothing pending
+    bool            execScheduledPropRefreshImmediately();
 
     // ---- queries ----
     // Window / workspace / monitor handles are the compositor's own shared pointers; use the accessors below to look inside.

@@ -12,6 +12,7 @@
 #include "../shared/parserUtils/ParserUtils.hpp"
 #include "../shared/actions/ConfigActions.hpp"
 #include "../supplementary/executor/Executor.hpp"
+#include "../supplementary/propRefresher/PropRefresher.hpp"
 
 #include "../../Compositor.hpp"
 #include "../../devices/IKeyboard.hpp"
@@ -22,6 +23,8 @@
 #include "../../desktop/view/Window.hpp"
 #include "../../managers/fullscreen/FullscreenController.hpp"
 #include "../../managers/KeybindManager.hpp"
+#include "../../managers/SessionLockManager.hpp"
+#include "../../debug/log/Logger.hpp"
 #include "../../notification/NotificationOverlay.hpp"
 #include "../../output/Monitor.hpp"
 #include "../../state/MonitorState.hpp"
@@ -596,4 +599,34 @@ void abyss::NotificationHandle::resume() {
 void abyss::NotificationHandle::dismiss() {
     if (const auto n = m_n.lock(); n && Notification::overlay())
         Notification::overlay()->dismissNotification(n);
+}
+
+// ---- small helpers ----
+
+void abyss::log(LogLevel level, std::string_view text) {
+    auto lvl = Log::INFO;
+    switch (level) {
+        case LogLevel::Trace: lvl = Log::TRACE; break;
+        case LogLevel::Debug: lvl = Log::DEBUG; break;
+        case LogLevel::Info: lvl = Log::INFO; break;
+        case LogLevel::Warn: lvl = Log::WARN; break;
+        case LogLevel::Error: lvl = Log::ERR; break;
+    }
+    Log::logger->log(lvl, "[abyss] {}", text);
+}
+
+SDispatchResult abyss::clearCrashedLockscreen() {
+    if (!g_pSessionLockManager)
+        return error("clearCrashedLockscreen: no session lock manager");
+    if (!g_pSessionLockManager->isSessionLocked())
+        return error("clearCrashedLockscreen: the session is not locked");
+    if (g_pSessionLockManager->clientLocked() || g_pSessionLockManager->clientDenied())
+        return error("clearCrashedLockscreen: a lock screen client is still running, refusing to unlock");
+    g_pSessionLockManager->forceUnlock();
+    return ok();
+}
+
+bool abyss::execScheduledPropRefreshImmediately() {
+    const auto& r = ::Config::Supplementary::refresher();
+    return r && r->executeScheduledRefreshImmediately() == 0;
 }
