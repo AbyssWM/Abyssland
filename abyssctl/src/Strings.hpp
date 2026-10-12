@@ -17,6 +17,9 @@ commands:
     decorations <window_regex> → Lists all decorations and their info
     devices             → Lists all connected keyboards and mice
     dismissnotify [amount] → Dismisses all or up to AMOUNT notifications
+    doctor              → Read-only report on deviations from the Abyssland
+                          defaults: build, portals, env, helpers, config,
+                          disabled protocols (-j for JSON)
     dispatch <dispatcher> [args] → Issue a dispatch to call a keybind
                           dispatcher with arguments
     getoption <option>  → Gets the config option status (values)
@@ -36,6 +39,8 @@ commands:
                           notification system
     output ...          → Allows you to add and remove fake outputs to your
                           preferred backend
+    run [name [args]]   → Runs a command registered with c.command in the
+                          config (no name: lists them)
     reload [flags]      → Rebuild the compiled config (cmake --build),
                           install it and restart Abyssland. See
                           'abyssctl reload --help'

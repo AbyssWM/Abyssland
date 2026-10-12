@@ -14,6 +14,26 @@ set_target_properties(abyssctl PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 include(GNUInstallDirs)
 
+# build identity for `abyssctl doctor` (commit + dirty flag of the tree at configure time)
+find_program(ABYSSCTL_GIT git)
+set(ABYSSCTL_GIT_COMMIT "unknown")
+set(ABYSSCTL_GIT_DIRTY "unknown")
+if(ABYSSCTL_GIT)
+    execute_process(COMMAND ${ABYSSCTL_GIT} rev-parse --short HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE _c OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET RESULT_VARIABLE _rc)
+    if(_rc EQUAL 0)
+        set(ABYSSCTL_GIT_COMMIT "${_c}")
+        execute_process(COMMAND ${ABYSSCTL_GIT} status --porcelain --untracked-files=no WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE _d OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+        if(_d STREQUAL "")
+            set(ABYSSCTL_GIT_DIRTY "clean")
+        else()
+            set(ABYSSCTL_GIT_DIRTY "dirty")
+        endif()
+    endif()
+endif()
+target_compile_definitions(abyssctl PRIVATE ABYSSCTL_GIT_COMMIT="${ABYSSCTL_GIT_COMMIT}" ABYSSCTL_GIT_DIRTY="${ABYSSCTL_GIT_DIRTY}")
+
 # used by `abyssctl reload` to find the tree to rebuild (overridable via env ABYSS_SOURCE_DIR / ABYSS_BUILD_DIR / ABYSS_PREFIX)
 target_compile_definitions(abyssctl PRIVATE
     ABYSS_SOURCE_DIR="${CMAKE_SOURCE_DIR}"

@@ -36,6 +36,7 @@ using namespace Abyssutils::Memory;
 
 #include "Strings.hpp"
 #include "abysspaper/Abysspaper.hpp"
+#include "Doctor.hpp"
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -281,6 +282,45 @@ int request(std::string_view arg, int minArgs = 0, bool needRoll = false) {
         return 7;
 
     return 0;
+}
+
+// like request(), but returns the reply instead of printing it (used by `doctor`, read-only requests only)
+static std::optional<std::string> requestCapture(std::string_view arg) {
+    if (instanceSignature.empty())
+        return std::nullopt;
+
+    const auto FD = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (FD < 0)
+        return std::nullopt;
+
+    auto t = timeval{.tv_sec = 5, .tv_usec = 0};
+    setsockopt(FD, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
+
+    sockaddr_un addr = {0};
+    addr.sun_family  = AF_UNIX;
+    const std::string PATH = getRuntimeDir() + "/" + instanceSignature + "/.socket.sock";
+    strncpy(addr.sun_path, PATH.c_str(), sizeof(addr.sun_path) - 1);
+
+    if (connect(FD, rc<sockaddr*>(&addr), SUN_LEN(&addr)) < 0 || !writeAll(FD, arg)) {
+        close(FD);
+        return std::nullopt;
+    }
+
+    std::string reply;
+    char        buf[8192];
+    while (true) {
+        const auto N = read(FD, buf, sizeof(buf));
+        if (N < 0 && errno == EINTR)
+            continue;
+        if (N <= 0)
+            break;
+        reply.append(buf, sc<size_t>(N));
+    }
+    close(FD);
+
+    if (reply.empty() || reply.starts_with("error:"))
+        return std::nullopt;
+    return reply;
 }
 
 int requestIPC(std::string_view filename, std::string_view arg) {
@@ -697,8 +737,11 @@ int main(int argc, char** argv) {
 
     fullRequest = fullArgs + "/" + fullRequest;
 
+    // `run <name> [args]` is passed to the compositor verbatim; its arguments must not be mistaken for other commands
+    const bool ISRUN = fullRequest.substr(fullRequest.find('/') + 1) == "run" || fullRequest.substr(fullRequest.find('/') + 1).starts_with("run ");
+
     // instances is HIS-independent
-    if (fullRequest.contains("/instances")) {
+    if (!ISRUN && fullRequest.contains("/instances")) {
         instancesRequest(json);
         return 0;
     }
@@ -722,6 +765,28 @@ int main(int argc, char** argv) {
     if (needRoll && !fullRequest.contains("/rollinglog")) {
         log("only 'rollinglog' command supports '--follow' option");
         return 1;
+    }
+
+    // doctor: read-only, works without a running instance (instance part is skipped then)
+    if (!ISRUN && fullRequest.ends_with("/doctor")) {
+        if (overrideInstance.contains("_"))
+            instanceSignature = overrideInstance;
+        else if (!overrideInstance.empty() && isNumber(overrideInstance, false)) {
+            const auto INSTANCENO = std::stoi(overrideInstance);
+            const auto INSTS      = instances();
+            if (INSTANCENO >= 0 && sc<std::size_t>(INSTANCENO) < INSTS.size())
+                instanceSignature = INSTS[INSTANCENO].id;
+        } else if (const auto ISIG = getenv("ABYSSLAND_INSTANCE_SIGNATURE"); ISIG && *ISIG)
+            instanceSignature = ISIG;
+        else if (const auto INSTS = instances(); !INSTS.empty())
+            instanceSignature = INSTS.back().id;
+
+        // the compile-time prefix is only right for installed builds; a dev build tree defaults to /usr/local
+        std::string prefix = envOr("ABYSS_PREFIX", ABYSS_DEFAULT_PREFIX);
+        if (!getenv("ABYSS_PREFIX") && !std::filesystem::exists(std::filesystem::path{prefix} / "bin" / "Abyssland") && std::filesystem::exists("/opt/abyss/bin/Abyssland"))
+            prefix = "/opt/abyss";
+
+        return runDoctor(json, prefix, envOr("ABYSS_SOURCE_DIR", ABYSS_SOURCE_DIR), instanceSignature, requestCapture);
     }
 
     if (overrideInstance.contains("_"))
@@ -760,7 +825,9 @@ int main(int argc, char** argv) {
     if (PLAINRELOAD)
         return reloadRebuild(false);
 
-    if (fullRequest.contains("/--batch"))
+    if (ISRUN)
+        exitStatus = request(fullRequest);
+    else if (fullRequest.contains("/--batch"))
         batchRequest(fullRequest, json);
     else if (fullRequest.contains("/abysspaper")) {
         auto result = Abysspaper::makeAbysspaperRequest(fullRequest);
