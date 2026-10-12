@@ -1,5 +1,6 @@
 
 #include "Compositor.hpp"
+#include <ranges>
 #include "version.h"
 #include "config/supplementary/executor/Executor.hpp"
 #include "debug/log/Logger.hpp"
@@ -867,7 +868,16 @@ void CCompositor::performUserChecks() {
 
     if (!*PNOCHECKXDG) {
         const auto CURRENT_DESKTOP_ENV = getenv("XDG_CURRENT_DESKTOP");
-        if (!CURRENT_DESKTOP_ENV || std::string{CURRENT_DESKTOP_ENV} != "Abyssland") {
+        // XDG_CURRENT_DESKTOP is a colon separated list, e.g. "Abyssland:wlroots" for a patched portal setup
+        const auto HASABYSS = [&] {
+            if (!CURRENT_DESKTOP_ENV)
+                return false;
+            for (const auto& token : std::views::split(std::string_view{CURRENT_DESKTOP_ENV}, ':'))
+                if (std::string_view{token.begin(), token.end()} == "Abyssland")
+                    return true;
+            return false;
+        }();
+        if (!HASABYSS) {
             Notification::overlay()->addNotification(
                 I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, {{"value", CURRENT_DESKTOP_ENV ? CURRENT_DESKTOP_ENV : "unset"}}), CAbyssColor{}, 15000,
                 ICON_WARNING);
