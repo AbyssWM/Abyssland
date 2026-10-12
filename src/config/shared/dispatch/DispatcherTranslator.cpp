@@ -83,11 +83,17 @@ static SDispatchResult forcekillactive(const std::string&) {
 }
 
 static SDispatchResult closewindow(const std::string& data) {
-    return wrap(Actions::closeWindow(Desktop::viewState()->query().selector(data).runWindow()));
+    const auto PWINDOW = Desktop::viewState()->query().selector(data).runWindow();
+    if (!PWINDOW)
+        return {.success = false, .error = "closeWindow: no such window"};
+    return wrap(Actions::closeWindow(PWINDOW));
 }
 
 static SDispatchResult killwindow(const std::string& data) {
-    return wrap(Actions::killWindow(Desktop::viewState()->query().selector(data).runWindow()));
+    const auto PWINDOW = Desktop::viewState()->query().selector(data).runWindow();
+    if (!PWINDOW)
+        return {.success = false, .error = "killWindow: no such window"};
+    return wrap(Actions::killWindow(PWINDOW));
 }
 
 static SDispatchResult signalactive(const std::string& args) {
@@ -213,6 +219,8 @@ static SDispatchResult movetoworkspace(const std::string& args) {
     if (args.contains(',')) {
         PWINDOW = Desktop::viewState()->query().selector(args.substr(args.find_last_of(',') + 1)).runWindow();
         wsArgs  = args.substr(0, args.find_last_of(','));
+        if (!PWINDOW)
+            return {.success = false, .error = "moveToWorkspace: no such window"};
     }
 
     auto ws = resolveWorkspace(wsArgs);
@@ -229,6 +237,8 @@ static SDispatchResult movetoworkspacesilent(const std::string& args) {
     if (args.contains(',')) {
         PWINDOW = Desktop::viewState()->query().selector(args.substr(args.find_last_of(',') + 1)).runWindow();
         wsArgs  = args.substr(0, args.find_last_of(','));
+        if (!PWINDOW)
+            return {.success = false, .error = "moveToWorkspace: no such window"};
     }
 
     auto ws = resolveWorkspace(wsArgs);
@@ -502,12 +512,15 @@ static SDispatchResult focuswindow(const std::string& regexp) {
 static SDispatchResult tagwindow(const std::string& args) {
     CVarList2 vars(args, 0, 's', true);
 
-    PHLWINDOW PWINDOW = nullptr;
+    // nullopt = focused window. A PHLWINDOW nullptr would become optional(nullptr) and tag nothing.
+    std::optional<PHLWINDOW> PWINDOW = std::nullopt;
     if (vars.size() == 1)
-        ; // use focused (nullptr)
-    else if (vars.size() == 2)
+        ; // use focused
+    else if (vars.size() == 2) {
         PWINDOW = Desktop::viewState()->query().selector(std::string(vars[1])).runWindow();
-    else
+        if (!*PWINDOW)
+            return {.success = false, .error = "tagWindow: no such window"};
+    } else
         return {.success = false, .error = "Invalid number of arguments, expected 1 or 2"};
 
     return wrap(Actions::tag(std::string(vars[0]), PWINDOW));
@@ -750,6 +763,8 @@ static SDispatchResult moveintoorcreategroup(const std::string& args) {
 static SDispatchResult moveoutofgroup(const std::string& args) {
     if (args != "active" && args.length() > 1) {
         auto PWINDOW = Desktop::viewState()->query().selector(args).runWindow();
+        if (!PWINDOW)
+            return {.success = false, .error = "moveOutOfGroup: no such window"};
         return wrap(Actions::moveOutOfGroup(Math::DIRECTION_DEFAULT, PWINDOW));
     }
     return wrap(Actions::moveOutOfGroup(Math::DIRECTION_DEFAULT));
