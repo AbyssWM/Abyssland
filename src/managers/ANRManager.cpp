@@ -16,8 +16,8 @@ using namespace Abyssutils::OS;
 static constexpr auto TIMER_TIMEOUT = std::chrono::milliseconds(1500);
 
 CANRManager::CANRManager() {
-    if (!NFsUtils::executableExistsInPath("hyprland-dialog")) {
-        Log::logger->log(Log::ERR, "hyprland-dialog missing from PATH, cannot start ANRManager");
+    if (!NFsUtils::executableExistsInPath("abyss-dialog")) {
+        Log::logger->log(Log::ERR, "abyss-dialog missing from PATH, cannot start ANRManager");
         return;
     }
 

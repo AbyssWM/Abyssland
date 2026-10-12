@@ -276,7 +276,7 @@ void CDynamicPermissionManager::askForPermission(wl_client* client, const std::s
     rule->m_dialogBox->m_priority = true;
 
     if (!rule->m_dialogBox) {
-        Log::logger->log(Log::ERR, "CDynamicPermissionManager::askForPermission: hyprland-guiutils likely missing, cannot ask! Disabling permission control...");
+        Log::logger->log(Log::ERR, "CDynamicPermissionManager::askForPermission: abyss-guiutils likely missing, cannot ask! Disabling permission control...");
         rule->m_allowMode = PERMISSION_RULE_ALLOW_MODE_ALLOW;
         return;
     }

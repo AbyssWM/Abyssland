@@ -509,7 +509,7 @@ std::vector<SP<IValue>> Values::getConfigValues() {
         MS<Bool>("misc:middle_click_paste", "whether to enable middle-click-paste (aka primary selection)", true),
         MS<Int>("misc:render_unfocused_fps", "the maximum limit for renderunfocused windows' fps in the background", 15, {.min = 1, .max = 120}),
         MS<Bool>("misc:disable_xdg_env_checks", "disable the warning if XDG environment is externally managed", false),
-        MS<Bool>("misc:disable_abyssland_guiutils_check", "disable the warning if hyprland-guiutils is missing", false),
+        MS<Bool>("misc:disable_abyssland_guiutils_check", "disable the warning if abyss-guiutils is missing", false),
         MS<Bool>("misc:disable_watchdog_warning", "whether to disable the warning about not using start-abyssland.", false),
         MS<Int>("misc:lockdead_screen_delay", "the delay in ms after the lockdead screen appears.", 1000, {.min = 0, .max = 5000}),
         MS<Bool>("misc:enable_anr_dialog", "whether to enable the ANR (app not responding) dialog when your apps hang", true),

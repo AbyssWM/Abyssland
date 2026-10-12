@@ -53,7 +53,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Выглядае, што вашая пераменная асяроддзя XDG_CURRENT_DESKTOP зададзеная звонку, цяперашняе значэнне: {value}.\nГэта можа выклікаць праблемы, калі "
                   "гэта не зроблена наўмысна.");
     registerEntry("be_BY", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "У вашай сістэме не ўсталяваны hyprland-guiutils, што выкарыстоўваецца для некаторых дыялогавых вокнаў. Разгледзьце ўсталёўку пакета.");
+                  "У вашай сістэме не ўсталяваны abyss-guiutils, што выкарыстоўваецца для некаторых дыялогавых вокнаў. Разгледзьце ўсталёўку пакета.");
     registerEntry("be_BY", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -91,7 +91,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("bn_BD", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "আপনার XDG_CURRENT_DESKTOP পরিবেশ পরিবর্তনশীল বাহ্যিকভাবে পরিচালিত হচ্ছে বলে মনে হচ্ছে, বর্তমান মান: {value}।\nএটি সমস্যা সৃষ্টি করতে পারে যদি না এটি ইচ্ছাকৃত হয়।");
-    registerEntry("bn_BD", TXT_KEY_NOTIF_NO_GUIUTILS, "আপনার সিস্টেমে hyprland-guiutils ইনস্টল নেই যা কিছু ডায়ালগের জন্য ব্যবহৃত হয়। এটি ইনস্টল করার কথা বিবেচনা করুন।");
+    registerEntry("bn_BD", TXT_KEY_NOTIF_NO_GUIUTILS, "আপনার সিস্টেমে abyss-guiutils ইনস্টল নেই যা কিছু ডায়ালগের জন্য ব্যবহৃত হয়। এটি ইনস্টল করার কথা বিবেচনা করুন।");
     registerEntry("bn_BD", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -141,7 +141,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "da_DK", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "Dit XDG_CURRENT_DESKTOP miljø ser ud til at være administreret externt, og den nuværende værdi er {value}.\nDette kan forårsage problemer, medmindre det er bevidst.");
     registerEntry("da_DK", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Dit system har ikke hyprland-guiutils installeret. Dette er en runtime-afhængighed for nogle dialoger. Overvej at installere den.");
+                  "Dit system har ikke abyss-guiutils installeret. Dette er en runtime-afhængighed for nogle dialoger. Overvej at installere den.");
     registerEntry("da_DK", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -182,7 +182,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Η μεταβλητή περιβάλλοντος XDG_CURRENT_DESKTOP φαίνεται να διαχειρίζεται εξωτερικά, με τρέχουσα τιμή: {value}.\nΑυτό μπορεί να προκαλέσει προβλήματα "
                   "αν δεν είναι σκόπιμο.");
     registerEntry("el_GR", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Το σύστημά σας δεν έχει εγκατεστημένο το hyprland-guiutils, το οποίο χρησιμοποιείται για ορισμένα παράθυρα διαλόγου. Σκεφτείτε να το εγκαταστήσετε.");
+                  "Το σύστημά σας δεν έχει εγκατεστημένο το abyss-guiutils, το οποίο χρησιμοποιείται για ορισμένα παράθυρα διαλόγου. Σκεφτείτε να το εγκαταστήσετε.");
     registerEntry("el_GR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -235,7 +235,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("en_US", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Your XDG_CURRENT_DESKTOP environment seems to be managed externally, and the current value is {value}.\nThis might cause issues unless it's intentional.");
     registerEntry("en_US", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Your system does not have hyprland-guiutils installed. This is a runtime dependency for some dialogs. Consider installing it.");
+                  "Your system does not have abyss-guiutils installed. This is a runtime dependency for some dialogs. Consider installing it.");
     registerEntry("en_US", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -286,7 +286,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("as_IN", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "আপোনাৰ XDG_CURRENT_DESKTOP পৰিৱেশটো বাহ্যিকভাৱে পৰিচালিত হোৱা যেন লাগিছে, আৰু বৰ্তমানৰ মান হৈছে {value}।\nযদি ই ইচ্ছাকৃতভাৱে নহয়, তেনে হলে সমস্যাৰ সৃষ্টি হ'ব পাৰে।");
     registerEntry("as_IN", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "আপোনাৰ চিষ্টেমত hyprland-guiutils ইনষ্টল কৰা নাই। কিছুমান ডাইলগৰ বাবে ই এটা ৰানটাইম নিৰ্ভৰশীলতা। ইয়াক ইনষ্টল কৰাৰ কথা চিন্তা কৰক।");
+                  "আপোনাৰ চিষ্টেমত abyss-guiutils ইনষ্টল কৰা নাই। কিছুমান ডাইলগৰ বাবে ই এটা ৰানটাইম নিৰ্ভৰশীলতা। ইয়াক ইনষ্টল কৰাৰ কথা চিন্তা কৰক।");
     registerEntry("as_IN", TXT_KEY_NOTIF_FAILED_ASSETS, "হাইপাৰলেণ্ড {count}-টা প্ৰয়োজনীয় সম্পদ লোড কৰাত অসফল হৈছে, বেয়া পেকজিং কৰাৰ বাবে আপোনাৰ ডিষ্ট্ৰ'ৰ পেকেজাৰক দোষাৰোপ কৰক!");
     registerEntry("as_IN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "আপোনাৰ মনিটৰৰ লেআউট ভুলকৈ ছেট কৰা হৈছে। মনিটৰ {name} লেআউটত আন মনিটৰ(সমূহ)ৰ সৈতে ওপৰা-উপৰি হৈ আছে।\nঅধিক তথ্যৰ বাবে অনুগ্ৰহ কৰি ৱিকি (মনিটৰ পৃষ্ঠা) চাওক। ই "
@@ -321,7 +321,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Ihre XDG_CURRENT_DESKTOP umgebung scheint extern gemanagt zu werden, und der aktuelle Wert ist {value}.\nDies könnte zu Problemen führen sofern es "
                   "nicht absichtlich so ist.");
     registerEntry("de_DE", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Ihr System hat hyprland-guiutils nicht installiert. Dies ist eine Laufzeitabhängigkeit für einige Dialoge. Es ist empfohlen diese zu installieren.");
+                  "Ihr System hat abyss-guiutils nicht installiert. Dies ist eine Laufzeitabhängigkeit für einige Dialoge. Es ist empfohlen diese zu installieren.");
     registerEntry("de_DE", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -361,7 +361,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "de_CH", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "Ehri XDG_CURRENT_DESKTOP omgäbig schiint extern gmanagt z'wärde, ond de aktuelli Wärt esch {value}.\nDas chönnt zo Problem füehre sofärn das ned absechtlech so esch.");
     registerEntry("de_CH", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Ehres System hed hyprland-guiutils ned installiert. Das esch en Laufziitabhängigkeit för es paar Dialog. Es werd empfohle sie z'installiere.");
+                  "Ehres System hed abyss-guiutils ned installiert. Das esch en Laufziitabhängigkeit för es paar Dialog. Es werd empfohle sie z'installiere.");
     registerEntry("de_CH", TXT_KEY_NOTIF_FAILED_ASSETS,
                   "Abyssland hed {count} essentielli Ressource ned chönne lade, gäbed Sie im Packager vo ehrere Distribution schold för es schlächts Package!");
     registerEntry("de_CH", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -397,7 +397,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pt_BR", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Seu XDG_CURRENT_DESKTOP parece estar sendo gerenciado externamente, e atualmente é {value}.\nIsso pode causar problemas caso não seja intencional.");
     registerEntry("pt_BR", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Seu sistema não possui hyprland-guiutils instalado. Essa é uma dependência de execução para alguns diálogos. Considere instalá-lo.");
+                  "Seu sistema não possui abyss-guiutils instalado. Essa é uma dependência de execução para alguns diálogos. Considere instalá-lo.");
     registerEntry("pt_BR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -449,7 +449,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "es", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "La variable de entorno XDG_CURRENT_DESKTOP parece gestionarse externamente; su valor actual es {value}.\nEsto podría causar problemas a menos que sea intencional.");
     registerEntry("es", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Tu sistema no tiene instalado 'hyprland-guiutils'. Es una dependencia en tiempo de ejecución para algunos diálogos. Considera instalarlo.");
+                  "Tu sistema no tiene instalado 'abyss-guiutils'. Es una dependencia en tiempo de ejecución para algunos diálogos. Considera instalarlo.");
     registerEntry("es", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -504,7 +504,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry(
         "fa_IR", TXT_KEY_NOTIF_NO_GUIUTILS,
-        "بستهٔ hyprland-guiutils در سیستم نصب نیست. این بسته برای برخی از پنجره‌ها و دیالوگ‌ها لازم است. نصب "
+        "بستهٔ abyss-guiutils در سیستم نصب نیست. این بسته برای برخی از پنجره‌ها و دیالوگ‌ها لازم است. نصب "
         "آن "
         "پیشنهاد "
         "می‌شود.");
@@ -557,7 +557,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("fi_FI", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "XDG_CURRENT_DESKTOP ympäristösi näyttäisi olevan ulkoisesti hallittu, ja sen nykyinen arvo on {value}.\nTämä voi aiheuttaa ongelmia, jos sitä ei ole "
                   "tehty tarkoituksella.");
-    registerEntry("fi_FI", TXT_KEY_NOTIF_NO_GUIUTILS, "Paketti hyprland-guiutils ei ole asennettuna järjestelmääsi. Jotkin dialogit tarvitsevat sitä. Harkitse sen asentamista.");
+    registerEntry("fi_FI", TXT_KEY_NOTIF_NO_GUIUTILS, "Paketti abyss-guiutils ei ole asennettuna järjestelmääsi. Jotkin dialogit tarvitsevat sitä. Harkitse sen asentamista.");
     registerEntry("fi_FI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -597,7 +597,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Votre variable d'environnement XDG_CURRENT_DESKTOP semble être gérée de manière externe, et sa valeur actuelle est {value}.\nCela peut provoquer des "
                   "problèmes si ce n'est pas intentionnel.");
     registerEntry("fr_FR", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Votre système n'a pas hyprland-guiutils installé. C'est une dépendance d'éxécution pour certains dialogues. Envisagez de l'installer.");
+                  "Votre système n'a pas abyss-guiutils installé. C'est une dépendance d'éxécution pour certains dialogues. Envisagez de l'installer.");
     registerEntry("fr_FR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -646,7 +646,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "{value} है।\nयह समस्या पैदा कर सकता "
                   "है जब तक कि यह जानबूझकर न किया गया हो।");
     registerEntry("hi_IN", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "आपके सिस्टम में hyprland-guiutils इंस्टॉल नहीं है। यह कुछ संवादों के लिए एक रनटाइम "
+                  "आपके सिस्टम में abyss-guiutils इंस्टॉल नहीं है। यह कुछ संवादों के लिए एक रनटाइम "
                   "निर्भरता है। इसे इंस्टॉल करने पर विचार करें।");
     registerEntry("hi_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
@@ -694,7 +694,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Variabel <i>environment</i> XDG_CURRENT_DESKTOP Anda tampaknya dikelola secara eksternal, nilainya saat ini: {value}.\nHal ini dapat menyebabkan "
                   "masalah, kecuali jika disengaja.");
     registerEntry("id_ID", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "hyprland-guiutils belum terpasang di Sistem Anda. Paket tersebut merupakan dependensi <i>runtime</i> untuk beberapa dialog. Mohon untuk menginstalnya.");
+                  "abyss-guiutils belum terpasang di Sistem Anda. Paket tersebut merupakan dependensi <i>runtime</i> untuk beberapa dialog. Mohon untuk menginstalnya.");
     registerEntry("id_ID", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -733,7 +733,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("hr_HR", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Izgleda da je tvoja XDG_CURRENT_DESKTOP okolina vanjski upravljana te je trenutna vrijednost {value}.\nOvo može izazvati problem, osim ako je namjerno.");
     registerEntry("hr_HR", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Na tvojem sustavu nije instaliran hyprland-guiutils. Ovo je ovisnost tijekom pokretanja nekih dijaloga. Preporučeno je da je instaliraš.");
+                  "Na tvojem sustavu nije instaliran abyss-guiutils. Ovo je ovisnost tijekom pokretanja nekih dijaloga. Preporučeno je da je instaliraš.");
     registerEntry("hr_HR", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo % 10 <= 1 && assetsNo % 100 != 11)
@@ -775,7 +775,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("it_IT", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "L'ambiente XDG_CURRENT_DESKTOP sembra essere gestito esternamente, il valore attuale è {value}.\nSe non è voluto, potrebbe causare problemi.");
     registerEntry("it_IT", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Sembra che hyprland-guiutils non sia installato. È una dipendenza richiesta per alcuni dialoghi che potresti voler installare.");
+                  "Sembra che abyss-guiutils non sia installato. È una dipendenza richiesta per alcuni dialoghi che potresti voler installare.");
     registerEntry("it_IT", TXT_KEY_NOTIF_FAILED_ASSETS,
                   "Abyssland non ha potuto caricare {count} asset, dai la colpa al packager della tua distribuzione per il suo cattivo lavoro!");
     registerEntry("it_IT", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -823,7 +823,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("ja_JP", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "環境変数 XDG_CURRENT_DESKTOP は外部から {value} に設定されています。\n意図的なものでなければ、何らかの問題を起こすかもしれません。");
-    registerEntry("ja_JP", TXT_KEY_NOTIF_NO_GUIUTILS, "hyprland-guiutils がありません。このパッケージをインストールしてください。");
+    registerEntry("ja_JP", TXT_KEY_NOTIF_NO_GUIUTILS, "abyss-guiutils がありません。このパッケージをインストールしてください。");
     registerEntry("ja_JP", TXT_KEY_NOTIF_FAILED_ASSETS, "{count} 個の必要なアセットをロードできません。ディストリビューションのパッケージ作成者にこの問題を報告してください。");
     registerEntry("ja_JP", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "モニタのレイアウトが正しく設定されていません。モニタ {name} の表示領域が他のモニタと重複しています。\n詳細は Wiki の Monitor "
@@ -867,7 +867,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("lv_LV", TXT_KEY_PERMISSION_UNKNOWN_WAYLAND_APP, "Nezināma lietotne (Wayland klienta ID {wayland_id})");
 
     registerEntry("lv_LV", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "Jūsu XDG_CURRENT_DESKTOP tiek ārēji pārvaldīts, tās vērtība ir {value}.\nTas var neapzināti izraisīt problēmas.");
-    registerEntry("lv_LV", TXT_KEY_NOTIF_NO_GUIUTILS, "Jums nav instalēts hyprland-guiutils. Šī pakotne ir nepieciešama dažiem dialogiem. Apsveriet tās instalēšanu.");
+    registerEntry("lv_LV", TXT_KEY_NOTIF_NO_GUIUTILS, "Jums nav instalēts abyss-guiutils. Šī pakotne ir nepieciešama dažiem dialogiem. Apsveriet tās instalēšanu.");
     registerEntry("lv_LV", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -906,7 +906,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("hu_HU", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Úgy tűnik, hogy az XDG_CURRENT_DESKTOP környezetet külsőleg kezelik, és a jelenlegi érték {value}.\nEz problémákat okozhat, hacsak nem szándékos.");
     registerEntry("hu_HU", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "A rendszerében nincs telepítve a hyprland-guiutils. Ez egy futásidejű függőség néhány párbeszédablakhoz. Fontolja meg a telepítését.");
+                  "A rendszerében nincs telepítve a abyss-guiutils. Ez egy futásidejű függőség néhány párbeszédablakhoz. Fontolja meg a telepítését.");
     registerEntry("hu_HU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -947,7 +947,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "നിങ്ങളുടെ XDG_CURRENT_DESKTOP പരിസ്ഥിതി പുറത്ത് നിന്ന് നിയന്ത്രിക്കപ്പെടുന്നു, ഇപ്പോഴത്തെ മൂല്യം "
                   "{value}.\nഇത് ഉദ്ദേശ്യമായല്ലെങ്കിൽ പ്രശ്നങ്ങൾ ഉണ്ടാകും.");
     registerEntry("ml_IN", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "നിങ്ങളുടെ സിസ്റ്റത്തിൽ hyprland-guiutils ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല. ഇത് ചില ഡയലോഗുകൾക്ക് ആവശ്യമായ "
+                  "നിങ്ങളുടെ സിസ്റ്റത്തിൽ abyss-guiutils ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല. ഇത് ചില ഡയലോഗുകൾക്ക് ആവശ്യമായ "
                   "റൺടൈം ആശ്രയമാണ്. ഇൻസ്റ്റാൾ ചെയ്യുക.");
     registerEntry("ml_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
@@ -992,7 +992,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "nb_NO", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "Ditt XDG_CURRENT_DESKTOP miljø ser ut til å være eksternt administrert, og den nåværende verdien er {value}.\nDette kan forårsake problemer med mindre det er bevisst.");
     registerEntry("nb_NO", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Ditt system har ikke hyprland-guiutils installert. Dette er en kjøretidsavhengighet for noen dialoger. Vurder å installere den.");
+                  "Ditt system har ikke abyss-guiutils installert. Dette er en kjøretidsavhengighet for noen dialoger. Vurder å installere den.");
     registerEntry("nb_NO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1030,7 +1030,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("ne_NP", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "तपाईँको XDG_CURRENT_DESKTOP वातावरण बाहिरबाट व्यवस्थापन भइरहेको जस्तो देखिएको छ, अहिले {value} देखाइरहेको छ।\nजानीजानी नगरीएको भएमा यसले समस्याहरु निम्त्याउन सक्छ।");
-    registerEntry("ne_NP", TXT_KEY_NOTIF_NO_GUIUTILS, "तपाइँको सिस्टममा hyprland-guiutils इन्सटल गरिएको छैन। केहि डायलगहरुका लागि यो रनटाइम डिपेन्डेन्सी हो। कृपया इन्सटल गर्नुहोला।");
+    registerEntry("ne_NP", TXT_KEY_NOTIF_NO_GUIUTILS, "तपाइँको सिस्टममा abyss-guiutils इन्सटल गरिएको छैन। केहि डायलगहरुका लागि यो रनटाइम डिपेन्डेन्सी हो। कृपया इन्सटल गर्नुहोला।");
     registerEntry("ne_NP", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1110,7 +1110,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("pa_IN", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "ਤੁਹਾਡਾ XDG_CURRENT_DESKTOP ਵਾਤਾਵਰਣ ਵੇਰੀਏਬਲ ਬਾਹਰੀ ਤੌਰ 'ਤੇ ਪ੍ਰਬੰਧਿਤ ਜਾਪਦਾ ਹੈ, ਮੌਜੂਦਾ ਮੁੱਲ: {value}।\nਜਦੋਂ ਤੱਕ ਇਹ ਜਾਣਬੁੱਝ ਕੇ ਨਾ "
                   "ਕੀਤਾ ਗਿਆ ਹੋਵੇ, ਇਹ ਸਮੱਸਿਆਵਾਂ ਪੈਦਾ ਕਰ ਸਕਦਾ ਹੈ।");
-    registerEntry("pa_IN", TXT_KEY_NOTIF_NO_GUIUTILS, "ਤੁਹਾਡੇ ਸਿਸਟਮ ਵਿੱਚ hyprland-guiutils ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ। ਇਹ ਕੁਝ ਡਾਇਲਾਗਸ ਲਈ ਜ਼ਰੂਰੀ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਸਨੂੰ ਇੰਸਟਾਲ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।");
+    registerEntry("pa_IN", TXT_KEY_NOTIF_NO_GUIUTILS, "ਤੁਹਾਡੇ ਸਿਸਟਮ ਵਿੱਚ abyss-guiutils ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ। ਇਹ ਕੁਝ ਡਾਇਲਾਗਸ ਲਈ ਜ਼ਰੂਰੀ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਸਨੂੰ ਇੰਸਟਾਲ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।");
     registerEntry("pa_IN", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1159,7 +1159,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("pl_PL", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Zmienna środowiska XDG_CURRENT_DESKTOP została ustawiona zewnętrznie na {value}.\nTo może sprawić problemy, chyba, że jest celowe.");
-    registerEntry("pl_PL", TXT_KEY_NOTIF_NO_GUIUTILS, "Twój system nie ma hyprland-guiutils zainstalowanych, co może sprawić problemy. Zainstaluj pakiet.");
+    registerEntry("pl_PL", TXT_KEY_NOTIF_NO_GUIUTILS, "Twój system nie ma abyss-guiutils zainstalowanych, co może sprawić problemy. Zainstaluj pakiet.");
     registerEntry("pl_PL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo == 1)
@@ -1212,7 +1212,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "pt_PT", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "O teu ambiente XDG_CURRENT_DESKTOP parece estar a ser gerido externamente, e o valor actual é {value}.\nIsto pode causar problemas a não ser que seja intencional.");
     registerEntry("pt_PT", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "O teu sistema não tem o hyprland-guiutils instalado. Esta dependência de runtime é necessária para algumas caixas de diálogo, deverias instalá-la.");
+                  "O teu sistema não tem o abyss-guiutils instalado. Esta dependência de runtime é necessária para algumas caixas de diálogo, deverias instalá-la.");
     registerEntry("pt_PT", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1250,7 +1250,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_CN", TXT_KEY_PERMISSION_UNKNOWN_WAYLAND_APP, "未知的应用程序 （Wayland客户端ID {wayland_id}）");
 
     registerEntry("zh_CN", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "你的环境变量XDG_CURRENT_DESKTOP似乎被外部管理，且当前的值为{value}。如果你不是有意这么做，这可能会导致问题。");
-    registerEntry("zh_CN", TXT_KEY_NOTIF_NO_GUIUTILS, "你的系统似乎没有安装hyprland-guiutils。这是一个用于部分对话框的运行时依赖。请考虑安装。");
+    registerEntry("zh_CN", TXT_KEY_NOTIF_NO_GUIUTILS, "你的系统似乎没有安装abyss-guiutils。这是一个用于部分对话框的运行时依赖。请考虑安装。");
     registerEntry("zh_CN", TXT_KEY_NOTIF_FAILED_ASSETS, "Abyssland无法加载{count}个重要资产，问问你发行版的打包者在打包个什么玩意！？");
     registerEntry("zh_CN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "你的显示器没有被正确设置。显示器 {name} 和其他显示器的布局重叠了。请看wiki中的“显示器”一章获取更多信息。这<b>会</b>导致问题。");
@@ -1292,7 +1292,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("zh_TW", TXT_KEY_PERMISSION_UNKNOWN_WAYLAND_APP, "未知的應用程式 （Wayland 用戶端 ID {wayland_id}）");
 
     registerEntry("zh_TW", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP, "您的 XDG_CURRENT_DESKTOP 環境變數似乎由外部管理，目前的值為 {value}。\n除非您有意為之，否則這可能會導致問題。");
-    registerEntry("zh_TW", TXT_KEY_NOTIF_NO_GUIUTILS, "您的系統未安裝 hyprland-guiutils。這是部分對話視窗的執行期依賴元件。建議您安裝它。");
+    registerEntry("zh_TW", TXT_KEY_NOTIF_NO_GUIUTILS, "您的系統未安裝 abyss-guiutils。這是部分對話視窗的執行期依賴元件。建議您安裝它。");
     registerEntry("zh_TW", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1341,7 +1341,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("ar", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "يبدو أنّ متغيّر البيئة XDG_CURRENT_DESKTOP يُدار من خارج النظام، والقيمة الحالية هي {value}.\n"
                   "قد يؤدي ذلك إلى مشكلات ما لم يكن مقصودًا.");
-    registerEntry("ar", TXT_KEY_NOTIF_NO_GUIUTILS, "لا يحتوي نظامك على الحزمة hyprland-guiutils مثبتة. هذه حزمة مطلوبة أثناء التشغيل لبعض مربعات الحوار. يُنصَح بتثبيتها.");
+    registerEntry("ar", TXT_KEY_NOTIF_NO_GUIUTILS, "لا يحتوي نظامك على الحزمة abyss-guiutils مثبتة. هذه حزمة مطلوبة أثناء التشغيل لبعض مربعات الحوار. يُنصَح بتثبيتها.");
     registerEntry("ar", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1391,7 +1391,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Se pare că mediul tău XDG_CURRENT_DESKTOP este gestionat extern, iar valoarea curentă este {value}.\nAcest lucru ar putea cauza probleme, cu excepția "
                   "cazului în care este intenționat.");
     registerEntry("ro_RO", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Sistemul tău nu are instalat hyprland-guiutils. Aceasta este o dependență de execuție pentru anumite dialoguri. Ia în considerare instalarea acesteia.");
+                  "Sistemul tău nu are instalat abyss-guiutils. Aceasta este o dependență de execuție pentru anumite dialoguri. Ia în considerare instalarea acesteia.");
     registerEntry("ro_RO", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo == 1)
@@ -1442,7 +1442,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("ru_RU", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Переменная окружения XDG_CURRENT_DESKTOP установлена извне, текущее значение: {value}.\nЭто может вызвать проблемы, если только это не сделано намеренно.");
-    registerEntry("ru_RU", TXT_KEY_NOTIF_NO_GUIUTILS, "Пакет hyprland-guiutils не установлен. Он необходим для некоторых диалогов. Рекомендуется установить его.");
+    registerEntry("ru_RU", TXT_KEY_NOTIF_NO_GUIUTILS, "Пакет abyss-guiutils не установлен. Он необходим для некоторых диалогов. Рекомендуется установить его.");
     registerEntry("ru_RU", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1490,7 +1490,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sl_SI", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Zdi se, da je Vaše okolje XDG_CURRENT_DESKTOP upravljano od zunaj, trenutna vrednost je {value}.\nTo lahko povzroči težave, če ni namerno.");
     registerEntry("sl_SI", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "hyprland-guiutils ni nameščen na vaši napravi. To je odvisnost od izvajalnega okolja za nekatera pogovorna okna. Razmislite o namestitvi.");
+                  "abyss-guiutils ni nameščen na vaši napravi. To je odvisnost od izvajalnega okolja za nekatera pogovorna okna. Razmislite o namestitvi.");
     registerEntry("sl_SI", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assertNo = std::stoi(vars.at("count"));
         if (assertNo <= 1)
@@ -1528,7 +1528,7 @@ I18n::CI18nEngine::CI18nEngine() {
 
     registerEntry("sr_RS", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Изгледа да се твојим XDG_CURRENT_DESKTOP окружењем управља споља, и тренутна вредност је {value}.\nОво може правити проблеме осим ако је намерно.");
-    registerEntry("sr_RS", TXT_KEY_NOTIF_NO_GUIUTILS, "Твој систем нема инсталиран hyprland-guiutils. Ово је зависност при покретању за неке дијалоге. Размотри инсталацију.");
+    registerEntry("sr_RS", TXT_KEY_NOTIF_NO_GUIUTILS, "Твој систем нема инсталиран abyss-guiutils. Ово је зависност при покретању за неке дијалоге. Размотри инсталацију.");
     registerEntry("sr_RS", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1570,7 +1570,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("sr_RS@latin", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Izgleda da se tvojim XDG_CURRENT_DESKTOP okruženjem upravlja spolja, i trenutna vrednost je {value}.\nOvo može praviti probleme osim ako je namerno.");
     registerEntry("sr_RS@latin", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Tvoj sistem nema instaliran hyprland-guiutils. Ovo je zavisnost pri pokretanju za neke dijaloge. Razmotri instalaciju.");
+                  "Tvoj sistem nema instaliran abyss-guiutils. Ovo je zavisnost pri pokretanju za neke dijaloge. Razmotri instalaciju.");
     registerEntry("sr_RS@latin", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1612,7 +1612,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("tr_TR", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "XDG_CURRENT_DESKTOP ortamın harici olarak yönetiliyor gibi gözüküyor, ve mevcut değeri {value}.\nEğer bu bilinçli değilse sorunlara yol açabilir.");
     registerEntry("tr_TR", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Sisteminde hyprland-guiutils yüklü değil. Bu bazı diyaloglar için bir çalışma zamanı bağımlılığı. İndirmeyi göz önünde bulundurabilirsin.");
+                  "Sisteminde abyss-guiutils yüklü değil. Bu bazı diyaloglar için bir çalışma zamanı bağımlılığı. İndirmeyi göz önünde bulundurabilirsin.");
     registerEntry("tr_TR", TXT_KEY_NOTIF_FAILED_ASSETS,
                   "Abyssland {count} gerekli dosyayı yüklemekte başarısız oldu, kötü bir iş çıkardığı için kullandığın distronun paketleyicisini suçla!");
     registerEntry("tr_TR", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -1649,7 +1649,7 @@ I18n::CI18nEngine::CI18nEngine() {
                   "Сезнең XDG_CURRENT_DESKTOP мохите тыштан идарә ителә, хәзерге кыйммәте: {value}.\n"
                   "Бу теләгән булмаса, проблемалар китереп чыгарырга мөмкин.");
     registerEntry("tt_RU", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Сезнең системада hyprland-guiutils урнаштырылмаган. Бу кайбер диалоглар өчен кирәкле вакыт бәйлелеге. Урнаштыруны карап чыгыгыз.");
+                  "Сезнең системада abyss-guiutils урнаштырылмаган. Бу кайбер диалоглар өчен кирәкле вакыт бәйлелеге. Урнаштыруны карап чыгыгыз.");
     registerEntry("tt_RU", TXT_KEY_NOTIF_FAILED_ASSETS, "Abyssland {count} мөһим ресурсны йөкли алмады. Ул дистрибутивыгыз пакетлаучысының хатасы!");
     registerEntry("tt_RU", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
                   "Сезнең мониторлар урнашуы дөрес түгел. {name} мониторы башка монитор белән өстәлә.\n"
@@ -1695,7 +1695,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "uk_UA", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "Ваше середовище XDG_CURRENT_DESKTOP, схоже, керується ззовні, і поточне значення становить {value}.\nЦе може спричинити проблеми, якщо це не зроблено навмисно.");
     registerEntry("uk_UA", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "У вашій системі не встановлено hyprland-guiutils. Це залежність, потрібна для роботи деяких діалогових вікон. Розгляньте можливість його встановлення.");
+                  "У вашій системі не встановлено abyss-guiutils. Це залежність, потрібна для роботи деяких діалогових вікон. Розгляньте можливість його встановлення.");
     registerEntry("uk_UA", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)
@@ -1735,7 +1735,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry(
         "vi_VN", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "Biến môi trường XDG_CURRENT_DESKTOP dường như đang được thiết lập từ bên ngoài với giá trị là {value}.\nViệc này có thể gây ra lỗi trừ khi đó là chủ ý của bạn.");
-    registerEntry("vi_VN", TXT_KEY_NOTIF_NO_GUIUTILS, "Hệ thống chưa cài hyprland-guiutils. Một số hộp thoại sẽ không hiển thị nếu thiếu nó.");
+    registerEntry("vi_VN", TXT_KEY_NOTIF_NO_GUIUTILS, "Hệ thống chưa cài abyss-guiutils. Một số hộp thoại sẽ không hiển thị nếu thiếu nó.");
     registerEntry("vi_VN", TXT_KEY_NOTIF_FAILED_ASSETS,
                   "Abyssland không thể tải {count} tài nguyên quan trọng. Vui lòng báo lỗi cho người đóng gói (packager) của bản phân phối (distro) mà bạn dùng!");
     registerEntry("vi_VN", TXT_KEY_NOTIF_INVALID_MONITOR_LAYOUT,
@@ -1781,7 +1781,7 @@ I18n::CI18nEngine::CI18nEngine() {
     registerEntry("cs_CZ", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
                   "Proměnná prostředí XDG_CURRENT_DESKTOP se zdá být spravována externě a její aktuální hodnota je {value}.\nPokud to není záměr, může to způsobit problémy.");
     registerEntry("cs_CZ", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "V systému není nainstalován balíček hyprland-guiutils. Jedná se o závislost pro běh některých dialogových oken. Zvažte jeho instalaci.");
+                  "V systému není nainstalován balíček abyss-guiutils. Jedná se o závislost pro běh některých dialogových oken. Zvažte jeho instalaci.");
     registerEntry("cs_CZ", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)

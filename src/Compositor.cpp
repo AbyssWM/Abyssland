@@ -875,7 +875,7 @@ void CCompositor::performUserChecks() {
     }
 
     if (!*PNOCHECKGUIUTILS) {
-        if (!NFsUtils::executableExistsInPath("hyprland-dialog"))
+        if (!NFsUtils::executableExistsInPath("abyss-dialog"))
             Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_GUIUTILS), CAbyssColor{}, 15000, ICON_WARNING);
     }
 
