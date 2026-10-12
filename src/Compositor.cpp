@@ -3,6 +3,7 @@
 #include <ranges>
 #include <cctype>
 #include "version.h"
+#include "config/native/ConfigManager.hpp"
 #include "config/supplementary/executor/Executor.hpp"
 #include "debug/log/Logger.hpp"
 #include "desktop/DesktopTypes.hpp"
@@ -916,7 +917,7 @@ void CCompositor::performUserChecks() {
     }
 
     if (!*PNOCHECKGUIUTILS) {
-        if (!NFsUtils::executableExistsInPath("abyss-dialog"))
+        if (!Config::Native::helpers().dialog.empty() && !Config::Native::helperUsable(Config::Native::helpers().dialog))
             Notification::overlay()->addNotification(I18n::i18nEngine()->localize(I18n::TXT_KEY_NOTIF_NO_GUIUTILS), CAbyssColor{}, 15000, ICON_WARNING);
     }
 

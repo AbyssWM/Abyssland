@@ -41,6 +41,9 @@ void configure(Config& c) {
     // c.gpu.devices = {"/dev/dri/by-path/pci-0000:0b:00.0-card"};
     // c.gpu.noExplicitMgpu = true;   // ABYSSAL_MGPU_NO_EXPLICIT, multi-GPU set-ups with sync problems
 
+    // ---- helper programs (defaults come with Abyssland; see c.helpers in abyss/config.hpp for the contract) ----
+    // c.helpers.dialog = "zenity-wrapper";   // own dialog program, "" = no dialogs at all
+
     // ---- protocols (everything is offered by default; `abyssctl protocols` lists the names, see abyss/protocols.hpp) ----
     // only wlr screencopy (grim, wf-recorder, xdg-desktop-portal-wlr), none of ours / the ext ones:
     // c.protocols.disable({"abyssland_toplevel_export_manager_v1", "ext_image_copy_capture_manager_v1",

@@ -10,6 +10,7 @@
 #include <limits>
 #include <cctype>
 #include <filesystem>
+#include <unistd.h>
 #include <format>
 #include <unordered_map>
 
@@ -37,6 +38,7 @@
 #include "../../animation/AnimationManager.hpp"
 #include "../../event/EventBus.hpp"
 #include "../../helpers/MiscFunctions.hpp"
+#include "../../helpers/fs/FsUtils.hpp"
 #include "../../managers/KeybindManager.hpp"
 #include "../../managers/eventLoop/EventLoopManager.hpp"
 #include "../../managers/input/trackpad/TrackpadGestures.hpp"
@@ -1359,6 +1361,22 @@ bool abyss::emit(std::string_view name, std::string_view data) {
     return true;
 }
 
+namespace {
+    Config::Native::SHelpers g_helpers;
+}
+
+const Config::Native::SHelpers& Config::Native::helpers() {
+    return g_helpers;
+}
+
+bool Config::Native::helperUsable(const std::string& prog) {
+    if (prog.empty())
+        return false;
+    if (prog.contains('/'))
+        return access(prog.c_str(), X_OK) == 0;
+    return NFsUtils::executableExistsInPath(prog);
+}
+
 // ------------------------------------------------------------------------------------------------ entry point
 
 void Config::Native::applyUserConfig() {
@@ -1384,4 +1402,8 @@ void Config::Native::applyUserConfig() {
     abyss::applyOptions(cfg);
     Config::Native::applyProtocols(cfg.protocols);
     applyGpu(cfg.gpu);
+    g_helpers = Config::Native::SHelpers{.dialog = cfg.helpers.dialog, .updateScreen = cfg.helpers.updateScreen, .donateScreen = cfg.helpers.donateScreen};
+    for (const auto& [what, prog] : {std::pair{"dialog", &g_helpers.dialog}, {"updateScreen", &g_helpers.updateScreen}, {"donateScreen", &g_helpers.donateScreen}})
+        if (!prog->empty() && !Config::Native::helperUsable(*prog))
+            Log::logger->log(Log::WARN, "[abyss] helpers.{}: \"{}\" is not in PATH / not executable", what, *prog);
 }

@@ -1,3 +1,4 @@
+#include "../config/native/ConfigManager.hpp"
 #include "ANRManager.hpp"
 
 #include "../helpers/fs/FsUtils.hpp"
@@ -16,8 +17,8 @@ using namespace Abyssutils::OS;
 static constexpr auto TIMER_TIMEOUT = std::chrono::milliseconds(1500);
 
 CANRManager::CANRManager() {
-    if (!NFsUtils::executableExistsInPath("abyss-dialog")) {
-        Log::logger->log(Log::ERR, "abyss-dialog missing from PATH, cannot start ANRManager");
+    if (!Config::Native::helperUsable(Config::Native::helpers().dialog)) {
+        Log::logger->log(Log::ERR, "dialog helper \"{}\" not usable (c.helpers.dialog), cannot start ANRManager", Config::Native::helpers().dialog);
         return;
     }
 

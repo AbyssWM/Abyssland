@@ -357,6 +357,19 @@ namespace abyss {
             bool                     eglNoModifiers = false; // ABYSSLAND_EGL_NO_MODIFIERS: renderer ignores modifiers
         } gpu;
 
+        // --- helper programs the compositor starts (replace them with your own; the defaults come with Abyssland) ---
+        // A name is looked up in PATH, a path containing '/' is used as is. Empty = never start it (dialogs: the request is treated
+        // like a closed dialog, e.g. a permission prompt is denied and "app not responding" shows nothing).
+        struct HelperOpts {
+            // dialogs (app not responding, permission prompts). Contract: `<dialog> --title <t> --text <t> --buttons "<a>;<b>;..."`,
+            // prints the label of the pressed button on stdout and exits.
+            std::string dialog = "abyss-dialog";
+            // shown once after an update (`<updateScreen> --new-version <version>`), only without ecosystem:no_update_news
+            std::string updateScreen = "abyssland-update-screen";
+            // donation reminder (no arguments), only without ecosystem:no_donation_nag
+            std::string donateScreen = "abyssland-donate-screen";
+        } helpers;
+
         // --- protocols (see abyss/protocols.hpp): everything is offered by default ---
         Protocols protocols;
         void      protocol(std::string name, bool enabled) { protocols.set(std::move(name), enabled); }

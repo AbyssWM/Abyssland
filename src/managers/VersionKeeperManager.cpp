@@ -1,3 +1,4 @@
+#include "../config/native/ConfigManager.hpp"
 #include "VersionKeeperManager.hpp"
 #include "../debug/log/Logger.hpp"
 #include "../macros.hpp"
@@ -47,15 +48,15 @@ CVersionKeeperManager::CVersionKeeperManager() {
         return;
     }
 
-    if (!NFsUtils::executableExistsInPath("abyssland-update-screen")) {
-        Log::logger->log(Log::ERR, "CVersionKeeperManager: abyssland-update-screen doesn't seem to exist, skipping notif about update...");
+    if (!Config::Native::helperUsable(Config::Native::helpers().updateScreen)) {
+        Log::logger->log(Log::ERR, "CVersionKeeperManager: update screen helper \"{}\" not usable (c.helpers.updateScreen), skipping notif about update...", Config::Native::helpers().updateScreen);
         return;
     }
 
     m_fired = true;
 
     g_pEventLoopManager->doLater([]() {
-        CProcess proc("abyssland-update-screen", {"--new-version", ABYSSLAND_VERSION});
+        CProcess proc(Config::Native::helpers().updateScreen, {"--new-version", ABYSSLAND_VERSION});
         proc.runAsync();
     });
 }

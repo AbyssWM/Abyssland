@@ -148,6 +148,15 @@ namespace Config::Native {
 
     // Implemented in UserConfig.cpp: the compiled-in user config. Called from reload() after all state was reset to defaults.
     void applyUserConfig();
+    // helper programs from c.helpers (defaults until a config was applied)
+    struct SHelpers {
+        std::string dialog       = "abyss-dialog";
+        std::string updateScreen = "abyssland-update-screen";
+        std::string donateScreen = "abyssland-donate-screen";
+    };
+    const SHelpers& helpers();
+    // false for "" and for programs that are neither in PATH nor an executable path
+    bool helperUsable(const std::string& prog);
     // `abyssctl run <name> [args]`: runs a command registered with c.command (empty line = list of names)
     std::string runUserCommand(std::string_view line);
 }

@@ -1,3 +1,4 @@
+#include "../config/native/ConfigManager.hpp"
 #include "DonationNagManager.hpp"
 #include "../debug/log/Logger.hpp"
 #include "VersionKeeperManager.hpp"
@@ -73,7 +74,7 @@ CDonationNagManager::CDonationNagManager() {
         return;
     }
 
-    if (!NFsUtils::executableExistsInPath("abyssland-donate-screen")) {
+    if (!Config::Native::helperUsable(Config::Native::helpers().donateScreen)) {
         Log::logger->log(Log::ERR, "DonationNag: executable doesn't exist, skipping.");
         return;
     }
@@ -129,7 +130,7 @@ void CDonationNagManager::fire() {
     m_fired = true;
 
     g_pEventLoopManager->doLater([] {
-        CProcess proc("abyssland-donate-screen", {});
+        CProcess proc(Config::Native::helpers().donateScreen, {});
         proc.runAsync();
     });
 }

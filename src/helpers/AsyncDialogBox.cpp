@@ -1,3 +1,4 @@
+#include "../config/native/ConfigManager.hpp"
 #include "AsyncDialogBox.hpp"
 #include "./fs/FsUtils.hpp"
 #include <csignal>
@@ -13,8 +14,8 @@ static std::vector<std::pair<pid_t, WP<CAsyncDialogBox>>> asyncDialogBoxes;
 
 //
 SP<CAsyncDialogBox> CAsyncDialogBox::create(const std::string& title, const std::string& description, std::vector<std::string> buttons) {
-    if (!NFsUtils::executableExistsInPath("abyss-dialog")) {
-        Log::logger->log(Log::ERR, "CAsyncDialogBox: cannot create, no abyss-dialog");
+    if (!Config::Native::helperUsable(Config::Native::helpers().dialog)) {
+        Log::logger->log(Log::ERR, "CAsyncDialogBox: cannot create, dialog helper \"{}\" not usable (c.helpers.dialog)", Config::Native::helpers().dialog);
         return nullptr;
     }
 
@@ -100,7 +101,7 @@ SP<CPromise<std::string>> CAsyncDialogBox::open() {
     if (!buttonsString.empty())
         buttonsString.pop_back();
 
-    CProcess proc("abyss-dialog", std::vector<std::string>{"--title", m_title, "--text", m_description, "--buttons", buttonsString});
+    CProcess proc(Config::Native::helpers().dialog, std::vector<std::string>{"--title", m_title, "--text", m_description, "--buttons", buttonsString});
 
     int      outPipe[2];
     if (pipe(outPipe)) {
