@@ -1,4 +1,5 @@
 #include "InputManager.hpp"
+#include "../../saver/Saver.hpp"
 #include "../SessionLockManager.hpp"
 #include "../../protocols/SessionLock.hpp"
 #include "../../Compositor.hpp"
@@ -15,6 +16,9 @@
 #include "UnifiedWorkspaceSwipeGesture.hpp"
 
 void CInputManager::onTouchDown(ITouch::SDownEvent e) {
+    if (Saver::mgr()->consumeOther())
+        return;
+
     m_lastInputTouch = true;
 
     static auto PSWIPETOUCH  = CConfigValue<Config::INTEGER>("gestures:workspace_swipe_touch");

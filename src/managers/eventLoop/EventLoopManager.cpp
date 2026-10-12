@@ -260,6 +260,10 @@ void CEventLoopManager::doOnReadable(CFileDescriptor fd, std::function<void()>&&
     waiter->source = wl_event_loop_add_fd(g_pEventLoopManager->m_wayland.loop, waiter->fd.get(), WL_EVENT_READABLE, ::handleWaiterFD, waiter.get());
 }
 
+wl_event_source* CEventLoopManager::addFdWatcher(int fd, wl_event_loop_fd_func_t fn, void* data) {
+    return wl_event_loop_add_fd(m_wayland.loop, fd, WL_EVENT_READABLE, fn, data);
+}
+
 void CEventLoopManager::syncPollFDs() {
     auto aqPollFDs = g_pCompositor->m_aqBackend->getPollFDs();
 

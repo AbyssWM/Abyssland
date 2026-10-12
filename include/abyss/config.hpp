@@ -30,6 +30,7 @@
 #include <abyss/effects.hpp>
 #include <abyss/events.hpp>
 #include <abyss/layout.hpp>
+#include <abyss/saver.hpp>
 
 namespace abyss {
 
@@ -246,6 +247,12 @@ namespace abyss {
         // Callbacks run on the compositor thread: keep them short, exec() for anything slow. Exceptions are caught and logged. Note that the
         // forceIdle action bypasses inhibitors (as for the ext-idle-notify protocol).
         void idle(double seconds, std::function<void()> onIdle, std::function<void()> onResume = {});
+        // Screensaver: the same idle rule (same seconds, inhibitor and reload semantics) shows `s` fullscreen on every monitor on idle, above windows and
+        // layers but below the session lock, and hides it again on the first input, which is swallowed (it only wakes up, e.g. a click does not reach the
+        // window below; moving the mouse also wakes up). The cursor is hidden meanwhile. See abyss/saver.hpp: c.idle(300, screensaver(saver::clock()));
+        // Other idle rules (lock, dpms via exec) still run next to it. A reload ends a running screensaver. `abyssctl dispatch screensaver` shows
+        // the first configured one right away (see showScreensaver()). Nothing runs (no timer, no process) while no screensaver is shown.
+        void idle(double seconds, Screensaver s);
 
         // --- layouts (see abyss/layout.hpp) ---
         // simple layout: fn places the windows. Selected by name: c.general.layout = "grid", a workspace rule, or `abyssctl dispatch setlayout grid`

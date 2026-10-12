@@ -304,6 +304,9 @@ Action abyss::forceRendererReload() {
 Action abyss::forceIdle(float seconds) {
     return {"forceidle", std::format("{}", seconds)};
 }
+Action abyss::showScreensaver() {
+    return {"screensaver", ""};
+}
 Action abyss::releaseInputCapture() {
     return {"releaseinputcapture", ""};
 }

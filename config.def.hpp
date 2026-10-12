@@ -26,6 +26,15 @@ void configure(Config& c) {
     // ---- idle (nothing is on by default) ----
     // c.idle(300, [] { exec("abysslock"); });                           // after 5 minutes without input
     // c.idle(600, [] { exec("..."); }, [] { exec("..."); });            // onIdle, optional onResume (first input afterwards)
+    // screensaver (fullscreen, drawn by the compositor, the first input only wakes it up; `abyssctl dispatch screensaver` shows it now):
+    // c.idle(300, screensaver(saver::clock()));                                          // clock + date, 1 Hz
+    // c.idle(300, screensaver(saver::clock({.color = 0xc8a25a, .size = 200, .format = "%H:%M:%S"})));
+    // c.idle(300, screensaver(saver::cava({.bars = 64, .color = 0x80b0d8})));            // audio bars (needs the cava program)
+    // your own (called once per monitor and frame; see abyss/saver.hpp for Canvas / SaverFrame):
+    // c.idle(300, screensaver([](Canvas& g, const SaverFrame& f) {
+    //     g.clear(0x000000);
+    //     g.text(f.width / 2, f.height / 2, "hello", {.size = 64, .color = 0xc8a25a, .align = Align::Center});
+    // }, {.fps = 30}));
 
     // ---- look and feel ----
     c.general.gaps_in      = 5;

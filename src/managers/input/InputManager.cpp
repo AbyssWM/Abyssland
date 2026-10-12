@@ -1,5 +1,6 @@
 #include "InputManager.hpp"
 #include "../../Compositor.hpp"
+#include "../../saver/Saver.hpp"
 #include <abyssal/output/Output.hpp>
 #include <cstdint>
 #include <abyssutils/math/Vector2D.hpp>
@@ -746,6 +747,10 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
 }
 
 void CInputManager::onMouseButton(IPointer::SButtonEvent e, SP<IPointer> mouse) {
+    // screensaver: the first input only wakes up (a press and its release never reach anyone)
+    if (Saver::mgr()->consumeButton(e.button, e.state == WL_POINTER_BUTTON_STATE_PRESSED))
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.input.mouse.button.emit(e, info);
     if (info.cancelled)
@@ -967,6 +972,9 @@ void CInputManager::processMouseDownKill(const IPointer::SButtonEvent& e) {
 }
 
 void CInputManager::onMouseWheel(IPointer::SAxisEvent e, SP<IPointer> pointer) {
+    if (Saver::mgr()->consumeOther())
+        return;
+
     static auto POFFWINDOWAXIS        = CConfigValue<Config::INTEGER>("input:off_window_axis_events");
     static auto PINPUTSCROLLFACTOR    = CConfigValue<Config::FLOAT>("input:scroll_factor");
     static auto PTOUCHPADSCROLLFACTOR = CConfigValue<Config::FLOAT>("input:touchpad:scroll_factor");
@@ -1620,6 +1628,10 @@ void CInputManager::onKeyboardKey(const IKeyboard::SKeyEvent& event, SP<IKeyboar
     if (!pKeyboard->m_enabled || !pKeyboard->m_allowed)
         return;
 
+    // screensaver: the first key only wakes up (press and release are swallowed, no bind or window sees them)
+    if (Saver::mgr()->consumeKey(event.keycode, event.state == WL_KEYBOARD_KEY_STATE_PRESSED))
+        return;
+
     const bool           DISALLOWACTION = pKeyboard->isVirtual() && shouldIgnoreVirtualKeyboard(pKeyboard);
 
     const auto           IME    = m_relay.m_inputMethod.lock();
@@ -1685,6 +1697,9 @@ void CInputManager::onKeyboardKey(const IKeyboard::SKeyEvent& event, SP<IKeyboar
 void CInputManager::onKeyboardMod(SP<IKeyboard> pKeyboard) {
     static auto PSENDMOD = CConfigValue<Config::INTEGER>("input-capture:capture_modifiers");
     if (!pKeyboard->m_enabled)
+        return;
+
+    if (Saver::mgr()->consumeOther())
         return;
 
     const bool DISALLOWACTION = pKeyboard->isVirtual() && shouldIgnoreVirtualKeyboard(pKeyboard);
@@ -2249,6 +2264,9 @@ void CInputManager::recheckMouseWarpOnMouseInput() {
 }
 
 void CInputManager::onSwipeBegin(IPointer::SSwipeBeginEvent e) {
+    if (Saver::mgr()->consumeOther())
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.swipe.begin.emit(e, info);
     if (info.cancelled)

@@ -75,6 +75,8 @@ class CEventLoopManager {
     // schedule function to when fd is readable (WL_EVENT_READABLE / POLLIN),
     // takes ownership of fd
     void doOnReadable(Abyssutils::OS::CFileDescriptor fd, std::function<void()>&& fn);
+    // persistent watcher: fn(fd, mask, data) on every readable / hangup event, the caller keeps fd and removes the source with wl_event_source_remove
+    wl_event_source* addFdWatcher(int fd, wl_event_loop_fd_func_t fn, void* data);
     void onFdReadable(SReadableWaiter* waiter);
     void onFdReadableFail(SReadableWaiter* waiter);
 

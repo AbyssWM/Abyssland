@@ -51,6 +51,7 @@
 #include <abyssal/output/Output.hpp>
 #include "debug/log/Logger.hpp"
 #include "notification/NotificationOverlay.hpp"
+#include "saver/Saver.hpp"
 #include "MonitorFrameScheduler.hpp"
 #include <abyssutils/memory/UniquePtr.hpp>
 #include <abyssutils/string/String.hpp>
@@ -1821,6 +1822,12 @@ uint32_t CMonitor::isSolitaryBlocked(bool full) {
 
     if (Notification::overlay()->hasAny()) {
         reasons |= SC_NOTIFICATION;
+        if (!full)
+            return reasons;
+    }
+
+    if (Saver::mgr()->active()) {
+        reasons |= SC_SAVER;
         if (!full)
             return reasons;
     }

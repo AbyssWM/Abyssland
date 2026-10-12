@@ -1,4 +1,5 @@
 #include "InputManager.hpp"
+#include "../../saver/Saver.hpp"
 #include "../../desktop/view/Window.hpp"
 #include "../../protocols/Tablet.hpp"
 #include "../../devices/Tablet.hpp"
@@ -176,6 +177,9 @@ void CInputManager::onTabletAxis(CTablet::SAxisEvent e) {
 }
 
 void CInputManager::onTabletTip(CTablet::STipEvent e) {
+    if (Saver::mgr()->consumeOther())
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.input.tablet.tip.emit(e, info);
     if (info.cancelled)
@@ -204,6 +208,9 @@ void CInputManager::onTabletTip(CTablet::STipEvent e) {
 }
 
 void CInputManager::onTabletButton(CTablet::SButtonEvent e) {
+    if (Saver::mgr()->consumeOther())
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.input.tablet.button.emit(e, info);
     if (info.cancelled)

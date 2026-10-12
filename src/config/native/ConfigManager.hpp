@@ -13,6 +13,7 @@
 #include "../../helpers/signal/Signal.hpp"
 #include "../../managers/eventLoop/EventLoopTimer.hpp"
 #include "../../protocols/IdleNotify.hpp"
+#include "../../saver/Saver.hpp"
 
 namespace Config::Native {
 
@@ -85,6 +86,8 @@ namespace Config::Native {
         // idle rules (c.idle): registers once the compositor started; cancelled by reload / teardown
         void                addIdleRule(uint32_t timeoutMs, std::function<void()> onIdle, std::function<void()> onResume);
         size_t              idleRuleCount() const;
+        // c.idle(seconds, screensaver(...)): an idle rule that shows / hides the screensaver (and registers it for `abyssctl dispatch screensaver`)
+        void                addSaverRule(uint32_t timeoutMs, SP<Saver::SDef> def);
         // layouts registered by the user config (dropped on reload)
         void                addLayoutName(std::string name);
 

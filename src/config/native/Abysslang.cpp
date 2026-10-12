@@ -13,6 +13,7 @@
 
 #include "AbyssConvert.hpp"
 #include "ConfigManager.hpp"
+#include "../../saver/Saver.hpp"
 
 #include "../supplementary/executor/Executor.hpp"
 #include "../supplementary/propRefresher/PropRefresher.hpp"
@@ -880,27 +881,78 @@ void abyss::TimerHandle::cancel() {
 
 // ------------------------------------------------------------------------------------------------ idle
 
+namespace {
+    // shared validation of the idle seconds; nullopt (after err()) when invalid
+    std::optional<uint32_t> idleMs(double seconds) {
+        if (!std::isfinite(seconds) || seconds < 0.001) {
+            err("idle: seconds must be a finite number of at least 0.001");
+            return std::nullopt;
+        }
+        // the protocol counts in uint32 milliseconds
+        if (seconds > double(std::numeric_limits<uint32_t>::max()) / 1000.0 - 1.0) {
+            err(std::format("idle: {} seconds is too long (maximum is {} seconds)", seconds, std::numeric_limits<uint32_t>::max() / 1000 - 1));
+            return std::nullopt;
+        }
+        return sc<uint32_t>(std::llround(seconds * 1000.0));
+    }
+}
+
 void abyss::Config::idle(double seconds, std::function<void()> onIdle, std::function<void()> onResume) {
     auto* m = M();
     if (!m)
         return;
-    if (!std::isfinite(seconds) || seconds < 0.001) {
-        err("idle: seconds must be a finite number of at least 0.001");
+    const auto MS = idleMs(seconds);
+    if (!MS)
         return;
-    }
-    // the protocol counts in uint32 milliseconds
-    if (seconds > double(std::numeric_limits<uint32_t>::max()) / 1000.0 - 1.0) {
-        err(std::format("idle: {} seconds is too long (maximum is {} seconds)", seconds, std::numeric_limits<uint32_t>::max() / 1000 - 1));
-        return;
-    }
     if (!onIdle && !onResume) {
         err("idle: needs at least one callback");
         return;
     }
 
-    const auto MS = sc<uint32_t>(std::llround(seconds * 1000.0));
     m->addIdleRule(
-        MS, [f = std::move(onIdle)] { if (f) guarded("idle callback", f); }, [f = std::move(onResume)] { if (f) guarded("idle resume callback", f); });
+        *MS, [f = std::move(onIdle)] { if (f) guarded("idle callback", f); }, [f = std::move(onResume)] { if (f) guarded("idle resume callback", f); });
+}
+
+void abyss::Config::idle(double seconds, abyss::Screensaver s) {
+    auto* m = M();
+    if (!m)
+        return;
+    const auto MS = idleMs(seconds);
+    if (!MS)
+        return;
+    if (!s.draw) {
+        err("idle: screensaver needs a draw callback");
+        return;
+    }
+    if (s.opts.fps < 0 || s.opts.fps > 144) {
+        err(std::format("idle: screensaver fps must be in 0..144, got {}", s.opts.fps));
+        return;
+    }
+    if (s.opts.bars < 1 || s.opts.bars > 512) {
+        err(std::format("idle: screensaver bars must be in 1..512, got {}", s.opts.bars));
+        return;
+    }
+
+    auto def  = makeShared<Saver::SDef>();
+    def->opts = std::move(s.opts);
+    // only the first failure of the callback is reported (it runs every frame); it keeps being called and a failing frame is drawn black
+    def->draw = [f = std::move(s.draw), failed = std::make_shared<bool>(false)](abyss::Canvas& g, const abyss::SaverFrame& fr) {
+        bool ok = false;
+        if (*failed) {
+            try {
+                f(g, fr);
+                ok = true;
+            } catch (...) {}
+        } else {
+            guarded("screensaver callback", [&] {
+                f(g, fr);
+                ok = true;
+            });
+            *failed = !ok;
+        }
+        return ok;
+    };
+    m->addSaverRule(*MS, std::move(def));
 }
 
 // ------------------------------------------------------------------------------------------------ misc

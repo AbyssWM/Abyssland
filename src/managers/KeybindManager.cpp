@@ -110,6 +110,7 @@ CKeybindManager::CKeybindManager() {
                              "global",
                              "setprop",
                              "forceidle",
+                             "screensaver",
                              "releaseinputcapture"}) {
         m_dispatchers[name] = [n = std::string(name)](std::string args) -> SDispatchResult { return Config::Dispatch::translator()->run(n, args); };
     }

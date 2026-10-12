@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 #include "../Compositor.hpp"
+#include "../saver/Saver.hpp"
 #include "../helpers/math/Math.hpp"
 #include <algorithm>
 #include <abyssal/output/Output.hpp>
@@ -139,7 +140,7 @@ IAbyssRenderer::IAbyssRenderer() {
     }
 
     if (m_nvidia)
-        Log::logger->log(Log::WARN, "NVIDIA detected, please remember to follow nvidia instructions on the wiki");
+        Log::logger->log(Log::WARN, "NVIDIA detected, see https://abysswm.github.io/wiki/nvidia for driver setup and multi-GPU");
 
     // cursor hiding stuff
 
@@ -2187,6 +2188,11 @@ void IAbyssRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
         } else {
             CBox renderBox = {0, 0, sc<int>(pMonitor->m_pixelSize.x), sc<int>(pMonitor->m_pixelSize.y)};
             renderWorkspace(pMonitor, pMonitor->m_activeWorkspace, NOW, renderBox);
+
+            // screensaver (c.idle): above windows and layers, below the session lock
+            if (Saver::mgr()->active())
+                Saver::mgr()->draw(pMonitor);
+
             renderLockscreen(pMonitor, NOW, renderBox);
 
             // render IME even above the lockscreen - allow the user to use it to potentially input stuff on it.
@@ -2947,7 +2953,7 @@ void IAbyssRenderer::ensureCursorRenderingMode() {
     m_cursorHiddenByCondition =
         m_cursorHiddenConditions.hiddenOnTimeout || m_cursorHiddenConditions.hiddenOnTouch || m_cursorHiddenConditions.hiddenOnTablet || m_cursorHiddenConditions.hiddenOnKeyboard;
 
-    const bool HIDE = m_cursorHiddenByCondition || (*PINVISIBLE != 0) || PROTO::inputCapture->isCaptured();
+    const bool HIDE = m_cursorHiddenByCondition || (*PINVISIBLE != 0) || PROTO::inputCapture->isCaptured() || Saver::mgr()->active();
 
     if (HIDE == m_cursorHidden)
         return;

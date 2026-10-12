@@ -801,6 +801,10 @@ static SDispatchResult forceidle(const std::string& args) {
     return wrap(Actions::forceIdle(duration.value()));
 }
 
+static SDispatchResult screensaver(const std::string&) {
+    return wrap(Actions::showScreensaver());
+}
+
 static SDispatchResult releaseInputCapture(const std::string& args) {
     return wrap(Actions::releaseInputCapture());
 }
@@ -877,5 +881,6 @@ CDispatcherTranslator::CDispatcherTranslator() {
     m_dispMap["global"]                         = ::globalDispatcher;
     m_dispMap["setprop"]                        = ::setprop;
     m_dispMap["forceidle"]                      = ::forceidle;
+    m_dispMap["screensaver"]                    = ::screensaver;
     m_dispMap["releaseinputcapture"]            = ::releaseInputCapture;
 }

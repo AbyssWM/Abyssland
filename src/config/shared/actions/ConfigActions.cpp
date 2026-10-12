@@ -21,6 +21,7 @@
 #include "../../../config/ConfigValue.hpp"
 #include "../../../config/shared/monitor/MonitorRuleManager.hpp"
 #include "../../../protocols/IdleNotify.hpp"
+#include "../../../saver/Saver.hpp"
 #include "../../../protocols/GlobalShortcuts.hpp"
 #include "../../../protocols/InputCapture.hpp"
 #include "../../../event/EventBus.hpp"
@@ -1262,6 +1263,12 @@ ActionResult Actions::dpms(eTogglableAction action, std::optional<PHLMONITOR> mo
 
 ActionResult Actions::forceIdle(float seconds) {
     PROTO::idle->setTimers(seconds * 1000.0);
+    return {};
+}
+
+ActionResult Actions::showScreensaver() {
+    if (!Saver::mgr()->showFirst())
+        return actionError("No screensaver configured (c.idle(seconds, screensaver(...)))");
     return {};
 }
 

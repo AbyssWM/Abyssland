@@ -90,6 +90,7 @@ namespace Config::Actions {
     ActionResult setSubmap(const std::string& submap);
     ActionResult dpms(eTogglableAction action, std::optional<PHLMONITOR> mon);
     ActionResult forceIdle(float seconds);
+    ActionResult showScreensaver();
     ActionResult global(const std::string& action);
     ActionResult event(const std::string& data);
 

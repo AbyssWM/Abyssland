@@ -173,6 +173,8 @@ namespace abyss {
     Action event(std::string data);
     Action forceRendererReload();
     Action forceIdle(float seconds);
+    // shows the first screensaver registered with c.idle(seconds, screensaver(...)) now; the next input ends it (does nothing without one)
+    Action showScreensaver();
     Action releaseInputCapture();
     Action exit();
 

@@ -95,6 +95,8 @@ CConfigManager::CConfigManager() {
 
 void CConfigManager::clearUserLifecycle() {
     m_life.generation++;
+    // a running screensaver ends with the config that defined it
+    Saver::mgr()->reset();
     {
         // snapshot: cancel() unregisters the rule from the protocol, a callback may be running
         const auto RULES = std::move(m_life.idleRules);
@@ -123,6 +125,12 @@ void CConfigManager::addIdleRule(uint32_t timeoutMs, std::function<void()> onIdl
             return;
         m_life.idleRules.emplace_back(PROTO::idle->addRule(timeoutMs, std::move(onIdle), std::move(onResume)));
     });
+}
+
+void CConfigManager::addSaverRule(uint32_t timeoutMs, SP<Saver::SDef> def) {
+    Saver::mgr()->registerDef(def);
+    addIdleRule(
+        timeoutMs, [def] { Saver::mgr()->show(def); }, [] { Saver::mgr()->hide(); });
 }
 
 size_t CConfigManager::idleRuleCount() const {
