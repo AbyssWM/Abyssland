@@ -1,0 +1,17 @@
+# Bewusst ausgelassene Punkte fuer scripts/abysslang-coverage.py
+# Format: kategorie:id  # Begruendung   (eine Zeile pro Punkt; Kategorien und Ids wie in der Ausgabe von --json)
+
+# --- Plugins sind in Abyssland komplett entfernt (docs/plan-2a-abysslang.md Z. 93, vault/abyss/README.md: "Keine Plugins.") ---
+toplevel:hl.plugin.load                 # Plugin-API entfernt, hyprpm gibt es nicht
+queries:hl.get_loaded_plugins           # Plugin-API entfernt
+permissions:plugin                      # Permission-Typ "plugin" entfaellt mit den Plugins
+
+# --- Lua-spezifisch / in C++ ueberfluessig ---
+dispatchers:exec_raw                    # bewusst kein Shell-loses spawn in der Config-API (vault/abyss/README.md)
+events:config.unload                    # Lua-State-Teardown gibt es nicht; zum Aufraeumen beim Beenden dienen Config::onShutdown / execShutdown
+
+# --- keine Per-Device-Optionen: globale Fenstermanagement-Optionen (devices.md schliesst "Optionen fuer Fenstermanagement, etc." aus) ---
+device:emulate_discrete_scroll          # globale input-Option, nicht pro Geraet
+device:focus_on_close                   # globale input-Option (Fokus), nicht pro Geraet
+device:follow_mouse_shrink              # globale input-Option (Fokus), nicht pro Geraet
+device:off_window_axis_events           # globale input-Option (Fensterverhalten), nicht pro Geraet

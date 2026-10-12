@@ -1,0 +1,125 @@
+name: CI
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  PREFIX: /opt/abyss
+  # Reihenfolge wie in tools/build.sh (Abyssland selbst wird aus dem Checkout gebaut)
+  DEPS: Abyssutils Abyss-scanner Abyssland-protocols Abyssparse Abysswire Abyssgraphics Abyssal Abysstoolkit Abysscursor
+
+jobs:
+  build:
+    name: Build Abyssland (Arch)
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - name: Install packages
+        run: |
+          sed -i 's/SigLevel    = Required DatabaseOptional/SigLevel    = Optional TrustAll/' /etc/pacman.conf
+          pacman --noconfirm --noprogressbar -Syyu
+          pacman --noconfirm --noprogressbar -S \
+            base-devel cairo clang cmake git glaze glm glslang go gtest jq libc++ \
+            libdisplay-info libdrm libei libepoxy libfontenc libglvnd libheif libinput \
+            libjxl libliftoff libspng libwebp libxcursor libxcvt libxfont2 libxkbcommon \
+            libxkbfile lld lua meson muparser ninja pango pixman pkgconf pugixml scdoc \
+            seatd systemd tomlplusplus wayland wayland-protocols xcb-util-errors \
+            xcb-util-renderutil xcb-util-wm xcb-util xcb-util-image libzip librsvg re2 \
+            xorg-fonts-encodings xorg-server-common xorg-setxkbmap xorg-xkbcomp xorg-xwayland
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Mark directory as safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Resolve dependency commits
+        id: deps
+        run: |
+          for r in $DEPS; do
+            git ls-remote "https://github.com/AbyssWM/$r" HEAD
+          done | sha256sum | cut -d' ' -f1 > deps.sha
+          echo "key=abyss-deps-$(cat deps.sha)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dependency cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: /opt/abyss
+          key: ${{ steps.deps.outputs.key }}
+
+      - name: Build and install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -eu
+          export PATH="$PREFIX/bin:$PATH"
+          export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
+          export CMAKE_PREFIX_PATH="$PREFIX"
+          mkdir -p "$PREFIX" /deps
+          cd /deps
+          for r in $DEPS; do
+            echo "::group::$r"
+            git clone --depth 1 "https://github.com/AbyssWM/$r" "$r"
+            if [ "$r" = Abyssland-protocols ]; then
+              meson setup "$r/build" "$r" --prefix="$PREFIX" --libdir=lib --buildtype=release
+              meson compile -C "$r/build" -j "$(nproc)"
+              meson install -C "$r/build"
+            else
+              cmake -S "$r" -B "$r/build" -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+                -DCMAKE_INSTALL_LIBDIR=lib \
+                -DCMAKE_INSTALL_RPATH="$PREFIX/lib" \
+                -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON
+              cmake --build "$r/build" -j "$(nproc)"
+              cmake --install "$r/build"
+            fi
+            echo "::endgroup::"
+          done
+
+      - name: Build Abyssland
+        # kein -Werror: der Abyss-eigene Code baut noch nicht warnungsfrei
+        run: |
+          set -eu
+          export PATH="$PREFIX/bin:$PATH"
+          export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
+          export CMAKE_PREFIX_PATH="$PREFIX"
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+            -DCMAKE_INSTALL_LIBDIR=lib \
+            -DCMAKE_INSTALL_RPATH="$PREFIX/lib" \
+            -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+            -DNO_SYSTEMD=ON -DNO_UWSM=ON \
+            -DABYSS_CONFIG="$PWD/config.def.hpp"
+          cmake --build build -j "$(nproc)"
+
+      - name: Package artifacts
+        run: |
+          mkdir abyssland
+          cp LICENSE abyssland/
+          cp build/Abyssland abyssland/
+          cp build/abyssctl/abyssctl abyssland/
+          tar -cvJf Abyssland.tar.xz abyssland
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Build archive
+          path: Abyssland.tar.xz
+
+  abysslang:
+    name: Abysslang coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Fetch upstream tag v0.56.2
+        run: git fetch https://github.com/hyprwm/Hyprland tag v0.56.2 --no-tags --depth 1
+
+      - name: Clone Hyprland wiki
+        run: git clone https://github.com/hyprwm/hyprland-wiki _upstream/hyprland-wiki
+
+      - name: Coverage check
+        run: python3 -I scripts/abysslang-coverage.py --quiet
