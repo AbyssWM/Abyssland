@@ -44,6 +44,31 @@ namespace {
     std::string withWindow(const std::string& arg, const std::string& selector) {
         return selector.empty() ? arg : arg + "," + selector;
     }
+
+    namespace CA = ::Config::Actions;
+
+    SDispatchResult wrapResult(const CA::ActionResult& r) {
+        if (!r)
+            return {.success = false, .error = r.error().message};
+        return {.passEvent = r->passEvent};
+    }
+
+    // empty selector: the plain dispatcher (shows up readable in `abyssctl binds`). Otherwise a native action that resolves the selector
+    // when it runs and calls the compositor action with that window; no match is an error, never the focused window.
+    Action targeted(std::string handler, std::string arg, std::string selector, std::function<CA::ActionResult(PHLWINDOW)> fn) {
+        if (selector.empty())
+            return Action{std::move(handler), std::move(arg)};
+        return Action{[name = handler, selector = std::move(selector), fn = std::move(fn)]() -> SDispatchResult {
+            const auto w = Desktop::viewState()->query().selector(selector).runWindow();
+            if (!w)
+                return {.success = false, .error = std::format("{}: no window matches \"{}\"", name, selector)};
+            return wrapResult(fn(w));
+        }};
+    }
+
+    Math::eDirection mathDir(Dir d) {
+        return Math::fromChar(dirChar(d));
+    }
 }
 
 SDispatchResult abyss::Action::operator()() const {
@@ -79,6 +104,11 @@ Action abyss::killWindow(std::string selector) {
 Action abyss::signal(int sig) {
     return {"signal", std::to_string(sig)};
 }
+Action abyss::signalWindow(int sig, std::string selector) {
+    if (selector.empty())
+        return Action{[sig]() -> SDispatchResult { return wrapResult(CA::signalWindow(sig)); }};
+    return {"signalwindow", std::format("{},{}", selector, sig)};
+}
 Action abyss::toggleFloating(std::string selector) {
     return {"togglefloating", std::move(selector)};
 }
@@ -97,32 +127,47 @@ Action abyss::pin(std::string selector) {
 Action abyss::fullscreen(int mode, std::string state) {
     return {"fullscreen", std::format("{} {}", mode, state)};
 }
+Action abyss::fullscreen(int mode, std::string state, bool layoutAware, std::string selector) {
+    return Action{[mode, state = std::move(state), layoutAware, selector = std::move(selector)]() -> SDispatchResult {
+        PHLWINDOW w = selector.empty() ? Desktop::focusState()->window() : Desktop::viewState()->query().selector(selector).runWindow();
+        if (!w)
+            return {.success = false, .error = selector.empty() ? "fullscreen: no active window" : std::format("fullscreen: no window matches \"{}\"", selector)};
+        const auto MODE = mode == 1 ? Fullscreen::FSMODE_MAXIMIZED : Fullscreen::FSMODE_FULLSCREEN;
+        const bool IS   = Fullscreen::controller()->isFullscreen(w, MODE);
+        if ((state == "set" && IS) || (state == "unset" && !IS))
+            return {};
+        if (state != "toggle" && state != "set" && state != "unset")
+            return {.success = false, .error = std::format("fullscreen: unknown state \"{}\" (toggle | set | unset)", state)};
+        return wrapResult(CA::fullscreenWindow(MODE, layoutAware, w));
+    }};
+}
 Action abyss::fullscreenState(int internal, int client) {
     return {"fullscreenstate", std::format("{} {}", internal, client)};
 }
 Action abyss::moveFocus(Dir d) {
     return {"movefocus", std::string(1, dirChar(d))};
 }
-Action abyss::moveWindow(Dir d, bool silent) {
-    return {"movewindow", std::string(1, dirChar(d)) + (silent ? " silent" : "")};
+Action abyss::moveWindow(Dir d, bool silent, std::string selector) {
+    return targeted("movewindow", std::string(1, dirChar(d)) + (silent ? " silent" : ""), std::move(selector),
+                    [d](PHLWINDOW w) { return CA::moveInDirection(mathDir(d), w); });
 }
 Action abyss::moveWindowToMonitor(std::string monitor, bool silent) {
     return {"movewindow", "mon:" + monitor + (silent ? " silent" : "")};
 }
-Action abyss::moveWindowOrGroup(Dir d) {
-    return {"movewindoworgroup", std::string(1, dirChar(d))};
+Action abyss::moveWindowOrGroup(Dir d, std::string selector) {
+    return targeted("movewindoworgroup", std::string(1, dirChar(d)), std::move(selector), [d](PHLWINDOW w) { return CA::moveWindowOrGroup(mathDir(d), w); });
 }
-Action abyss::swapWindow(Dir d) {
-    return {"swapwindow", std::string(1, dirChar(d))};
+Action abyss::swapWindow(Dir d, std::string selector) {
+    return targeted("swapwindow", std::string(1, dirChar(d)), std::move(selector), [d](PHLWINDOW w) { return CA::swapInDirection(mathDir(d), w); });
 }
 Action abyss::swapWith(std::string selector) {
     return {"swapwindow", std::move(selector)};
 }
-Action abyss::swapNext(bool forward) {
-    return {"swapnext", forward ? "" : "prev"};
+Action abyss::swapNext(bool forward, std::string selector) {
+    return targeted("swapnext", forward ? "" : "prev", std::move(selector), [forward](PHLWINDOW w) { return CA::swapNext(forward, w); });
 }
-Action abyss::centerWindow() {
-    return {"centerwindow", ""};
+Action abyss::centerWindow(std::string selector) {
+    return targeted("centerwindow", "", std::move(selector), [](PHLWINDOW w) { return CA::center(w); });
 }
 Action abyss::resizeActive(std::string args) {
     return {"resizeactive", std::move(args)};
@@ -163,6 +208,16 @@ Action abyss::alterZOrder(std::string position, std::string selector) {
 Action abyss::tag(std::string tag, std::string selector) {
     return {"tagwindow", selector.empty() ? tag : tag + " " + selector};
 }
+Action abyss::clearTags(std::string selector) {
+    return Action{[selector = std::move(selector)]() -> SDispatchResult {
+        if (selector.empty())
+            return wrapResult(CA::clearTags());
+        const auto w = Desktop::viewState()->query().selector(selector).runWindow();
+        if (!w)
+            return {.success = false, .error = std::format("clearTags: no window matches \"{}\"", selector)};
+        return wrapResult(CA::clearTags(w));
+    }};
+}
 Action abyss::toggleSwallow() {
     return {"toggleswallow", ""};
 }
@@ -178,23 +233,26 @@ Action abyss::mouseResize(bool keepAspectRatio) {
 
 // ---- groups ----
 
-Action abyss::toggleGroup() {
-    return {"togglegroup", ""};
+Action abyss::toggleGroup(std::string selector) {
+    return targeted("togglegroup", "", std::move(selector), [](PHLWINDOW w) { return CA::toggleGroup(w); });
 }
-Action abyss::changeGroupActive(bool forward) {
-    return {"changegroupactive", forward ? "f" : "b"};
+Action abyss::changeGroupActive(bool forward, std::string selector) {
+    return targeted("changegroupactive", forward ? "f" : "b", std::move(selector), [forward](PHLWINDOW w) { return CA::changeGroupActive(forward, w); });
+}
+Action abyss::setGroupActive(int index, std::string selector) {
+    return targeted("changegroupactive", std::to_string(std::max(index, 0)), std::move(selector), [index](PHLWINDOW w) { return CA::setGroupActive(index, w); });
 }
 Action abyss::moveGroupWindow(bool forward) {
     return {"movegroupwindow", forward ? "f" : "b"};
 }
-Action abyss::moveIntoGroup(Dir d) {
-    return {"moveintogroup", std::string(1, dirChar(d))};
+Action abyss::moveIntoGroup(Dir d, std::string selector) {
+    return targeted("moveintogroup", std::string(1, dirChar(d)), std::move(selector), [d](PHLWINDOW w) { return CA::moveIntoGroup(mathDir(d), w); });
 }
-Action abyss::moveIntoOrCreateGroup(Dir d) {
-    return {"moveintoorcreategroup", std::string(1, dirChar(d))};
+Action abyss::moveIntoOrCreateGroup(Dir d, std::string selector) {
+    return targeted("moveintoorcreategroup", std::string(1, dirChar(d)), std::move(selector), [d](PHLWINDOW w) { return CA::moveIntoOrCreateGroup(mathDir(d), w); });
 }
-Action abyss::moveOutOfGroup() {
-    return {"moveoutofgroup", ""};
+Action abyss::moveOutOfGroup(std::string selector) {
+    return {"moveoutofgroup", std::move(selector)};
 }
 Action abyss::lockGroups(std::string mode) {
     return {"lockgroups", std::move(mode)};
@@ -229,6 +287,14 @@ Action abyss::moveToSpecial(std::string name) {
 Action abyss::renameWorkspace(int id, std::string name) {
     return {"renameworkspace", std::format("{} {}", id, name)};
 }
+Action abyss::changeWorkspaceId(int64_t from, int64_t to) {
+    return Action{[from, to]() -> SDispatchResult {
+        const auto ws = abyss::workspaceById(from);
+        if (!ws)
+            return {.success = false, .error = std::format("changeWorkspaceId: no workspace {}", from)};
+        return wrapResult(CA::changeWorkspaceID(ws, to));
+    }};
+}
 Action abyss::focusMonitor(std::string monitor) {
     return {"focusmonitor", std::move(monitor)};
 }
@@ -247,8 +313,8 @@ Action abyss::swapActiveWorkspaces(std::string monitor1, std::string monitor2) {
 Action abyss::dpms(std::string mode, std::string monitor) {
     return {"dpms", monitor.empty() ? mode : mode + " " + monitor};
 }
-Action abyss::moveCursorToCorner(int corner) {
-    return {"movecursortocorner", std::to_string(corner)};
+Action abyss::moveCursorToCorner(int corner, std::string selector) {
+    return targeted("movecursortocorner", std::to_string(corner), std::move(selector), [corner](PHLWINDOW w) { return CA::moveCursorToCorner(corner, w); });
 }
 Action abyss::moveCursor(int x, int y) {
     return {"movecursor", std::format("{} {}", x, y)};
@@ -312,6 +378,9 @@ Action abyss::releaseInputCapture() {
 }
 Action abyss::exit() {
     return {"exit", ""};
+}
+Action abyss::noop() {
+    return Action{[]() -> SDispatchResult { return {}; }};
 }
 
 // ---- queries ----

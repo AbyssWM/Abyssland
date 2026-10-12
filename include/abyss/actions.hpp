@@ -88,6 +88,8 @@ namespace abyss {
     Action closeWindow(std::string selector = "");
     Action killWindow(std::string selector);
     Action signal(int sig);
+    // sends a signal to the selected window's process (signalwindow)
+    Action signalWindow(int sig, std::string selector = "");
     Action toggleFloating(std::string selector = "");
     Action setFloating(std::string selector = "");
     Action setTiled(std::string selector = "");
@@ -95,15 +97,17 @@ namespace abyss {
     Action pin(std::string selector = "");
     // mode 0 = fullscreen, 1 = maximize; state "toggle" | "set" | "unset"
     Action fullscreen(int mode = 0, std::string state = "toggle");
+    // same with a target window and layoutAware (false = the layout is not told, the window just covers the monitor)
+    Action fullscreen(int mode, std::string state, bool layoutAware, std::string selector = "");
     Action fullscreenState(int internal, int client);
     Action moveFocus(Dir d);
-    Action moveWindow(Dir d, bool silent = false);
+    Action moveWindow(Dir d, bool silent = false, std::string selector = "");
     Action moveWindowToMonitor(std::string monitor, bool silent = false);
-    Action moveWindowOrGroup(Dir d);
-    Action swapWindow(Dir d);
+    Action moveWindowOrGroup(Dir d, std::string selector = "");
+    Action swapWindow(Dir d, std::string selector = "");
     Action swapWith(std::string selector);
-    Action swapNext(bool forward = true);
-    Action centerWindow();
+    Action swapNext(bool forward = true, std::string selector = "");
+    Action centerWindow(std::string selector = "");
     // relative or exact pixel arguments in the usual syntax: "10 0", "exact 800 600", "-20 -20"
     Action resizeActive(std::string args);
     Action moveActive(std::string args);
@@ -118,6 +122,8 @@ namespace abyss {
     Action bringActiveToTop();
     Action alterZOrder(std::string position /* "top" | "bottom" */, std::string selector = "");
     Action tag(std::string tag /* "+name", "-name", "name" toggles */, std::string selector = "");
+    // removes every tag (also the dynamic ones from rules) from the window
+    Action clearTags(std::string selector = "");
     Action toggleSwallow();
     Action setProp(std::string selector, std::string prop, std::string value);
     Action mouseMove();                                // for bind(SUPER, "mouse:272", mouseMove())
@@ -125,12 +131,14 @@ namespace abyss {
 
     // ---- groups ----
 
-    Action toggleGroup();
-    Action changeGroupActive(bool forward = true);
+    Action toggleGroup(std::string selector = "");
+    Action changeGroupActive(bool forward = true, std::string selector = "");
+    // makes the index-th window of the group active (1-based, 0 = last)
+    Action setGroupActive(int index, std::string selector = "");
     Action moveGroupWindow(bool forward = true);
-    Action moveIntoGroup(Dir d);
-    Action moveIntoOrCreateGroup(Dir d);
-    Action moveOutOfGroup();
+    Action moveIntoGroup(Dir d, std::string selector = "");
+    Action moveIntoOrCreateGroup(Dir d, std::string selector = "");
+    Action moveOutOfGroup(std::string selector = "");
     Action lockGroups(std::string mode = "toggle" /* lock | unlock | toggle */);
     Action lockActiveGroup(std::string mode = "toggle");
     Action denyWindowFromGroup(std::string mode = "toggle" /* on | off | toggle */);
@@ -145,13 +153,15 @@ namespace abyss {
     Action toggleSpecial(std::string name = "");
     Action moveToSpecial(std::string name = "");
     Action renameWorkspace(int id, std::string name);
+    // gives workspace `from` the id `to` (fails if `to` exists)
+    Action changeWorkspaceId(int64_t from, int64_t to);
     Action focusMonitor(std::string monitor /* name, id or direction like "+1" / "l" */);
     Action focusWorkspaceOnCurrentMonitor(std::string workspace);
     Action moveCurrentWorkspaceToMonitor(std::string monitor);
     Action moveWorkspaceToMonitor(std::string workspace, std::string monitor);
     Action swapActiveWorkspaces(std::string monitor1, std::string monitor2);
     Action dpms(std::string mode /* on | off | toggle */, std::string monitor = "");
-    Action moveCursorToCorner(int corner /* 0..3 */);
+    Action moveCursorToCorner(int corner /* 0..3 */, std::string selector = "");
     Action moveCursor(int x, int y);
 
     // ---- layout ----
@@ -178,6 +188,8 @@ namespace abyss {
     Action showScreensaver();
     Action releaseInputCapture();
     Action exit();
+    // does nothing (a bind that only swallows the key, like hl.dsp.no_op)
+    Action noop();
 
     // ---- queries ----
     // Window / workspace / monitor handles are the compositor's own shared pointers; use the accessors below to look inside.
