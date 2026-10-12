@@ -30,6 +30,7 @@
 #include <abyss/effects.hpp>
 #include <abyss/events.hpp>
 #include <abyss/layout.hpp>
+#include <abyss/query.hpp>
 #include <abyss/saver.hpp>
 
 namespace abyss {
