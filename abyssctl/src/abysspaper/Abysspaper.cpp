@@ -194,7 +194,7 @@ std::expected<void, std::string> Abysspaper::makeAbysspaperRequest(const std::st
 
     std::string_view LHS, RHS;
     auto             spacePos = rq.find(' ', 12);
-    LHS                       = rq.substr(11, spacePos - 11);
+    LHS                       = rq.substr(12, spacePos - 12) /* strlen("/abysspaper ") */;
     RHS                       = rq.substr(spacePos + 1);
 
     if (LHS == "wallpaper")
