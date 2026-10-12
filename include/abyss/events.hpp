@@ -20,6 +20,8 @@ namespace abyss {
         WindowOpen,
         WindowOpenEarly,
         WindowClose,
+        WindowDestroy,
+        WindowKill,
         WindowActive,
         WindowUrgent,
         WindowTitle,
@@ -68,11 +70,16 @@ namespace abyss {
         // implemented in the compositor: registers a std::function<void(Args...)> (type-erased in `fn`) for the event, returns a handle id
         uint64_t registerEvent(EventId id, std::any fn);
         void     cancelEvent(uint64_t handle);
+        bool     eventActive(uint64_t handle);
     }
 
     // Returned by Config::on(). Config reload removes all listeners anyway; cancel() is for removing one early.
     struct EventHandle {
         uint64_t id = 0;
+        // false after cancel() or once a reload dropped the listener (also on copies of the handle)
+        bool     isActive() const {
+            return id && detail::eventActive(id);
+        }
         void     cancel() {
             if (id)
                 detail::cancelEvent(id);
@@ -92,6 +99,10 @@ namespace Event {
     inline constexpr EventTag<EventId::WindowOpen, PHLWINDOW>                                  WindowOpen{};
     inline constexpr EventTag<EventId::WindowOpenEarly, PHLWINDOW>                             WindowOpenEarly{};
     inline constexpr EventTag<EventId::WindowClose, PHLWINDOW>                                 WindowClose{};
+    // the window object is being destroyed: the ref may already be expired (check w.lock()); use WindowClose for a still valid window
+    inline constexpr EventTag<EventId::WindowDestroy, PHLWINDOWREF>                            WindowDestroy{};
+    // fires just before the click-to-kill mode (the `kill` dispatcher, then a click on a window) SIGKILLs the window's process
+    inline constexpr EventTag<EventId::WindowKill, PHLWINDOW>                                  WindowKill{};
     // second argument: focus reason (int)
     inline constexpr EventTag<EventId::WindowActive, PHLWINDOW, int>                           WindowActive{};
     inline constexpr EventTag<EventId::WindowUrgent, PHLWINDOW>                                WindowUrgent{};

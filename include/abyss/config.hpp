@@ -58,9 +58,12 @@ namespace abyss {
     };
 
     // returned by Config::bind
+    // A disabled bind stays registered but does not trigger. A reload drops every bind (and so invalidates the handle).
     struct BindHandle {
         uint64_t id = 0; // internal
         void     setEnabled(bool enabled) const;
+        bool     isEnabled() const; // false when the bind was removed or dropped by a reload
+        void     remove();          // unregisters exactly this bind (other binds on the same key stay); the handle is dead afterwards
     };
 
     // ---- rules ----
@@ -126,6 +129,17 @@ namespace abyss {
         std::optional<std::string> layout;
         std::optional<std::string> animation;
         std::map<std::string, std::string> layoutOpts;
+        // false registers the rule disabled (see RuleHandle). Like in Lua, an enabled rule for the same workspace string is merged into instead
+        // of adding a new one, so a disabled rule is only created when none is enabled yet, or switch it with the handle.
+        bool                               enabled = true;
+    };
+
+    // Returned by Config::windowRule / layerRule / workspaceRule. A disabled rule stays registered but is ignored; switching it re-applies
+    // the rules to the existing windows / layers / workspaces right away. A reload drops every rule (and so invalidates the handle).
+    struct RuleHandle {
+        uint64_t id = 0; // internal
+        void     setEnabled(bool enabled) const;
+        bool     isEnabled() const; // false when the rule is gone (reload)
     };
 
     // ---- monitors ----
@@ -197,6 +211,8 @@ namespace abyss {
         uint64_t id = 0; // internal
         void     setEnabled(bool enabled) const; // re-arms with the original interval / disarms
         void     cancel();                       // removes the timer
+        bool     isEnabled() const;              // armed: a oneshot timer is not enabled any more after it fired, a cancelled / reloaded one never is
+        void     setTimeout(int ms) const;       // new interval in ms (>= 1); arms the timer to fire after it, also for repeat (the new interval is kept)
     };
 
     // ---- the config object ----
@@ -222,12 +238,16 @@ namespace abyss {
         void monitor(std::string name, std::string mode = "preferred", std::string position = "auto", double scale = 1.0, const MonitorOpts& opts = {});
         void monitor(std::string name, std::string mode, std::string position, std::string scale, const MonitorOpts& opts = {});
         void disableMonitor(std::string name);
-        void workspaceRule(std::string workspace, const WorkspaceRule& rule);
+        // rule.enabled = false registers it disabled, see WorkspaceRule / RuleHandle
+        RuleHandle workspaceRule(std::string workspace, const WorkspaceRule& rule);
         void device(std::string name, const DeviceOpts& opts);
 
         // --- window / layer rules ---
-        void windowRule(const WindowMatch& match, const WindowEffects& effects, std::string name = "");
-        void layerRule(const LayerMatch& match, const LayerEffects& effects, std::string name = "");
+        // A rule with a name is updated when one with the same name was already registered in this config load (the match properties and
+        // effects of the new call are added to it, and `enabled` is set again), so a name addresses one rule. Without a name every call
+        // adds a new rule. enabled = false registers (or switches) the rule disabled; use the handle to toggle it later.
+        RuleHandle windowRule(const WindowMatch& match, const WindowEffects& effects, std::string name = "", bool enabled = true);
+        RuleHandle layerRule(const LayerMatch& match, const LayerEffects& effects, std::string name = "", bool enabled = true);
 
         // --- animations ---
         // bezier curve with control points (x0,y0) (x1,y1), each coordinate in [-1, 2]
@@ -267,8 +287,9 @@ namespace abyss {
         EventHandle on(Tag, F f) {
             return EventHandle{detail::registerEvent(Tag::id, std::any(Tag::adapt(std::move(f))))};
         }
-        // calls fn after `ms` milliseconds (and every `ms` milliseconds when repeat is set)
-        TimerHandle timer(int ms, std::function<void()> fn, bool repeat = false);
+        // calls fn after `ms` milliseconds (and every `ms` milliseconds when repeat is set). enabled = false creates it disarmed:
+        // TimerHandle::setEnabled(true) (or setTimeout) starts it later.
+        TimerHandle timer(int ms, std::function<void()> fn, bool repeat = false, bool enabled = true);
         // Native idle rule: onIdle runs once when there was no input for `seconds` (keyboard, pointer, touch, tablet), onResume runs on the
         // first input after that (never without a previous onIdle). Active idle inhibitors (video players, idle-inhibit windows rules) block
         // it, and when they go away the whole timeout counts again. Nothing is registered by default: there is no built-in lock, suspend or helper,

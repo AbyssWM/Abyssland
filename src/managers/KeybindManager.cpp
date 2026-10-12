@@ -201,6 +201,13 @@ void CKeybindManager::removeKeybind(uint32_t mod, const SParsedKey& key) {
     m_lastLongPressKeybind.reset();
 }
 
+void CKeybindManager::removeKeybind(const SP<SKeybind>& bind) {
+    std::erase(m_keybinds, bind);
+
+    m_activeKeybinds.clear();
+    m_lastLongPressKeybind.reset();
+}
+
 void CKeybindManager::removeKeybind(const std::string& displayKeys) {
     static auto normalize = [](std::string x) -> std::string {
         std::string n = x;

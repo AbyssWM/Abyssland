@@ -82,8 +82,20 @@ namespace {
     // keybind handles of the current config load
     std::unordered_map<uint64_t, WP<SKeybind>> g_bindHandles;
     uint64_t                                   g_nextBindHandle = 1;
-    // timer intervals for TimerHandle::setEnabled
-    std::unordered_map<uint64_t, int>          g_timerIntervals;
+    // timer intervals (ms, shared with the timer callback so that setTimeout also changes a repeat timer) for TimerHandle
+    std::unordered_map<uint64_t, std::shared_ptr<int>> g_timerIntervals;
+
+    // rule handles of the current config load
+    struct SRuleRef {
+        WP<Desktop::Rule::IRule>  rule; // window / layer rule
+        WP<::Config::CWorkspaceRule> wsRule;
+        bool                      workspace = false;
+    };
+    std::unordered_map<uint64_t, SRuleRef> g_ruleHandles;
+    uint64_t                               g_nextRuleHandle = 1;
+    // named window / layer rules of the current config load (a name updates the rule)
+    std::unordered_map<std::string, SP<Desktop::Rule::CWindowRule>> g_namedWindowRules;
+    std::unordered_map<std::string, SP<Desktop::Rule::CLayerRule>>  g_namedLayerRules;
     // numeric ids of event listeners are the manager's listener ids
 
     template <typename F, typename... A>
@@ -257,14 +269,14 @@ void abyss::Config::disableMonitor(std::string name) {
     ::Config::Supplementary::refresher()->scheduleRefresh(::Config::Supplementary::REFRESH_MONITOR_STATES);
 }
 
-void abyss::Config::workspaceRule(std::string workspace, const WorkspaceRule& r) {
+abyss::RuleHandle abyss::Config::workspaceRule(std::string workspace, const WorkspaceRule& r) {
     const auto& [wsId, wsName, isAutoID] = getWorkspaceIDNameFromString(workspace);
 
     ::Config::CWorkspaceRule rule;
     rule.m_workspaceString = workspace;
     rule.m_workspaceName   = wsName;
     rule.m_workspaceId     = isAutoID ? WORKSPACE_INVALID : wsId;
-    rule.setEnabled(true);
+    rule.setEnabled(r.enabled);
 
     auto gap = [](const abyss::Gap& g) { return ::Config::CCssGapData(g.top, g.right, g.bottom, g.left); };
 
@@ -301,8 +313,39 @@ void abyss::Config::workspaceRule(std::string workspace, const WorkspaceRule& r)
     for (const auto& [k, v] : r.layoutOpts)
         rule.m_layoutopts[k] = v;
 
-    ::Config::workspaceRuleMgr()->replaceOrAdd(std::move(rule));
+    const auto RULE = ::Config::workspaceRuleMgr()->replaceOrAdd(std::move(rule));
     ::Config::Supplementary::refresher()->scheduleRefresh(::Config::Supplementary::REFRESH_MONITOR_STATES | ::Config::Supplementary::REFRESH_WINDOW_STATES);
+
+    const auto ID = g_nextRuleHandle++;
+    g_ruleHandles[ID] = SRuleRef{.wsRule = RULE, .workspace = true};
+    return RuleHandle{ID};
+}
+
+void abyss::RuleHandle::setEnabled(bool enabled) const {
+    const auto IT = g_ruleHandles.find(id);
+    if (IT == g_ruleHandles.end())
+        return;
+    if (IT->second.workspace) {
+        if (const auto R = IT->second.wsRule.lock(); R) {
+            R->setEnabled(enabled);
+            ::Config::Supplementary::refresher()->scheduleRefresh(::Config::Supplementary::REFRESH_MONITOR_STATES | ::Config::Supplementary::REFRESH_WINDOW_STATES);
+        }
+    } else if (const auto R = IT->second.rule.lock(); R) {
+        R->setEnabled(enabled);
+        Desktop::Rule::ruleEngine()->updateAllRules();
+    }
+}
+
+bool abyss::RuleHandle::isEnabled() const {
+    const auto IT = g_ruleHandles.find(id);
+    if (IT == g_ruleHandles.end())
+        return false;
+    if (IT->second.workspace) {
+        const auto R = IT->second.wsRule.lock();
+        return R && R->isEnabled();
+    }
+    const auto R = IT->second.rule.lock();
+    return R && R->isEnabled();
 }
 
 void abyss::Config::device(std::string name, const DeviceOpts& o) {
@@ -330,8 +373,17 @@ static void addMatch(Desktop::Rule::IRule& rule, const char* prop, const std::st
     rule.registerMatch(*P, value);
 }
 
-void abyss::Config::windowRule(const WindowMatch& m, const WindowEffects& e, std::string name) {
-    auto rule = makeShared<Desktop::Rule::CWindowRule>(name);
+abyss::RuleHandle abyss::Config::windowRule(const WindowMatch& m, const WindowEffects& e, std::string name, bool enabled) {
+    SP<Desktop::Rule::CWindowRule> rule;
+    if (!name.empty() && g_namedWindowRules.contains(name))
+        rule = g_namedWindowRules[name];
+    else {
+        rule = makeShared<Desktop::Rule::CWindowRule>(name);
+        if (!name.empty())
+            g_namedWindowRules[name] = rule;
+        Desktop::Rule::ruleEngine()->registerRule(SP<Desktop::Rule::IRule>(rule));
+    }
+    rule->setEnabled(enabled);
 
     auto put = [&](const char* prop, const auto& opt) {
         if (opt)
@@ -380,12 +432,24 @@ void abyss::Config::windowRule(const WindowMatch& m, const WindowEffects& e, std
     for (const auto& [k, v] : e.extra)
         addEffect(k.c_str(), v);
 
-    Desktop::Rule::ruleEngine()->registerRule(SP<Desktop::Rule::IRule>(rule));
     ::Config::Supplementary::refresher()->scheduleRefresh(::Config::Supplementary::REFRESH_WINDOW_STATES);
+
+    const auto ID = g_nextRuleHandle++;
+    g_ruleHandles[ID] = SRuleRef{.rule = SP<Desktop::Rule::IRule>(rule)};
+    return RuleHandle{ID};
 }
 
-void abyss::Config::layerRule(const LayerMatch& m, const LayerEffects& e, std::string name) {
-    auto rule = makeShared<Desktop::Rule::CLayerRule>(name);
+abyss::RuleHandle abyss::Config::layerRule(const LayerMatch& m, const LayerEffects& e, std::string name, bool enabled) {
+    SP<Desktop::Rule::CLayerRule> rule;
+    if (!name.empty() && g_namedLayerRules.contains(name))
+        rule = g_namedLayerRules[name];
+    else {
+        rule = makeShared<Desktop::Rule::CLayerRule>(name);
+        if (!name.empty())
+            g_namedLayerRules[name] = rule;
+        Desktop::Rule::ruleEngine()->registerRule(SP<Desktop::Rule::IRule>(rule));
+    }
+    rule->setEnabled(enabled);
 
     if (m.nspace)
         addMatch(*rule, "namespace", *m.nspace, "layerRule");
@@ -410,8 +474,11 @@ void abyss::Config::layerRule(const LayerMatch& m, const LayerEffects& e, std::s
     for (const auto& [k, v] : e.extra)
         addEffect(k.c_str(), v);
 
-    Desktop::Rule::ruleEngine()->registerRule(SP<Desktop::Rule::IRule>(rule));
     ::Config::Supplementary::refresher()->scheduleRefresh(::Config::Supplementary::REFRESH_RULES);
+
+    const auto ID = g_nextRuleHandle++;
+    g_ruleHandles[ID] = SRuleRef{.rule = SP<Desktop::Rule::IRule>(rule)};
+    return RuleHandle{ID};
 }
 
 // ------------------------------------------------------------------------------------------------ animations
@@ -585,6 +652,26 @@ void abyss::BindHandle::setEnabled(bool enabled) const {
         return;
     if (const auto K = IT->second.lock(); K)
         K->enabled = enabled;
+}
+
+bool abyss::BindHandle::isEnabled() const {
+    const auto IT = g_bindHandles.find(id);
+    if (IT == g_bindHandles.end())
+        return false;
+    const auto K = IT->second.lock();
+    return K && K->enabled;
+}
+
+void abyss::BindHandle::remove() {
+    const auto IT = g_bindHandles.find(id);
+    id            = 0;
+    if (IT == g_bindHandles.end())
+        return;
+    const auto K = IT->second.lock();
+    g_bindHandles.erase(IT);
+    if (!K || !g_pKeybindManager)
+        return;
+    g_pKeybindManager->removeKeybind(K);
 }
 
 void abyss::Config::unbind(Mods mods, std::string key) {
@@ -772,6 +859,14 @@ uint64_t abyss::detail::registerEvent(EventId id, std::any fn) {
                 auto f = std::any_cast<FN(WindowClose)>(fn);
                 l      = ev.window.close.listen([f](PHLWINDOW w) { guarded("WindowClose event", f, w); });
             } break;
+            case EventId::WindowDestroy: {
+                auto f = std::any_cast<FN(WindowDestroy)>(fn);
+                l      = ev.window.destroy.listen([f](PHLWINDOWREF w) { guarded("WindowDestroy event", f, w); });
+            } break;
+            case EventId::WindowKill: {
+                auto f = std::any_cast<FN(WindowKill)>(fn);
+                l      = ev.window.kill.listen([f](PHLWINDOW w) { guarded("WindowKill event", f, w); });
+            } break;
             case EventId::WindowActive: {
                 auto f = std::any_cast<FN(WindowActive)>(fn);
                 l      = ev.window.active.listen([f](PHLWINDOW w, Desktop::eFocusReason r) { guarded("WindowActive event", f, w, sc<int>(r)); });
@@ -894,9 +989,14 @@ void abyss::detail::cancelEvent(uint64_t handle) {
         m->cancelListener(handle);
 }
 
+bool abyss::detail::eventActive(uint64_t handle) {
+    auto* m = M();
+    return m && m->hasListener(handle);
+}
+
 // ------------------------------------------------------------------------------------------------ timers
 
-abyss::TimerHandle abyss::Config::timer(int ms, std::function<void()> fn, bool repeat) {
+abyss::TimerHandle abyss::Config::timer(int ms, std::function<void()> fn, bool repeat, bool enabled) {
     if (ms <= 0) {
         err("timer: interval must be > 0 ms");
         return {};
@@ -906,18 +1006,20 @@ abyss::TimerHandle abyss::Config::timer(int ms, std::function<void()> fn, bool r
     if (!m)
         return {};
 
+    auto interval = std::make_shared<int>(ms);
+
     auto t = makeShared<CEventLoopTimer>(
-        std::chrono::milliseconds(ms),
-        [fn = std::move(fn), repeat, ms](SP<CEventLoopTimer> self, void*) {
+        enabled ? std::optional<Time::steady_dur>{std::chrono::milliseconds(ms)} : std::nullopt,
+        [fn = std::move(fn), repeat, interval](SP<CEventLoopTimer> self, void*) {
             // re-arm first, so that a callback can still disarm / change it
             if (repeat)
-                self->updateTimeout(std::chrono::milliseconds(ms));
+                self->updateTimeout(std::chrono::milliseconds(*interval));
             guarded("timer callback", fn);
         },
         nullptr);
 
     const auto ID = m->addTimer(t);
-    g_timerIntervals[ID] = ms;
+    g_timerIntervals[ID] = interval;
     return TimerHandle{ID};
 }
 
@@ -930,9 +1032,33 @@ void abyss::TimerHandle::setEnabled(bool enabled) const {
         return;
     if (enabled) {
         const auto IT = g_timerIntervals.find(id);
-        T->updateTimeout(std::chrono::milliseconds(IT == g_timerIntervals.end() ? 1000 : IT->second));
+        T->updateTimeout(std::chrono::milliseconds(IT == g_timerIntervals.end() ? 1000 : *IT->second));
     } else
         T->updateTimeout(std::nullopt);
+}
+
+bool abyss::TimerHandle::isEnabled() const {
+    auto* m = M();
+    if (!m || !id)
+        return false;
+    const auto T = m->timerById(id);
+    return T && T->armed();
+}
+
+void abyss::TimerHandle::setTimeout(int ms) const {
+    if (ms < 1) {
+        err("timer: setTimeout needs at least 1 ms");
+        return;
+    }
+    auto* m = M();
+    if (!m || !id)
+        return;
+    const auto T = m->timerById(id);
+    if (!T)
+        return;
+    if (const auto IT = g_timerIntervals.find(id); IT != g_timerIntervals.end())
+        *IT->second = ms;
+    T->updateTimeout(std::chrono::milliseconds(ms));
 }
 
 void abyss::TimerHandle::cancel() {
@@ -1070,6 +1196,9 @@ bool abyss::setOption(std::string_view name, std::variant<bool, int64_t, double,
 void Config::Native::applyUserConfig() {
     g_bindHandles.clear();
     g_timerIntervals.clear();
+    g_ruleHandles.clear();
+    g_namedWindowRules.clear();
+    g_namedLayerRules.clear();
 
     abyss::Config cfg;
 

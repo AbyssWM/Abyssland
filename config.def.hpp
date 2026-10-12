@@ -185,4 +185,15 @@ void configure(Config& c) {
     c.windowRule({.cls = "^$", .title = "^$", .floating = true, .xwayland = true, .fullscreen = false, .pinned = false}, {.noFocus = true}, "xwayland-dragging-fix");
     // example: always float pavucontrol
     c.windowRule({.cls = "^(org.pulseaudio.pavucontrol)$"}, {.floating = true, .center = true, .size = "800 600"}, "pavucontrol-float");
+    // A name addresses one rule (a second call with the same name adds to it); the handle switches it on and off. `enabled` (4th argument) = false registers it disabled.
+    // layerRule and workspaceRule (WorkspaceRule::enabled) return the same RuleHandle.
+    // auto notes = c.windowRule({.cls = "^(obsidian)$"}, {.floating = true}, "float-notes", false);
+    // c.bind(SUPER, "F9", [notes] { notes.setEnabled(!notes.isEnabled()); });
+    //
+    // ---- handles: timers, binds, events ----
+    // auto tick = c.timer(1000, [] { /* ... */ }, true, false);        // repeat, created disarmed
+    // tick.setEnabled(true); tick.setTimeout(500); bool armed = tick.isEnabled(); tick.cancel();
+    // auto b = c.bind(SUPER, "F10", [] { notify("hi"); });  b.setEnabled(false); b.isEnabled(); b.remove();
+    // auto h = c.on(Event::WindowDestroy, [](PHLWINDOWREF w) { /* w may be expired */ });  h.isActive(); h.cancel();
+    // Event::WindowKill fires before the click-to-kill mode (`abyssctl dispatch kill`) kills a window.
 }

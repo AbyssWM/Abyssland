@@ -124,6 +124,7 @@ class CKeybindManager {
     SP<SKeybind>                                                                 addKeybind(SKeybind);
     void                                                                         removeKeybind(uint32_t, const SParsedKey&);
     void                                                                         removeKeybind(const std::string& displayKeys);
+    void                                                                         removeKeybind(const SP<SKeybind>& bind); // exactly this bind
     uint32_t                                                                     stringToModMask(std::string);
     uint32_t                                                                     keycodeToModifier(xkb_keycode_t);
     SP<SKeybind>                                                                 findConflictingKeybind(xkb_keysym_t keysym, uint32_t modmask);

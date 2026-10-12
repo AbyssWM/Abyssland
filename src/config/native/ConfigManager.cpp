@@ -157,6 +157,10 @@ void CConfigManager::cancelListener(uint64_t id) {
     m_life.listeners.erase(id);
 }
 
+bool CConfigManager::hasListener(uint64_t id) const {
+    return m_life.listeners.contains(id);
+}
+
 uint64_t CConfigManager::addTimer(SP<CEventLoopTimer> t) {
     const auto ID    = m_life.nextId++;
     m_life.timers[ID] = t;

@@ -76,6 +76,7 @@ namespace Config::Native {
         // keeps a signal listener alive until reload / cancelListener; returns a handle id
         uint64_t            addListener(CAbyssSignalListener&& l);
         void                cancelListener(uint64_t id);
+        bool                hasListener(uint64_t id) const;
         // arms and registers a timer with the event loop; returns a handle id
         uint64_t            addTimer(SP<CEventLoopTimer> t);
         SP<CEventLoopTimer> timerById(uint64_t id);
