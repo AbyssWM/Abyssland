@@ -332,8 +332,37 @@ list(APPEND SRCFILES "${ABYSS_GENERATED_DIR}/OptionsApply.cpp")
 # so editing the config or changing its path recompiles just this one file.
 set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/config/native/UserConfig.cpp" PROPERTIES COMPILE_DEFINITIONS "ABYSS_USER_CONFIG=\"${ABYSS_CONFIG}\"")
 
+# ---- own code without a fork ----
+# ABYSS_USER_SOURCES: extra .cpp files compiled into Abyssland (own protocols, managers, helpers for the config ...), listed explicitly,
+# separated by ';'. Relative paths are relative to the directory of ABYSS_CONFIG. ABYSS_USER_INCLUDE_DIRS works the same for headers.
+# Both live in the CMake cache, so `abyssctl reload` keeps them. Code added this way is the user's own responsibility.
+#   cmake -B build -DABYSS_USER_SOURCES="mods/myproto.cpp;mods/extra.cpp"
+set(ABYSS_USER_SOURCES "" CACHE STRING "Extra .cpp files compiled into Abyssland (';' separated, relative to the config directory)")
+set(ABYSS_USER_INCLUDE_DIRS "" CACHE STRING "Extra include directories for ABYSS_USER_SOURCES (';' separated, relative to the config directory)")
+get_filename_component(ABYSS_CONFIG_BASE "${ABYSS_CONFIG}" DIRECTORY)
+set(ABYSS_USER_SOURCE_FILES "")
+foreach(f IN LISTS ABYSS_USER_SOURCES)
+  if(NOT IS_ABSOLUTE "${f}")
+    set(f "${ABYSS_CONFIG_BASE}/${f}")
+  endif()
+  if(NOT EXISTS "${f}")
+    message(FATAL_ERROR "ABYSS_USER_SOURCES: ${f} does not exist")
+  endif()
+  list(APPEND ABYSS_USER_SOURCE_FILES "${f}")
+endforeach()
+if(ABYSS_USER_SOURCE_FILES)
+  message(STATUS "Abysslang: own sources compiled in: ${ABYSS_USER_SOURCE_FILES}")
+  list(APPEND SRCFILES ${ABYSS_USER_SOURCE_FILES})
+endif()
+
 add_library(abyssland_lib STATIC ${SRCFILES})
 target_include_directories(abyssland_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${ABYSS_GENERATED_DIR}")
+foreach(d IN LISTS ABYSS_USER_INCLUDE_DIRS)
+  if(NOT IS_ABSOLUTE "${d}")
+    set(d "${ABYSS_CONFIG_BASE}/${d}")
+  endif()
+  target_include_directories(abyssland_lib PUBLIC "${d}")
+endforeach()
 add_executable(Abyssland src/main.cpp ${TRACY_CPP_FILES})
 target_link_libraries(Abyssland abyssland_lib)
 
