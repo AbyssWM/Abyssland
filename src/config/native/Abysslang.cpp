@@ -8,6 +8,7 @@
 #include <any>
 #include <cmath>
 #include <limits>
+#include <cctype>
 #include <filesystem>
 #include <format>
 #include <unordered_map>
@@ -18,6 +19,7 @@
 #include "AbyssProtocols.hpp"
 #include "../../saver/Saver.hpp"
 #include "../../notification/NotificationOverlay.hpp"
+#include "../../managers/EventManager.hpp"
 
 #include "../supplementary/executor/Executor.hpp"
 #include "../supplementary/propRefresher/PropRefresher.hpp"
@@ -1295,6 +1297,68 @@ namespace {
     }
 }
 
+namespace {
+    std::unordered_map<std::string, std::function<std::string(std::string_view)>> g_userCommands;
+
+    bool validIpcName(std::string_view n) {
+        return !n.empty() && n.size() <= 64 && std::ranges::all_of(n, [](char c) { return std::isalnum(sc<unsigned char>(c)) || c == '_' || c == '-' || c == '.'; });
+    }
+}
+
+void abyss::Config::command(std::string name, std::function<std::string(std::string_view)> fn) {
+    if (!validIpcName(name)) {
+        err(std::format("command: bad name \"{}\" (letters, digits, '_', '-', '.', at most 64)", name));
+        return;
+    }
+    if (!fn) {
+        err(std::format("command \"{}\": empty function", name));
+        return;
+    }
+    g_userCommands[name] = std::move(fn);
+}
+
+std::string Config::Native::runUserCommand(std::string_view line) {
+    while (!line.empty() && line.front() == ' ')
+        line.remove_prefix(1);
+    if (line.empty()) {
+        std::vector<std::string> names;
+        for (const auto& [n, _] : g_userCommands)
+            names.push_back(n);
+        std::ranges::sort(names);
+        std::string out;
+        for (const auto& n : names)
+            out += n + "\n";
+        return out.empty() ? "no commands (register them with c.command in the config)" : out;
+    }
+    const auto        SP   = line.find(' ');
+    const std::string NAME = std::string{line.substr(0, SP)};
+    const auto        ARGS = SP == std::string_view::npos ? std::string_view{} : line.substr(SP + 1);
+    const auto        IT   = g_userCommands.find(NAME);
+    if (IT == g_userCommands.end())
+        return std::format("unknown command \"{}\" (`abyssctl run` lists them)", NAME);
+    // copy: the command may reload the config, which clears the map
+    const auto CMDFN = IT->second;
+    try {
+        auto out = CMDFN(ARGS);
+        return out.empty() ? "ok" : out;
+    } catch (const std::exception& e) { return std::format("command \"{}\" threw: {}", NAME, e.what()); } catch (...) {
+        return std::format("command \"{}\" threw", NAME);
+    }
+}
+
+bool abyss::emit(std::string_view name, std::string_view data) {
+    if (!validIpcName(name)) {
+        Log::logger->log(Log::WARN, "[abyss] emit: bad event name \"{}\"", name);
+        return false;
+    }
+    if (!g_pEventManager)
+        return false;
+    std::string d{data};
+    std::ranges::replace(d, '\n', ' ');
+    g_pEventManager->postEvent(SAbyssIPCEvent{.event = "user." + std::string{name}, .data = std::move(d)});
+    return true;
+}
+
 // ------------------------------------------------------------------------------------------------ entry point
 
 void Config::Native::applyUserConfig() {
@@ -1303,6 +1367,7 @@ void Config::Native::applyUserConfig() {
     g_ruleHandles.clear();
     g_namedWindowRules.clear();
     g_namedLayerRules.clear();
+    g_userCommands.clear();
 
     abyss::Config cfg;
 

@@ -148,4 +148,6 @@ namespace Config::Native {
 
     // Implemented in UserConfig.cpp: the compiled-in user config. Called from reload() after all state was reset to defaults.
     void applyUserConfig();
+    // `abyssctl run <name> [args]`: runs a command registered with c.command (empty line = list of names)
+    std::string runUserCommand(std::string_view line);
 }

@@ -288,6 +288,23 @@ namespace abyss {
         EventHandle on(Tag, F f) {
             return EventHandle{detail::registerEvent(Tag::id, std::any(Tag::adapt(std::move(f))))};
         }
+        // own IPC commands for scripts and bars: `abyssctl run <name> [args...]` calls fn with the rest of the line and prints its reply
+        // (an empty reply prints "ok"). `abyssctl run` alone lists the names. Names: letters, digits, '_', '-', '.'. Registering a name
+        // twice replaces it; a reload drops all and the config registers them again. Exceptions are caught and returned as the error text.
+        //   c.command("gaps", [](std::string_view a) { abyss::set("general:gaps_in", std::stoi(std::string(a))); return std::string{}; });
+        void command(std::string name, std::function<std::string(std::string_view args)> fn);
+        // any callable taking std::string_view and returning void or something convertible to std::string
+        template <typename F>
+            requires(std::is_invocable_v<F&, std::string_view> && !std::is_same_v<std::decay_t<F>, std::function<std::string(std::string_view)>>)
+        void command(std::string name, F f) {
+            if constexpr (std::is_void_v<std::invoke_result_t<F&, std::string_view>>)
+                command(std::move(name), std::function<std::string(std::string_view)>{[f = std::move(f)](std::string_view a) mutable {
+                            f(a);
+                            return std::string{};
+                        }});
+            else
+                command(std::move(name), std::function<std::string(std::string_view)>{[f = std::move(f)](std::string_view a) mutable { return std::string(f(a)); }});
+        }
         // calls fn after `ms` milliseconds (and every `ms` milliseconds when repeat is set). enabled = false creates it disarmed:
         // TimerHandle::setEnabled(true) (or setTimeout) starts it later.
         TimerHandle timer(int ms, std::function<void()> fn, bool repeat = false, bool enabled = true);

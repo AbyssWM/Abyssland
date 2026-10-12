@@ -208,6 +208,12 @@ namespace abyss {
     // does nothing (a bind that only swallows the key, like hl.dsp.no_op)
     Action noop();
 
+    // ---- IPC ----
+
+    // sends "user.<name>>>data" to every socket2 listener (bars, scripts; same socket as the built-in events). name: letters, digits,
+    // '_', '-', '.'; newlines in data become spaces. false = bad name.
+    bool emit(std::string_view name, std::string_view data = "");
+
     // ---- small helpers ----
 
     enum class LogLevel {
