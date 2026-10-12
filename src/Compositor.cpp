@@ -1,6 +1,7 @@
 
 #include "Compositor.hpp"
 #include <ranges>
+#include <cctype>
 #include "version.h"
 #include "config/supplementary/executor/Executor.hpp"
 #include "debug/log/Logger.hpp"
@@ -526,6 +527,48 @@ void CCompositor::removeAllSignals() {
     ;
 }
 
+// The variables Abyssland exports to the D-Bus / systemd activation environment on start (and removes again on exit), so portals
+// and services started by D-Bus find the session. One list for both directions.
+// Extra names can be added without patching: ABYSSLAND_ACTIVATION_ENV="FOO BAR" (space or colon separated, only [A-Za-z0-9_]).
+static std::vector<std::string> activationEnvVars() {
+    std::vector<std::string> vars = {"WAYLAND_DISPLAY", "XDG_CURRENT_DESKTOP", "ABYSSLAND_INSTANCE_SIGNATURE", "QT_QPA_PLATFORMTHEME", "PATH", "XDG_DATA_DIRS"};
+
+    if (const char* extra = getenv("ABYSSLAND_ACTIVATION_ENV")) {
+        std::string cur;
+        auto        flush = [&] {
+            if (!cur.empty() && std::ranges::none_of(vars, [&](const auto& v) { return v == cur; }))
+                vars.push_back(cur);
+            cur.clear();
+        };
+        for (const char* c = extra; *c; ++c) {
+            if (*c == ' ' || *c == ':' || *c == ',')
+                flush();
+            else if (std::isalnum(sc<unsigned char>(*c)) || *c == '_')
+                cur += *c;
+            else {
+                // never pass anything else into the shell command below
+                Log::logger->log(Log::ERR, "ABYSSLAND_ACTIVATION_ENV: invalid character '{}', ignoring the whole variable", *c);
+                return {"WAYLAND_DISPLAY", "XDG_CURRENT_DESKTOP", "ABYSSLAND_INSTANCE_SIGNATURE", "QT_QPA_PLATFORMTHEME", "PATH", "XDG_DATA_DIRS"};
+            }
+        }
+        flush();
+    }
+    return vars;
+}
+
+// import = true on start, false (unset) on exit
+static std::string activationEnvCommand(bool import) {
+    std::string list;
+    for (const auto& v : activationEnvVars())
+        list += " " + v;
+    std::string cmd;
+#ifdef USES_SYSTEMD
+    cmd += std::string{"systemctl --user "} + (import ? "import-environment" : "unset-environment") + " DISPLAY" + list + " && hash dbus-update-activation-environment 2>/dev/null && ";
+#endif
+    cmd += "dbus-update-activation-environment --systemd" + list;
+    return cmd;
+}
+
 void CCompositor::cleanEnvironment() {
     // in compositor constructor
     unsetenv("WAYLAND_DISPLAY");
@@ -539,13 +582,7 @@ void CCompositor::cleanEnvironment() {
         unsetenv("XDG_CURRENT_DESKTOP");
 
     if (m_aqBackend->hasSession() && !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
-        const auto CMD =
-#ifdef USES_SYSTEMD
-            "systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
-            "dbus-update-activation-environment 2>/dev/null && "
-#endif
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
-        Config::Supplementary::executor()->spawn(CMD);
+        Config::Supplementary::executor()->spawn(activationEnvCommand(false));
     }
 }
 
@@ -775,13 +812,7 @@ void CCompositor::startCompositor() {
         m_aqBackend->hasSession() &&
         /* Activation environment management is not disabled */
         !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
-        const auto CMD =
-#ifdef USES_SYSTEMD
-            "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
-            "dbus-update-activation-environment 2>/dev/null && "
-#endif
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS";
-        Config::Supplementary::executor()->spawn(CMD);
+        Config::Supplementary::executor()->spawn(activationEnvCommand(true));
     }
 
     Log::logger->log(Log::DEBUG, "Running on WAYLAND_DISPLAY: {}", m_wlDisplaySocket);
