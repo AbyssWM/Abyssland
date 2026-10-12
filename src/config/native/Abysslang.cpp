@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "AbyssConvert.hpp"
+#include "../shared/complex/ComplexDataTypes.hpp"
 #include "ConfigManager.hpp"
 #include "AbyssProtocols.hpp"
 #include "../../saver/Saver.hpp"
@@ -1190,6 +1191,51 @@ bool abyss::setOption(std::string_view name, std::variant<bool, int64_t, double,
     if (!m)
         return false;
     return m->setInput(name, std::visit([](const auto& v) { return detail::toInput(v); }, value));
+}
+
+std::optional<abyss::OptionValue> abyss::getOption(std::string_view name) {
+    auto* m = M();
+    if (!m)
+        return std::nullopt;
+    const auto VAR = m->getConfigValue(std::string{name});
+    if (!VAR.dataptr || !VAR.type)
+        return std::nullopt;
+
+    const auto  VAL  = VAR.dataptr;
+    const auto& TYPE = *VAR.type;
+    if (TYPE == typeid(::Config::INTEGER))
+        return abyss::OptionValue{int64_t(**rc<::Config::INTEGER* const*>(VAL))};
+    if (TYPE == typeid(::Config::BOOL))
+        return abyss::OptionValue{bool(**rc<::Config::BOOL* const*>(VAL))};
+    if (TYPE == typeid(::Config::FLOAT))
+        return abyss::OptionValue{double(**rc<::Config::FLOAT* const*>(VAL))};
+    if (TYPE == typeid(::Config::VEC2)) {
+        const auto* v = *rc<::Config::VEC2* const*>(VAL);
+        return abyss::OptionValue{abyss::Vec2{v->x, v->y}};
+    }
+    if (TYPE == typeid(::Config::STRING))
+        return abyss::OptionValue{std::string{**rc<::Config::STRING* const*>(VAL)}};
+    if (TYPE == typeid(::Config::IComplexConfigValue))
+        return abyss::OptionValue{(*rc<::Config::IComplexConfigValue* const*>(VAL))->toString()};
+    if (TYPE == typeid(::Config::CCssGapData)) {
+        const auto* g = *rc<::Config::CCssGapData* const*>(VAL);
+        abyss::Gap  out;
+        out.top = g->m_top, out.right = g->m_right, out.bottom = g->m_bottom, out.left = g->m_left;
+        return abyss::OptionValue{out};
+    }
+    if (TYPE == typeid(::Config::CGradientValueData))
+        return abyss::OptionValue{(*rc<::Config::CGradientValueData* const*>(VAL))->toString()};
+    if (TYPE == typeid(::Config::CFontWeightConfigValueData))
+        return abyss::OptionValue{(*rc<::Config::CFontWeightConfigValueData* const*>(VAL))->toString()};
+    return std::nullopt;
+}
+
+bool abyss::optionSetByUser(std::string_view name) {
+    auto* m = M();
+    if (!m)
+        return false;
+    const auto VAR = m->getConfigValue(std::string{name});
+    return VAR.dataptr && VAR.setByUser;
 }
 
 // ------------------------------------------------------------------------------------------------ entry point

@@ -17,6 +17,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 #include "SharedDefs.hpp"
@@ -229,6 +230,55 @@ namespace abyss {
             return setOption(name, std::string(std::string_view(v)));
         else
             return setOption(name, D(std::forward<T>(v)));
+    }
+
+    // reads an option at runtime (counterpart of hl.get_config). Simple types and gaps come back as they are, the other complex ones
+    // (gradients, font weights, ...) as their config string. nullopt = no such option.
+    using OptionValue = std::variant<bool, int64_t, double, std::string, Vec2, Gap>;
+    std::optional<OptionValue> getOption(std::string_view name);
+    // true when the option was set by the config (or set()), false when it still has its default or does not exist
+    bool                       optionSetByUser(std::string_view name);
+    // typed read: get<int>("general:border_size"), get<bool>(...), get<double>(...), get<std::string>(...), get<Vec2>(...), get<Gap>(...).
+    // nullopt when the option does not exist or has a different type (int <-> double <-> bool convert, a gap with four equal sides reads
+    // as a number, anything -> std::string works).
+    template <typename T>
+    std::optional<T> get(std::string_view name) {
+        auto v = getOption(name);
+        if (!v)
+            return std::nullopt;
+        if constexpr (std::is_same_v<T, std::string>) {
+            return std::visit(
+                [](const auto& x) -> std::string {
+                    using X = std::decay_t<decltype(x)>;
+                    if constexpr (std::is_same_v<X, std::string>)
+                        return x;
+                    else if constexpr (std::is_same_v<X, bool>)
+                        return x ? "true" : "false";
+                    else if constexpr (std::is_same_v<X, Vec2>)
+                        return std::to_string(x.x) + " " + std::to_string(x.y);
+                    else if constexpr (std::is_same_v<X, Gap>)
+                        return std::to_string(x.top) + " " + std::to_string(x.right) + " " + std::to_string(x.bottom) + " " + std::to_string(x.left);
+                    else
+                        return std::to_string(x);
+                },
+                *v);
+        } else if constexpr (std::is_same_v<T, Vec2> || std::is_same_v<T, Gap>) {
+            if (auto* p = std::get_if<T>(&*v))
+                return *p;
+            return std::nullopt;
+        } else if constexpr (std::is_arithmetic_v<T>) {
+            if (auto* p = std::get_if<int64_t>(&*v))
+                return T(*p);
+            if (auto* p = std::get_if<double>(&*v))
+                return T(*p);
+            if (auto* p = std::get_if<bool>(&*v))
+                return T(*p);
+            if (auto* p = std::get_if<Gap>(&*v); p && p->top == p->right && p->top == p->bottom && p->top == p->left)
+                return T(p->top);
+            return std::nullopt;
+        } else {
+            static_assert(std::is_same_v<T, void>, "abyss::get<T>: T must be a number, bool, std::string, Vec2 or Gap");
+        }
     }
 
 } // namespace abyss
