@@ -35,6 +35,10 @@ Abyssland is a fork of [Hyprland](https://github.com/hyprwm/Hyprland). Every Aby
 | [Abyss-scanner](https://github.com/AbyssWM/Abyss-scanner) | [hyprwayland-scanner](https://github.com/hyprwm/hyprwayland-scanner) |
 | [Abyssland-protocols](https://github.com/AbyssWM/Abyssland-protocols) | [hyprland-protocols](https://github.com/hyprwm/hyprland-protocols) |
 | [Xdg-desktop-portal-abyss](https://github.com/AbyssWM/Xdg-desktop-portal-abyss) | [xdg-desktop-portal-hyprland](https://github.com/hyprwm/xdg-desktop-portal-hyprland) |
+| [Abysstoolkit](https://github.com/AbyssWM/Abysstoolkit) | [hyprtoolkit](https://github.com/hyprwm/hyprtoolkit) |
+| [Abyss-guiutils](https://github.com/AbyssWM/Abyss-guiutils) | [hyprland-guiutils](https://github.com/hyprwm/hyprland-guiutils) |
+| [AbyssDusk](https://github.com/AbyssWM/AbyssDusk) | [hyprsunset](https://github.com/hyprwm/hyprsunset) |
+| [AbyssPicker](https://github.com/AbyssWM/AbyssPicker) | [hyprpicker](https://github.com/hyprwm/hyprpicker) |
 
 ## Credits
 
