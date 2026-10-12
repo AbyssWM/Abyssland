@@ -177,7 +177,7 @@ void CInputManager::onTabletAxis(CTablet::SAxisEvent e) {
 }
 
 void CInputManager::onTabletTip(CTablet::STipEvent e) {
-    if (Saver::mgr()->consumeOther())
+    if (Saver::mgr()->consumeTablet(e.tool.get(), Saver::CSaverManager::TABLET_TIP, e.in))
         return;
 
     Event::SCallbackInfo info;
@@ -208,7 +208,7 @@ void CInputManager::onTabletTip(CTablet::STipEvent e) {
 }
 
 void CInputManager::onTabletButton(CTablet::SButtonEvent e) {
-    if (Saver::mgr()->consumeOther())
+    if (Saver::mgr()->consumeTablet(e.tool.get(), e.button, e.down))
         return;
 
     Event::SCallbackInfo info;

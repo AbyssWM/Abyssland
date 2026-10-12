@@ -16,7 +16,7 @@
 #include "UnifiedWorkspaceSwipeGesture.hpp"
 
 void CInputManager::onTouchDown(ITouch::SDownEvent e) {
-    if (Saver::mgr()->consumeOther())
+    if (Saver::mgr()->consumeTouchDown(e.touchID))
         return;
 
     m_lastInputTouch = true;
@@ -122,6 +122,9 @@ void CInputManager::onTouchDown(ITouch::SDownEvent e) {
 }
 
 void CInputManager::onTouchUp(ITouch::SUpEvent e) {
+    if (Saver::mgr()->touchSwallowed(e.touchID, true))
+        return;
+
     m_lastInputTouch = true;
 
     Event::SCallbackInfo info;
@@ -141,6 +144,9 @@ void CInputManager::onTouchUp(ITouch::SUpEvent e) {
 }
 
 void CInputManager::onTouchMove(ITouch::SMotionEvent e) {
+    if (Saver::mgr()->touchSwallowed(e.touchID, false))
+        return;
+
     m_lastInputTouch = true;
 
     m_lastCursorMovement.reset();

@@ -63,4 +63,8 @@ namespace Config::Native {
 
     // a bool cell, used for the per-device "keybinds" toggle
     UP<ICell> makeBoolCell(bool def);
+    // cells for per-device fields that are not (or not with the same range) in the central option table
+    UP<ICell> makeStringCell(Config::STRING def);
+    UP<ICell> makeIntCell(Config::INTEGER def, Config::INTEGER min, Config::INTEGER max);
+    UP<ICell> makeFloatCell(Config::FLOAT def, Config::FLOAT min, Config::FLOAT max);
 }

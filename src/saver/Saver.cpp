@@ -292,6 +292,52 @@ bool CSaverManager::consumeOther() {
     return true;
 }
 
+bool CSaverManager::consumeTouchDown(int32_t id) {
+    const bool WAS = active();
+    if (WAS)
+        hide();
+    // a down of a finger that is still marked (lost up) starts over
+    m_swallowedTouches.erase(id);
+    if (WAS)
+        m_swallowedTouches.insert(id);
+    return WAS;
+}
+
+bool CSaverManager::touchSwallowed(int32_t id, bool up) {
+    if (up)
+        return m_swallowedTouches.erase(id) > 0;
+    return m_swallowedTouches.contains(id);
+}
+
+void CSaverManager::touchCancel() {
+    m_swallowedTouches.clear();
+}
+
+bool CSaverManager::consumeGestureBegin() {
+    const bool WAS = active();
+    if (WAS)
+        hide();
+    m_swallowedGesture = WAS; // every begin resets it, so a lost end cannot stick
+    return WAS;
+}
+
+bool CSaverManager::gestureSwallowed(bool end) {
+    const bool S = m_swallowedGesture;
+    if (end)
+        m_swallowedGesture = false;
+    return S;
+}
+
+bool CSaverManager::consumeTablet(const void* dev, uint32_t code, bool pressed) {
+    const bool WAS = active();
+    if (WAS)
+        hide();
+    const auto KEY = std::make_pair(dev, code);
+    if (pressed)
+        return WAS && m_swallowedTablet.insert(KEY).second;
+    return m_swallowedTablet.erase(KEY) > 0;
+}
+
 // ---- cava ----
 
 std::string CSaverManager::cavaConfigPath() const {

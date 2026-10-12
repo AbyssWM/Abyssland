@@ -2264,7 +2264,7 @@ void CInputManager::recheckMouseWarpOnMouseInput() {
 }
 
 void CInputManager::onSwipeBegin(IPointer::SSwipeBeginEvent e) {
-    if (Saver::mgr()->consumeOther())
+    if (Saver::mgr()->consumeGestureBegin())
         return;
 
     Event::SCallbackInfo info;
@@ -2278,6 +2278,9 @@ void CInputManager::onSwipeBegin(IPointer::SSwipeBeginEvent e) {
 }
 
 void CInputManager::onSwipeUpdate(IPointer::SSwipeUpdateEvent e) {
+    if (Saver::mgr()->gestureSwallowed(false))
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.swipe.update.emit(e, info);
     if (info.cancelled)
@@ -2289,6 +2292,9 @@ void CInputManager::onSwipeUpdate(IPointer::SSwipeUpdateEvent e) {
 }
 
 void CInputManager::onSwipeEnd(IPointer::SSwipeEndEvent e) {
+    if (Saver::mgr()->gestureSwallowed(true))
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.swipe.end.emit(e, info);
     if (info.cancelled)
@@ -2300,6 +2306,9 @@ void CInputManager::onSwipeEnd(IPointer::SSwipeEndEvent e) {
 }
 
 void CInputManager::onPinchBegin(IPointer::SPinchBeginEvent e) {
+    if (Saver::mgr()->consumeGestureBegin())
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.pinch.begin.emit(e, info);
     if (info.cancelled)
@@ -2311,6 +2320,9 @@ void CInputManager::onPinchBegin(IPointer::SPinchBeginEvent e) {
 }
 
 void CInputManager::onPinchUpdate(IPointer::SPinchUpdateEvent e) {
+    if (Saver::mgr()->gestureSwallowed(false))
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.pinch.update.emit(e, info);
     if (info.cancelled)
@@ -2322,6 +2334,9 @@ void CInputManager::onPinchUpdate(IPointer::SPinchUpdateEvent e) {
 }
 
 void CInputManager::onPinchEnd(IPointer::SPinchEndEvent e) {
+    if (Saver::mgr()->gestureSwallowed(true))
+        return;
+
     Event::SCallbackInfo info;
     Event::bus()->m_events.gesture.pinch.end.emit(e, info);
     if (info.cancelled)

@@ -71,6 +71,12 @@ CConfigManager::SDeviceConfig::SDeviceConfig() {
 
     // the special per-device keybinds toggle
     values.emplace("keybinds", makeBoolCell(true));
+    // device tags (bind devices, whitespace separated): only exist per device
+    values.emplace("tags", makeStringCell(STRVAL_EMPTY));
+    // The generic table entries they were derived from are narrower than what a single device may be given (as in the Lua config: scroll_factor 0..100,
+    // transform -1..7 is what the input manager clamps to). The per-device value only replaces the generic one when set.
+    values["scroll_factor"] = makeFloatCell(1.F, 0.F, 100.F);
+    values["transform"]     = makeIntCell(-1, -1, 7);
 }
 
 CConfigManager::CConfigManager() {

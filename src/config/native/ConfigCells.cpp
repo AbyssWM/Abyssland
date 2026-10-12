@@ -499,6 +499,18 @@ UP<ICell> Native::makeBoolCell(bool def) {
     return makeUnique<CBoolCell>(def);
 }
 
+UP<ICell> Native::makeStringCell(Config::STRING def) {
+    return makeUnique<CStringCell>(def, nullptr);
+}
+
+UP<ICell> Native::makeIntCell(Config::INTEGER def, Config::INTEGER min, Config::INTEGER max) {
+    return makeUnique<CIntCell>(def, min, max, std::nullopt);
+}
+
+UP<ICell> Native::makeFloatCell(Config::FLOAT def, Config::FLOAT min, Config::FLOAT max) {
+    return makeUnique<CFloatCell>(def, min, max);
+}
+
 UP<ICell> Native::cellFromValue(SP<Config::Values::IValue> v) {
     UP<ICell> cell;
 

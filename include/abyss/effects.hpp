@@ -122,4 +122,5 @@
     X(drag3fg, "drag_3fg", int64_t)                                                                                                                                                \
     X(shareStates, "share_states", int64_t)                                                                                                                                        \
     X(releasePressedOnClose, "release_pressed_on_close", bool)                                                                                                                     \
-    X(keybinds, "keybinds", bool)
+    X(keybinds, "keybinds", bool)                                                                                                                                                  \
+    X(tags, "tags", std::string)

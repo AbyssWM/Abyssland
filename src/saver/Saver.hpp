@@ -50,7 +50,16 @@ namespace Saver {
         // input: called at the start of the input handlers. Wakes up when active and returns true when the event must not reach anyone else.
         bool consumeKey(uint32_t keycode, bool pressed);
         bool consumeButton(uint32_t button, bool pressed);
-        bool consumeOther(); // wheel, touch, tablet, gestures, modifiers
+        bool consumeOther(); // wheel, modifiers
+        // Touch, tablet and touchpad gestures come as sequences (down..up, begin..end). Like keys / buttons, the sequence that wakes the screensaver is
+        // swallowed completely, so that nobody sees a motion / up / end without the matching down / begin.
+        bool consumeTouchDown(int32_t id);               // touch down: wakes, true = swallowed (until the matching up / cancel)
+        bool touchSwallowed(int32_t id, bool up);        // touch motion (up = false) / up (up = true): true = belongs to a swallowed down
+        void touchCancel();                              // touch cancel: forget swallowed touches
+        bool consumeGestureBegin();                      // swipe / pinch begin: wakes, true = swallowed (until its end)
+        bool gestureSwallowed(bool end);                 // swipe / pinch update (end = false) / end (end = true)
+        static constexpr uint32_t TABLET_TIP = UINT32_MAX;
+        bool consumeTablet(const void* dev, uint32_t code, bool pressed); // tablet tool tip (TABLET_TIP) or button press / release, per tool
 
         // introspection for tests / abyssctl
         bool   cavaRunning() const;
@@ -83,6 +92,9 @@ namespace Saver {
         std::unordered_map<MONITORID, SMonState>   m_mons;
         SP<CEventLoopTimer>                        m_timer;
         std::set<uint32_t>                         m_swallowedKeys, m_swallowedButtons;
+        std::set<int32_t>                          m_swallowedTouches;
+        std::set<std::pair<const void*, uint32_t>> m_swallowedTablet;
+        bool                                       m_swallowedGesture = false;
 
         // cava
         pid_t                                      m_cavaPid = -1;

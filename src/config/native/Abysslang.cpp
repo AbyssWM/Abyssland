@@ -34,6 +34,7 @@
 #include "../../managers/KeybindManager.hpp"
 #include "../../managers/eventLoop/EventLoopManager.hpp"
 #include "../../managers/input/trackpad/TrackpadGestures.hpp"
+#include "../../managers/input/trackpad/gestures/CallbackGesture.hpp"
 #include "../../managers/input/trackpad/gestures/CloseGesture.hpp"
 #include "../../managers/input/trackpad/gestures/CursorZoomGesture.hpp"
 #include "../../managers/input/trackpad/gestures/FloatGesture.hpp"
@@ -620,29 +621,91 @@ void abyss::Config::submap(std::string name, const std::function<void(Config&)>&
 
 // ------------------------------------------------------------------------------------------------ gestures
 
+namespace {
+    struct SGestureArgs {
+        size_t                    fingers = 0;
+        eTrackpadGestureDirection dir     = TRACKPAD_GESTURE_DIR_NONE;
+        uint32_t                  mods    = 0;
+        float                     scale   = 1.F;
+    };
+
+    // the checks every gesture registration has in common (as in the old hl.gesture); reports through err()
+    std::optional<SGestureArgs> gestureArgs(int fingers, const std::string& direction, const abyss::GestureOpts& o) {
+        if (!g_pTrackpadGestures) {
+            err("gesture: trackpad gesture manager not available");
+            return std::nullopt;
+        }
+        if (fingers < 2 || fingers > 9) {
+            err("gesture: fingers must be in 2..9");
+            return std::nullopt;
+        }
+
+        const auto DIR = g_pTrackpadGestures->dirForString(direction);
+        if (DIR == TRACKPAD_GESTURE_DIR_NONE) {
+            err(std::format("gesture: invalid direction \"{}\"", direction));
+            return std::nullopt;
+        }
+        if (!(o.scale >= 0.1 && o.scale <= 10)) {
+            err("gesture: scale must be in 0.1..10");
+            return std::nullopt;
+        }
+
+        return SGestureArgs{.fingers = sc<size_t>(fingers),
+                            .dir     = DIR,
+                            .mods    = o.mods.empty() ? 0 : g_pKeybindManager->stringToModMask(o.mods),
+                            .scale   = sc<float>(o.scale)};
+    }
+
+    void addCallbackGesture(const char* what, const SGestureArgs& a, const abyss::GestureOpts& o, CCallbackTrackpadGesture::Fn start, CCallbackTrackpadGesture::Fn update,
+                            CCallbackTrackpadGesture::Fn end) {
+        auto result = g_pTrackpadGestures->addGesture(makeUnique<CCallbackTrackpadGesture>(std::move(start), std::move(update), std::move(end)), a.fingers, a.dir, a.mods, a.scale,
+                                                      o.disableInhibit);
+        if (!result)
+            err(std::format("{}: {}", what, result.error()));
+    }
+
+    CCallbackTrackpadGesture::Fn guardedGesture(std::function<void(const abyss::GestureEvent&)> f, const char* what) {
+        if (!f)
+            return {};
+        return [f = std::move(f), what](const abyss::GestureEvent& e) { guarded(what, f, e); };
+    }
+}
+
+void abyss::Config::gesture(int fingers, std::string direction, std::function<void()> onEnd, const GestureOpts& o) {
+    const auto A = gestureArgs(fingers, direction, o);
+    if (!A)
+        return;
+    if (!onEnd) {
+        err("gesture: the callback is empty");
+        return;
+    }
+
+    // like the old function form: only at the end, no arguments
+    addCallbackGesture("gesture", *A, o, {}, {}, [onEnd = std::move(onEnd)](const GestureEvent&) { guarded("gesture callback", onEnd); });
+}
+
+void abyss::Config::gesture(int fingers, std::string direction, GestureCallbacks cb, const GestureOpts& o) {
+    const auto A = gestureArgs(fingers, direction, o);
+    if (!A)
+        return;
+    if (!cb.start && !cb.update && !cb.finish) {
+        err("gesture: callbacks must define at least one of start, update or finish");
+        return;
+    }
+
+    addCallbackGesture("gesture", *A, o, guardedGesture(std::move(cb.start), "gesture start callback"), guardedGesture(std::move(cb.update), "gesture update callback"),
+                       guardedGesture(std::move(cb.finish), "gesture finish callback"));
+}
+
 void abyss::Config::gesture(int fingers, std::string direction, std::string action, const GestureOpts& o) {
-    if (!g_pTrackpadGestures) {
-        err("gesture: trackpad gesture manager not available");
+    const auto A = gestureArgs(fingers, direction, o);
+    if (!A)
         return;
-    }
-    if (fingers < 2 || fingers > 9) {
-        err("gesture: fingers must be in 2..9");
-        return;
-    }
 
-    const auto DIR = g_pTrackpadGestures->dirForString(direction);
-    if (DIR == TRACKPAD_GESTURE_DIR_NONE) {
-        err(std::format("gesture: invalid direction \"{}\"", direction));
-        return;
-    }
-    if (o.scale < 0.1 || o.scale > 10) {
-        err("gesture: scale must be in 0.1..10");
-        return;
-    }
-
-    const uint32_t MODS = o.mods.empty() ? 0 : g_pKeybindManager->stringToModMask(o.mods);
-    const float    SC   = sc<float>(o.scale);
-    const size_t   F    = fingers;
+    const auto DIR = A->dir;
+    const auto F   = A->fingers;
+    const uint32_t MODS = A->mods;
+    const float    SC   = A->scale;
 
     std::expected<void, std::string> result;
 

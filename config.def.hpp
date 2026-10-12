@@ -103,6 +103,19 @@ void configure(Config& c) {
     c.input.sensitivity   = 0;
     c.input.touchpad.natural_scroll = false;
     // per-device settings: c.device("logitech-mx-master", {.sensitivity = -0.5});
+    // touchpad, touchscreen and tablet options (same names as the old config, '-' becomes '_'):
+    // c.input.touchpad.tap_to_click = true;
+    // c.input.touchpad.disable_while_typing = true;
+    // c.input.touchdevice.output = "DP-1";            // bind touchscreens to a monitor
+    // c.input.tablet.output = "DP-1";
+    // c.input.tablettool.pressure_range_max = 0.9;
+    // c.device("wacom-intuos-pen", {.leftHanded = true, .output = "DP-1"});
+    // c.device("my-touchpad", {.naturalScroll = true, .tapToClick = true, .tags = "touchpad"});  // "tags" (keyboards and pointers/touchpads) are matched by BindOpts::devices
+    // touchpad gestures: c.gesture(fingers, direction, action, {.mods, .scale, ...}); fingers 2..9
+    // c.gesture(3, "horizontal", "workspace");
+    // c.gesture(4, "pinch", "fullscreen", {.mode = "fullscreen"});
+    // c.gesture(3, "down", [] { exec("grim"); });      // callback when the gesture ends
+    // c.gesture(4, "swipe", GestureCallbacks{.update = [](const GestureEvent& e) { /* e.delta, e.direction, e.fingers ... */ }});
 
     // ---- keybinds ----
     // Actions (killActive, workspace, ...) are deferred values. exec runs inside a callback.

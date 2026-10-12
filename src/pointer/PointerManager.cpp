@@ -1,3 +1,4 @@
+#include "../saver/Saver.hpp"
 #include "PointerManager.hpp"
 #include "../Compositor.hpp"
 #include "../config/ConfigValue.hpp"
@@ -1042,12 +1043,14 @@ void CPointerManager::attachPointer(SP<IPointer> pointer) {
     });
 
     listener->holdBegin = pointer->m_pointerEvents.holdBegin.listen([](const IPointer::SHoldBeginEvent& event) {
-        PROTO::pointerGestures->holdBegin(event.timeMs, event.fingers);
+        if (!Saver::mgr()->consumeGestureBegin())
+            PROTO::pointerGestures->holdBegin(event.timeMs, event.fingers);
         PROTO::idle->onActivity();
     });
 
     listener->holdEnd = pointer->m_pointerEvents.holdEnd.listen([](const IPointer::SHoldEndEvent& event) {
-        PROTO::pointerGestures->holdEnd(event.timeMs, event.cancelled);
+        if (!Saver::mgr()->gestureSwallowed(true))
+            PROTO::pointerGestures->holdEnd(event.timeMs, event.cancelled);
         PROTO::idle->onActivity();
     });
 
@@ -1086,9 +1089,7 @@ void CPointerManager::attachTouch(SP<ITouch> touch) {
         PROTO::idle->onActivity();
     });
 
-    listener->cancel = touch->m_touchEvents.cancel.listen([] {
-        //
-    });
+    listener->cancel = touch->m_touchEvents.cancel.listen([] { Saver::mgr()->touchCancel(); });
 
     listener->frame = touch->m_touchEvents.frame.listen([] { g_pSeatManager->sendTouchFrame(); });
 
