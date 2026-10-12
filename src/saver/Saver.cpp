@@ -20,7 +20,6 @@
 #include "../debug/log/Logger.hpp"
 #include "../event/EventBus.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
-#include "../managers/SessionLockManager.hpp"
 #include "../output/Monitor.hpp"
 #include "../render/Renderer.hpp"
 #include "../render/pass/RectPassElement.hpp"
@@ -272,9 +271,8 @@ bool CSaverManager::consumeKey(uint32_t keycode, bool pressed) {
     const bool WAS = active();
     if (WAS)
         hide();
-    // never swallow while the session is locked: the first key belongs to the lock screen (password)
     if (pressed)
-        return WAS && !g_pSessionLockManager->isSessionLocked() && m_swallowedKeys.insert(keycode).second;
+        return WAS && m_swallowedKeys.insert(keycode).second;
     return m_swallowedKeys.erase(keycode) > 0;
 }
 
@@ -282,9 +280,8 @@ bool CSaverManager::consumeButton(uint32_t button, bool pressed) {
     const bool WAS = active();
     if (WAS)
         hide();
-    // never swallow while the session is locked: the first key belongs to the lock screen (password)
     if (pressed)
-        return WAS && !g_pSessionLockManager->isSessionLocked() && m_swallowedButtons.insert(button).second;
+        return WAS && m_swallowedButtons.insert(button).second;
     return m_swallowedButtons.erase(button) > 0;
 }
 
@@ -292,7 +289,7 @@ bool CSaverManager::consumeOther() {
     if (!active())
         return false;
     hide();
-    return !g_pSessionLockManager->isSessionLocked();
+    return true;
 }
 
 // ---- cava ----

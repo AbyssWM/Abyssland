@@ -168,6 +168,28 @@ namespace abyss {
         std::string mode;           // for "float" / "fullscreen" / "cursor_zoom"
     };
 
+    // event handed to a callback gesture (Config::gesture with GestureCallbacks)
+    struct GestureEvent {
+        enum class Phase { Start, Update, End };
+        Phase       phase = Phase::Start;
+        std::string direction;       // "HORIZONTAL" "VERTICAL" "LEFT" "RIGHT" "UP" "DOWN" "SWIPE" "PINCH" "PINCH_IN" "PINCH_OUT" (the actual direction, "NONE" if unknown)
+        std::string type;            // "swipe" or "pinch"
+        uint32_t    timeMs = 0;
+        int         fingers = 0;     // Start / Update only
+        Vec2        delta;           // Start / Update only
+        double      scale    = 1.0;  // Start / Update of a pinch only
+        double      rotation = 0.0;  // Start / Update of a pinch only
+        bool        cancelled = false; // End only
+    };
+
+    // the three phases of a callback gesture; at least one must be set. Start fires once the direction was recognised (the first update that
+    // matched), Update on every following update, Finish when the fingers are lifted (GestureEvent::cancelled tells if the gesture was cancelled).
+    struct GestureCallbacks {
+        std::function<void(const GestureEvent&)> start;
+        std::function<void(const GestureEvent&)> update;
+        std::function<void(const GestureEvent&)> finish;
+    };
+
     // ---- timers ----
 
     struct TimerHandle {
@@ -230,6 +252,13 @@ namespace abyss {
         // action: "workspace" | "move" | "resize" | "special" | "close" | "float" | "fullscreen" | "cursor_zoom" | "scroll_move" | "unset"
         // direction: "horizontal" | "vertical" | "left" | "right" | "up" | "down" | "swipe" | "pinch" ...
         void gesture(int fingers, std::string direction, std::string action, const GestureOpts& opts = {});
+        // callback gestures. Only the plain function: runs once when the gesture ends, without arguments (also if it was cancelled):
+        //   c.gesture(3, "down", [] { exec("grim"); });
+        void gesture(int fingers, std::string direction, std::function<void()> onEnd, const GestureOpts& opts = {});
+        // start / update / finish callbacks with a GestureEvent; at least one of them must be set (err() otherwise):
+        //   c.gesture(4, "swipe", GestureCallbacks{.update = [](const GestureEvent& e) { ... e.delta.x ... }});
+        // Exceptions in callbacks are caught and logged. Opts (mods, scale, disableInhibit) work as for the named actions; workspaceName / zoomLevel / mode are ignored.
+        void gesture(int fingers, std::string direction, GestureCallbacks callbacks, const GestureOpts& opts = {});
 
         // --- events / timers ---
         // c.on(Event::WindowOpen, [](PHLWINDOW w) { ... });  -- see abyss/events.hpp
@@ -247,9 +276,10 @@ namespace abyss {
         // Callbacks run on the compositor thread: keep them short, exec() for anything slow. Exceptions are caught and logged. Note that the
         // forceIdle action bypasses inhibitors (as for the ext-idle-notify protocol).
         void idle(double seconds, std::function<void()> onIdle, std::function<void()> onResume = {});
-        // Screensaver: the same idle rule (same seconds, inhibitor and reload semantics) shows `s` fullscreen on every monitor on idle, above windows and
-        // layers but below the session lock, and hides it again on the first input, which is swallowed (it only wakes up, e.g. a click does not reach the
-        // window below; moving the mouse also wakes up). The cursor is hidden meanwhile. See abyss/saver.hpp: c.idle(300, screensaver(saver::clock()));
+        // Screensaver: the same idle rule (same seconds, inhibitor and reload semantics) shows `s` fullscreen on every monitor on idle, above everything
+        // including the session lock, and hides it again on the first input, which is swallowed (it only wakes up, e.g. a click or key does not reach the
+        // window or the lock screen below; moving the mouse also wakes up). Lock at the same time and the lock screen appears when you wake it up:
+        // c.idle(300, screensaver(saver::clock())); c.idle(300, [] { exec("abysslock"); }); The cursor is hidden meanwhile. See abyss/saver.hpp: c.idle(300, screensaver(saver::clock()));
         // Other idle rules (lock, dpms via exec) still run next to it. A reload ends a running screensaver. `abyssctl dispatch screensaver` shows
         // the first configured one right away (see showScreensaver()). Nothing runs (no timer, no process) while no screensaver is shown.
         void idle(double seconds, Screensaver s);

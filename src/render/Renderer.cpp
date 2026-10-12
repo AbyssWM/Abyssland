@@ -2189,11 +2189,12 @@ void IAbyssRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
             CBox renderBox = {0, 0, sc<int>(pMonitor->m_pixelSize.x), sc<int>(pMonitor->m_pixelSize.y)};
             renderWorkspace(pMonitor, pMonitor->m_activeWorkspace, NOW, renderBox);
 
-            // screensaver (c.idle): above windows and layers, below the session lock
+            renderLockscreen(pMonitor, NOW, renderBox);
+
+            // screensaver (c.idle): above everything, also above the session lock. The first input hides it and shows what is below
+            // (the lock screen when an idle rule locked the session meanwhile).
             if (Saver::mgr()->active())
                 Saver::mgr()->draw(pMonitor);
-
-            renderLockscreen(pMonitor, NOW, renderBox);
 
             // render IME even above the lockscreen - allow the user to use it to potentially input stuff on it.
             renderIME(pMonitor, NOW, renderBox);

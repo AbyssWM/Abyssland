@@ -115,6 +115,7 @@ namespace abyss {
             std::string format     = "%H:%M"; // strftime
             std::string dateFormat = "%A, %d. %B %Y"; // strftime, empty = no date line
             uint32_t    background = 0x000000;
+            bool        wander     = true; // burn-in protection: jump to a new spot once a minute (same spot on every monitor)
         };
 
         // big clock with date, 1 Hz
@@ -128,10 +129,21 @@ namespace abyss {
                                        return std::string(buf, std::strftime(buf, sizeof(buf), format.c_str(), &tm));
                                    };
                                    g.clear(o.background);
-                                   const double mid = f.height / 2 - (o.dateFormat.empty() ? 0 : o.size * 0.18);
-                                   g.text(f.width / 2, mid, fmt(o.format), {.size = o.size, .color = o.color, .align = Align::Center});
+                                   double cx = f.width / 2, cy = f.height / 2;
+                                   if (o.wander) {
+                                       // a new pseudo-random spot every minute, kept inside the screen
+                                       uint64_t h = static_cast<uint64_t>(t / 60) * 0x9E3779B97F4A7C15ull;
+                                       h ^= h >> 31;
+                                       const auto [tw, th] = g.textSize(fmt(o.format), {.size = o.size});
+                                       const double block = th + (o.dateFormat.empty() ? 0 : o.size * 0.5);
+                                       const double rx = std::max(0.0, (f.width - tw) / 2 - 20), ry = std::max(0.0, (f.height - block) / 2 - 20);
+                                       cx += ((h & 0xffff) / 65535.0 * 2 - 1) * rx;
+                                       cy += (((h >> 16) & 0xffff) / 65535.0 * 2 - 1) * ry;
+                                   }
+                                   const double mid = cy - (o.dateFormat.empty() ? 0 : o.size * 0.18);
+                                   g.text(cx, mid, fmt(o.format), {.size = o.size, .color = o.color, .align = Align::Center});
                                    if (!o.dateFormat.empty())
-                                       g.text(f.width / 2, mid + o.size * 0.7, fmt(o.dateFormat),
+                                       g.text(cx, mid + o.size * 0.7, fmt(o.dateFormat),
                                               {.size = std::max(12, o.size / 5), .color = o.color, .align = Align::Center, .alpha = 0.7});
                                },
                                {.fps = 1}};
