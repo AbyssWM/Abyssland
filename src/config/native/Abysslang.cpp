@@ -6,6 +6,8 @@
 
 #include <algorithm>
 #include <any>
+#include <cmath>
+#include <limits>
 #include <format>
 #include <unordered_map>
 
@@ -874,6 +876,31 @@ void abyss::TimerHandle::cancel() {
         m->cancelTimer(id);
     g_timerIntervals.erase(id);
     id = 0;
+}
+
+// ------------------------------------------------------------------------------------------------ idle
+
+void abyss::Config::idle(double seconds, std::function<void()> onIdle, std::function<void()> onResume) {
+    auto* m = M();
+    if (!m)
+        return;
+    if (!std::isfinite(seconds) || seconds < 0.001) {
+        err("idle: seconds must be a finite number of at least 0.001");
+        return;
+    }
+    // the protocol counts in uint32 milliseconds
+    if (seconds > double(std::numeric_limits<uint32_t>::max()) / 1000.0 - 1.0) {
+        err(std::format("idle: {} seconds is too long (maximum is {} seconds)", seconds, std::numeric_limits<uint32_t>::max() / 1000 - 1));
+        return;
+    }
+    if (!onIdle && !onResume) {
+        err("idle: needs at least one callback");
+        return;
+    }
+
+    const auto MS = sc<uint32_t>(std::llround(seconds * 1000.0));
+    m->addIdleRule(
+        MS, [f = std::move(onIdle)] { if (f) guarded("idle callback", f); }, [f = std::move(onResume)] { if (f) guarded("idle resume callback", f); });
 }
 
 // ------------------------------------------------------------------------------------------------ misc

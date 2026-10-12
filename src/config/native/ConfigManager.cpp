@@ -94,6 +94,14 @@ CConfigManager::CConfigManager() {
 }
 
 void CConfigManager::clearUserLifecycle() {
+    m_life.generation++;
+    {
+        // snapshot: cancel() unregisters the rule from the protocol, a callback may be running
+        const auto RULES = std::move(m_life.idleRules);
+        m_life.idleRules.clear();
+        for (const auto& r : RULES)
+            r->cancel();
+    }
     m_life.listeners.clear();
     for (const auto& [id, t] : m_life.timers) {
         t->cancel();
@@ -105,6 +113,20 @@ void CConfigManager::clearUserLifecycle() {
     for (const auto& l : m_life.layouts)
         Layout::Supplementary::algoMatcher()->unregisterAlgo(l);
     m_life.layouts.clear();
+}
+
+void CConfigManager::addIdleRule(uint32_t timeoutMs, std::function<void()> onIdle, std::function<void()> onResume) {
+    // the idle protocol is created after the config was first parsed: register once the compositor runs (immediately if it already does).
+    // The generation check drops rules of a config that was replaced before its start callbacks ran.
+    onStart([this, gen = m_life.generation, timeoutMs, onIdle = std::move(onIdle), onResume = std::move(onResume)]() mutable {
+        if (gen != m_life.generation || !PROTO::idle)
+            return;
+        m_life.idleRules.emplace_back(PROTO::idle->addRule(timeoutMs, std::move(onIdle), std::move(onResume)));
+    });
+}
+
+size_t CConfigManager::idleRuleCount() const {
+    return m_life.idleRules.size();
 }
 
 void CConfigManager::addLayoutName(std::string name) {

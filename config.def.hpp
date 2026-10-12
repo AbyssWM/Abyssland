@@ -23,6 +23,10 @@ void configure(Config& c) {
     // ---- autostart ----
     // c.onStart([] { exec("quickshell"); });
 
+    // ---- idle (nothing is on by default) ----
+    // c.idle(300, [] { exec("abysslock"); });                           // after 5 minutes without input
+    // c.idle(600, [] { exec("..."); }, [] { exec("..."); });            // onIdle, optional onResume (first input afterwards)
+
     // ---- look and feel ----
     c.general.gaps_in      = 5;
     c.general.gaps_out     = 20;

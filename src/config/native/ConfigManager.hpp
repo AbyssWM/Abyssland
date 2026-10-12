@@ -12,6 +12,7 @@
 #include "ConfigCells.hpp"
 #include "../../helpers/signal/Signal.hpp"
 #include "../../managers/eventLoop/EventLoopTimer.hpp"
+#include "../../protocols/IdleNotify.hpp"
 
 namespace Config::Native {
 
@@ -81,6 +82,9 @@ namespace Config::Native {
         // runs fn when the compositor has started (immediately if it already did)
         void                onStart(std::function<void()> fn);
         bool                hasStarted() const;
+        // idle rules (c.idle): registers once the compositor started; cancelled by reload / teardown
+        void                addIdleRule(uint32_t timeoutMs, std::function<void()> onIdle, std::function<void()> onResume);
+        size_t              idleRuleCount() const;
         // layouts registered by the user config (dropped on reload)
         void                addLayoutName(std::string name);
 
@@ -117,6 +121,8 @@ namespace Config::Native {
             std::unordered_map<uint64_t, SP<CEventLoopTimer>>  timers;
             std::vector<std::function<void()>>                 startCallbacks;
             std::vector<std::string>                           layouts;
+            std::vector<SP<CIdleRule>>                         idleRules;
+            uint64_t                                           generation = 0; // bumped by clearUserLifecycle
             uint64_t                                           nextId = 1;
             bool                                               started = false;
             CAbyssSignalListener                               startListener; // persistent: survives reloads

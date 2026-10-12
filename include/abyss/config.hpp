@@ -238,6 +238,14 @@ namespace abyss {
         }
         // calls fn after `ms` milliseconds (and every `ms` milliseconds when repeat is set)
         TimerHandle timer(int ms, std::function<void()> fn, bool repeat = false);
+        // Native idle rule: onIdle runs once when there was no input for `seconds` (keyboard, pointer, touch, tablet), onResume runs on the
+        // first input after that (never without a previous onIdle). Active idle inhibitors (video players, idle-inhibit windows rules) block
+        // it, and when they go away the whole timeout counts again. Nothing is registered by default: there is no built-in lock, suspend or helper,
+        // do that in the callbacks (c.idle(300, [] { exec("abysslock"); });). seconds: finite, at least 0.001, at most ~4294966 (uint32 ms); onResume may be empty.
+        // The rule is registered once the compositor started, a reload (`abyssctl reload --no-build`) drops and re-creates it, it never stacks up.
+        // Callbacks run on the compositor thread: keep them short, exec() for anything slow. Exceptions are caught and logged. Note that the
+        // forceIdle action bypasses inhibitors (as for the ext-idle-notify protocol).
+        void idle(double seconds, std::function<void()> onIdle, std::function<void()> onResume = {});
 
         // --- layouts (see abyss/layout.hpp) ---
         // simple layout: fn places the windows. Selected by name: c.general.layout = "grid", a workspace rule, or `abyssctl dispatch setlayout grid`

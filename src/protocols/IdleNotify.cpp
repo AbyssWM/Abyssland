@@ -113,6 +113,15 @@ void CIdleNotifyProtocol::onActivity() {
     for (auto const& n : m_notifications) {
         n->update();
     }
+
+    if (m_rules.empty())
+        return;
+    // snapshot: a callback may cancel rules or reload the config
+    const auto RULES = m_rules;
+    for (auto const& r : RULES) {
+        if (!r->cancelled())
+            r->update(0);
+    }
 }
 
 void CIdleNotifyProtocol::setInhibit(bool inhibited) {
@@ -121,10 +130,151 @@ void CIdleNotifyProtocol::setInhibit(bool inhibited) {
         if (n->inhibitorsAreObeyed())
             n->update();
     }
+
+    if (m_rules.empty())
+        return;
+    const auto RULES = m_rules;
+    for (auto const& r : RULES) {
+        if (!r->cancelled())
+            r->update(0);
+    }
 }
 
 void CIdleNotifyProtocol::setTimers(uint32_t elapsedMs) {
     for (auto const& n : m_notifications) {
         n->update(elapsedMs);
+    }
+
+    if (m_rules.empty())
+        return;
+    const auto RULES = m_rules;
+    for (auto const& r : RULES) {
+        if (!r->cancelled())
+            r->update(elapsedMs);
+    }
+}
+
+CIdleNotifyProtocol::~CIdleNotifyProtocol() {
+    // the config lifecycle may still hold the rules: make sure they never fire again
+    const auto RULES = m_rules;
+    for (auto const& r : RULES)
+        r->cancel();
+}
+
+SP<CIdleRule> CIdleNotifyProtocol::addRule(uint32_t timeoutMs, std::function<void()> onIdle, std::function<void()> onResume) {
+    auto rule = makeShared<CIdleRule>(timeoutMs, std::move(onIdle), std::move(onResume));
+    rule->m_self = rule;
+    m_rules.emplace_back(rule);
+    rule->arm();
+    return rule;
+}
+
+size_t CIdleNotifyProtocol::ruleCount() const {
+    return m_rules.size();
+}
+
+// ---- native rules ----
+
+CIdleRule::CIdleRule(uint32_t timeoutMs, std::function<void()> onIdle, std::function<void()> onResume) :
+    m_timeoutMs(timeoutMs), m_onIdle(std::move(onIdle)), m_onResume(std::move(onResume)) {
+    ;
+}
+
+CIdleRule::~CIdleRule() {
+    if (m_timer && g_pEventLoopManager)
+        g_pEventLoopManager->removeTimer(m_timer);
+}
+
+bool CIdleRule::cancelled() const {
+    return m_cancelled;
+}
+
+bool CIdleRule::idled() const {
+    return m_idled;
+}
+
+void CIdleRule::arm() {
+    m_timer = makeShared<CEventLoopTimer>(
+        std::nullopt,
+        [w = m_self](SP<CEventLoopTimer>, void*) {
+            if (const auto R = w.lock(); R && !R->m_cancelled)
+                R->onTimerFired();
+            return 0;
+        },
+        nullptr);
+    g_pEventLoopManager->addTimer(m_timer);
+    update(0);
+}
+
+void CIdleRule::cancel() {
+    if (m_cancelled)
+        return;
+    m_cancelled = true;
+    // stays alive until the end of this function even if the caller held the last reference
+    const auto SELF = m_self.lock();
+
+    if (m_timer) {
+        m_timer->updateTimeout(std::nullopt);
+        if (g_pEventLoopManager)
+            g_pEventLoopManager->removeTimer(m_timer);
+        m_timer.reset();
+    }
+    if (PROTO::idle)
+        std::erase(PROTO::idle->m_rules, SELF);
+    m_onIdle   = nullptr;
+    m_onResume = nullptr;
+}
+
+void CIdleRule::update(uint32_t elapsedMs) {
+    if (m_cancelled || !m_timer)
+        return;
+
+    // activity or an inhibitor counts the whole timeout again (forceIdle passes elapsedMs > 0 and ignores the inhibitor, like the protocol)
+    m_timer->updateTimeout(std::nullopt);
+
+    if (elapsedMs == 0 && PROTO::idle && PROTO::idle->isInhibited) {
+        resume();
+        return;
+    }
+
+    if (m_timeoutMs > elapsedMs) {
+        resume();
+        if (!m_cancelled && m_timer)
+            m_timer->updateTimeout(std::chrono::milliseconds(m_timeoutMs - elapsedMs));
+    } else
+        becomeIdle();
+}
+
+void CIdleRule::onTimerFired() {
+    becomeIdle();
+}
+
+void CIdleRule::becomeIdle() {
+    if (m_idled || m_cancelled)
+        return;
+    m_idled = true; // state first: a callback that reloads or triggers activity sees the right state
+    if (!m_onIdle)
+        return;
+    const auto SELF = m_self.lock();
+    const auto FN   = m_onIdle; // copy: cancel() inside the callback must not destroy the running function
+    try {
+        FN();
+    } catch (const std::exception& e) { Log::logger->log(Log::ERR, "[idle] exception in onIdle: {}", e.what()); } catch (...) {
+        Log::logger->log(Log::ERR, "[idle] unknown exception in onIdle");
+    }
+}
+
+void CIdleRule::resume() {
+    if (!m_idled || m_cancelled)
+        return; // no resume without a previous idle
+    m_idled = false;
+    if (!m_onResume)
+        return;
+    const auto SELF = m_self.lock();
+    const auto FN   = m_onResume;
+    try {
+        FN();
+    } catch (const std::exception& e) { Log::logger->log(Log::ERR, "[idle] exception in onResume: {}", e.what()); } catch (...) {
+        Log::logger->log(Log::ERR, "[idle] unknown exception in onResume");
     }
 }
