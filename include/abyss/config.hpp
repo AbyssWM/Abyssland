@@ -30,6 +30,7 @@
 #include <abyss/effects.hpp>
 #include <abyss/events.hpp>
 #include <abyss/layout.hpp>
+#include <abyss/protocols.hpp>
 #include <abyss/query.hpp>
 #include <abyss/saver.hpp>
 
@@ -324,6 +325,11 @@ namespace abyss {
         void set(std::string_view name, T&& v) {
             abyss::set(name, std::forward<T>(v));
         }
+
+        // --- protocols (see abyss/protocols.hpp): everything is offered by default ---
+        Protocols protocols;
+        void      protocol(std::string name, bool enabled) { protocols.set(std::move(name), enabled); }
+        void      protocol(std::string name, ProtocolOpts opts) { protocols.set(std::move(name), opts); }
 
         // internal: used by the compositor
         std::string m_currentSubmap, m_currentSubmapReset;

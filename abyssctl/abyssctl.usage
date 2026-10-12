@@ -80,6 +80,7 @@ abyssctl [<OPTIONS>]... <ARGUMENTS>
             |   (output (create (wayland | x11 | headless | auto) | remove <MONITORS>)) "Allows adding/removing fake outputs to a specific backend"
             |   (reload [--no-build | --dry-run])                      "Rebuild the compiled config, install it and restart Abyssland"
             |   (restart)                                             "Restart Abyssland (needs start-abyssland)"
+            |   (protocols)                                          "List the Wayland protocols with their state (on / off / core)"
             |   (rollinglog [-f])                                     "Print tail of the log"
             |   (setcursor)                                           "Set the cursor theme and reloads the cursor manager"
             |   (seterror [disable])                                  "Set the abyssctl error string"

@@ -35,6 +35,7 @@ using namespace Abyssutils::OS;
 #include "../config/shared/complex/ComplexDataTypes.hpp"
 #include "../config/ConfigManager.hpp"
 #include "../config/ConfigValue.hpp"
+#include "../config/native/AbyssProtocols.hpp"
 #include "../config/shared/parserUtils/ParserUtils.hpp"
 #include "../config/shared/complex/ComplexDataTypes.hpp"
 #include "../config/shared/inotify/ConfigWatcher.hpp"
@@ -1153,6 +1154,10 @@ static std::string killRequest(eAbyssCtlOutputFormat format, std::string request
     return "ok";
 }
 
+static std::string protocolsRequest(eAbyssCtlOutputFormat format, std::string request) {
+    return Config::Native::protocolsReport(format != eAbyssCtlOutputFormat::FORMAT_NORMAL);
+}
+
 static std::string splashRequest(eAbyssCtlOutputFormat format, std::string request) {
     return g_pCompositor->m_currentSplash;
 }
@@ -1803,6 +1808,7 @@ CAbyssCtl::CAbyssCtl() {
     registerCommand(SAbyssCtlCommand{"version", true, versionRequest});
     registerCommand(SAbyssCtlCommand{"devices", true, devicesRequest});
     registerCommand(SAbyssCtlCommand{"splash", true, splashRequest});
+    registerCommand(SAbyssCtlCommand{"protocols", true, protocolsRequest});
     registerCommand(SAbyssCtlCommand{"cursorpos", true, cursorPosRequest});
     registerCommand(SAbyssCtlCommand{"binds", true, bindsRequest});
     registerCommand(SAbyssCtlCommand{"globalshortcuts", true, globalShortcutsRequest});

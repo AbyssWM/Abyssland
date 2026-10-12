@@ -13,6 +13,7 @@
 
 #include "AbyssConvert.hpp"
 #include "ConfigManager.hpp"
+#include "AbyssProtocols.hpp"
 #include "../../saver/Saver.hpp"
 
 #include "../supplementary/executor/Executor.hpp"
@@ -1213,4 +1214,5 @@ void Config::Native::applyUserConfig() {
     }
 
     abyss::applyOptions(cfg);
+    Config::Native::applyProtocols(cfg.protocols);
 }

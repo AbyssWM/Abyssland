@@ -36,6 +36,14 @@ void configure(Config& c) {
     //     g.text(f.width / 2, f.height / 2, "hello", {.size = 64, .color = 0xc8a25a, .align = Align::Center});
     // }, {.fps = 30}));
 
+    // ---- protocols (everything is offered by default; `abyssctl protocols` lists the names, see abyss/protocols.hpp) ----
+    // only wlr screencopy (grim, wf-recorder, xdg-desktop-portal-wlr), none of ours / the ext ones:
+    // c.protocols.disable({"abyssland_toplevel_export_manager_v1", "ext_image_copy_capture_manager_v1",
+    //                      "ext_output_image_capture_source_manager_v1", "ext_foreign_toplevel_image_capture_source_manager_v1"});
+    // our own screencopy instead of wlr:  c.protocol("zwlr_screencopy_manager_v1", false);
+    // c.protocol("zwlr_screencopy_manager_v1", {.maxVersion = 2});   // offer at most version 2
+    // NVIDIA: leave wp_linux_drm_syncobj_manager_v1 on, switching it off causes flickering.
+
     // ---- look and feel ----
     c.general.gaps_in      = 5;
     c.general.gaps_out     = 20;
