@@ -20,7 +20,7 @@ jobs:
           pacman --noconfirm --noprogressbar -Syyu
           pacman --noconfirm --noprogressbar -S \
             base-devel cairo clang cmake git glaze glm glslang go gtest jq libc++ \
-            libdisplay-info libdrm libei libepoxy libfontenc libglvnd libheif libinput \
+            iniparser libdisplay-info libdrm libei libepoxy libfontenc libglvnd libheif libinput \
             libjxl libliftoff libspng libwebp libxcursor libxcvt libxfont2 libxkbcommon \
             libxkbfile lld lua meson muparser ninja pango pixman pkgconf pugixml scdoc \
             seatd systemd tomlplusplus wayland wayland-protocols xcb-util-errors \
