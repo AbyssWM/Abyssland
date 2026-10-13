@@ -250,7 +250,7 @@ namespace {
                 desktops.push_back(lower(d));
 
         it.details.push_back(std::format("XDG_CURRENT_DESKTOP = {}", DESKTOPENV.empty() ? "<unset>" : DESKTOPENV));
-        const bool HASABYSS = std::ranges::find(desktops, "abyssland") != desktops.end();
+        const bool HASABYSS = std::ranges::find(desktops, std::string{"abyssland"}) != desktops.end();
         if (!HASABYSS) {
             raise(it.status, eStatus::WARN);
             it.details.push_back("token 'Abyssland' missing: the abyss portal (UseIn=Abyssland) will not be selected for this session");
