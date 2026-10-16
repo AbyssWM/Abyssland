@@ -55,4 +55,6 @@ debug-tools/flamegraph
 
 meta/hl.meta.lua
 
-abysstester/pointer-scroll.txt_upstream/
+abysstester/pointer-scroll.txt
+
+_upstream/
