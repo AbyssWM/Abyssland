@@ -140,6 +140,8 @@ DISPATCHERS = {
     "workspace.toggle_special": ([fn("toggleSpecial")], ""),
     "group.active": ([fn("setGroupActive")], "setGroupActive(index, selector)"),
     "group.lock": ([fn("lockGroups")], ""),
+    "group.lock[all]": ([fn("lockGroups")], "lockGroups('lock')"),
+    "group.lock[?]": ([fn("lockGroups")], "lockGroups('toggle')"),
     "group.lock_active": ([fn("lockActiveGroup")], ""),
     "group.move_window": ([fn("moveGroupWindow")], ""),
     "group.next": ([fn("changeGroupActive")], "changeGroupActive(true)"),
