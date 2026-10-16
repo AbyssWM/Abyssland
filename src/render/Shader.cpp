@@ -56,7 +56,7 @@ GLuint CShader::compileShader(const GLuint& type, std::string src, bool dynamic,
     glShaderSource(shader, 1, &shaderSource, nullptr);
     glCompileShader(shader);
 
-    GLint ok;
+    GLint ok = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
 
     if (dynamic) {
@@ -98,7 +98,7 @@ bool CShader::createProgram(const std::string& vert, const std::string& frag, bo
     glDeleteShader(vertCompiled);
     glDeleteShader(fragCompiled);
 
-    GLint ok;
+    GLint ok = 0;
     glGetProgramiv(prog, GL_LINK_STATUS, &ok);
     if (dynamic) {
         if (ok == GL_FALSE) {
