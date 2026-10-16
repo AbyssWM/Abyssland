@@ -60,8 +60,8 @@ static void updateColorVariable(CAnimatedVariable<CAbyssColor>& av, const float 
     // This is not as fast as just lerping rgb, but it's WAY more precise...
     // Use the CAbyssColor cache for OkLab
 
-    const auto&                L1 = av.begun().asOkLab();
-    const auto&                L2 = av.goal().asOkLab();
+    const auto&                 L1 = av.begun().asOkLab();
+    const auto&                 L2 = av.goal().asOkLab();
 
     const Abyssgraphics::CColor lerped = Abyssgraphics::CColor::SOkLab{
         .l = std::lerp(L1.l, L2.l, POINTY),

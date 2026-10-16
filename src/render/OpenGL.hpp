@@ -248,7 +248,7 @@ namespace Render::GL {
         bool                                      m_shadersInitialized = false;
         SP<SPreparedShaders>                      m_shaders;
 
-        Abyssutils::OS::CFileDescriptor            m_gbmFD;
+        Abyssutils::OS::CFileDescriptor           m_gbmFD;
         gbm_device*                               m_gbmDevice  = nullptr;
         EGLContext                                m_eglContext = nullptr;
         EGLDisplay                                m_eglDisplay = nullptr;

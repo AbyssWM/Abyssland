@@ -217,8 +217,8 @@ void IElementRenderer::drawClear(WP<CClearPassElement> element, const CRegion& d
 }
 
 void IElementRenderer::drawSurface(WP<CSurfacePassElement> element, const CRegion& damage) {
-    const auto&                   m_data       = element->m_data;
-    auto&                         m_renderData = g_pAbyssRenderer->m_renderData;
+    const auto&                    m_data       = element->m_data;
+    auto&                          m_renderData = g_pAbyssRenderer->m_renderData;
 
     Abyssutils::Utils::CScopeGuard x = {[]() {
         g_pAbyssRenderer->m_renderData.primarySurfaceUVTopLeft     = Vector2D(-1, -1);

@@ -136,15 +136,14 @@ static std::string availableModesForOutput(PHLMONITOR pMonitor, eAbyssCtlOutputF
 }
 
 const std::array<const char*, Monitor::CMonitor::SC_CHECKS_COUNT> SOLITARY_REASONS_JSON = {
-    "\"UNKNOWN\"",   "\"NOTIFICATION\"", "\"LOCK\"",      "\"WORKSPACE\"", "\"WINDOWED\"", "\"DND\"",        "\"SPECIAL\"",  "\"ALPHA\"",       "\"OFFSET\"",
-    "\"CANDIDATE\"", "\"OPAQUE\"",       "\"TRANSFORM\"", "\"OVERLAYS\"",  "\"FLOAT\"",    "\"WORKSPACES\"", "\"SURFACES\"", "\"CONFIGERROR\"", "\"FADEOUT\"", "\"SCREENSAVER\"",
+    "\"UNKNOWN\"", "\"NOTIFICATION\"", "\"LOCK\"",     "\"WORKSPACE\"", "\"WINDOWED\"",   "\"DND\"",      "\"SPECIAL\"",     "\"ALPHA\"",   "\"OFFSET\"",      "\"CANDIDATE\"",
+    "\"OPAQUE\"",  "\"TRANSFORM\"",    "\"OVERLAYS\"", "\"FLOAT\"",     "\"WORKSPACES\"", "\"SURFACES\"", "\"CONFIGERROR\"", "\"FADEOUT\"", "\"SCREENSAVER\"",
 };
 
 const std::array<const char*, Monitor::CMonitor::SC_CHECKS_COUNT> SOLITARY_REASONS_TEXT = {
-    "unknown reason",    "notification",     "session lock",     "invalid workspace", "windowed mode", "dnd active",
-    "special workspace", "alpha channel",    "workspace offset", "missing candidate", "not opaque",    "surface transformations",
-    "other overlays",    "floating windows", "other workspaces", "subsurfaces",       "config error",  "fadeout in progress",
-    "screensaver",
+    "unknown reason",   "notification",        "session lock", "invalid workspace",       "windowed mode",  "dnd active",       "special workspace", "alpha channel",
+    "workspace offset", "missing candidate",   "not opaque",   "surface transformations", "other overlays", "floating windows", "other workspaces",  "subsurfaces",
+    "config error",     "fadeout in progress", "screensaver",
 };
 
 std::string CAbyssCtl::getSolitaryBlockedReason(PHLMONITOR m, eAbyssCtlOutputFormat format) {
@@ -528,11 +527,11 @@ static std::string getWorkspaceRuleData(const Config::CWorkspaceRule& r, eAbyssC
         const std::string default_    = sc<bool>(r.m_isDefault) ? std::format(",\n    \"default\": {}", boolToString(r.m_isDefault.value())) : "";
         const std::string persistent  = sc<bool>(r.m_isPersistent) ? std::format(",\n    \"persistent\": {}", boolToString(r.m_isPersistent.value())) : "";
         const std::string gapsIn      = sc<bool>(r.m_gapsIn) ?
-            std::format(",\n    \"gapsIn\": [{}, {}, {}, {}]", r.m_gapsIn.value().m_top, r.m_gapsIn.value().m_right, r.m_gapsIn.value().m_bottom, r.m_gapsIn.value().m_left) :
-            "";
+                 std::format(",\n    \"gapsIn\": [{}, {}, {}, {}]", r.m_gapsIn.value().m_top, r.m_gapsIn.value().m_right, r.m_gapsIn.value().m_bottom, r.m_gapsIn.value().m_left) :
+                 "";
         const std::string gapsOut     = sc<bool>(r.m_gapsOut) ?
-            std::format(",\n    \"gapsOut\": [{}, {}, {}, {}]", r.m_gapsOut.value().m_top, r.m_gapsOut.value().m_right, r.m_gapsOut.value().m_bottom, r.m_gapsOut.value().m_left) :
-            "";
+                std::format(",\n    \"gapsOut\": [{}, {}, {}, {}]", r.m_gapsOut.value().m_top, r.m_gapsOut.value().m_right, r.m_gapsOut.value().m_bottom, r.m_gapsOut.value().m_left) :
+                "";
         const std::string borderSize  = sc<bool>(r.m_borderSize) ? std::format(",\n    \"borderSize\": {}", r.m_borderSize.value()) : "";
         const std::string border      = sc<bool>(r.m_noBorder) ? std::format(",\n    \"border\": {}", boolToString(!r.m_noBorder.value())) : "";
         const std::string rounding    = sc<bool>(r.m_noRounding) ? std::format(",\n    \"rounding\": {}", boolToString(!r.m_noRounding.value())) : "";
@@ -555,13 +554,13 @@ static std::string getWorkspaceRuleData(const Config::CWorkspaceRule& r, eAbyssC
         const std::string default_       = std::format("\tdefault: {}\n", sc<bool>(r.m_isDefault) ? boolToString(r.m_isDefault.value()) : "<unset>");
         const std::string persistent     = std::format("\tpersistent: {}\n", sc<bool>(r.m_isPersistent) ? boolToString(r.m_isPersistent.value()) : "<unset>");
         const std::string gapsIn         = sc<bool>(r.m_gapsIn) ?
-            std::format("\tgapsIn: {} {} {} {}\n", std::to_string(r.m_gapsIn.value().m_top), std::to_string(r.m_gapsIn.value().m_right),
-                        std::to_string(r.m_gapsIn.value().m_bottom), std::to_string(r.m_gapsIn.value().m_left)) :
-            std::format("\tgapsIn: <unset>\n");
+                    std::format("\tgapsIn: {} {} {} {}\n", std::to_string(r.m_gapsIn.value().m_top), std::to_string(r.m_gapsIn.value().m_right),
+                                std::to_string(r.m_gapsIn.value().m_bottom), std::to_string(r.m_gapsIn.value().m_left)) :
+                    std::format("\tgapsIn: <unset>\n");
         const std::string gapsOut        = sc<bool>(r.m_gapsOut) ?
-            std::format("\tgapsOut: {} {} {} {}\n", std::to_string(r.m_gapsOut.value().m_top), std::to_string(r.m_gapsOut.value().m_right),
-                        std::to_string(r.m_gapsOut.value().m_bottom), std::to_string(r.m_gapsOut.value().m_left)) :
-            std::format("\tgapsOut: <unset>\n");
+                   std::format("\tgapsOut: {} {} {} {}\n", std::to_string(r.m_gapsOut.value().m_top), std::to_string(r.m_gapsOut.value().m_right),
+                               std::to_string(r.m_gapsOut.value().m_bottom), std::to_string(r.m_gapsOut.value().m_left)) :
+                   std::format("\tgapsOut: <unset>\n");
         const std::string borderSize     = std::format("\tborderSize: {}\n", sc<bool>(r.m_borderSize) ? std::to_string(r.m_borderSize.value()) : "<unset>");
         const std::string border         = std::format("\tborder: {}\n", sc<bool>(r.m_noBorder) ? boolToString(!r.m_noBorder.value()) : "<unset>");
         const std::string rounding       = std::format("\trounding: {}\n", sc<bool>(r.m_noRounding) ? boolToString(!r.m_noRounding.value()) : "<unset>");
@@ -1679,7 +1678,6 @@ static std::string dispatchOutput(eAbyssCtlOutputFormat format, std::string requ
     return "ok";
 }
 
-
 static std::string restartRequest(eAbyssCtlOutputFormat format, std::string request) {
     const auto WD = getenv(ABYSSLAND_WATCHDOG_ENV);
     if (!WD || std::string_view{WD} != "1")
@@ -1723,8 +1721,8 @@ static std::string dispatchNotify(eAbyssCtlOutputFormat format, std::string requ
         return "invalid arg 3";
     CAbyssColor color = *COLOR_RESULT;
 
-    size_t     msgidx   = 4;
-    float      fontsize = 13.f;
+    size_t      msgidx   = 4;
+    float       fontsize = 13.f;
     if (vars[msgidx].length() > 9 && vars[msgidx].compare(0, 9, "fontsize:") == 0) {
         const auto FONTSIZE = vars[msgidx].substr(9);
 
@@ -2006,10 +2004,10 @@ static bool successWrite(int fd, const std::string& data, bool needLog = true) {
 }
 
 static void runWritingDebugLogThread(const int conn) {
-    using namespace std::chrono_literals;
     Log::logger->log(Log::DEBUG, "In followlog thread, got connection, start writing: {}", conn);
     //will be finished, when reading side close connection
     std::thread([conn]() {
+        using namespace std::chrono_literals;
         while (Log::SRollingLogFollow::get().isRunning()) {
             if (Log::SRollingLogFollow::get().isEmpty(conn)) {
                 std::this_thread::sleep_for(1000ms);

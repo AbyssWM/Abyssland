@@ -1070,7 +1070,7 @@ I18n::CI18nEngine::CI18nEngine() {
         "nl_NL", TXT_KEY_NOTIF_EXTERNAL_XDG_DESKTOP,
         "De XDG_CURRENT_DESKTOP omgevingsvariabele lijkt extern beheerd te worden en de huidige waarde is {value}.\nDit kan problemen veroorzaken, tenzij dit opzettelijk is.");
     registerEntry("nl_NL", TXT_KEY_NOTIF_NO_GUIUTILS,
-                  "Hyprland-guiutils is niet op uw systeem geïnstalleerd. Dit is een runtime-afhankelijkheid voor sommige dialogen. Overweeg het te installeren.");
+                  "Abyss-guiutils is niet op uw systeem geïnstalleerd. Dit is een runtime-afhankelijkheid voor sommige dialogen. Overweeg het te installeren.");
     registerEntry("nl_NL", TXT_KEY_NOTIF_FAILED_ASSETS, [](const Abyssutils::I18n::translationVarMap& vars) {
         int assetsNo = std::stoi(vars.at("count"));
         if (assetsNo <= 1)

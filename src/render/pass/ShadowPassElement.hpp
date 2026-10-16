@@ -7,7 +7,7 @@ class CShadowPassElement : public IPassElement {
   public:
     struct SShadowData {
         CAbyssDropShadowDecoration* deco = nullptr;
-        float                      a    = 1.F;
+        float                       a    = 1.F;
     };
 
     CShadowPassElement(const SShadowData& data_);

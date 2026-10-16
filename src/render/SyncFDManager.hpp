@@ -9,12 +9,12 @@ namespace Render {
 
         Abyssutils::OS::CFileDescriptor&  fd();
         Abyssutils::OS::CFileDescriptor&& takeFd();
-        virtual bool                     isValid();
+        virtual bool                      isValid();
 
       protected:
         ISyncFDManager() = default;
 
         Abyssutils::OS::CFileDescriptor m_fd;
-        bool                           m_valid = false;
+        bool                            m_valid = false;
     };
 }
