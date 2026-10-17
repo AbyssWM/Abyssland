@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <limits>
+#include <sstream>
 
 #include <abyssutils/string/String.hpp>
 
@@ -60,6 +62,12 @@ const void* const* ICell::dataPtrPtr() {
 // ---------------------------------------------------------------------------------------------
 
 namespace {
+    bool inIntegerRange(double value) {
+        // INT64_MAX rounds up to 2^63 as a double, so the upper bound must be exclusive.
+        constexpr auto MIN = sc<double>(std::numeric_limits<int64_t>::min());
+        return std::isfinite(value) && value >= MIN && value < -MIN;
+    }
+
     // numeric view of an input, if it has one
     std::optional<double> numeric(const ConfigInput& in) {
         if (auto p = std::get_if<bool>(&in))
@@ -76,7 +84,7 @@ namespace {
             return *p ? 1 : 0;
         if (auto p = std::get_if<int64_t>(&in))
             return *p;
-        if (auto p = std::get_if<double>(&in); p && std::floor(*p) == *p)
+        if (auto p = std::get_if<double>(&in); p && inIntegerRange(*p) && std::floor(*p) == *p)
             return sc<int64_t>(*p);
         return std::nullopt;
     }
@@ -198,6 +206,9 @@ namespace {
             return m_data;
         }
         Config::INTEGER asInt() const override {
+            // Match ICell's fallback when this value has no representable integer view.
+            if (!inIntegerRange(m_data))
+                return 0;
             return sc<Config::INTEGER>(m_data);
         }
 
@@ -205,6 +216,8 @@ namespace {
             const auto V = numeric(in);
             if (!V)
                 return std::unexpected("float type requires a number");
+            if (!std::isfinite(*V) || *V < std::numeric_limits<Config::FLOAT>::lowest() || *V > std::numeric_limits<Config::FLOAT>::max())
+                return std::unexpected("float type requires a finite number within the float range");
             if (m_min && *V < *m_min)
                 return std::unexpected(std::format("value {:.2f} is less than the minimum of {:.2f}", *V, *m_min));
             if (m_max && *V > *m_max)
