@@ -7,7 +7,7 @@ project(
 
 pkg_check_modules(abyssctl_deps REQUIRED IMPORTED_TARGET abyssutils>=0.2.4 abysswire re2 readline)
 
-file(GLOB_RECURSE ABYSSCTL_SRCFILES CONFIGURE_DEPENDS "src/*.cpp" "hw-protocols/*.cpp" "include/*.hpp")
+file(GLOB_RECURSE ABYSSCTL_SRCFILES CONFIGURE_DEPENDS "src/*.cpp" "include/*.hpp")
 
 add_executable(abyssctl ${ABYSSCTL_SRCFILES})
 set_target_properties(abyssctl PROPERTIES CXX_VISIBILITY_PRESET hidden)
@@ -41,22 +41,26 @@ target_compile_definitions(abyssctl PRIVATE
     ABYSS_DEFAULT_PREFIX="${CMAKE_INSTALL_PREFIX}")
 
 target_link_libraries(abyssctl PUBLIC PkgConfig::abyssctl_deps)
-target_include_directories(abyssctl PRIVATE "hw-protocols")
+target_include_directories(abyssctl PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/hw-protocols")
 
 # Abysswire
 
+find_program(ABYSSWIRE_SCANNER abysswire-scanner REQUIRED)
+
 function(abyssprotocol protoPath protoName)
-  set(path ${CMAKE_CURRENT_SOURCE_DIR}/${protoPath})
+  set(protocol "${CMAKE_CURRENT_SOURCE_DIR}/${protoPath}/${protoName}.xml")
+  set(output_dir "${CMAKE_CURRENT_BINARY_DIR}/hw-protocols")
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/hw-protocols/${protoName}-client.cpp
-           ${CMAKE_CURRENT_SOURCE_DIR}/hw-protocols/${protoName}-client.hpp
-           ${CMAKE_CURRENT_SOURCE_DIR}/hw-protocols/${protoName}-spec.hpp
-    COMMAND abysswire-scanner --client ${path}/${protoName}.xml
-            ${CMAKE_CURRENT_SOURCE_DIR}/hw-protocols/
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  target_sources(abyssctl PRIVATE hw-protocols/${protoName}-client.cpp
-                                   hw-protocols/${protoName}-client.hpp
-                                   hw-protocols/${protoName}-spec.hpp)
+    OUTPUT "${output_dir}/${protoName}-client.cpp"
+           "${output_dir}/${protoName}-client.hpp"
+           "${output_dir}/${protoName}-spec.hpp"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
+    COMMAND "${ABYSSWIRE_SCANNER}" --client "${protocol}" "${output_dir}/"
+    DEPENDS "${protocol}" "${ABYSSWIRE_SCANNER}"
+    VERBATIM)
+  target_sources(abyssctl PRIVATE "${output_dir}/${protoName}-client.cpp"
+                                   "${output_dir}/${protoName}-client.hpp"
+                                   "${output_dir}/${protoName}-spec.hpp")
 endfunction()
 
 abyssprotocol(hw-protocols abysspaper_core)

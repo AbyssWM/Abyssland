@@ -44,8 +44,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ROOT = os.path.dirname(HERE)
 
 WIKI_REL = "_upstream/hyprland-wiki/content/configuring"
-# im Abyssland-Repo selbst: Wurzel = Repo (include/abyss vorhanden); im Workspace-Layout: Unterordner Abyssland
-ABY_REL = "." if os.path.isdir(os.path.join(DEFAULT_ROOT, "include", "abyss")) else "Abyssland"
 
 CATEGORY_TITLES = [
     ("options", "Config-Optionen"),
@@ -140,8 +138,8 @@ DISPATCHERS = {
     "workspace.toggle_special": ([fn("toggleSpecial")], ""),
     "group.active": ([fn("setGroupActive")], "setGroupActive(index, selector)"),
     "group.lock": ([fn("lockGroups")], ""),
-    "group.lock[all]": ([fn("lockGroups")], "lockGroups('lock')"),
-    "group.lock[?]": ([fn("lockGroups")], "lockGroups('toggle')"),
+    "group.lock[all]": (None, "neuere Lua-Variante mit explizitem all-Argument (Baseline nutzt group.lock global)"),
+    "group.lock[?]": (None, "neuere Lua-Variante mit Fenster-Selektor; lockGroups wirkt global"),
     "group.lock_active": ([fn("lockActiveGroup")], ""),
     "group.move_window": ([fn("moveGroupWindow")], ""),
     "group.next": ([fn("changeGroupActive")], "changeGroupActive(true)"),
@@ -575,7 +573,7 @@ def check_mapping(cat, ids, table, header, items, note_for_unmapped="nicht in de
 
 def run(root, rev=None, tag=None):
     wiki = os.path.join(root, WIKI_REL)
-    aby = os.path.join(root, ABY_REL)
+    aby = root if os.path.isdir(os.path.join(root, "include", "abyss")) else os.path.join(root, "Abyssland")
     if not os.path.isdir(wiki):
         sys.exit(f"Wiki nicht gefunden: {wiki}")
     if not os.path.isdir(aby):
@@ -817,6 +815,19 @@ def tag_has(aby, tag, it):
     """Gibt es den fehlenden Punkt im Upstream-Tag (Quelltext von Hyprland 0.56.2, im Abyssland-Repo)? None = nicht pruefbar."""
     if git(aby, "rev-parse", "--verify", tag + "^{commit}") is None:
         return None
+
+    # These overloads share the name "lock" with the old global action. Looking
+    # for that word alone incorrectly claims the newer argument forms existed.
+    if it.cat == "dispatchers" and it.id in ("group.lock[all]", "group.lock[?]"):
+        source = git(aby, "show", f"{tag}:src/config/lua/bindings/LuaBindingsDispatchers.cpp")
+        if source is None:
+            return None
+        body = re.search(r"static int hlGroupLock\(lua_State\* L\)\s*\{(.*?)\n\}", source, flags=re.S)
+        if not body:
+            return None
+        if it.id == "group.lock[all]":
+            return '"all"' in body.group(1)
+        return "pushWindowUpval" in body.group(1)
 
     def grep(lit, *paths):
         import subprocess
