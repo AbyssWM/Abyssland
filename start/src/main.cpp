@@ -5,6 +5,9 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <vector>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include "helpers/Logger.hpp"
 #include "helpers/Nix.hpp"
@@ -74,6 +77,43 @@ static void terminateChildOnSignal(int signal) {
         g_logger->log(Abyssutils::CLI::LOG_WARN, "Failed to set up handler for signal {}: {}", signal, strerror(errno));
 }
 
+// Portals, notifications and the polkit agent need a D-Bus session bus, and D-Bus starts the
+// portal on demand (as with Hyprland). Started from a TTY there may be none: use the user bus if
+// the system runs one, otherwise run again under dbus-run-session (what abyssland-dbus.desktop does).
+static void ensureDbusSession(int argc, const char** argv) {
+    if (const auto ADDR = getenv("DBUS_SESSION_BUS_ADDRESS"); ADDR && *ADDR)
+        return;
+
+    if (const auto RUNTIME = getenv("XDG_RUNTIME_DIR"); RUNTIME && *RUNTIME) {
+        const std::string BUS = std::string{RUNTIME} + "/bus";
+        struct stat       st;
+        if (stat(BUS.c_str(), &st) == 0 && S_ISSOCK(st.st_mode)) {
+            setenv("DBUS_SESSION_BUS_ADDRESS", ("unix:path=" + BUS).c_str(), 1);
+            g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Using the user D-Bus at {}", BUS);
+            return;
+        }
+    }
+
+    // dbus-run-session always sets the address, the guard only stops a loop if it does not
+    if (getenv("ABYSSLAND_DBUS_SESSION_STARTED"))
+        return;
+    setenv("ABYSSLAND_DBUS_SESSION_STARTED", "1", 1);
+
+    std::error_code ec;
+    const auto      SELF = std::filesystem::read_symlink("/proc/self/exe", ec);
+    if (ec)
+        return;
+
+    std::vector<const char*> args = {"dbus-run-session", "--", SELF.c_str()};
+    for (int i = 1; i < argc; ++i)
+        args.emplace_back(argv[i]);
+    args.emplace_back(nullptr);
+
+    g_logger->log(Abyssutils::CLI::LOG_DEBUG, "No D-Bus session bus, restarting under dbus-run-session");
+    execvp("dbus-run-session", const_cast<char* const*>(args.data()));
+    g_logger->log(Abyssutils::CLI::LOG_WARN, "No D-Bus session bus and dbus-run-session failed ({}): portals and notifications will not work", strerror(errno));
+}
+
 int main(int argc, const char** argv, const char** envp) {
     g_logger = makeUnique<Abyssutils::CLI::CLoggerConnection>(*g_loggerMain);
     g_logger->setName("start-abyssland");
@@ -119,6 +159,8 @@ int main(int argc, const char** argv, const char** envp) {
 
     if (!g_state->rawArgvNoBinPath.empty())
         g_logger->log(Abyssutils::CLI::LOG_WARN, "Arguments after -- are passed to Abyssland");
+
+    ensureDbusSession(argc, argv);
 
     // check if our environment is OK
     if (const auto RET = Nix::nixEnvironmentOk(); !RET) {

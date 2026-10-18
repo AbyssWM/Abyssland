@@ -665,13 +665,14 @@ set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
     GROUP_READ GROUP_EXECUTE
     WORLD_READ WORLD_EXECUTE)
 
-# binary and symlink
+# binary and symlink. `abyssland` (what people type in a TTY) goes through start-abyssland, so the
+# session gets the watchdog, the last-good fallback, restarts and a D-Bus session.
 install(TARGETS Abyssland)
 
 install(
   CODE "execute_process( \
         COMMAND ${CMAKE_COMMAND} -E create_symlink \
-        ${CMAKE_INSTALL_FULL_BINDIR}/Abyssland \
+        ${CMAKE_INSTALL_FULL_BINDIR}/start-abyssland \
         \"\$ENV{DESTDIR}${CMAKE_INSTALL_FULL_BINDIR}/abyssland\" \
         )")
 # session file
