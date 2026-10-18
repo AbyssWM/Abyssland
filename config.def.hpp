@@ -56,8 +56,8 @@ void configure(Config& c) {
     c.general.gaps_in      = 5;
     c.general.gaps_out     = 20;
     c.general.border_size  = 2;
-    c.general.col.active_border   = gradient({rgba(0x33ccff, 0xee), rgba(0x00ff99, 0xee)}, 45);
-    c.general.col.inactive_border = rgba(0x595959, 0xaa);
+    c.general.col.active_border   = gradient({rgba(0x4a7bd8, 0xee), rgba(0x1b2f6e, 0xee)}, 45);
+    c.general.col.inactive_border = rgba(0x1a2338, 0xaa);
     c.general.resize_on_border = false;
     c.general.allow_tearing    = false;
     c.general.layout           = "dwindle";
@@ -69,7 +69,7 @@ void configure(Config& c) {
     c.decoration.shadow.enabled      = true;
     c.decoration.shadow.range        = 4;
     c.decoration.shadow.render_power = 3;
-    c.decoration.shadow.color        = rgba(0x1a1a1a, 0xee);
+    c.decoration.shadow.color        = rgba(0x03060f, 0xee);
     c.decoration.blur.enabled   = true;
     c.decoration.blur.size      = 3;
     c.decoration.blur.passes    = 1;
