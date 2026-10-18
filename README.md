@@ -124,3 +124,108 @@ This project is licensed under the **BSD 3-Clause License**. The original copyri
 
 - [bb8TheRobot](https://github.com/bb8TheRobot)
 - Claude (Anthropic) – AI pair programmer
+
+## 📦 Install
+
+<details open>
+<summary><b>Fedora 44 / 45</b> — COPR</summary>
+
+```sh
+sudo dnf copr enable bb8therobot1717/Abyss
+sudo dnf install abyssland
+```
+</details>
+
+<details>
+<summary><b>Arch Linux</b> — PKGBUILD</summary>
+
+```sh
+git clone https://github.com/AbyssWM/arch-builds.git
+cd arch-builds/packages/abyssland && makepkg -si
+```
+</details>
+
+<details>
+<summary><b>Gentoo</b> — overlay</summary>
+
+```sh
+eselect repository add abyss git https://github.com/AbyssWM/gentoo-builds.git
+emaint sync -r abyss
+emerge --ask gui-wm/abyssland
+```
+</details>
+
+<details>
+<summary><b>Void Linux</b> — xbps-src template</summary>
+
+Copy `srcpkgs/abyssland` from [void-builds](https://github.com/AbyssWM/void-builds) into your `void-packages` checkout, then:
+
+```sh
+./xbps-src pkg abyssland && sudo xbps-install -R hostdir/binpkgs abyssland
+```
+</details>
+
+<details>
+<summary><b>Debian · Ubuntu</b> — .deb from Releases</summary>
+
+Prebuilt `.deb` files for **Debian forky (testing)** and **Ubuntu 26.10** are attached to every [release](https://github.com/AbyssWM/Abyssland/releases/latest). Install the Abyss libraries first, then:
+
+```sh
+sudo apt install ./*.deb
+```
+
+Debian 13, Ubuntu 24.04/26.04 and Linux Mint 22 ship libraries that are too old for Abyssland — build from source there. Packaging: [debian-builds](https://github.com/AbyssWM/debian-builds) · [ubuntu-builds](https://github.com/AbyssWM/ubuntu-builds)
+</details>
+
+Then pick **Abyssland** in your display manager, or run `start-abyssland` from a TTY.
+
+### 🔨 Build from source
+
+Install the Abyss libraries it depends on first (see the [install guide](https://abysswm.github.io/wiki/getting-started)), then:
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build
+sudo cmake --install build
+```
+
+## 🌊 The Abyss ecosystem
+
+<details>
+<summary>All 17 repositories</summary>
+
+| Repository | Role | Based on |
+|---|---|---|
+| 🪟 **Abyssland** | compositor | [Hyprland](https://github.com/hyprwm/Hyprland) |
+| 📚 [Abyssal](https://github.com/AbyssWM/Abyssal) | library | [aquamarine](https://github.com/hyprwm/aquamarine) |
+| 📚 [Abyssutils](https://github.com/AbyssWM/Abyssutils) | library | [hyprutils](https://github.com/hyprwm/hyprutils) |
+| 📚 [Abyssparse](https://github.com/AbyssWM/Abyssparse) | library | [hyprlang](https://github.com/hyprwm/hyprlang) |
+| 📚 [Abysscursor](https://github.com/AbyssWM/Abysscursor) | library | [hyprcursor](https://github.com/hyprwm/hyprcursor) |
+| 📚 [Abyssgraphics](https://github.com/AbyssWM/Abyssgraphics) | library | [hyprgraphics](https://github.com/hyprwm/hyprgraphics) |
+| 📚 [Abysswire](https://github.com/AbyssWM/Abysswire) | library | [hyprwire](https://github.com/hyprwm/hyprwire) |
+| 🛠️ [Abyss-scanner](https://github.com/AbyssWM/Abyss-scanner) | tool | [hyprwayland-scanner](https://github.com/hyprwm/hyprwayland-scanner) |
+| 📜 [Abyssland-protocols](https://github.com/AbyssWM/Abyssland-protocols) | protocols | [hyprland-protocols](https://github.com/hyprwm/hyprland-protocols) |
+| 🧩 [Xdg-desktop-portal-abyss](https://github.com/AbyssWM/Xdg-desktop-portal-abyss) | portal | [xdg-desktop-portal-hyprland](https://github.com/hyprwm/xdg-desktop-portal-hyprland) |
+| 📚 [Abysstoolkit](https://github.com/AbyssWM/Abysstoolkit) | library | [hyprtoolkit](https://github.com/hyprwm/hyprtoolkit) |
+| 🌙 [Abyss-guiutils](https://github.com/AbyssWM/Abyss-guiutils) | app | [hyprland-guiutils](https://github.com/hyprwm/hyprland-guiutils) |
+| 🌙 [AbyssDusk](https://github.com/AbyssWM/AbyssDusk) | app | [hyprsunset](https://github.com/hyprwm/hyprsunset) |
+| 🔒 [AbyssLock](https://github.com/AbyssWM/AbyssLock) | app | [hyprlock](https://github.com/hyprwm/hyprlock) |
+| 🖼️ [AbyssPaper](https://github.com/AbyssWM/AbyssPaper) | app | [hyprpaper](https://github.com/hyprwm/hyprpaper) |
+| 🎨 [AbyssPicker](https://github.com/AbyssWM/AbyssPicker) | app | [hyprpicker](https://github.com/hyprwm/hyprpicker) |
+| 🔐 [AbyssPolkit](https://github.com/AbyssWM/AbyssPolkit) | app | [hyprpolkitagent](https://github.com/hyprwm/hyprpolkitagent) |
+
+</details>
+
+## 💜 Credits
+
+Abyssland exists thanks to **[Hyprland](https://github.com/hyprwm/Hyprland)**, created by **Hypr Development** at **[hyprwm](https://github.com/hyprwm)**. All credit for the original work goes to them – please support the original project.
+
+Abyss is an independent project and is **not affiliated with or endorsed by hyprwm**.
+
+## ⚖️ License
+
+This project is licensed under the **BSD 3-Clause License**. The original copyright notice is kept in [`LICENSE`](LICENSE) as required.
+
+## 👥 Contributors
+
+- [bb8TheRobot](https://github.com/bb8TheRobot)
