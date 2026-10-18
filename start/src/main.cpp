@@ -120,7 +120,7 @@ static void ensureDbusSession(int argc, const char** argv) {
 // The TTY output is gone once the session runs, and a compositor that dies before its own log
 // exists only writes to stderr. Everything printed by start-abyssland and the compositor (which
 // inherits stdout and stderr) still goes to the TTY and is also written, unbuffered, to
-// $XDG_RUNTIME_DIR/abyss/start-abyssland.log.
+// $XDG_RUNTIME_DIR/abyss/start-abyssland.log (appended, one header per start).
 static void teeOutputToLog() {
     const auto RUNTIME = getenv("XDG_RUNTIME_DIR");
     if (!RUNTIME || !*RUNTIME)
@@ -130,7 +130,8 @@ static void teeOutputToLog() {
     std::error_code   ec;
     std::filesystem::create_directories(DIR, ec);
 
-    const int LOG = open((DIR + "/start-abyssland.log").c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    // appended, so a failed restart is still there after the session was started again by hand
+    const int LOG = open((DIR + "/start-abyssland.log").c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
     if (LOG < 0)
         return;
 
@@ -139,6 +140,9 @@ static void teeOutputToLog() {
         close(LOG);
         return;
     }
+
+    const auto STAMP = std::format("\n===== start-abyssland {} (pid {}) =====\n", std::chrono::system_clock::now(), getpid());
+    [[maybe_unused]] const auto HEADER = write(LOG, STAMP.data(), STAMP.size());
 
     const int TTY = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 0);
     std::fflush(stdout);
