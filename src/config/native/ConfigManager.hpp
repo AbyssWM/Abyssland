@@ -151,8 +151,8 @@ namespace Config::Native {
     // helper programs from c.helpers (defaults until a config was applied)
     struct SHelpers {
         std::string dialog       = "abyss-dialog";
-        std::string updateScreen = "abyssland-update-screen";
-        std::string donateScreen = "abyssland-donate-screen";
+        std::string updateScreen = "abyss-update-screen";
+        std::string donateScreen = "abyss-donate-screen";
     };
     const SHelpers& helpers();
     // false for "" and for programs that are neither in PATH nor an executable path

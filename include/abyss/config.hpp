@@ -365,9 +365,9 @@ namespace abyss {
             // prints the label of the pressed button on stdout and exits.
             std::string dialog = "abyss-dialog";
             // shown once after an update (`<updateScreen> --new-version <version>`), only without ecosystem:no_update_news
-            std::string updateScreen = "abyssland-update-screen";
+            std::string updateScreen = "abyss-update-screen";
             // donation reminder (no arguments), only without ecosystem:no_donation_nag
-            std::string donateScreen = "abyssland-donate-screen";
+            std::string donateScreen = "abyss-donate-screen";
         } helpers;
 
         // --- protocols (see abyss/protocols.hpp): everything is offered by default ---
