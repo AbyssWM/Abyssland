@@ -101,10 +101,16 @@ Abyssland's config is C++ code compiled into the binary. 'reload' does:
     1. cmake --build <build dir> --target Abyssland  (shows progress)
     2. on a compile error: shows the first error as a notification and
        keeps the session running, exit code 1
-    3. otherwise saves the installed binary as Abyssland.last-good, runs
-       cmake --install and asks Abyssland to restart via start-abyssland.
-       If the new binary dies right after starting, start-abyssland falls
-       back to Abyssland.last-good.
+    3. otherwise saves the installed binary as Abyssland.last-good,
+       installs the new one and asks Abyssland to restart via
+       start-abyssland. If the new binary dies right after starting,
+       start-abyssland falls back to Abyssland.last-good.
+
+The build directory is the hidden ~/.config/abyss/.build. The first reload
+on a package installation creates it (sources in .build/src, cloned if
+missing). The new compositor replaces <prefix>/bin/Abyssland, /usr/bin for
+packages; only that binary, the rest stays with the package. If the prefix
+is not writable, root is asked for: sudo in a terminal, pkexec otherwise.
 
 flags:
     --no-build          → Don't rebuild: only re-apply the already compiled
@@ -112,8 +118,10 @@ flags:
     --dry-run           → Only build, don't install or restart
 
 environment:
-    ABYSS_SOURCE_DIR, ABYSS_BUILD_DIR   override the compiled-in directories
-    ABYSS_PREFIX                        override the install prefix
+    ABYSS_SOURCE_DIR, ABYSS_BUILD_DIR   override the directories
+    ABYSS_PREFIX                        install prefix (default: the one
+                                        abyssctl was built for); with it set,
+                                        the whole build is cmake --install'ed
 
 See also: abyssctl restart)#";
 

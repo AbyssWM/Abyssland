@@ -30,6 +30,7 @@
 #include <regex>
 #include <sys/wait.h>
 #include <abyssutils/string/String.hpp>
+#include "UserBuild.hpp"
 #include <abyssutils/memory/Casts.hpp>
 using namespace Abyssutils::String;
 using namespace Abyssutils::Memory;
@@ -550,17 +551,94 @@ static void sendErrorNotification(const std::string& text) {
     quiet = wasQuiet;
 }
 
+static bool hasCMakeCache(const std::string& dir) {
+    std::error_code ec;
+    return !dir.empty() && std::filesystem::exists(std::filesystem::path{dir} / "CMakeCache.txt", ec);
+}
+
+static bool isSourceTree(const std::string& dir) {
+    std::error_code ec;
+    return !dir.empty() && std::filesystem::exists(std::filesystem::path{dir} / "CMakeLists.txt", ec) &&
+        std::filesystem::exists(std::filesystem::path{dir} / "config.def.hpp", ec);
+}
+
+// The install step needs root when the prefix is not writable (/usr for packages): pkexec when
+// started from the session without a terminal (the polkit agent asks), sudo in a terminal.
+static std::vector<std::string> asRootIfNeeded(const std::filesystem::path& dir, std::vector<std::string> argv) {
+    std::error_code ec;
+    auto            existing = dir;
+    while (!existing.empty() && !std::filesystem::exists(existing, ec))
+        existing = existing.parent_path();
+    if (getuid() == 0 || access(existing.c_str(), W_OK) == 0)
+        return argv;
+
+    argv.insert(argv.begin(), isatty(STDIN_FILENO) || !getenv("WAYLAND_DISPLAY") ? "sudo" : "pkexec");
+    std::println("abyssctl: {} needs root, asking via {}", dir.string(), argv.front());
+    std::fflush(stdout);
+    return argv;
+}
+
+static int reloadFail(const std::string& msg) {
+    std::println(stderr, "abyssctl: {}", msg);
+    sendErrorNotification(msg);
+    return 1;
+}
+
+// Creates ~/.config/abyss/.build for a package installation: finds or clones the Abyssland sources
+// and configures them with ~/.config/abyss/config.hpp.
+static int setUpUserBuild(std::string& src) {
+    const auto BUILD = UserBuild::buildDir().string();
+
+    if (!isSourceTree(src)) {
+        src = UserBuild::sourceDir().string();
+        if (!isSourceTree(src)) {
+            std::println("abyssctl: cloning the Abyssland sources to {}", src);
+            std::fflush(stdout);
+            auto CLONE = runCapture({"git", "clone", "--depth", "1", "--recurse-submodules", "--shallow-submodules", "https://github.com/AbyssWM/Abyssland.git", src},
+                                    [](const std::string& l) { std::println("{}", l); });
+            if (CLONE.exitCode != 0)
+                return reloadFail("could not clone the Abyssland sources to " + src);
+        }
+    }
+
+    // the install prefix stays the package's: Abyssland compiles its data paths in, only the binary moves
+    std::println("abyssctl: setting up {} (sources: {})", BUILD, src);
+    std::fflush(stdout);
+    std::error_code ec;
+    std::filesystem::create_directories(BUILD, ec);
+    auto CONFIGURE = runCapture({"cmake", "-S", src, "-B", BUILD, "-DCMAKE_BUILD_TYPE=Release", "-DBUILD_TESTING=OFF",
+                                 "-DABYSS_CONFIG=" + (UserBuild::configDir() / "config.hpp").string(), "-DCMAKE_INSTALL_PREFIX=" + std::string{ABYSS_DEFAULT_PREFIX}},
+                                [](const std::string&) {});
+    if (CONFIGURE.exitCode != 0) {
+        const auto LOGPATH = UserBuild::buildDir() / "abyssctl-setup.log";
+        std::ofstream{LOGPATH} << CONFIGURE.output;
+        return reloadFail("cmake could not configure " + BUILD + " (missing -devel / -dev packages?), see " + LOGPATH.string());
+    }
+    return 0;
+}
+
 static int reloadRebuild(bool dryRun) {
-    const std::string SRC    = envOr("ABYSS_SOURCE_DIR", ABYSS_SOURCE_DIR);
-    const std::string BUILD  = envOr("ABYSS_BUILD_DIR", ABYSS_BUILD_DIR);
-    const std::string PREFIX = envOr("ABYSS_PREFIX", ABYSS_DEFAULT_PREFIX);
+    std::string SRC   = envOr("ABYSS_SOURCE_DIR", ABYSS_SOURCE_DIR);
+    std::string BUILD = envOr("ABYSS_BUILD_DIR", "");
+
+    // without ABYSS_BUILD_DIR: the user build in ~/.config/abyss/.build if there is one, else the tree
+    // abyssctl was built from, else (package installations) a new user build
+    if (BUILD.empty()) {
+        if (hasCMakeCache(UserBuild::buildDir().string()) || !hasCMakeCache(ABYSS_BUILD_DIR))
+            BUILD = UserBuild::buildDir().string();
+        else
+            BUILD = ABYSS_BUILD_DIR;
+    }
+
+    const bool        USERBUILD = BUILD == UserBuild::buildDir().string() && !getenv("ABYSS_PREFIX");
+    const std::string PREFIX    = envOr("ABYSS_PREFIX", ABYSS_DEFAULT_PREFIX);
 
     std::error_code ec;
-    if (BUILD.empty() || !std::filesystem::exists(std::filesystem::path{BUILD} / "CMakeCache.txt", ec)) {
-        const std::string MSG = "no build directory found (" + (BUILD.empty() ? std::string{"<unset>"} : BUILD) + "), set ABYSS_BUILD_DIR";
-        std::println(stderr, "abyssctl: {}", MSG);
-        sendErrorNotification(MSG);
-        return 1;
+    if (!hasCMakeCache(BUILD)) {
+        if (!USERBUILD)
+            return reloadFail("no build directory found (" + BUILD + "), set ABYSS_BUILD_DIR");
+        if (const int RET = setUpUserBuild(SRC); RET != 0)
+            return RET;
     }
 
     const unsigned    JOBS = std::max(1u, std::thread::hardware_concurrency() / 2);
@@ -592,29 +670,24 @@ static int reloadRebuild(bool dryRun) {
         return 0;
     }
 
-    // keep the currently installed binary as fallback for start-abyssland
-    const auto BINDIR   = std::filesystem::path{PREFIX} / "bin";
-    const auto BIN      = BINDIR / "Abyssland";
-    const auto LASTGOOD = BINDIR / "Abyssland.last-good";
-    if (std::filesystem::is_regular_file(BIN, ec)) {
-        const auto TMP = BINDIR / "Abyssland.last-good.tmp";
-        std::filesystem::copy_file(BIN, TMP, std::filesystem::copy_options::overwrite_existing, ec);
-        if (!ec)
-            std::filesystem::rename(TMP, LASTGOOD, ec);
-        if (ec) {
-            const std::string MSG = "could not back up " + BIN.string() + " to last-good: " + ec.message();
-            std::println(stderr, "abyssctl: {}", MSG);
-            sendErrorNotification(MSG);
-            return 1;
-        }
-    }
+    // Keep the installed binary as fallback for start-abyssland, then install into the prefix the
+    // compositor lives in. A user build only replaces the compositor binary, everything else stays
+    // with the package. The new binary is renamed into place, so a running Abyssland keeps its file.
+    const auto        BINDIR = std::filesystem::path{PREFIX} / "bin";
+    const std::string SAVE   = "set -e; mkdir -p \"$(dirname \"$1\")\"; if [ -f \"$1\" ]; then install -m755 \"$1\" \"$2.tmp\"; mv -f \"$2.tmp\" \"$2\"; fi; ";
+    std::vector<std::string> install;
+    if (USERBUILD)
+        install = {"sh", "-c", SAVE + "install -m755 \"$3\" \"$1.new\"; mv -f \"$1.new\" \"$1\"", "sh", (BINDIR / "Abyssland").string(), (BINDIR / "Abyssland.last-good").string(),
+                   (std::filesystem::path{BUILD} / "Abyssland").string()};
+    else
+        install = {"sh", "-c", SAVE + "cmake --install \"$3\" --prefix \"$4\"", "sh", (BINDIR / "Abyssland").string(), (BINDIR / "Abyssland.last-good").string(), BUILD, PREFIX};
 
-    auto INSTALLRES = runCapture({"cmake", "--install", BUILD, "--prefix", PREFIX}, [](const std::string&) {});
+    auto INSTALLRES = runCapture(asRootIfNeeded(BINDIR, std::move(install)), [](const std::string&) {});
     if (INSTALLRES.exitCode != 0) {
         std::string err = firstBuildError(INSTALLRES.output, SRC);
-        std::println(stderr, "abyssctl: install failed:\n{}", err);
-        sendErrorNotification("install failed: " + err);
-        return 1;
+        if (err.empty())
+            err = INSTALLRES.output.empty() ? "exit " + std::to_string(INSTALLRES.exitCode) : INSTALLRES.output.substr(0, 300);
+        return reloadFail("install failed: " + err);
     }
 
     std::println("abyssctl: installed to {}", PREFIX);
