@@ -8,6 +8,8 @@
 #include "../../../desktop/state/FocusState.hpp"
 #include "../../../managers/TokenManager.hpp"
 #include "../../../output/Monitor.hpp"
+#include "../../../helpers/env/Env.hpp"
+#include "../../../helpers/SessionServices.hpp"
 
 #include <abyssutils/string/String.hpp>
 #include <chrono>
@@ -35,6 +37,10 @@ CExecutor::CExecutor() {
                 "dbus-update-activation-environment 2>/dev/null && "
 #endif
                 "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS");
+
+        static auto PNOSESSIONSERVICES = CConfigValue<Config::INTEGER>("ecosystem:no_session_services");
+        if (g_pCompositor->m_aqBackend->hasSession() && !*PNOSESSIONSERVICES && !Env::envEnabled("ABYSSLAND_NO_SESSION_SERVICES"))
+            SessionServices::start();
 
         m_firstExecDispatched = true;
 
