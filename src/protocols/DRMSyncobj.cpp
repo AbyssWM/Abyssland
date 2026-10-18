@@ -83,6 +83,16 @@ CDRMSyncobjSurfaceResource::CDRMSyncobjSurfaceResource(UP<CWpLinuxDrmSyncobjSurf
             return;
         }
 
+        // Explicit sync only exists for dmabufs. A client may draw some frames on the CPU (wl_shm) on a
+        // surface whose GPU frames are synced, e.g. GTK4 on NVIDIA; those frames carry no points.
+        if (state->buffer->type() != Abyssal::eBufferType::BUFFER_TYPE_DMABUF) {
+            if (m_pendingAcquire.timeline() || m_pendingRelease.timeline()) {
+                m_resource->error(WP_LINUX_DRM_SYNCOBJ_SURFACE_V1_ERROR_UNSUPPORTED_BUFFER, "Sync points on a buffer that is not a dmabuf");
+                state->rejected = true;
+            }
+            return;
+        }
+
         if (!m_pendingAcquire.timeline()) {
             m_resource->error(WP_LINUX_DRM_SYNCOBJ_SURFACE_V1_ERROR_NO_ACQUIRE_POINT, "Missing acquire timeline");
             state->rejected = true;
