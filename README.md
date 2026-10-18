@@ -17,7 +17,7 @@
 ---
 
 > [!WARNING]
-> **Experimental, pre-1.0.** Packages exist for several distributions, but expect rough edges and breaking changes.
+> **First release.** Abyss is usable now, but this is the first version: expect bugs and please report them.
 
 ## ✨ About
 
