@@ -562,12 +562,7 @@ static std::string activationEnvCommand(bool import) {
     std::string list;
     for (const auto& v : activationEnvVars())
         list += " " + v;
-    std::string cmd;
-#ifdef USES_SYSTEMD
-    cmd += std::string{"systemctl --user "} + (import ? "import-environment" : "unset-environment") + " DISPLAY" + list + " && hash dbus-update-activation-environment 2>/dev/null && ";
-#endif
-    cmd += "dbus-update-activation-environment --systemd" + list;
-    return cmd;
+    return Env::activationEnvCommand("DISPLAY" + list, import);
 }
 
 void CCompositor::cleanEnvironment() {
@@ -582,7 +577,10 @@ void CCompositor::cleanEnvironment() {
     if (m_desktopEnvSet)
         unsetenv("XDG_CURRENT_DESKTOP");
 
-    if (m_aqBackend->hasSession() && !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
+    if (m_aqBackend->hasSession() && !Env::envEnabled("ABYSSLAND_NO_SD_VARS") && !getenv("MANAGERPID")) {
+        // stopping abyssland-session does not wait for the services bound to the session; this does
+        if (m_sdSessionTarget)
+            Config::Supplementary::executor()->spawn("systemctl --user stop graphical-session.target");
         Config::Supplementary::executor()->spawn(activationEnvCommand(false));
     }
 }
@@ -812,8 +810,19 @@ void CCompositor::startCompositor() {
         /* Session-less Abyssland usually means a nest, don't update the env in that case */
         m_aqBackend->hasSession() &&
         /* Activation environment management is not disabled */
-        !Env::envEnabled("ABYSSLAND_NO_SD_VARS")) {
-        Config::Supplementary::executor()->spawn(activationEnvCommand(true));
+        !Env::envEnabled("ABYSSLAND_NO_SD_VARS") &&
+        /* Not run by a systemd session manager (UWSM), which handles environment and targets itself */
+        !getenv("MANAGERPID")) {
+        std::string cmd = activationEnvCommand(true);
+
+        // the systemd session: graphical-session.target and what hangs on it (portals, the polkit
+        // agent, XDG autostart). Started only once the environment has arrived, so the services see it.
+        if (Env::systemdRunning() && !Env::envEnabled("ABYSSLAND_NO_SD_TARGET")) {
+            m_sdSessionTarget = true;
+            cmd += "; systemctl --user start abyssland-session.target";
+        }
+
+        Config::Supplementary::executor()->spawn(cmd);
     }
 
     Log::logger->log(Log::DEBUG, "Running on WAYLAND_DISPLAY: {}", m_wlDisplaySocket);

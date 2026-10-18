@@ -19,6 +19,7 @@
 #include "ConfigManager.hpp"
 #include "AbyssProtocols.hpp"
 #include "../../saver/Saver.hpp"
+#include "../../helpers/env/Env.hpp"
 #include "../../notification/NotificationOverlay.hpp"
 #include "../../managers/EventManager.hpp"
 
@@ -153,11 +154,7 @@ void abyss::Config::env(std::string name, std::string value, bool dbus) {
     setenv(name.c_str(), value.c_str(), 1);
 
     if (dbus) {
-        std::string CMD;
-#ifdef USES_SYSTEMD
-        CMD = "systemctl --user import-environment '" + name + "' && hash dbus-update-activation-environment 2>/dev/null && ";
-#endif
-        CMD += "dbus-update-activation-environment --systemd '" + name + "'";
+        std::string CMD = Env::activationEnvCommand("'" + name + "'");
         if (m && m->isFirstLaunch())
             ::Config::Supplementary::executor()->addExecOnce({CMD, false});
         else

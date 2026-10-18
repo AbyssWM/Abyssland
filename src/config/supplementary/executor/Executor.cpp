@@ -30,13 +30,8 @@ CExecutor::CExecutor() {
         m_isLaunchingExecOnce = true;
 
         // update dbus env
-        if (g_pCompositor->m_aqBackend->hasSession())
-            spawnRaw(
-#ifdef USES_SYSTEMD
-                "systemctl --user import-environment DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS && hash "
-                "dbus-update-activation-environment 2>/dev/null && "
-#endif
-                "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP ABYSSLAND_INSTANCE_SIGNATURE QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS");
+        if (g_pCompositor->m_aqBackend->hasSession() && !getenv("MANAGERPID"))
+            spawnRaw(Env::activationEnvCommand("DISPLAY WAYLAND_DISPLAY ABYSSLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME PATH XDG_DATA_DIRS"));
 
         static auto PNOSESSIONSERVICES = CConfigValue<Config::INTEGER>("ecosystem:no_session_services");
         if (g_pCompositor->m_aqBackend->hasSession() && !*PNOSESSIONSERVICES && !Env::envEnabled("ABYSSLAND_NO_SESSION_SERVICES"))

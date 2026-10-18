@@ -1,0 +1,10 @@
+[Unit]
+Description=Abyssland session
+Documentation=https://abysswm.github.io/wiki/getting-started
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target
+PropagatesStopTo=graphical-session.target
+# started with the session, like a full desktop does: the polkit agent (if installed) and the
+# entries in /etc/xdg/autostart and ~/.config/autostart
+Wants=abyss-polkit-agent.service xdg-desktop-autostart.target

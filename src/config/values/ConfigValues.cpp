@@ -621,7 +621,7 @@ std::vector<SP<IValue>> Values::getConfigValues() {
         MS<Bool>("ecosystem:no_update_news", "disable the popup that shows up when you update abyssland to a new version.", false),
         MS<Bool>("ecosystem:no_donation_nag", "disable the popup that shows up twice a year encouraging to donate.", false),
         MS<Bool>("ecosystem:enforce_permissions", "whether to enable permission control.", false),
-        MS<Bool>("ecosystem:no_session_services", "do not start the audio server (without systemd) and a polkit agent (if none runs) at start.", false),
+        MS<Bool>("ecosystem:no_session_services", "do not start the session services: audio server and XDG autostart (without systemd), polkit agent (if none runs).", false),
 
         /*
          * debug:

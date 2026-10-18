@@ -468,6 +468,11 @@ endif()
 
 configure_file(abyssland.pc.in abyssland.pc @ONLY)
 
+# the systemd session target; Abyssland decides at runtime whether systemd runs, so it is
+# installed in every build. User units live in lib/systemd/user on every distribution (not LIBDIR).
+install(FILES ${CMAKE_SOURCE_DIR}/systemd/abyssland-session.target
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/user)
+
 if(NO_SYSTEMD)
   message(STATUS "SYSTEMD support is disabled...")
 else()

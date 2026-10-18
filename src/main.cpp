@@ -15,6 +15,9 @@ using namespace Abyssutils::String;
 using namespace Abyssutils::Memory;
 
 #include <fcntl.h>
+#include <unistd.h>
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 #include <iterator>
 #include <vector>
@@ -50,6 +53,37 @@ static void reapZombieChildrenAutomatically() {
     act.sa_restorer = NULL;
 #endif
     sigaction(SIGCHLD, &act, nullptr);
+}
+
+// Started directly, the compositor goes through start-abyssland like a session from a display
+// manager: D-Bus session, watchdog, last-good fallback and restarts after `abyssctl reload`.
+static void execStartWrapper(int argc, char** argv) {
+    // start-abyssland always passes --watchdog-fd; the variable only stops a loop if it ever does not
+    if (Env::envEnabled("ABYSSLAND_NO_START_WRAPPER") || Env::envEnabled("ABYSSLAND_VIA_START_WRAPPER"))
+        return;
+
+    std::error_code ec;
+    const auto      SELF = std::filesystem::canonical("/proc/self/exe", ec);
+    if (ec)
+        return;
+
+    const auto WRAPPER = SELF.parent_path() / "start-abyssland";
+    if (access(WRAPPER.c_str(), X_OK) != 0)
+        return;
+
+    std::vector<std::string> args = {WRAPPER.string(), "--path", SELF.string(), "--"};
+    for (int i = 1; i < argc; ++i)
+        args.emplace_back(argv[i]);
+
+    std::vector<char*> cargv;
+    for (auto& a : args)
+        cargv.push_back(a.data());
+    cargv.push_back(nullptr);
+
+    setenv("ABYSSLAND_VIA_START_WRAPPER", "1", 1);
+    execv(WRAPPER.c_str(), cargv.data());
+    unsetenv("ABYSSLAND_VIA_START_WRAPPER");
+    std::println(stderr, "[ WARNING ] Could not start {}: {}", WRAPPER.string(), strerror(errno));
 }
 
 int main(int argc, char** argv) {
@@ -217,6 +251,11 @@ int main(int argc, char** argv) {
 
         return 1;
     }
+
+    // a display manager handing over a socket starts the compositor on purpose
+    if (!verifyConfig && watchdogFd == -1 && socketFd == -1)
+        execStartWrapper(argc, argv);
+    unsetenv("ABYSSLAND_VIA_START_WRAPPER");
 
     if (!verifyConfig) {
         std::println("Welcome to Abyssland!");
