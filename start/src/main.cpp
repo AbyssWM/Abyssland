@@ -8,6 +8,9 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <array>
+#include <thread>
 
 #include "helpers/Logger.hpp"
 #include "helpers/Nix.hpp"
@@ -114,10 +117,54 @@ static void ensureDbusSession(int argc, const char** argv) {
     g_logger->log(Abyssutils::CLI::LOG_WARN, "No D-Bus session bus and dbus-run-session failed ({}): portals and notifications will not work", strerror(errno));
 }
 
+// The TTY output is gone once the session runs, and a compositor that dies before its own log
+// exists only writes to stderr. Everything printed by start-abyssland and the compositor (which
+// inherits stdout and stderr) still goes to the TTY and is also written, unbuffered, to
+// $XDG_RUNTIME_DIR/abyss/start-abyssland.log.
+static void teeOutputToLog() {
+    const auto RUNTIME = getenv("XDG_RUNTIME_DIR");
+    if (!RUNTIME || !*RUNTIME)
+        return;
+
+    const std::string DIR = std::string{RUNTIME} + "/abyss";
+    std::error_code   ec;
+    std::filesystem::create_directories(DIR, ec);
+
+    const int LOG = open((DIR + "/start-abyssland.log").c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    if (LOG < 0)
+        return;
+
+    int fds[2];
+    if (pipe2(fds, O_CLOEXEC) != 0) {
+        close(LOG);
+        return;
+    }
+
+    const int TTY = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 0);
+    std::fflush(stdout);
+    std::fflush(stderr);
+    // dup2 clears close-on-exec: the compositor writes into the same pipe
+    dup2(fds[1], STDOUT_FILENO);
+    dup2(fds[1], STDERR_FILENO);
+    close(fds[1]);
+
+    std::thread([in = fds[0], TTY, LOG] {
+        std::array<char, 4096> buf = {};
+        ssize_t                n   = 0;
+        while ((n = read(in, buf.data(), buf.size())) > 0) {
+            // a failed write (the TTY may be gone) only loses that copy
+            [[maybe_unused]] const auto TOTTY  = TTY >= 0 ? write(TTY, buf.data(), n) : 0;
+            [[maybe_unused]] const auto TOFILE = write(LOG, buf.data(), n);
+        }
+    }).detach();
+}
+
 int main(int argc, const char** argv, const char** envp) {
     g_logger = makeUnique<Abyssutils::CLI::CLoggerConnection>(*g_loggerMain);
     g_logger->setName("start-abyssland");
     g_logger->setLogLevel(Abyssutils::CLI::LOG_DEBUG);
+
+    g_loggerMain->setTime(true);
 
     terminateChildOnSignal(SIGTERM);
     terminateChildOnSignal(SIGINT);
@@ -161,6 +208,8 @@ int main(int argc, const char** argv, const char** envp) {
         g_logger->log(Abyssutils::CLI::LOG_WARN, "Arguments after -- are passed to Abyssland");
 
     ensureDbusSession(argc, argv);
+    // after a possible re-exec under dbus-run-session, which would end the copying thread
+    teeOutputToLog();
 
     // check if our environment is OK
     if (const auto RET = Nix::nixEnvironmentOk(); !RET) {
@@ -187,6 +236,9 @@ int main(int argc, const char** argv, const char** envp) {
         const int  CODE  = g_instance->m_exitCode;
         lockedCrash      = g_instance->m_abysslandLocked;
         g_instance.reset();
+
+        g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland exited with code {} after {}ms", CODE,
+                      std::chrono::duration_cast<std::chrono::milliseconds>(ALIVE).count());
 
         if (CODE == ABYSSLAND_EXIT_RESTART) {
             g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland requested a restart, relaunching.");
