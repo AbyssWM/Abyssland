@@ -1685,6 +1685,8 @@ static std::string restartRequest(eAbyssCtlOutputFormat format, std::string requ
 
     // exit through the normal path; start-abyssland sees the special exit code and relaunches immediately
     g_pCompositor->m_exitCode = ABYSSLAND_EXIT_RESTART;
+    // also announce it now: on real hardware the teardown can still crash, and the exit code is lost then
+    g_pCompositor->writeWatchdogFd("restart");
     if (!g_pCompositor->m_finalRequests)
         g_pCompositor->stopCompositor();
 

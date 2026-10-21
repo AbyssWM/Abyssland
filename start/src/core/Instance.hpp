@@ -18,8 +18,10 @@ class CAbysslandInstance {
 
     bool run(bool safeMode = false, bool lockedCrash = false); // if returns false, restart.
     void forceQuit();
+    bool initialized() const;
 
-    bool m_abysslandLocked = false;
+    bool m_abysslandLocked  = false;
+    bool m_restartRequested = false;
 
     // binary to launch instead of the default / --path one (used for last-good fallback)
     std::optional<std::string> m_binaryOverride;

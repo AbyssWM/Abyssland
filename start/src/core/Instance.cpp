@@ -112,6 +112,10 @@ void CAbysslandInstance::forceQuit() {
     m_hlThread.join(); // needs this otherwise can crash
 }
 
+bool CAbysslandInstance::initialized() const {
+    return m_abysslandInitialized;
+}
+
 void CAbysslandInstance::clearFd(const Abyssutils::OS::CFileDescriptor& fd) {
     if (!fd.isReadable()) {
         g_logger->log(Abyssutils::CLI::LOG_ERR, "Can't clear a unreadable fd");
@@ -148,6 +152,12 @@ void CAbysslandInstance::dispatchAbysslandEvent() {
         if (sv == "end") {
             // exiting
             m_abysslandExiting = true;
+            continue;
+        }
+
+        if (sv == "restart") {
+            // `abyssctl restart`, relaunch even if the exit code gets lost in a crashing teardown
+            m_restartRequested = true;
             continue;
         }
 

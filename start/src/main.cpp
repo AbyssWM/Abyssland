@@ -58,6 +58,9 @@ static std::optional<std::string> findUsableLastGood() {
 }
 
 constexpr auto FRESH_START_GRACE = std::chrono::seconds(5);
+// after a restart the seat and DRM device of the old instance may not be free yet
+constexpr int  RESTART_TRIES = 5;
+constexpr auto RESTART_RETRY = std::chrono::seconds(1);
 
 //
 static void onSignal(int sig) {
@@ -228,6 +231,7 @@ int main(int argc, const char** argv, const char** envp) {
     bool lockedCrash     = false;
     bool freshRestart    = false; // the next child was started after an `abyssctl restart`
     bool useLastGood     = false;
+    int                        restartTries    = 0;
     std::optional<std::string> binaryOverride;
 
     while (true) {
@@ -238,18 +242,31 @@ int main(int argc, const char** argv, const char** envp) {
         const bool RET   = g_instance->run(safeMode, lockedCrash);
         const auto ALIVE = std::chrono::steady_clock::now() - START;
         const int  CODE  = g_instance->m_exitCode;
+        const bool RESTART = g_instance->m_restartRequested;
+        const bool STARTED = g_instance->initialized();
         lockedCrash      = g_instance->m_abysslandLocked;
         g_instance.reset();
 
         g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland exited with code {} after {}ms", CODE,
                       std::chrono::duration_cast<std::chrono::milliseconds>(ALIVE).count());
 
-        if (CODE == ABYSSLAND_EXIT_RESTART) {
+        if (RESTART && CODE != ABYSSLAND_EXIT_RESTART)
+            g_logger->log(Abyssutils::CLI::LOG_WARN, "Abyssland asked for a restart but exited with code {} (crash while shutting down?), relaunching anyway", CODE);
+
+        if (CODE == ABYSSLAND_EXIT_RESTART || RESTART) {
             g_logger->log(Abyssutils::CLI::LOG_DEBUG, "Abyssland requested a restart, relaunching.");
             safeMode       = false;
             freshRestart   = true;
             useLastGood    = false;
+            restartTries   = 0;
             binaryOverride = std::nullopt;
+            continue;
+        }
+
+        if (freshRestart && !STARTED && restartTries < RESTART_TRIES) {
+            ++restartTries;
+            g_logger->log(Abyssutils::CLI::LOG_WARN, "The restarted Abyssland died before it was up (exit code {}), trying again ({}/{})", CODE, restartTries, RESTART_TRIES);
+            std::this_thread::sleep_for(RESTART_RETRY);
             continue;
         }
 

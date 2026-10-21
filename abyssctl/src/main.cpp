@@ -647,7 +647,7 @@ static int reloadRebuild(bool dryRun) {
     std::fflush(stdout);
 
     static const std::regex PROGRESS(R"(^\[\s*\d+/\d+\].*)");
-    auto                    BUILDRES = runCapture({"cmake", "--build", BUILD, "--target", "Abyssland", "-j" + std::to_string(JOBS)}, [](const std::string& l) {
+    auto                    BUILDRES = runCapture({"cmake", "--build", BUILD, "--target", "Abyssland", "start-abyssland", "-j" + std::to_string(JOBS)}, [](const std::string& l) {
         if (std::regex_match(l, PROGRESS) || l.starts_with("ninja:") || l.starts_with("make")) {
             std::println("{}", l);
             std::fflush(stdout);
@@ -671,14 +671,21 @@ static int reloadRebuild(bool dryRun) {
     }
 
     // Keep the installed binary as fallback for start-abyssland, then install into the prefix the
-    // compositor lives in. A user build only replaces the compositor binary, everything else stays
-    // with the package. The new binary is renamed into place, so a running Abyssland keeps its file.
+    // compositor lives in. A user build only replaces the compositor and start-abyssland, everything
+    // else stays with the package. New binaries are renamed into place, so running ones keep their file.
     const auto        BINDIR = std::filesystem::path{PREFIX} / "bin";
     const std::string SAVE   = "set -e; mkdir -p \"$(dirname \"$1\")\"; if [ -f \"$1\" ]; then install -m755 \"$1\" \"$2.tmp\"; mv -f \"$2.tmp\" \"$2\"; fi; ";
     std::vector<std::string> install;
     if (USERBUILD)
-        install = {"sh", "-c", SAVE + "install -m755 \"$3\" \"$1.new\"; mv -f \"$1.new\" \"$1\"", "sh", (BINDIR / "Abyssland").string(), (BINDIR / "Abyssland.last-good").string(),
-                   (std::filesystem::path{BUILD} / "Abyssland").string()};
+        install = {"sh",
+                   "-c",
+                   SAVE + "install -m755 \"$3\" \"$1.new\"; mv -f \"$1.new\" \"$1\"; install -m755 \"$4\" \"$5.new\"; mv -f \"$5.new\" \"$5\"",
+                   "sh",
+                   (BINDIR / "Abyssland").string(),
+                   (BINDIR / "Abyssland.last-good").string(),
+                   (std::filesystem::path{BUILD} / "Abyssland").string(),
+                   (std::filesystem::path{BUILD} / "start" / "start-abyssland").string(),
+                   (BINDIR / "start-abyssland").string()};
     else
         install = {"sh", "-c", SAVE + "cmake --install \"$3\" --prefix \"$4\"", "sh", (BINDIR / "Abyssland").string(), (BINDIR / "Abyssland.last-good").string(), BUILD, PREFIX};
 
