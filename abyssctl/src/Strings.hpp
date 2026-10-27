@@ -88,9 +88,13 @@ flags:
 const std::string_view ABYSSDUSK_HELP = R"#(usage: abyssctl [flags] abyssdusk <request>
 
 requests:
-    temperature <temp> → Enable blue-light filter
-    identity           → Disable blue-light filter
-    gamma <gamma>      → Enable gamma filter
+    temperature [temp] → Set the temperature in K (1000-20000, +N / -N
+                         relative), without a value print it
+    gamma [gamma]      → Set the gamma in % (+N / -N relative), without a
+                         value print it
+    identity [true|false|get] → Disable the color change
+    reset [temperature|gamma|identity] → Back to the current config profile
+    profile            → Print the current config profile
 
 flags:
     See 'abyssctl --help')#";
