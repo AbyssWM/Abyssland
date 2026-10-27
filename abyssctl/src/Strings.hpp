@@ -25,7 +25,7 @@ commands:
     getoption <option>  → Gets the config option status (values)
     globalshortcuts     → Lists all global shortcuts
     abysspaper ...       → Issue a abysspaper request
-    abysssunset ...      → Issue a abysssunset request
+    abyssdusk ...       → Issue an AbyssDusk request (blue-light filter)
     instances           → Lists all running instances of Abyssland with
                           their info
     kill                → Issue a kill to get into a kill mode, where you can
@@ -85,7 +85,7 @@ requests:
 flags:
     See 'abyssctl --help')#";
 
-const std::string_view ABYSSSUNSET_HELP = R"#(usage: abyssctl [flags] abysssunset <request>
+const std::string_view ABYSSDUSK_HELP = R"#(usage: abyssctl [flags] abyssdusk <request>
 
 requests:
     temperature <temp> → Enable blue-light filter

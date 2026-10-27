@@ -350,7 +350,7 @@ int requestIPC(std::string_view filename, std::string_view arg) {
     }
 
     arg = arg.substr(arg.find_first_of('/') + 1); // strip flags
-    arg = arg.substr(arg.find_first_of(' ') + 1); // strip "abysspaper"
+    arg = arg.substr(arg.find_first_of(' ') + 1); // strip the command word
 
     if (!writeAll(SERVERSOCKET, arg)) {
         log("Couldn't write (4)");
@@ -376,8 +376,8 @@ int requestIPC(std::string_view filename, std::string_view arg) {
     return 0;
 }
 
-int requestAbysssunset(std::string_view arg) {
-    return requestIPC(".abysssunset.sock", arg);
+int requestAbyssdusk(std::string_view arg) {
+    return requestIPC(".abyssdusk.sock", arg);
 }
 
 void batchRequest(std::string_view arg, bool json) {
@@ -778,8 +778,8 @@ int main(int argc, char** argv) {
 
                 if (cmd == "abysspaper") {
                     std::println("{}", ABYSSPAPER_HELP);
-                } else if (cmd == "abysssunset") {
-                    std::println("{}", ABYSSSUNSET_HELP);
+                } else if (cmd == "abyssdusk" || cmd == "abysssunset") {
+                    std::println("{}", ABYSSDUSK_HELP);
                 } else if (cmd == "reload") {
                     std::println("{}", RELOAD_HELP);
                 } else if (cmd == "notify") {
@@ -914,8 +914,8 @@ int main(int argc, char** argv) {
         if (!result)
             log(std::format("error: {}", result.error()));
         exitStatus = !result;
-    } else if (fullRequest.contains("/abysssunset"))
-        exitStatus = requestAbysssunset(fullRequest);
+    } else if (fullRequest.contains("/abyssdusk") || fullRequest.contains("/abysssunset"))
+        exitStatus = requestAbyssdusk(fullRequest);
     else if (fullRequest.contains("/switchxkblayout"))
         exitStatus = request(fullRequest, 2);
     else if (fullRequest.contains("/seterror"))
